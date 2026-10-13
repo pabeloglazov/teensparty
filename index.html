@@ -559,12 +559,18 @@ ONLY</span></div>
       x.restore();
     }
     strip(170, -0.035, '#ff5a1f', '#0d0d0d', 'TEENS PARTY — 31.10 —', 64);
-    strip(1770, 0.025, '#f2efe8', '#0d0d0d', 'TEENSPARTY.FUN —', 52);
+    function centerStrip(y, rot, bg, fg, txt, size){
+      x.save(); x.translate(W/2, y); x.rotate(rot);
+      x.fillStyle = bg; x.fillRect(-W, -size * 0.95, W * 2, size * 1.9);
+      x.fillStyle = fg; x.textBaseline = 'middle'; x.textAlign = 'center';
+      fitFont(x, txt, '900', D, size, W - 140); x.fillText(txt, 0, 4);
+      x.restore(); x.textAlign = 'left';
+    }
     x.textBaseline = 'alphabetic';
     x.fillStyle = '#ff5a1f'; fitFont(x, L.storyIn, '900', D, 150, W - 160); x.fillText(L.storyIn, 80, 470);
     x.fillStyle = '#f2efe8'; x.font = '900 190px ' + D; x.fillText('TEENS', 70, 690);
     x.lineWidth = 5; x.strokeStyle = '#f2efe8'; x.strokeText('PARTY', 70, 880);
-    var cx = 90, cy = 990, cw = W - 180, ch = 600;
+    var cx = 90, cy = 970, cw = W - 180, ch = 540;
     x.save(); x.translate(W/2, cy + ch/2); x.rotate(-0.025); x.translate(-W/2, -(cy + ch/2));
     x.fillStyle = '#ff5a1f'; x.fillRect(cx + 22, cy + 22, cw, ch);
     x.fillStyle = '#f2efe8'; x.fillRect(cx, cy, cw, ch);
@@ -574,10 +580,11 @@ ONLY</span></div>
     var nm = mine ? mine.name : '', size = 72, lines;
     do { x.font = '900 ' + size + 'px ' + D; lines = wrapLines(x, nm, cw - 100); size -= 4; } while((lines.length > 2 || lines.some(function(l){ return x.measureText(l).width > cw - 100; })) && size > 32);
     lines.slice(0, 2).forEach(function(ln, i){ x.fillText(ln, cx + 50, cy + 200 + i * (size + 14)); });
-    x.setLineDash([16, 12]); x.beginPath(); x.moveTo(cx, cy + 390); x.lineTo(cx + cw, cy + 390); x.stroke(); x.setLineDash([]);
-    fitFont(x, L.storyDate, '900', D, 46, cw - 100); x.fillText(L.storyDate, cx + 50, cy + 475);
-    x.font = '800 32px ' + B; x.fillStyle = '#55524c'; x.fillText('5948 Pecan Ave · Orangevale, CA', cx + 50, cy + 535);
+    x.setLineDash([16, 12]); x.beginPath(); x.moveTo(cx, cy + 340); x.lineTo(cx + cw, cy + 340); x.stroke(); x.setLineDash([]);
+    fitFont(x, L.storyDate, '900', D, 46, cw - 100); x.fillText(L.storyDate, cx + 50, cy + 425);
+    x.font = '800 32px ' + B; x.fillStyle = '#55524c'; x.fillText('5948 Pecan Ave · Orangevale, CA', cx + 50, cy + 485);
     x.restore();
+    centerStrip(1690, 0.02, '#f2efe8', '#0d0d0d', 'TEENSPARTY.FUN', 78);
     return new Promise(function(res){ c.toBlob(function(b){ res(b); }, 'image/png'); });
   }
   window.__makeStory = makeStory;
