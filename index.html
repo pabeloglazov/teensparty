@@ -105,6 +105,9 @@ h1 .outline{color:var(--bg);-webkit-text-stroke:2px var(--fg);animation-delay:.1
 .qr{width:200px;max-width:100%;aspect-ratio:1;background:#fff;border:3px solid var(--ink);padding:8px;margin-top:6px}
 .qr svg{display:block;width:100%;height:100%}
 .dmsg{margin:0;font-size:15px;font-weight:600;line-height:1.45}
+.linkbtn{align-self:center;background:none;border:0;padding:6px 0;min-height:44px;color:var(--ink);font-weight:800;font-size:14px;letter-spacing:.06em;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.share{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:6px;background:var(--ink);color:var(--paper);border:3px solid var(--ink);font-family:var(--display);font-weight:900;font-size:15px;padding:14px;min-height:52px;cursor:pointer;white-space:nowrap}
+.share:hover{background:var(--orange);color:var(--ink)}
 .again{align-self:flex-start;background:none;border:0;padding:8px 0;min-height:44px;color:var(--ink);font-weight:800;text-decoration:underline;cursor:pointer}
 .barcode{height:36px;background:repeating-linear-gradient(90deg,var(--ink) 0 2px,transparent 2px 5px,var(--ink) 5px 9px,transparent 9px 11px,var(--ink) 11px 12px,transparent 12px 16px)}
 
@@ -191,6 +194,7 @@ dialog::backdrop{background:rgba(13,13,13,.78);backdrop-filter:blur(4px);-webkit
       <div class="perf" aria-hidden="true"></div>
       <div class="part stub">
         <button class="btn" type="button" id="open" data-i="cta">GET MY TICKET</button>
+        <button class="linkbtn" type="button" id="checkBtn" data-i="check">Already registered? Check my ticket</button>
         <div class="stamp" id="stamp" aria-hidden="true"><span class="stamp-box" id="stampText" data-i="invite">INVITATION
 ONLY</span></div>
         <div class="done" id="done" hidden aria-live="polite">
@@ -199,6 +203,7 @@ ONLY</span></div>
           <div class="tname" id="tname"></div>
           <div class="qr" id="qr" role="img" aria-label="QR"></div>
           <p class="dmsg" id="dmsg"></p>
+          <button type="button" class="share" id="shareBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"></path><path d="M7 8l5-5 5 5"></path><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"></path></svg><span data-i="share">SHARE TO STORIES</span></button>
           <button type="button" class="again" id="again" data-i="again">Register someone else</button>
         </div>
         <div class="barcode" id="barcode" aria-hidden="true"></div>
@@ -213,6 +218,21 @@ ONLY</span></div>
 </main>
 
 <div class="mcta" id="mcta"><button class="btn" type="button" id="open2" data-i="cta">GET MY TICKET</button></div>
+
+<dialog id="dlg2" aria-labelledby="ctitle">
+  <div class="q-top">
+    <span class="q-count" id="ctitle" data-i="checkTitle">FIND YOUR TICKET</span>
+    <button type="button" class="q-close" id="cclose" aria-label="Close"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"></path></svg></button>
+  </div>
+  <form id="cform" novalidate style="padding:20px;display:flex;flex-direction:column;gap:16px">
+    <div class="step">
+      <label for="c-phone" data-i="checkQ">Phone number you registered with</label>
+      <input id="c-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(916) 555-0123">
+    </div>
+    <p class="err" id="cerr" role="alert" hidden></p>
+    <button type="submit" class="btn" id="cfind" data-i="find">SHOW MY TICKET</button>
+  </form>
+</dialog>
 
 <dialog id="dlg" aria-labelledby="qcount">
   <div class="q-top">
@@ -266,7 +286,7 @@ ONLY</span></div>
         eName:"Enter your first and last name.",ePhone:"Enter a 10-digit US phone number.",eAge:"Enter your age as a number.",
         ePPhone:"Check the parent's phone: 10 digits.",eSold:"All {n} spots are taken.",eGen:"Something went wrong. Try again.",
         uD:"DAYS",uH:"HRS",uM:"MIN",uS:"SEC",
-        invite:"INVITATION\nONLY",mqTop:"TEENS PARTY — 31.10 — 6PM — INVITATION ONLY — TEENS PARTY — 31.10 — 6PM — INVITATION ONLY — ",
+        check:"Already registered? Check my ticket",checkTitle:"FIND YOUR TICKET",checkQ:"Phone number you registered with",find:"SHOW MY TICKET",eNotFound:"No ticket for this number yet. Register first.",share:"SHARE TO STORIES",storyIn:"I'M IN",storyCta:"Register at teensparty.fun",storyDate:"SAT · OCT 31 · 6 PM",invite:"INVITATION\nONLY",mqTop:"TEENS PARTY — 31.10 — 6PM — INVITATION ONLY — TEENS PARTY — 31.10 — 6PM — INVITATION ONLY — ",
         mq:"DON'T MISS IT — BRING A FRIEND — DON'T MISS IT — BRING A FRIEND — DON'T MISS IT — BRING A FRIEND — "},
     ru:{taken:"ЗАНЯТО",left:"ОСТАЛОСЬ МЕСТ",lgTaken:"Занято",lgFree:"Свободно",lgMe:"Твоё место",starts:"ДО НАЧАЛА",admit:"ПРОПУСК",spots:"МЕСТ",
         monthV:"ОКТЯБРЯ",dayV:"СУББОТА",doors:"НАЧАЛО",timeV:"18:00",venue:"АДРЕС ↗",cta:"ПОЛУЧИТЬ БИЛЕТ",
@@ -277,7 +297,7 @@ ONLY</span></div>
         eName:"Введи имя и фамилию.",ePhone:"Введи номер США из 10 цифр.",eAge:"Введи возраст числом.",
         ePPhone:"Проверь телефон родителя: 10 цифр.",eSold:"Все {n} мест заняты.",eGen:"Не получилось. Попробуй ещё раз.",
         uD:"ДНЕЙ",uH:"ЧАСОВ",uM:"МИН",uS:"СЕК",
-        invite:"ТОЛЬКО ПО\nПРИГЛАШЕНИЯМ",mqTop:"TEENS PARTY — 31.10 — 18:00 — ТОЛЬКО ПО ПРИГЛАШЕНИЯМ — TEENS PARTY — 31.10 — 18:00 — ТОЛЬКО ПО ПРИГЛАШЕНИЯМ — ",
+        check:"Уже зарегистрирован? Проверить билет",checkTitle:"НАЙТИ СВОЙ БИЛЕТ",checkQ:"Номер, с которым ты регистрировался",find:"ПОКАЗАТЬ БИЛЕТ",eNotFound:"На этот номер билета нет. Сначала зарегистрируйся.",share:"ПОДЕЛИТЬСЯ В СТОРИС",storyIn:"Я ИДУ",storyCta:"Регистрация на teensparty.fun",storyDate:"СБ · 31 ОКТ · 18:00",invite:"ТОЛЬКО ПО\nПРИГЛАШЕНИЯМ",mqTop:"TEENS PARTY — 31.10 — 18:00 — ТОЛЬКО ПО ПРИГЛАШЕНИЯМ — TEENS PARTY — 31.10 — 18:00 — ТОЛЬКО ПО ПРИГЛАШЕНИЯМ — ",
         mq:"НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — "},
     uk:{taken:"ЗАЙНЯТО",left:"ЗАЛИШИЛОСЬ МІСЦЬ",lgTaken:"Зайнято",lgFree:"Вільно",lgMe:"Твоє місце",starts:"ДО ПОЧАТКУ",admit:"ПЕРЕПУСТКА",spots:"МІСЦЬ",
         monthV:"ЖОВТНЯ",dayV:"СУБОТА",doors:"ПОЧАТОК",timeV:"18:00",venue:"АДРЕСА ↗",cta:"ОТРИМАТИ КВИТОК",
@@ -288,13 +308,13 @@ ONLY</span></div>
         eName:"Введи ім'я та прізвище.",ePhone:"Введи номер США з 10 цифр.",eAge:"Введи вік числом.",
         ePPhone:"Перевір телефон батьків: 10 цифр.",eSold:"Усі {n} місць зайняті.",eGen:"Не вийшло. Спробуй ще раз.",
         uD:"ДНІВ",uH:"ГОДИН",uM:"ХВ",uS:"СЕК",
-        invite:"ЛИШЕ ЗА\nЗАПРОШЕННЯМИ",mqTop:"TEENS PARTY — 31.10 — 18:00 — ЛИШЕ ЗА ЗАПРОШЕННЯМИ — TEENS PARTY — 31.10 — 18:00 — ЛИШЕ ЗА ЗАПРОШЕННЯМИ — ",
+        check:"Вже зареєстрований? Перевірити квиток",checkTitle:"ЗНАЙТИ СВІЙ КВИТОК",checkQ:"Номер, з яким ти реєструвався",find:"ПОКАЗАТИ КВИТОК",eNotFound:"На цей номер квитка немає. Спочатку зареєструйся.",share:"ПОДІЛИТИСЯ В СТОРІС",storyIn:"Я ЙДУ",storyCta:"Реєстрація на teensparty.fun",storyDate:"СБ · 31 ЖОВТ · 18:00",invite:"ЛИШЕ ЗА\nЗАПРОШЕННЯМИ",mqTop:"TEENS PARTY — 31.10 — 18:00 — ЛИШЕ ЗА ЗАПРОШЕННЯМИ — TEENS PARTY — 31.10 — 18:00 — ЛИШЕ ЗА ЗАПРОШЕННЯМИ — ",
         mq:"НЕ ПРОПУСТИ — КЛИЧ ДРУЗІВ — НЕ ПРОПУСТИ — КЛИЧ ДРУЗІВ — НЕ ПРОПУСТИ — КЛИЧ ДРУЗІВ — "}
   };
 
   var $ = function(id){ return document.getElementById(id); };
   var lang = 'en', stats = {capacity:CAPACITY, taken:0, left:CAPACITY}, mine = null, busy = false, step = 0;
-  var steps = Array.prototype.slice.call(document.querySelectorAll('.step'));
+  var steps = Array.prototype.slice.call(document.querySelectorAll('#qform .step'));
   var inputs = ['f-name','f-phone','f-age','f-pname','f-pphone'].map($);
   var OPTIONAL = {3:true, 4:true};
   var STEP_ERR = {name:0, phone:1, age:2, pphone:4};
@@ -322,6 +342,11 @@ ONLY</span></div>
   var demo = {
     taken: 13, phones: {},
     getStats: function(){ return {capacity:CAPACITY, taken:this.taken, left:CAPACITY - this.taken}; },
+    myTicket: function(f){
+      var d = digits10(f.phone); if(!d) return {ok:false, code:'phone'};
+      var e = this.phones[d]; if(!e) return {ok:false, code:'notfound', stats:this.getStats()};
+      return {ok:true, existing:true, ticket:e.t, seat:e.s, name:e.n, qr:e.q, sms:false, stats:this.getStats()};
+    },
     register: function(f){
       if(!validName(f.name)) return {ok:false, code:'name'};
       var d = digits10(f.phone); if(!d) return {ok:false, code:'phone'};
@@ -344,7 +369,7 @@ ONLY</span></div>
       } else if(useApi){
         var req = fn === 'getStats'
           ? fetch(API + '?action=stats&t=' + Date.now())
-          : fetch(API, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(arg)});
+          : fetch(API, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(fn === 'myTicket' ? {action:'myticket', phone:arg.phone} : arg)});
         req.then(function(x){ if(!x.ok) throw new Error('HTTP ' + x.status); return x.json(); }).then(res, rej);
       } else {
         setTimeout(function(){ try{ res(demo[fn](arg)); }catch(e){ rej(e); } }, 600);
@@ -392,6 +417,7 @@ ONLY</span></div>
 
   function renderDone(){
     $('open').hidden = !!mine;
+    $('checkBtn').hidden = !!mine;
     $('mcta').hidden = !!mine;
     $('done').hidden = !mine;
     $('barcode').hidden = !!mine;
@@ -479,6 +505,101 @@ ONLY</span></div>
   });
   inputs[2].addEventListener('input', function(e){ e.target.value = e.target.value.replace(/\D/g,'').slice(0,2); });
 
+  /* check my ticket */
+  function openCheck(){
+    $('cerr').hidden = true; $('c-phone').value = '';
+    if(typeof $('dlg2').showModal === 'function') $('dlg2').showModal(); else $('dlg2').setAttribute('open', '');
+    setTimeout(function(){ $('c-phone').focus(); }, 30);
+  }
+  function closeCheck(){ if($('dlg2').open){ if(typeof $('dlg2').close === 'function') $('dlg2').close(); else $('dlg2').removeAttribute('open'); } }
+  $('checkBtn').addEventListener('click', openCheck);
+  $('cclose').addEventListener('click', closeCheck);
+  $('cform').addEventListener('submit', function(e){
+    e.preventDefault();
+    var phone = $('c-phone').value;
+    if(!digits10(phone)){ $('cerr').textContent = T[lang].ePhone; $('cerr').hidden = false; return; }
+    $('cfind').disabled = true; $('cfind').textContent = T[lang].busy;
+    call('myTicket', {phone:phone}).then(function(r){
+      $('cfind').disabled = false; $('cfind').textContent = T[lang].find;
+      if(r && r.stats){ stats = r.stats; }
+      if(!r || !r.ok){ $('cerr').textContent = (r && r.code === 'notfound') ? T[lang].eNotFound : T[lang].eGen; $('cerr').hidden = false; renderStats(); return; }
+      mine = {ticket:r.ticket, seat:r.seat, name:r.name, qr:r.qr || '', sms:false, phone:phone, existing:true};
+      store('tp_ticket', JSON.stringify(mine));
+      closeCheck(); renderStats(); renderDone();
+      $('done').scrollIntoView({behavior:'smooth', block:'center'});
+    }).catch(function(){ $('cfind').disabled = false; $('cfind').textContent = T[lang].find; $('cerr').textContent = T[lang].eGen; $('cerr').hidden = false; });
+  });
+  $('c-phone').addEventListener('input', function(e){
+    var d = e.target.value.replace(/\D/g,''); if(d.length === 11 && d[0] === '1') d = d.slice(1); d = d.slice(0,10);
+    e.target.value = d.length > 6 ? '(' + d.slice(0,3) + ') ' + d.slice(3,6) + '-' + d.slice(6) : d.length > 3 ? '(' + d.slice(0,3) + ') ' + d.slice(3) : d.length ? '(' + d : '';
+  });
+
+  /* story image 1080x1920 (no QR on purpose: the QR is the entry pass) */
+  function wrapLines(ctx, text, maxW){
+    var words = String(text).split(/\s+/), lines = [], cur = '';
+    words.forEach(function(w){ var t = cur ? cur + ' ' + w : w; if(ctx.measureText(t).width > maxW && cur){ lines.push(cur); cur = w; } else cur = t; });
+    if(cur) lines.push(cur);
+    return lines;
+  }
+  function fitFont(ctx, text, weight, family, size, maxW){
+    ctx.font = weight + ' ' + size + 'px ' + family;
+    while(ctx.measureText(text).width > maxW && size > 20){ size -= 2; ctx.font = weight + ' ' + size + 'px ' + family; }
+    return size;
+  }
+  function makeStory(){
+    var W = 1080, H = 1920, c = document.createElement('canvas'); c.width = W; c.height = H;
+    var x = c.getContext('2d'), L = T[lang], D = 'Unbounded, "Arial Black", sans-serif', B = 'Manrope, Arial, sans-serif';
+    x.fillStyle = '#0d0d0d'; x.fillRect(0, 0, W, H);
+    function strip(y, rot, bg, fg, txt, size){
+      x.save(); x.translate(W/2, y); x.rotate(rot);
+      x.fillStyle = bg; x.fillRect(-W, -size, W * 2, size * 2);
+      x.fillStyle = fg; x.font = '900 ' + size + 'px ' + D; x.textBaseline = 'middle';
+      var unit = txt + '  ', w = x.measureText(unit).width;
+      for(var i = -W - w * 0.4; i < W; i += w) x.fillText(unit, i, 4);
+      x.restore();
+    }
+    strip(170, -0.035, '#ff5a1f', '#0d0d0d', 'TEENS PARTY — 31.10 —', 64);
+    strip(1770, 0.025, '#f2efe8', '#0d0d0d', 'TEENSPARTY.FUN —', 52);
+    x.textBaseline = 'alphabetic';
+    x.fillStyle = '#ff5a1f'; fitFont(x, L.storyIn, '900', D, 150, W - 160); x.fillText(L.storyIn, 80, 470);
+    x.fillStyle = '#f2efe8'; x.font = '900 190px ' + D; x.fillText('TEENS', 70, 690);
+    x.lineWidth = 5; x.strokeStyle = '#f2efe8'; x.strokeText('PARTY', 70, 880);
+    var cx = 90, cy = 990, cw = W - 180, ch = 600;
+    x.save(); x.translate(W/2, cy + ch/2); x.rotate(-0.025); x.translate(-W/2, -(cy + ch/2));
+    x.fillStyle = '#ff5a1f'; x.fillRect(cx + 22, cy + 22, cw, ch);
+    x.fillStyle = '#f2efe8'; x.fillRect(cx, cy, cw, ch);
+    x.lineWidth = 6; x.strokeStyle = '#0d0d0d'; x.strokeRect(cx, cy, cw, ch);
+    x.fillStyle = '#0d0d0d'; x.font = '800 30px ' + B; x.fillText(L.admit, cx + 50, cy + 80);
+    x.font = '900 40px ' + D; x.textAlign = 'right'; x.fillText(mine ? mine.ticket : '', cx + cw - 50, cy + 82); x.textAlign = 'left';
+    var nm = mine ? mine.name : '', size = 72, lines;
+    do { x.font = '900 ' + size + 'px ' + D; lines = wrapLines(x, nm, cw - 100); size -= 4; } while((lines.length > 2 || lines.some(function(l){ return x.measureText(l).width > cw - 100; })) && size > 32);
+    lines.slice(0, 2).forEach(function(ln, i){ x.fillText(ln, cx + 50, cy + 200 + i * (size + 14)); });
+    x.setLineDash([16, 12]); x.beginPath(); x.moveTo(cx, cy + 390); x.lineTo(cx + cw, cy + 390); x.stroke(); x.setLineDash([]);
+    fitFont(x, L.storyDate, '900', D, 46, cw - 100); x.fillText(L.storyDate, cx + 50, cy + 475);
+    x.font = '800 32px ' + B; x.fillStyle = '#55524c'; x.fillText('5948 Pecan Ave · Orangevale, CA', cx + 50, cy + 535);
+    x.restore();
+    return new Promise(function(res){ c.toBlob(function(b){ res(b); }, 'image/png'); });
+  }
+  window.__makeStory = makeStory;
+  $('shareBtn').addEventListener('click', function(){
+    var btn = $('shareBtn'); btn.disabled = true;
+    var fontsReady = (document.fonts && document.fonts.load)
+      ? Promise.all([document.fonts.load('900 64px Unbounded', 'TEENS ПАРТІ'), document.fonts.load('800 30px Manrope', 'Aa Яя')]).catch(function(){})
+      : Promise.resolve();
+    fontsReady.then(makeStory).then(function(blob){
+      btn.disabled = false;
+      if(!blob) return;
+      var file = null;
+      try{ file = new File([blob], 'teens-party-ticket.png', {type:'image/png'}); }catch(err){}
+      if(file && navigator.canShare && navigator.canShare({files:[file]})){
+        navigator.share({files:[file], text:'TEENS PARTY · teensparty.fun'}).catch(function(){});
+      } else {
+        var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'teens-party-ticket.png';
+        document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+      }
+    }).catch(function(){ btn.disabled = false; });
+  });
+
   $('again').addEventListener('click', function(){
     mine = null; store('tp_ticket', '');
     inputs.forEach(function(inp){ inp.value = ''; });
@@ -492,6 +613,7 @@ ONLY</span></div>
     document.querySelectorAll('[data-i]').forEach(function(el){ var v = T[l][el.getAttribute('data-i')]; if(typeof v === 'string') el.textContent = v; });
     document.querySelectorAll('.lang button').forEach(function(b){ b.setAttribute('aria-pressed', b.getAttribute('data-lang') === l ? 'true' : 'false'); });
     $('qclose').setAttribute('aria-label', T[l].close);
+    $('cclose').setAttribute('aria-label', T[l].close);
     if(!$('err').hidden && $('err').dataset.code) showErr($('err').dataset.code);
     store('tp_lang', l);
     renderStats(); renderDone(); tick(); fitStamp(); setTimeout(fitStamp, 400); setTimeout(fitStamp, 1500);
