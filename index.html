@@ -110,6 +110,10 @@ h1 .outline{color:var(--bg);-webkit-text-stroke:2px var(--fg);animation-delay:.1
 .linkbtn{align-self:center;background:none;border:0;padding:6px 0;min-height:44px;color:var(--ink);font-weight:800;font-size:14px;letter-spacing:.06em;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 .share{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:6px;background:var(--ink);color:var(--paper);border:3px solid var(--ink);font-family:var(--display);font-weight:900;font-size:15px;padding:14px;min-height:52px;cursor:pointer;white-space:nowrap}
 .share:hover{background:var(--orange);color:var(--ink)}
+.pv-body{padding:16px 20px 22px;display:flex;flex-direction:column;gap:14px;align-items:center;text-align:center}
+.pv-body img{width:min(260px,62vw);aspect-ratio:9/16;border:3px solid var(--ink);box-shadow:8px 8px 0 var(--orange);-webkit-touch-callout:default;user-select:auto}
+.pv-body .share{align-self:stretch}
+.pv-wait{margin:0;font-weight:800;padding:60px 0}
 .again{align-self:flex-start;background:none;border:0;padding:8px 0;min-height:44px;color:var(--ink);font-weight:800;text-decoration:underline;cursor:pointer}
 .barcode{height:36px;background:repeating-linear-gradient(90deg,var(--ink) 0 2px,transparent 2px 5px,var(--ink) 5px 9px,transparent 9px 11px,var(--ink) 11px 12px,transparent 12px 16px)}
 
@@ -221,6 +225,19 @@ ONLY</span></div>
 
 <div class="mcta" id="mcta"><button class="btn" type="button" id="open2" data-i="cta">GET MY TICKET</button></div>
 
+<dialog id="dlg3" class="pv" aria-labelledby="pvTitle">
+  <div class="q-top">
+    <span class="q-count" id="pvTitle" data-i="share">SHARE TO STORIES</span>
+    <button type="button" class="q-close" id="pvClose" aria-label="Close"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"></path></svg></button>
+  </div>
+  <div class="pv-body">
+    <p class="pv-wait" id="pvWait">…</p>
+    <img id="pvImg" alt="TEENS PARTY story" hidden>
+    <p class="hint" data-i="shareHint">Press and hold the image to save it, then post it to your story.</p>
+    <button type="button" class="share" id="pvLink" data-i="shareLink">SHARE LINK</button>
+  </div>
+</dialog>
+
 <dialog id="dlg2" aria-labelledby="ctitle">
   <div class="q-top">
     <span class="q-count" id="ctitle" data-i="checkTitle">FIND YOUR TICKET</span>
@@ -288,7 +305,7 @@ ONLY</span></div>
         eName:"Enter your first and last name.",ePhone:"Enter a 10-digit US phone number.",eAge:"Enter your age as a number.",
         ePPhone:"Check the parent's phone: 10 digits.",eSold:"All {n} spots are taken.",eGen:"Something went wrong. Try again.",
         uD:"DAYS",uH:"HRS",uM:"MIN",uS:"SEC",
-        check:"Already registered? Check my ticket",checkTitle:"FIND YOUR TICKET",checkQ:"Phone number you registered with",find:"SHOW MY TICKET",eNotFound:"No ticket for this number yet. Register first.",share:"SHARE TO STORIES",storyIn:"I'M IN",storyCta:"Register at teensparty.fun",storyDate:"SAT · OCT 31 · 6 PM",invite:"INVITATION\nONLY",mqTop:"TEENS PARTY — 31.10 — 6PM — INVITATION ONLY — TEENS PARTY — 31.10 — 6PM — INVITATION ONLY — ",
+        check:"Already registered? Check my ticket",checkTitle:"FIND YOUR TICKET",checkQ:"Phone number you registered with",find:"SHOW MY TICKET",eNotFound:"No ticket for this number yet. Register first.",share:"SHARE TO STORIES",shareHint:"Press and hold the image to save it, then post it to your story.",shareLink:"SHARE LINK",copied:"LINK COPIED",storyIn:"I'M IN",storyCta:"Register at teensparty.fun",storyDate:"SAT · OCT 31 · 6 PM",invite:"INVITATION\nONLY",mqTop:"TEENS PARTY — 31.10 — 6PM — INVITATION ONLY — TEENS PARTY — 31.10 — 6PM — INVITATION ONLY — ",
         mq:"DON'T MISS IT — BRING A FRIEND — DON'T MISS IT — BRING A FRIEND — DON'T MISS IT — BRING A FRIEND — "},
     ru:{taken:"ЗАНЯТО",left:"ОСТАЛОСЬ МЕСТ",lgTaken:"Занято",lgFree:"Свободно",lgMe:"Твоё место",starts:"ДО НАЧАЛА",admit:"ПРОПУСК",spots:"МЕСТ",
         monthV:"ОКТЯБРЯ",dayV:"СУББОТА",doors:"НАЧАЛО",timeV:"18:00",venue:"АДРЕС ↗",cta:"ПОЛУЧИТЬ БИЛЕТ",
@@ -299,7 +316,7 @@ ONLY</span></div>
         eName:"Введи имя и фамилию.",ePhone:"Введи номер США из 10 цифр.",eAge:"Введи возраст числом.",
         ePPhone:"Проверь телефон родителя: 10 цифр.",eSold:"Все {n} мест заняты.",eGen:"Не получилось. Попробуй ещё раз.",
         uD:"ДНЕЙ",uH:"ЧАСОВ",uM:"МИН",uS:"СЕК",
-        check:"Уже зарегистрирован? Проверить билет",checkTitle:"НАЙТИ СВОЙ БИЛЕТ",checkQ:"Номер, с которым ты регистрировался",find:"ПОКАЗАТЬ БИЛЕТ",eNotFound:"На этот номер билета нет. Сначала зарегистрируйся.",share:"ПОДЕЛИТЬСЯ В СТОРИС",storyIn:"Я ИДУ",storyCta:"Регистрация на teensparty.fun",storyDate:"СБ · 31 ОКТ · 18:00",invite:"ТОЛЬКО ПО\nПРИГЛАШЕНИЯМ",mqTop:"TEENS PARTY — 31.10 — 18:00 — ТОЛЬКО ПО ПРИГЛАШЕНИЯМ — TEENS PARTY — 31.10 — 18:00 — ТОЛЬКО ПО ПРИГЛАШЕНИЯМ — ",
+        check:"Уже зарегистрирован? Проверить билет",checkTitle:"НАЙТИ СВОЙ БИЛЕТ",checkQ:"Номер, с которым ты регистрировался",find:"ПОКАЗАТЬ БИЛЕТ",eNotFound:"На этот номер билета нет. Сначала зарегистрируйся.",share:"ПОДЕЛИТЬСЯ В СТОРИС",shareHint:"Нажми и удерживай картинку, чтобы сохранить, и выложи её в сторис.",shareLink:"ПОДЕЛИТЬСЯ ССЫЛКОЙ",copied:"ССЫЛКА СКОПИРОВАНА",storyIn:"Я ИДУ",storyCta:"Регистрация на teensparty.fun",storyDate:"СБ · 31 ОКТ · 18:00",invite:"ТОЛЬКО ПО\nПРИГЛАШЕНИЯМ",mqTop:"TEENS PARTY — 31.10 — 18:00 — ТОЛЬКО ПО ПРИГЛАШЕНИЯМ — TEENS PARTY — 31.10 — 18:00 — ТОЛЬКО ПО ПРИГЛАШЕНИЯМ — ",
         mq:"НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — "},
     uk:{taken:"ЗАЙНЯТО",left:"ЗАЛИШИЛОСЬ МІСЦЬ",lgTaken:"Зайнято",lgFree:"Вільно",lgMe:"Твоє місце",starts:"ДО ПОЧАТКУ",admit:"ПЕРЕПУСТКА",spots:"МІСЦЬ",
         monthV:"ЖОВТНЯ",dayV:"СУБОТА",doors:"ПОЧАТОК",timeV:"18:00",venue:"АДРЕСА ↗",cta:"ОТРИМАТИ КВИТОК",
@@ -310,7 +327,7 @@ ONLY</span></div>
         eName:"Введи ім'я та прізвище.",ePhone:"Введи номер США з 10 цифр.",eAge:"Введи вік числом.",
         ePPhone:"Перевір телефон батьків: 10 цифр.",eSold:"Усі {n} місць зайняті.",eGen:"Не вийшло. Спробуй ще раз.",
         uD:"ДНІВ",uH:"ГОДИН",uM:"ХВ",uS:"СЕК",
-        check:"Вже зареєстрований? Перевірити квиток",checkTitle:"ЗНАЙТИ СВІЙ КВИТОК",checkQ:"Номер, з яким ти реєструвався",find:"ПОКАЗАТИ КВИТОК",eNotFound:"На цей номер квитка немає. Спочатку зареєструйся.",share:"ПОДІЛИТИСЯ В СТОРІС",storyIn:"Я ЙДУ",storyCta:"Реєстрація на teensparty.fun",storyDate:"СБ · 31 ЖОВТ · 18:00",invite:"ЛИШЕ ЗА\nЗАПРОШЕННЯМИ",mqTop:"TEENS PARTY — 31.10 — 18:00 — ЛИШЕ ЗА ЗАПРОШЕННЯМИ — TEENS PARTY — 31.10 — 18:00 — ЛИШЕ ЗА ЗАПРОШЕННЯМИ — ",
+        check:"Вже зареєстрований? Перевірити квиток",checkTitle:"ЗНАЙТИ СВІЙ КВИТОК",checkQ:"Номер, з яким ти реєструвався",find:"ПОКАЗАТИ КВИТОК",eNotFound:"На цей номер квитка немає. Спочатку зареєструйся.",share:"ПОДІЛИТИСЯ В СТОРІС",shareHint:"Натисни й утримуй картинку, щоб зберегти, і виклади її в сторіс.",shareLink:"ПОДІЛИТИСЯ ПОСИЛАННЯМ",copied:"ПОСИЛАННЯ СКОПІЙОВАНО",storyIn:"Я ЙДУ",storyCta:"Реєстрація на teensparty.fun",storyDate:"СБ · 31 ЖОВТ · 18:00",invite:"ЛИШЕ ЗА\nЗАПРОШЕННЯМИ",mqTop:"TEENS PARTY — 31.10 — 18:00 — ЛИШЕ ЗА ЗАПРОШЕННЯМИ — TEENS PARTY — 31.10 — 18:00 — ЛИШЕ ЗА ЗАПРОШЕННЯМИ — ",
         mq:"НЕ ПРОПУСТИ — КЛИЧ ДРУЗІВ — НЕ ПРОПУСТИ — КЛИЧ ДРУЗІВ — НЕ ПРОПУСТИ — КЛИЧ ДРУЗІВ — "}
   };
 
@@ -425,6 +442,7 @@ ONLY</span></div>
     $('barcode').hidden = !!mine;
     $('stamp').hidden = !!mine;
     drawQr();
+    prepStory();
     if(!mine) return;
     $('doneHead').textContent = mine.existing ? T[lang].already : T[lang].youreIn;
     $('tno').textContent = mine.ticket;
@@ -589,23 +607,54 @@ ONLY</span></div>
     return new Promise(function(res){ c.toBlob(function(b){ res(b); }, 'image/png'); });
   }
   window.__makeStory = makeStory;
-  $('shareBtn').addEventListener('click', function(){
-    var btn = $('shareBtn'); btn.disabled = true;
-    var fontsReady = (document.fonts && document.fonts.load)
+  /* Share: the image is prepared in advance so the tap opens the system share sheet right away
+     (iOS only allows navigator.share directly inside the tap). */
+  var storyFile = null, storyBlob = null, storyKey = '', storyUrl = '';
+  function fontsReady(){
+    return (document.fonts && document.fonts.load)
       ? Promise.all([document.fonts.load('900 64px Unbounded', 'TEENS ПАРТІ'), document.fonts.load('800 30px Manrope', 'Aa Яя')]).catch(function(){})
       : Promise.resolve();
-    fontsReady.then(makeStory).then(function(blob){
-      btn.disabled = false;
-      if(!blob) return;
-      var file = null;
-      try{ file = new File([blob], 'teens-party-ticket.png', {type:'image/png'}); }catch(err){}
-      if(file && navigator.canShare && navigator.canShare({files:[file]})){
-        navigator.share({files:[file], text:'TEENS PARTY · teensparty.fun'}).catch(function(){});
-      } else {
-        var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'teens-party-ticket.png';
-        document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 1000);
-      }
-    }).catch(function(){ btn.disabled = false; });
+  }
+  function prepStory(){
+    if(!mine){ storyKey = ''; storyFile = storyBlob = null; return; }
+    var key = lang + '|' + mine.name;
+    if(key === storyKey) return;
+    storyKey = key; storyFile = storyBlob = null;
+    fontsReady().then(makeStory).then(function(blob){
+      if(key !== storyKey || !blob) return;
+      storyBlob = blob;
+      try{ storyFile = new File([blob], 'teens-party.png', {type:'image/png'}); }catch(err){ storyFile = null; }
+    }).catch(function(){});
+  }
+  function canShareFile(){ try{ return !!(storyFile && navigator.canShare && navigator.canShare({files:[storyFile]})); }catch(e){ return false; } }
+  function openPreview(){
+    if(storyUrl) URL.revokeObjectURL(storyUrl);
+    storyUrl = storyBlob ? URL.createObjectURL(storyBlob) : '';
+    $('pvImg').src = storyUrl; $('pvImg').hidden = !storyUrl; $('pvWait').hidden = !!storyUrl;
+    if(typeof $('dlg3').showModal === 'function') $('dlg3').showModal(); else $('dlg3').setAttribute('open', '');
+    if(!storyBlob){
+      var tries = 0, t = setInterval(function(){
+        tries++;
+        if(storyBlob){ clearInterval(t); storyUrl = URL.createObjectURL(storyBlob); $('pvImg').src = storyUrl; $('pvImg').hidden = false; $('pvWait').hidden = true; }
+        else if(tries > 40) clearInterval(t);
+      }, 150);
+    }
+  }
+  $('shareBtn').addEventListener('click', function(){
+    if(canShareFile()){
+      navigator.share({files:[storyFile], title:'TEENS PARTY', text:'TEENS PARTY · teensparty.fun'}).catch(function(err){
+        if(err && err.name !== 'AbortError') openPreview();
+      });
+    } else {
+      openPreview();
+    }
+  });
+  $('pvClose').addEventListener('click', function(){ if(typeof $('dlg3').close === 'function') $('dlg3').close(); else $('dlg3').removeAttribute('open'); });
+  $('pvLink').addEventListener('click', function(){
+    var url = 'https://teensparty.fun';
+    if(navigator.share){ navigator.share({title:'TEENS PARTY', text:'TEENS PARTY · 31.10', url:url}).catch(function(){}); return; }
+    var done = function(){ $('pvLink').textContent = T[lang].copied; setTimeout(function(){ $('pvLink').textContent = T[lang].shareLink; }, 2000); };
+    if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done).catch(function(){});
   });
 
   $('again').addEventListener('click', function(){
@@ -622,6 +671,7 @@ ONLY</span></div>
     document.querySelectorAll('.lang button').forEach(function(b){ b.setAttribute('aria-pressed', b.getAttribute('data-lang') === l ? 'true' : 'false'); });
     $('qclose').setAttribute('aria-label', T[l].close);
     $('cclose').setAttribute('aria-label', T[l].close);
+    $('pvClose').setAttribute('aria-label', T[l].close);
     if(!$('err').hidden && $('err').dataset.code) showErr($('err').dataset.code);
     store('tp_lang', l);
     renderStats(); renderDone(); tick(); fitStamp(); setTimeout(fitStamp, 400); setTimeout(fitStamp, 1500);
