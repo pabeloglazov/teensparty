@@ -66,25 +66,28 @@ h1 .outline{color:var(--bg);-webkit-text-stroke:2px var(--fg);animation-delay:.1
 .tgrid span{font-size:11px;font-weight:800;letter-spacing:.12em;color:var(--muted);white-space:nowrap}
 
 /* ticket */
-.ticket{flex:1 1 320px;max-width:430px;background:var(--paper);color:var(--ink);border:3px solid var(--ink);box-shadow:12px 12px 0 var(--orange);display:flex;flex-direction:column;animation:drop .9s cubic-bezier(.2,1.4,.4,1) both .3s;transform:rotate(-1.5deg)}
+.ticket{flex:1 1 320px;min-width:0;max-width:430px;background:var(--paper);color:var(--ink);border:3px solid var(--ink);box-shadow:12px 12px 0 var(--orange);display:flex;flex-direction:column;animation:drop .9s cubic-bezier(.2,1.4,.4,1) both .3s;transform:rotate(-1.5deg)}
 @keyframes drop{from{transform:translateY(-60px) rotate(-8deg);opacity:.2}to{transform:rotate(-1.5deg);opacity:1}}
 .part{padding:24px;display:flex;flex-direction:column;gap:18px}
 .part:first-child{gap:22px}
 .part.stub{flex:1}
 .part.stub .barcode{margin-top:auto}
-.stamp{flex:1;display:flex;align-items:center;justify-content:center;text-align:center;padding:12px 0;font-family:var(--display);font-weight:900;font-size:clamp(30px,3.4vw,46px);line-height:1;color:transparent;-webkit-text-stroke:2px var(--ink);transform:rotate(-8deg);text-wrap:balance}
+.stamp{flex:1;display:flex;align-items:center;justify-content:center;min-width:0;overflow:hidden;padding:16px 4px}
+.stamp-box{display:block;border:3px solid var(--ink);padding:10px 14px;font-family:var(--display);font-weight:900;font-size:34px;line-height:1.05;text-align:center;white-space:pre;color:var(--ink);transform:rotate(-8deg)}
 .bigdate{display:flex;align-items:flex-end;gap:14px;border-top:3px solid var(--ink);border-bottom:3px solid var(--ink);padding:10px 0}
 .bigdate .dd{font-family:var(--display);font-weight:900;font-size:clamp(84px,10vw,120px);line-height:.82;letter-spacing:-.05em}
-.bigdate .dm{display:flex;flex-direction:column;gap:6px;padding-bottom:4px;font-family:var(--display);font-weight:900;font-size:16px;line-height:1.1;min-width:0}
+.bigdate .dm{display:flex;flex-direction:column;gap:6px;padding-bottom:4px;font-family:var(--display);font-weight:900;font-size:16px;min-width:0}
+.bigdate .dm span{display:block;height:20px;line-height:20px;white-space:nowrap}
 .bigdate .dm span:last-child{font-family:var(--body);font-size:13px;font-weight:800;letter-spacing:.14em;color:var(--paper-muted)}
 @media (max-width:899px){ .stamp{display:none} }
+@media (min-width:900px){ .ticket{flex:0 0 400px;width:400px} }
 .mcta{display:none}
 @media (max-width:899px){
   .mcta{display:block;position:fixed;left:0;right:0;bottom:0;z-index:5;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));background:linear-gradient(180deg,rgba(13,13,13,0),rgba(13,13,13,.92) 35%)}
   .mcta .btn{width:100%}
   .page{padding-bottom:84px}
 }
-.head{display:flex;justify-content:space-between;align-items:center;gap:12px;font-weight:800;font-size:12px;letter-spacing:.14em;white-space:nowrap}
+.head{display:flex;justify-content:space-between;align-items:center;gap:12px;height:28px;font-weight:800;font-size:12px;line-height:20px;letter-spacing:.14em;white-space:nowrap}
 .no{background:var(--ink);color:var(--paper);padding:4px 8px;white-space:nowrap}
 .pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
 .f{display:flex;flex-direction:column;gap:4px;color:var(--ink);text-decoration:none;min-width:0}
@@ -104,7 +107,6 @@ h1 .outline{color:var(--bg);-webkit-text-stroke:2px var(--fg);animation-delay:.1
 .dmsg{margin:0;font-size:15px;font-weight:600;line-height:1.45}
 .again{align-self:flex-start;background:none;border:0;padding:8px 0;min-height:44px;color:var(--ink);font-weight:800;text-decoration:underline;cursor:pointer}
 .barcode{height:36px;background:repeating-linear-gradient(90deg,var(--ink) 0 2px,transparent 2px 5px,var(--ink) 5px 9px,transparent 9px 11px,var(--ink) 11px 12px,transparent 12px 16px)}
-.demo{margin:0;font-size:12px;font-weight:700;color:var(--paper-muted)}
 
 /* popup questionnaire */
 dialog{border:3px solid var(--ink);padding:0;background:var(--paper);color:var(--ink);width:min(520px,calc(100% - 32px));max-width:none;box-shadow:12px 12px 0 var(--orange)}
@@ -189,7 +191,8 @@ dialog::backdrop{background:rgba(13,13,13,.78);backdrop-filter:blur(4px);-webkit
       <div class="perf" aria-hidden="true"></div>
       <div class="part stub">
         <button class="btn" type="button" id="open" data-i="cta">GET MY TICKET</button>
-        <div class="stamp" id="stamp" aria-hidden="true"><span data-i="invite">INVITATION ONLY</span></div>
+        <div class="stamp" id="stamp" aria-hidden="true"><span class="stamp-box" id="stampText" data-i="invite">INVITATION
+ONLY</span></div>
         <div class="done" id="done" hidden aria-live="polite">
           <span class="k" id="doneHead" data-i="youreIn">YOU'RE IN</span>
           <div class="tno" id="tno">TP-000</div>
@@ -199,7 +202,6 @@ dialog::backdrop{background:rgba(13,13,13,.78);backdrop-filter:blur(4px);-webkit
           <button type="button" class="again" id="again" data-i="again">Register someone else</button>
         </div>
         <div class="barcode" id="barcode" aria-hidden="true"></div>
-        <p class="demo" id="demo" data-i="demo" hidden>Preview: registrations here aren't saved.</p>
       </div>
     </div>
   </div>
@@ -263,8 +265,8 @@ dialog::backdrop{background:rgba(13,13,13,.78);backdrop-filter:blur(4px);-webkit
         q4:"Parent's name",q5:"Parent's phone",optional:"OPTIONAL",next:"Next",back:"Back",skip:"Skip",close:"Close",
         eName:"Enter your first and last name.",ePhone:"Enter a 10-digit US phone number.",eAge:"Enter your age as a number.",
         ePPhone:"Check the parent's phone: 10 digits.",eSold:"All {n} spots are taken.",eGen:"Something went wrong. Try again.",
-        demo:"Preview: registrations here aren't saved.",uD:"DAYS",uH:"HRS",uM:"MIN",uS:"SEC",
-        invite:"INVITATION ONLY",mqTop:"TEENS PARTY — 31.10 — 6PM — INVITATION ONLY — TEENS PARTY — 31.10 — 6PM — INVITATION ONLY — ",
+        uD:"DAYS",uH:"HRS",uM:"MIN",uS:"SEC",
+        invite:"INVITATION\nONLY",mqTop:"TEENS PARTY — 31.10 — 6PM — INVITATION ONLY — TEENS PARTY — 31.10 — 6PM — INVITATION ONLY — ",
         mq:"DON'T MISS IT — BRING A FRIEND — DON'T MISS IT — BRING A FRIEND — DON'T MISS IT — BRING A FRIEND — "},
     ru:{taken:"ЗАНЯТО",left:"ОСТАЛОСЬ МЕСТ",lgTaken:"Занято",lgFree:"Свободно",lgMe:"Твоё место",starts:"ДО НАЧАЛА",admit:"ПРОПУСК",spots:"МЕСТ",
         monthV:"ОКТЯБРЯ",dayV:"СУББОТА",doors:"НАЧАЛО",timeV:"18:00",venue:"АДРЕС ↗",cta:"ПОЛУЧИТЬ БИЛЕТ",
@@ -274,8 +276,8 @@ dialog::backdrop{background:rgba(13,13,13,.78);backdrop-filter:blur(4px);-webkit
         q4:"Имя родителя",q5:"Телефон родителя",optional:"НЕОБЯЗАТЕЛЬНО",next:"Далее",back:"Назад",skip:"Пропустить",close:"Закрыть",
         eName:"Введи имя и фамилию.",ePhone:"Введи номер США из 10 цифр.",eAge:"Введи возраст числом.",
         ePPhone:"Проверь телефон родителя: 10 цифр.",eSold:"Все {n} мест заняты.",eGen:"Не получилось. Попробуй ещё раз.",
-        demo:"Предпросмотр: регистрации здесь не сохраняются.",uD:"ДНЕЙ",uH:"ЧАСОВ",uM:"МИН",uS:"СЕК",
-        invite:"ТОЛЬКО ПО ПРИГЛАШЕНИЯМ",mqTop:"TEENS PARTY — 31.10 — 18:00 — ТОЛЬКО ПО ПРИГЛАШЕНИЯМ — TEENS PARTY — 31.10 — 18:00 — ТОЛЬКО ПО ПРИГЛАШЕНИЯМ — ",
+        uD:"ДНЕЙ",uH:"ЧАСОВ",uM:"МИН",uS:"СЕК",
+        invite:"ТОЛЬКО ПО\nПРИГЛАШЕНИЯМ",mqTop:"TEENS PARTY — 31.10 — 18:00 — ТОЛЬКО ПО ПРИГЛАШЕНИЯМ — TEENS PARTY — 31.10 — 18:00 — ТОЛЬКО ПО ПРИГЛАШЕНИЯМ — ",
         mq:"НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — "},
     uk:{taken:"ЗАЙНЯТО",left:"ЗАЛИШИЛОСЬ МІСЦЬ",lgTaken:"Зайнято",lgFree:"Вільно",lgMe:"Твоє місце",starts:"ДО ПОЧАТКУ",admit:"ПЕРЕПУСТКА",spots:"МІСЦЬ",
         monthV:"ЖОВТНЯ",dayV:"СУБОТА",doors:"ПОЧАТОК",timeV:"18:00",venue:"АДРЕСА ↗",cta:"ОТРИМАТИ КВИТОК",
@@ -285,8 +287,8 @@ dialog::backdrop{background:rgba(13,13,13,.78);backdrop-filter:blur(4px);-webkit
         q4:"Ім'я одного з батьків",q5:"Телефон одного з батьків",optional:"НЕОБОВ'ЯЗКОВО",next:"Далі",back:"Назад",skip:"Пропустити",close:"Закрити",
         eName:"Введи ім'я та прізвище.",ePhone:"Введи номер США з 10 цифр.",eAge:"Введи вік числом.",
         ePPhone:"Перевір телефон батьків: 10 цифр.",eSold:"Усі {n} місць зайняті.",eGen:"Не вийшло. Спробуй ще раз.",
-        demo:"Попередній перегляд: реєстрації тут не зберігаються.",uD:"ДНІВ",uH:"ГОДИН",uM:"ХВ",uS:"СЕК",
-        invite:"ЛИШЕ ЗА ЗАПРОШЕННЯМИ",mqTop:"TEENS PARTY — 31.10 — 18:00 — ЛИШЕ ЗА ЗАПРОШЕННЯМИ — TEENS PARTY — 31.10 — 18:00 — ЛИШЕ ЗА ЗАПРОШЕННЯМИ — ",
+        uD:"ДНІВ",uH:"ГОДИН",uM:"ХВ",uS:"СЕК",
+        invite:"ЛИШЕ ЗА\nЗАПРОШЕННЯМИ",mqTop:"TEENS PARTY — 31.10 — 18:00 — ЛИШЕ ЗА ЗАПРОШЕННЯМИ — TEENS PARTY — 31.10 — 18:00 — ЛИШЕ ЗА ЗАПРОШЕННЯМИ — ",
         mq:"НЕ ПРОПУСТИ — КЛИЧ ДРУЗІВ — НЕ ПРОПУСТИ — КЛИЧ ДРУЗІВ — НЕ ПРОПУСТИ — КЛИЧ ДРУЗІВ — "}
   };
 
@@ -492,7 +494,21 @@ dialog::backdrop{background:rgba(13,13,13,.78);backdrop-filter:blur(4px);-webkit
     $('qclose').setAttribute('aria-label', T[l].close);
     if(!$('err').hidden && $('err').dataset.code) showErr($('err').dataset.code);
     store('tp_lang', l);
-    renderStats(); renderDone(); tick();
+    renderStats(); renderDone(); tick(); fitStamp(); setTimeout(fitStamp, 400); setTimeout(fitStamp, 1500);
+  }
+
+  /* shrink the stamp text until it fits the ticket width */
+  function fitStamp(){
+    var box = $('stampText'), wrap = $('stamp');
+    if(!box || !wrap.offsetWidth) return;
+    var size = 34; box.style.fontSize = size + 'px';
+    var room = wrap.clientWidth - 8;
+    while(size > 14 && box.offsetWidth > room){ size -= 1; box.style.fontSize = size + 'px'; }
+  }
+  window.addEventListener('resize', fitStamp);
+  if(document.fonts){
+    if(document.fonts.ready) document.fonts.ready.then(fitStamp);
+    if(document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', fitStamp);
   }
   document.querySelectorAll('.lang button').forEach(function(b){ b.addEventListener('click', function(){ setLang(b.getAttribute('data-lang')); }); });
 
@@ -509,7 +525,6 @@ dialog::backdrop{background:rgba(13,13,13,.78);backdrop-filter:blur(4px);-webkit
   /* boot */
   try{ var saved = JSON.parse(store('tp_ticket') || 'null'); if(saved && saved.ticket) mine = saved; }catch(e){}
   setLang(store('tp_lang') || 'en');
-  if(!live) $('demo').hidden = false;
   refresh();
   setInterval(tick, 1000);
   if(live) setInterval(refresh, 20000);
