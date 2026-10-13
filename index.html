@@ -76,7 +76,7 @@ h1 .outline{color:var(--bg);-webkit-text-stroke:2px var(--fg);animation-delay:.1
 .part.stub .barcode{margin-top:auto}
 .stamp{flex:1;display:flex;align-items:center;justify-content:center;min-width:0;overflow:hidden;padding:16px 4px}
 .stamp-box{display:block;border:3px solid var(--ink);padding:10px 14px;font-family:var(--display);font-weight:900;font-size:34px;line-height:1.05;text-align:center;white-space:pre;color:var(--ink);transform:rotate(-8deg)}
-.bigdate{display:flex;align-items:flex-end;gap:14px;border-top:3px solid var(--ink);border-bottom:3px solid var(--ink);padding:10px 0}
+.bigdate{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;border-top:3px solid var(--ink);border-bottom:3px solid var(--ink);padding:10px 0}
 .bigdate .dd{font-family:var(--display);font-weight:900;font-size:clamp(84px,10vw,120px);line-height:.82;letter-spacing:-.05em}
 .bigdate .dm{display:flex;flex-direction:column;gap:6px;padding-bottom:4px;font-family:var(--display);font-weight:900;font-size:16px;min-width:0}
 .bigdate .dm span{display:block;height:20px;line-height:20px;white-space:nowrap}
@@ -107,7 +107,7 @@ h1 .outline{color:var(--bg);-webkit-text-stroke:2px var(--fg);animation-delay:.1
 .qr{width:200px;max-width:100%;aspect-ratio:1;background:#fff;border:3px solid var(--ink);padding:8px;margin-top:6px}
 .qr svg{display:block;width:100%;height:100%}
 .dmsg{margin:0;font-size:15px;font-weight:600;line-height:1.45}
-.linkbtn{align-self:center;background:none;border:0;padding:6px 0;min-height:44px;color:var(--ink);font-weight:800;font-size:14px;letter-spacing:.06em;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.linkbtn{align-self:center;background:none;border:0;padding:6px 0;min-height:56px;line-height:1.35;text-align:center;color:var(--ink);font-weight:800;font-size:14px;letter-spacing:.06em;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 .share{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:6px;background:var(--ink);color:var(--paper);border:3px solid var(--ink);font-family:var(--display);font-weight:900;font-size:15px;padding:14px;min-height:52px;cursor:pointer;white-space:nowrap}
 .share:hover{background:var(--orange);color:var(--ink)}
 .pv-body{padding:16px 20px 22px;display:flex;flex-direction:column;gap:14px;align-items:center;text-align:center}
@@ -149,8 +149,8 @@ dialog::backdrop{background:rgba(13,13,13,.78);backdrop-filter:blur(4px);-webkit
 
 <main class="page">
   <div class="strip top" aria-hidden="true"><div class="track">
-    <span data-i="mqTop">TEENS PARTY — 31.10 — 6PM — INVITATION ONLY — TEENS PARTY — 31.10 — 6PM — INVITATION ONLY — </span>
-    <span data-i="mqTop">TEENS PARTY — 31.10 — 6PM — INVITATION ONLY — TEENS PARTY — 31.10 — 6PM — INVITATION ONLY — </span>
+    <span data-i="mqTop">TEENS PARTY — OCT 31 — 6 PM — INVITATION ONLY — TEENS PARTY — OCT 31 — 6 PM — INVITATION ONLY — </span>
+    <span data-i="mqTop">TEENS PARTY — OCT 31 — 6 PM — INVITATION ONLY — TEENS PARTY — OCT 31 — 6 PM — INVITATION ONLY — </span>
   </div></div>
 
   <div class="langbar">
@@ -191,8 +191,8 @@ dialog::backdrop{background:rgba(13,13,13,.78);backdrop-filter:blur(4px);-webkit
       <div class="part">
         <div class="head"><span data-i="admit">ADMIT ONE</span><span class="no"><span class="capn">67</span> <span data-i="spots">SPOTS</span></span></div>
         <div class="bigdate">
-          <span class="dd">31</span>
           <span class="dm"><span data-i="monthV">OCTOBER</span><span data-i="dayV">SATURDAY</span></span>
+          <span class="dd">31</span>
         </div>
         <div class="f"><span class="k" data-i="doors">START</span><span class="big" data-i="timeV">6:00 PM</span></div>
         <a class="f" href="https://maps.google.com/?q=5948+Pecan+Ave,+Orangevale,+CA+95662" target="_blank" rel="noopener"><span class="k" data-i="venue">ADDRESS ↗</span><span class="addr">5948 Pecan Ave<br>Orangevale, CA 95662</span></a>
@@ -305,10 +305,10 @@ ONLY</span></div>
         eName:"Enter your first and last name.",ePhone:"Enter a 10-digit US phone number.",eAge:"Enter your age as a number.",
         ePPhone:"Check the parent's phone: 10 digits.",eSold:"All {n} spots are taken.",eGen:"Something went wrong. Try again.",
         uD:"DAYS",uH:"HRS",uM:"MIN",uS:"SEC",
-        check:"Already registered? Check my ticket",checkTitle:"FIND YOUR TICKET",checkQ:"Phone number you registered with",find:"SHOW MY TICKET",eNotFound:"No ticket for this number yet. Register first.",share:"SHARE TO STORIES",shareHint:"Press and hold the image to save it, then post it to your story.",shareLink:"SHARE LINK",copied:"LINK COPIED",storyIn:"I'M IN",storyCta:"Register at teensparty.fun",storyDate:"SAT · OCT 31 · 6 PM",invite:"INVITATION\nONLY",mqTop:"TEENS PARTY — 31.10 — 6PM — INVITATION ONLY — TEENS PARTY — 31.10 — 6PM — INVITATION ONLY — ",
+        check:"Already registered? Check my ticket",checkTitle:"FIND YOUR TICKET",checkQ:"Phone number you registered with",find:"SHOW MY TICKET",eNotFound:"No ticket for this number yet. Register first.",share:"SHARE TO STORIES",shareHint:"Press and hold the image to save it, then post it to your story.",shareLink:"SHARE LINK",copied:"LINK COPIED",storyIn:"I'M IN",storyCta:"Register at teensparty.fun",storyDate:"SAT · OCT 31 · 6:00 PM",invite:"INVITATION\nONLY",mqTop:"TEENS PARTY — OCT 31 — 6 PM — INVITATION ONLY — TEENS PARTY — OCT 31 — 6 PM — INVITATION ONLY — ",
         mq:"DON'T MISS IT — BRING A FRIEND — DON'T MISS IT — BRING A FRIEND — DON'T MISS IT — BRING A FRIEND — "},
     ru:{taken:"ЗАНЯТО",left:"ОСТАЛОСЬ МЕСТ",lgTaken:"Занято",lgFree:"Свободно",lgMe:"Твоё место",starts:"ДО НАЧАЛА",admit:"ПРОПУСК",spots:"МЕСТ",
-        monthV:"ОКТЯБРЯ",dayV:"СУББОТА",doors:"НАЧАЛО",timeV:"18:00",venue:"АДРЕС ↗",cta:"ПОЛУЧИТЬ БИЛЕТ",
+        monthV:"OCTOBER",dayV:"СУББОТА",doors:"НАЧАЛО",timeV:"6:00 PM",venue:"АДРЕС ↗",cta:"ПОЛУЧИТЬ БИЛЕТ",
         busy:"ОФОРМЛЯЕМ…",soldout:"МЕСТ НЕТ",youreIn:"ТЫ В СПИСКЕ",already:"УЖЕ ЗАРЕГИСТРИРОВАН",again:"Зарегистрировать ещё одного",
         smsSent:"Билет отправлен SMS на {p}.",noSms:"Сделай скриншот билета и покажи QR-код на входе. Потерял? Зарегистрируйся ещё раз с тем же номером.",
         q1:"Как тебя зовут? Имя и фамилия",q2:"Твой номер телефона",h2:"Сюда придёт билет.",q3:"Сколько тебе лет?",
@@ -316,10 +316,10 @@ ONLY</span></div>
         eName:"Введи имя и фамилию.",ePhone:"Введи номер США из 10 цифр.",eAge:"Введи возраст числом.",
         ePPhone:"Проверь телефон родителя: 10 цифр.",eSold:"Все {n} мест заняты.",eGen:"Не получилось. Попробуй ещё раз.",
         uD:"ДНЕЙ",uH:"ЧАСОВ",uM:"МИН",uS:"СЕК",
-        check:"Уже зарегистрирован? Проверить билет",checkTitle:"НАЙТИ СВОЙ БИЛЕТ",checkQ:"Номер, с которым ты регистрировался",find:"ПОКАЗАТЬ БИЛЕТ",eNotFound:"На этот номер билета нет. Сначала зарегистрируйся.",share:"ПОДЕЛИТЬСЯ В СТОРИС",shareHint:"Нажми и удерживай картинку, чтобы сохранить, и выложи её в сторис.",shareLink:"ПОДЕЛИТЬСЯ ССЫЛКОЙ",copied:"ССЫЛКА СКОПИРОВАНА",storyIn:"Я ИДУ",storyCta:"Регистрация на teensparty.fun",storyDate:"СБ · 31 ОКТ · 18:00",invite:"ТОЛЬКО ПО\nПРИГЛАШЕНИЯМ",mqTop:"TEENS PARTY — 31.10 — 18:00 — ТОЛЬКО ПО ПРИГЛАШЕНИЯМ — TEENS PARTY — 31.10 — 18:00 — ТОЛЬКО ПО ПРИГЛАШЕНИЯМ — ",
+        check:"Уже зарегистрирован? Проверить билет",checkTitle:"НАЙТИ СВОЙ БИЛЕТ",checkQ:"Номер, с которым ты регистрировался",find:"ПОКАЗАТЬ БИЛЕТ",eNotFound:"На этот номер билета нет. Сначала зарегистрируйся.",share:"ПОДЕЛИТЬСЯ В СТОРИС",shareHint:"Нажми и удерживай картинку, чтобы сохранить, и выложи её в сторис.",shareLink:"ПОДЕЛИТЬСЯ ССЫЛКОЙ",copied:"ССЫЛКА СКОПИРОВАНА",storyIn:"Я ИДУ",storyCta:"Регистрация на teensparty.fun",storyDate:"СБ · OCT 31 · 6:00 PM",invite:"ТОЛЬКО ПО\nПРИГЛАШЕНИЯМ",mqTop:"TEENS PARTY — OCT 31 — 6 PM — ТОЛЬКО ПО ПРИГЛАШЕНИЯМ — TEENS PARTY — OCT 31 — 6 PM — ТОЛЬКО ПО ПРИГЛАШЕНИЯМ — ",
         mq:"НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — "},
     uk:{taken:"ЗАЙНЯТО",left:"ЗАЛИШИЛОСЬ МІСЦЬ",lgTaken:"Зайнято",lgFree:"Вільно",lgMe:"Твоє місце",starts:"ДО ПОЧАТКУ",admit:"ПЕРЕПУСТКА",spots:"МІСЦЬ",
-        monthV:"ЖОВТНЯ",dayV:"СУБОТА",doors:"ПОЧАТОК",timeV:"18:00",venue:"АДРЕСА ↗",cta:"ОТРИМАТИ КВИТОК",
+        monthV:"OCTOBER",dayV:"СУБОТА",doors:"ПОЧАТОК",timeV:"6:00 PM",venue:"АДРЕСА ↗",cta:"ОТРИМАТИ КВИТОК",
         busy:"ОФОРМЛЮЄМО…",soldout:"МІСЦЬ НЕМАЄ",youreIn:"ТИ В СПИСКУ",already:"ВЖЕ ЗАРЕЄСТРОВАНО",again:"Зареєструвати ще когось",
         smsSent:"Квиток надіслано SMS на {p}.",noSms:"Зроби скриншот квитка і покажи QR-код на вході. Загубив? Зареєструйся ще раз з тим самим номером.",
         q1:"Як тебе звати? Ім'я та прізвище",q2:"Твій номер телефону",h2:"Сюди прийде квиток.",q3:"Скільки тобі років?",
@@ -327,7 +327,7 @@ ONLY</span></div>
         eName:"Введи ім'я та прізвище.",ePhone:"Введи номер США з 10 цифр.",eAge:"Введи вік числом.",
         ePPhone:"Перевір телефон батьків: 10 цифр.",eSold:"Усі {n} місць зайняті.",eGen:"Не вийшло. Спробуй ще раз.",
         uD:"ДНІВ",uH:"ГОДИН",uM:"ХВ",uS:"СЕК",
-        check:"Вже зареєстрований? Перевірити квиток",checkTitle:"ЗНАЙТИ СВІЙ КВИТОК",checkQ:"Номер, з яким ти реєструвався",find:"ПОКАЗАТИ КВИТОК",eNotFound:"На цей номер квитка немає. Спочатку зареєструйся.",share:"ПОДІЛИТИСЯ В СТОРІС",shareHint:"Натисни й утримуй картинку, щоб зберегти, і виклади її в сторіс.",shareLink:"ПОДІЛИТИСЯ ПОСИЛАННЯМ",copied:"ПОСИЛАННЯ СКОПІЙОВАНО",storyIn:"Я ЙДУ",storyCta:"Реєстрація на teensparty.fun",storyDate:"СБ · 31 ЖОВТ · 18:00",invite:"ЛИШЕ ЗА\nЗАПРОШЕННЯМИ",mqTop:"TEENS PARTY — 31.10 — 18:00 — ЛИШЕ ЗА ЗАПРОШЕННЯМИ — TEENS PARTY — 31.10 — 18:00 — ЛИШЕ ЗА ЗАПРОШЕННЯМИ — ",
+        check:"Вже зареєстрований? Перевірити квиток",checkTitle:"ЗНАЙТИ СВІЙ КВИТОК",checkQ:"Номер, з яким ти реєструвався",find:"ПОКАЗАТИ КВИТОК",eNotFound:"На цей номер квитка немає. Спочатку зареєструйся.",share:"ПОДІЛИТИСЯ В СТОРІС",shareHint:"Натисни й утримуй картинку, щоб зберегти, і виклади її в сторіс.",shareLink:"ПОДІЛИТИСЯ ПОСИЛАННЯМ",copied:"ПОСИЛАННЯ СКОПІЙОВАНО",storyIn:"Я ЙДУ",storyCta:"Реєстрація на teensparty.fun",storyDate:"СБ · OCT 31 · 6:00 PM",invite:"ЛИШЕ ЗА\nЗАПРОШЕННЯМИ",mqTop:"TEENS PARTY — OCT 31 — 6 PM — ЛИШЕ ЗА ЗАПРОШЕННЯМИ — TEENS PARTY — OCT 31 — 6 PM — ЛИШЕ ЗА ЗАПРОШЕННЯМИ — ",
         mq:"НЕ ПРОПУСТИ — КЛИЧ ДРУЗІВ — НЕ ПРОПУСТИ — КЛИЧ ДРУЗІВ — НЕ ПРОПУСТИ — КЛИЧ ДРУЗІВ — "}
   };
 
@@ -578,7 +578,7 @@ ONLY</span></div>
       for(var i = -W - w * 0.4; i < W; i += w) x.fillText(unit, i, 4);
       x.restore();
     }
-    strip(170, -0.035, '#ff5a1f', '#0d0d0d', 'TEENS PARTY — 31.10 —', 64);
+    strip(170, -0.035, '#ff5a1f', '#0d0d0d', 'TEENS PARTY — OCT 31 —', 64);
     function centerStrip(y, rot, bg, fg, txt, size){
       x.save(); x.translate(W/2, y); x.rotate(rot);
       x.fillStyle = bg; x.fillRect(-W, -size * 0.95, W * 2, size * 1.9);
@@ -652,7 +652,7 @@ ONLY</span></div>
   $('pvClose').addEventListener('click', function(){ if(typeof $('dlg3').close === 'function') $('dlg3').close(); else $('dlg3').removeAttribute('open'); });
   $('pvLink').addEventListener('click', function(){
     var url = 'https://teensparty.fun';
-    if(navigator.share){ navigator.share({title:'TEENS PARTY', text:'TEENS PARTY · 31.10', url:url}).catch(function(){}); return; }
+    if(navigator.share){ navigator.share({title:'TEENS PARTY', text:'TEENS PARTY · OCT 31', url:url}).catch(function(){}); return; }
     var done = function(){ $('pvLink').textContent = T[lang].copied; setTimeout(function(){ $('pvLink').textContent = T[lang].shareLink; }, 2000); };
     if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done).catch(function(){});
   });
