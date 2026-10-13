@@ -49,6 +49,14 @@ dd{margin:0;font-weight:700;min-width:0;overflow-wrap:anywhere}
 .badge{font-size:13px;font-weight:800;padding:4px 8px;background:var(--ink);color:var(--paper);white-space:nowrap}
 .badge.in{background:var(--ok);color:var(--ink)}
 .card .btn{border-color:var(--ink);background:var(--orange)}
+.actions{display:flex;gap:8px}
+.actions .btn{flex:1}
+.trash{flex:none;width:52px;min-height:52px;display:grid;place-items:center;border:2px solid var(--ink);background:transparent;color:var(--ink);cursor:pointer}
+.trash:hover{background:var(--ink);color:var(--paper)}
+.confirm{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 12px;background:var(--bad);color:#fff;font-weight:800}
+.confirm span{flex:1 1 160px}
+.confirm button{min-height:44px;padding:8px 14px;border:2px solid #fff;background:transparent;color:#fff;font-weight:800;cursor:pointer}
+.confirm button.yes{background:#fff;color:var(--bad)}
 .err{margin:0;color:var(--bad);font-weight:800}
 .link{background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;padding:8px 0;min-height:44px;align-self:flex-start}
 </style>
@@ -122,6 +130,8 @@ dd{margin:0;font-weight:700;min-width:0;overflow-wrap:anywhere}
     [['Возраст', rec.age], ['Телефон', fmtPhone(rec.phone)], ['Родитель', rec.parentName || '—'], ['Тел. родителя', rec.parentPhone ? fmtPhone(rec.parentPhone) : '—']]
       .forEach(function(p){ dl.appendChild(el('dt', '', p[0])); dl.appendChild(el('dd', '', String(p[1]))); });
     c.appendChild(dl);
+    var actions = el('div', 'actions');
+    c.appendChild(actions);
     if(!rec.checkedIn){
       var b = el('button', 'btn', 'ОТМЕТИТЬ ВХОД');
       b.type = 'button';
@@ -133,14 +143,43 @@ dd{margin:0;font-weight:700;min-width:0;overflow-wrap:anywhere}
           var n = parseInt($('sIn').textContent, 10); if(!isNaN(n)) $('sIn').textContent = n + 1;
         }).catch(function(){ b.disabled = false; b.textContent = 'ОТМЕТИТЬ ВХОД'; showErr('Нет связи. Попробуй ещё раз.'); });
       });
-      c.appendChild(b);
+      actions.appendChild(b);
     }
+    var t = el('button', 'trash');
+    t.type = 'button';
+    t.setAttribute('aria-label', 'Удалить запись ' + rec.ticket);
+    t.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M19 6l-1 14H6L5 6"></path><path d="M10 11v6M14 11v6"></path></svg>';
+    t.addEventListener('click', function(){
+      if(c.querySelector('.confirm')) return;
+      var box = el('div', 'confirm');
+      box.appendChild(el('span', '', 'Удалить ' + rec.ticket + ' из таблицы? Это нельзя отменить.'));
+      var yes = el('button', 'yes', 'Удалить'); yes.type = 'button';
+      var no = el('button', '', 'Отмена'); no.type = 'button';
+      box.appendChild(yes); box.appendChild(no);
+      c.appendChild(box);
+      no.addEventListener('click', function(){ box.remove(); });
+      yes.addEventListener('click', function(){
+        yes.disabled = no.disabled = true; yes.textContent = 'Удаляю…';
+        post({action:'delete', ticket:rec.ticket}).then(function(r){
+          if(!r.ok){ box.remove(); showErr(r.code === 'key' ? 'Код доступа больше не подходит.' : 'Запись не найдена — возможно, уже удалена.'); return; }
+          setStats(r);
+          var gone = el('div', 'card');
+          gone.appendChild(el('div', 'name', rec.ticket + ' удалён'));
+          c.replaceWith(gone);
+          setTimeout(function(){ gone.remove(); }, 2500);
+        }).catch(function(){ yes.disabled = no.disabled = false; yes.textContent = 'Удалить'; showErr('Нет связи. Попробуй ещё раз.'); });
+      });
+    });
+    actions.appendChild(t);
     return c;
   }
 
+  var seq = 0;
   function lookup(q, fromQr){
+    var my = ++seq;
     showErr(''); $('results').textContent = ''; $('verdict').hidden = true;
     return post({action:'lookup', q:q}).then(function(r){
+      if(my !== seq) return r;
       if(!r.ok){
         if(r.code === 'key'){ try{ localStorage.removeItem('tp_admin'); }catch(e){} key = ''; showApp(false); $('loginErr').hidden = false; }
         else showErr('Ошибка поиска.');
@@ -156,12 +195,16 @@ dd{margin:0;font-weight:700;min-width:0;overflow-wrap:anywhere}
       if(!r.results.length && !fromQr) showErr('Никого не нашли.');
       r.results.forEach(function(rec){ $('results').appendChild(card(rec)); });
       return r;
-    }).catch(function(){ showErr('Нет связи с таблицей. Проверь интернет.'); });
+    }).catch(function(){ if(my === seq) showErr('Нет связи с таблицей. Проверь интернет.'); });
   }
 
+  var lastHash = '';
   function fromHash(){
     var h = decodeURIComponent(location.hash.replace(/^#/, ''));
-    if(/^TP-\d{3}\.[A-Z0-9]{6}$/i.test(h)){ $('q').value = h.split('.')[0]; lookup(h, true); return true; }
+    if(/^TP-\d{3}\.[A-Z0-9]{6}$/i.test(h)){
+      if(h === lastHash) return true;
+      lastHash = h; $('q').value = h.split('.')[0]; lookup(h, true); return true;
+    }
     return false;
   }
 
@@ -180,6 +223,7 @@ dd{margin:0;font-weight:700;min-width:0;overflow-wrap:anywhere}
   $('search').addEventListener('submit', function(e){
     e.preventDefault();
     var q = $('q').value.trim();
+    lastHash = '';
     if(q) lookup(q, false);
   });
 
