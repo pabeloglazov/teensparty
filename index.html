@@ -1,0 +1,517 @@
+<title>TEENS PARTY</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;900&family=Manrope:wght@500;700;800&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<style>
+/* Layout: big marquee strips top/bottom; left = title + seat board + countdown; right = ticket; registration = step-by-step popup */
+:root{
+  --bg:#0d0d0d; --fg:#f2efe8; --paper:#f2efe8; --ink:#0d0d0d; --orange:#ff5a1f; --orange-dark:#b83606;
+  --muted:#b9b4ab; --paper-muted:#55524c; --seat-empty:#262421; --err:#b3200c; --track:#d9d4ca;
+  --display:Unbounded, "Arial Black", Impact, sans-serif;
+  --body:Manrope, "Segoe UI", system-ui, sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--fg);font-family:var(--body)}
+a,button,input{font:inherit}
+:focus-visible{outline:3px solid var(--orange);outline-offset:3px}
+.page{position:relative;min-height:100svh;overflow:hidden;display:flex;flex-direction:column}
+
+/* marquee */
+.strip{overflow:hidden;font-family:var(--display);font-weight:900;white-space:nowrap;line-height:1}
+.strip.top{background:var(--orange);color:var(--ink);font-size:clamp(30px,4.4vw,52px);padding:20px 0;transform:rotate(-1.5deg) scale(1.06);margin-top:34px}
+.strip.bot{background:var(--paper);color:var(--ink);font-size:clamp(26px,3.6vw,42px);padding:18px 0;transform:rotate(1deg) scale(1.06);margin-bottom:40px}
+.track{display:inline-flex;animation:mq 26s linear infinite}
+.track span{padding-right:40px}
+.strip.bot .track{animation-direction:reverse;animation-duration:32s}
+@keyframes mq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* language switch */
+.langbar{width:100%;max-width:1200px;margin:28px auto 0;padding-inline:clamp(16px,4vw,48px);display:flex;justify-content:flex-end}
+.lang{display:inline-flex;border:2px solid var(--fg)}
+.lang button{background:transparent;color:var(--fg);border:0;padding:10px 16px;min-width:52px;min-height:44px;font-weight:800;letter-spacing:.1em;cursor:pointer}
+.lang button+button{border-left:2px solid var(--fg)}
+.lang button[aria-pressed="true"]{background:var(--fg);color:var(--ink)}
+
+.wrap{flex:1;width:100%;max-width:1200px;margin:0 auto;padding:clamp(24px,4vw,48px) clamp(16px,4vw,48px) clamp(40px,5vw,64px);display:flex;flex-wrap:wrap;align-items:stretch;gap:clamp(40px,5vw,72px)}
+.left{flex:999 1 440px;min-width:0;display:flex;flex-direction:column;gap:36px}
+h1{margin:0;font-family:var(--display);font-weight:900;font-size:clamp(54px,9.4vw,134px);line-height:.88;letter-spacing:-.03em}
+h1 span{display:block;animation:slam .5s cubic-bezier(.2,1.2,.4,1) both}
+h1 .outline{color:var(--bg);-webkit-text-stroke:2px var(--fg);animation-delay:.12s}
+@keyframes slam{from{transform:translateY(40%) scaleY(1.4);opacity:.2}to{transform:none;opacity:1}}
+
+/* seat board */
+.board{display:flex;flex-direction:column;gap:18px;max-width:560px}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px;background:var(--fg);border:2px solid var(--fg)}
+.stat{background:var(--bg);padding:16px 18px;display:flex;flex-direction:column;gap:6px}
+.stat.hot{background:var(--orange);color:var(--ink)}
+.stat .k{font-size:12px;font-weight:800;letter-spacing:.12em;line-height:1.25;min-height:2.5em}
+.stat .v{font-family:var(--display);font-weight:900;font-size:clamp(44px,6vw,64px);line-height:1;font-variant-numeric:tabular-nums}
+.stat .v small{font-size:.38em;font-weight:600;opacity:.75}
+.seats{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:6px}
+.seat{aspect-ratio:1;max-width:100%;border:2px solid #4a4640;background:var(--seat-empty);transition:background .4s ease,border-color .4s ease}
+.seat.on{background:var(--orange);border-color:var(--orange)}
+.seat.me{background:var(--paper);border-color:var(--paper);animation:pulse 1.2s ease-in-out 3}
+@keyframes pulse{50%{transform:scale(1.25)}}
+.legend{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;font-size:13px;color:var(--muted);font-weight:700;min-height:1.4em}
+.legend>span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.legend>span[hidden]{display:block!important;visibility:hidden}
+.legend i{display:inline-block;width:12px;height:12px;margin-right:8px;vertical-align:-1px}
+.timer .k{display:block;font-size:12px;font-weight:800;letter-spacing:.12em;color:var(--muted);margin-bottom:10px}
+.tgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:2px;background:var(--fg);border:2px solid var(--fg)}
+.tgrid div{background:var(--bg);padding:12px 6px;text-align:center;display:flex;flex-direction:column;gap:4px}
+.tgrid b{font-family:var(--display);font-weight:900;font-size:clamp(24px,3.4vw,34px);line-height:1;font-variant-numeric:tabular-nums}
+.tgrid span{font-size:11px;font-weight:800;letter-spacing:.12em;color:var(--muted);white-space:nowrap}
+
+/* ticket */
+.ticket{flex:1 1 320px;max-width:430px;background:var(--paper);color:var(--ink);border:3px solid var(--ink);box-shadow:12px 12px 0 var(--orange);display:flex;flex-direction:column;animation:drop .9s cubic-bezier(.2,1.4,.4,1) both .3s;transform:rotate(-1.5deg)}
+@keyframes drop{from{transform:translateY(-60px) rotate(-8deg);opacity:.2}to{transform:rotate(-1.5deg);opacity:1}}
+.part{padding:24px;display:flex;flex-direction:column;gap:18px}
+.part:first-child{gap:22px}
+.part.stub{flex:1}
+.part.stub .barcode{margin-top:auto}
+.stamp{flex:1;display:flex;align-items:center;justify-content:center;text-align:center;padding:12px 0;font-family:var(--display);font-weight:900;font-size:clamp(30px,3.4vw,46px);line-height:1;color:transparent;-webkit-text-stroke:2px var(--ink);transform:rotate(-8deg);text-wrap:balance}
+.bigdate{display:flex;align-items:flex-end;gap:14px;border-top:3px solid var(--ink);border-bottom:3px solid var(--ink);padding:10px 0}
+.bigdate .dd{font-family:var(--display);font-weight:900;font-size:clamp(84px,10vw,120px);line-height:.82;letter-spacing:-.05em}
+.bigdate .dm{display:flex;flex-direction:column;gap:6px;padding-bottom:4px;font-family:var(--display);font-weight:900;font-size:16px;line-height:1.1;min-width:0}
+.bigdate .dm span:last-child{font-family:var(--body);font-size:13px;font-weight:800;letter-spacing:.14em;color:var(--paper-muted)}
+@media (max-width:899px){ .stamp{display:none} }
+.mcta{display:none}
+@media (max-width:899px){
+  .mcta{display:block;position:fixed;left:0;right:0;bottom:0;z-index:5;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));background:linear-gradient(180deg,rgba(13,13,13,0),rgba(13,13,13,.92) 35%)}
+  .mcta .btn{width:100%}
+  .page{padding-bottom:84px}
+}
+.head{display:flex;justify-content:space-between;align-items:center;gap:12px;font-weight:800;font-size:12px;letter-spacing:.14em;white-space:nowrap}
+.no{background:var(--ink);color:var(--paper);padding:4px 8px;white-space:nowrap}
+.pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.f{display:flex;flex-direction:column;gap:4px;color:var(--ink);text-decoration:none;min-width:0}
+.f .k{font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--paper-muted)}
+.big{font-family:var(--display);font-weight:900;font-size:21px;white-space:nowrap}
+.addr{font-size:17px;font-weight:800;line-height:1.35}
+.perf{border-top:3px dashed var(--ink)}
+.btn{white-space:nowrap;background:var(--orange);color:var(--ink);border:3px solid var(--ink);box-shadow:6px 6px 0 var(--ink);font-family:var(--display);font-weight:900;font-size:16px;letter-spacing:.02em;padding:16px;min-height:52px;cursor:pointer;transition:transform .12s ease,box-shadow .12s ease}
+.btn:hover:not(:disabled){transform:translate(4px,4px);box-shadow:2px 2px 0 var(--ink)}
+.btn:disabled{cursor:default;background:#c9c4ba}
+.done{display:flex;flex-direction:column;gap:10px}
+.done .k{font-size:13px;font-weight:800;letter-spacing:.18em;color:var(--orange-dark)}
+.tno{font-family:var(--display);font-weight:900;font-size:clamp(44px,8vw,60px);line-height:1;font-variant-numeric:tabular-nums}
+.tname{font-size:20px;font-weight:800}
+.qr{width:200px;max-width:100%;aspect-ratio:1;background:#fff;border:3px solid var(--ink);padding:8px;margin-top:6px}
+.qr svg{display:block;width:100%;height:100%}
+.dmsg{margin:0;font-size:15px;font-weight:600;line-height:1.45}
+.again{align-self:flex-start;background:none;border:0;padding:8px 0;min-height:44px;color:var(--ink);font-weight:800;text-decoration:underline;cursor:pointer}
+.barcode{height:36px;background:repeating-linear-gradient(90deg,var(--ink) 0 2px,transparent 2px 5px,var(--ink) 5px 9px,transparent 9px 11px,var(--ink) 11px 12px,transparent 12px 16px)}
+.demo{margin:0;font-size:12px;font-weight:700;color:var(--paper-muted)}
+
+/* popup questionnaire */
+dialog{border:3px solid var(--ink);padding:0;background:var(--paper);color:var(--ink);width:min(520px,calc(100% - 32px));max-width:none;box-shadow:12px 12px 0 var(--orange)}
+dialog[open]{animation:pop .35s cubic-bezier(.2,1.3,.4,1)}
+@keyframes pop{from{transform:translateY(40px) scale(.94);opacity:0}to{transform:none;opacity:1}}
+dialog::backdrop{background:rgba(13,13,13,.78);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.q-top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 20px 0}
+.q-count{font-weight:800;font-size:13px;letter-spacing:.16em;font-variant-numeric:tabular-nums}
+.q-close{background:none;border:0;width:44px;height:44px;display:grid;place-items:center;cursor:pointer;color:var(--ink)}
+.q-bar{margin:12px 20px 0;height:6px;background:var(--track)}
+.q-bar i{display:block;height:100%;background:var(--orange);transition:width .3s ease}
+#qform{padding:24px 20px 20px;display:flex;flex-direction:column;gap:18px}
+.step{display:flex;flex-direction:column;gap:10px;animation:slide .3s ease}
+@keyframes slide{from{transform:translateX(24px);opacity:0}to{transform:none;opacity:1}}
+.step label{font-family:var(--display);font-weight:900;font-size:clamp(20px,4.4vw,26px);line-height:1.2;min-height:2.4em;text-wrap:balance}
+.hint{margin:0;font-size:14px;font-weight:700;color:var(--paper-muted);min-height:1.4em}
+.opt{display:inline-block;margin-left:6px;padding:2px 8px;font-family:var(--body);font-size:12px;font-weight:800;letter-spacing:.08em;background:var(--ink);color:var(--paper);vertical-align:middle}
+.step input{width:100%;min-height:56px;padding:12px 14px;border:3px solid var(--ink);background:#fff;color:var(--ink);font-size:20px;font-weight:700;border-radius:0}
+.err{margin:0;color:var(--err);font-weight:800;font-size:14px}
+.q-nav{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.q-nav .btn{flex:1 1 auto}
+.ghost{background:none;border:3px solid var(--ink);color:var(--ink);font-weight:800;padding:12px 16px;min-height:52px;cursor:pointer}
+.ghost:hover{background:var(--ink);color:var(--paper)}
+@media (max-width:520px){
+  dialog{margin:auto auto 0;width:100%;box-shadow:none;border-width:3px 0 0}
+  dialog[open]{animation:sheet .35s cubic-bezier(.2,1,.4,1)}
+  @keyframes sheet{from{transform:translateY(100%)}to{transform:none}}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+
+<main class="page">
+  <div class="strip top" aria-hidden="true"><div class="track">
+    <span data-i="mqTop">TEENS PARTY — 31.10 — 6PM — INVITATION ONLY — TEENS PARTY — 31.10 — 6PM — INVITATION ONLY — </span>
+    <span data-i="mqTop">TEENS PARTY — 31.10 — 6PM — INVITATION ONLY — TEENS PARTY — 31.10 — 6PM — INVITATION ONLY — </span>
+  </div></div>
+
+  <div class="langbar">
+    <div class="lang" role="group" aria-label="Language">
+      <button type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button type="button" data-lang="uk" aria-pressed="false">UA</button>
+      <button type="button" data-lang="ru" aria-pressed="false">RU</button>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="left">
+      <h1><span>TEENS</span><span class="outline">PARTY</span></h1>
+
+      <div class="board">
+        <div class="stats">
+          <div class="stat"><span class="k" data-i="taken">TAKEN</span><span class="v"><span id="taken">0</span> <small>/ <span class="capn">67</span></small></span></div>
+          <div class="stat hot"><span class="k" data-i="left">SPOTS LEFT</span><span class="v" id="left">67</span></div>
+        </div>
+        <div class="seats" id="seats" role="img" aria-label="67 spots"></div>
+        <div class="legend">
+          <span><i style="background:var(--orange)"></i><span data-i="lgTaken">Taken</span></span>
+          <span><i style="background:var(--seat-empty);border:2px solid #4a4640"></i><span data-i="lgFree">Free</span></span>
+          <span id="lgMe" hidden><i style="background:var(--paper)"></i><span data-i="lgMe">Your spot</span></span>
+        </div>
+        <div class="timer"><span class="k" data-i="starts">STARTS IN</span>
+          <div class="tgrid">
+            <div><b id="tD">00</b><span data-i="uD">DAYS</span></div>
+            <div><b id="tH">00</b><span data-i="uH">HRS</span></div>
+            <div><b id="tM">00</b><span data-i="uM">MIN</span></div>
+            <div><b id="tS">00</b><span data-i="uS">SEC</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ticket">
+      <div class="part">
+        <div class="head"><span data-i="admit">ADMIT ONE</span><span class="no"><span class="capn">67</span> <span data-i="spots">SPOTS</span></span></div>
+        <div class="bigdate">
+          <span class="dd">31</span>
+          <span class="dm"><span data-i="monthV">OCTOBER</span><span data-i="dayV">SATURDAY</span></span>
+        </div>
+        <div class="f"><span class="k" data-i="doors">START</span><span class="big" data-i="timeV">6:00 PM</span></div>
+        <a class="f" href="https://maps.google.com/?q=5948+Pecan+Ave,+Orangevale,+CA+95662" target="_blank" rel="noopener"><span class="k" data-i="venue">ADDRESS ↗</span><span class="addr">5948 Pecan Ave<br>Orangevale, CA 95662</span></a>
+      </div>
+      <div class="perf" aria-hidden="true"></div>
+      <div class="part stub">
+        <button class="btn" type="button" id="open" data-i="cta">GET MY TICKET</button>
+        <div class="stamp" id="stamp" aria-hidden="true"><span data-i="invite">INVITATION ONLY</span></div>
+        <div class="done" id="done" hidden aria-live="polite">
+          <span class="k" id="doneHead" data-i="youreIn">YOU'RE IN</span>
+          <div class="tno" id="tno">TP-000</div>
+          <div class="tname" id="tname"></div>
+          <div class="qr" id="qr" role="img" aria-label="QR"></div>
+          <p class="dmsg" id="dmsg"></p>
+          <button type="button" class="again" id="again" data-i="again">Register someone else</button>
+        </div>
+        <div class="barcode" id="barcode" aria-hidden="true"></div>
+        <p class="demo" id="demo" data-i="demo" hidden>Preview: registrations here aren't saved.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="strip bot" aria-hidden="true"><div class="track">
+    <span data-i="mq">DON'T MISS IT — BRING A FRIEND — DON'T MISS IT — BRING A FRIEND — DON'T MISS IT — BRING A FRIEND — </span>
+    <span data-i="mq">DON'T MISS IT — BRING A FRIEND — DON'T MISS IT — BRING A FRIEND — DON'T MISS IT — BRING A FRIEND — </span>
+  </div></div>
+</main>
+
+<div class="mcta" id="mcta"><button class="btn" type="button" id="open2" data-i="cta">GET MY TICKET</button></div>
+
+<dialog id="dlg" aria-labelledby="qcount">
+  <div class="q-top">
+    <span class="q-count" id="qcount">1 / 5</span>
+    <button type="button" class="q-close" id="qclose" aria-label="Close"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"></path></svg></button>
+  </div>
+  <div class="q-bar" aria-hidden="true"><i id="qbar" style="width:20%"></i></div>
+  <form id="qform" novalidate>
+    <div class="step" data-step="0">
+      <label for="f-name" data-i="q1">What's your first and last name?</label>
+      <input id="f-name" name="name" autocomplete="name" maxlength="60">
+    </div>
+    <div class="step" data-step="1" hidden>
+      <label for="f-phone" data-i="q2">Your phone number</label>
+      <p class="hint" data-i="h2">Your ticket goes here.</p>
+      <input id="f-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(916) 555-0123">
+    </div>
+    <div class="step" data-step="2" hidden>
+      <label for="f-age" data-i="q3">How old are you?</label>
+      <input id="f-age" name="age" type="text" inputmode="numeric" maxlength="2" autocomplete="off">
+    </div>
+    <div class="step" data-step="3" hidden>
+      <label for="f-pname"><span data-i="q4">Parent's name</span><span class="opt" data-i="optional">OPTIONAL</span></label>
+      <input id="f-pname" name="parentName" maxlength="60" autocomplete="off">
+    </div>
+    <div class="step" data-step="4" hidden>
+      <label for="f-pphone"><span data-i="q5">Parent's phone</span><span class="opt" data-i="optional">OPTIONAL</span></label>
+      <input id="f-pphone" name="parentPhone" type="tel" inputmode="tel" autocomplete="off" placeholder="(916) 555-0123">
+    </div>
+    <p class="err" id="err" role="alert" hidden></p>
+    <div class="q-nav">
+      <button type="button" class="ghost" id="back" data-i="back">Back</button>
+      <button type="button" class="ghost" id="skip" data-i="skip" hidden>Skip</button>
+      <button type="submit" class="btn" id="next" data-i="next">Next</button>
+    </div>
+  </form>
+</dialog>
+
+<script>
+(function(){
+  var CAPACITY = 67, STEPS = 5;
+  var TARGET = Date.parse('2026-10-31T18:00:00-07:00');
+
+  var T = {
+    en:{taken:"TAKEN",left:"SPOTS LEFT",lgTaken:"Taken",lgFree:"Free",lgMe:"Your spot",starts:"STARTS IN",admit:"ADMIT ONE",spots:"SPOTS",
+        monthV:"OCTOBER",dayV:"SATURDAY",doors:"START",timeV:"6:00 PM",venue:"ADDRESS ↗",cta:"GET MY TICKET",
+        busy:"BOOKING…",soldout:"SOLD OUT",youreIn:"YOU'RE IN",already:"ALREADY REGISTERED",again:"Register someone else",
+        smsSent:"Your ticket was texted to {p}.",noSms:"Screenshot this ticket and show the QR code at the entrance. Lost it? Register again with the same phone number.",
+        q1:"What's your first and last name?",q2:"Your phone number",h2:"Your ticket goes here.",q3:"How old are you?",
+        q4:"Parent's name",q5:"Parent's phone",optional:"OPTIONAL",next:"Next",back:"Back",skip:"Skip",close:"Close",
+        eName:"Enter your first and last name.",ePhone:"Enter a 10-digit US phone number.",eAge:"Enter your age as a number.",
+        ePPhone:"Check the parent's phone: 10 digits.",eSold:"All {n} spots are taken.",eGen:"Something went wrong. Try again.",
+        demo:"Preview: registrations here aren't saved.",uD:"DAYS",uH:"HRS",uM:"MIN",uS:"SEC",
+        invite:"INVITATION ONLY",mqTop:"TEENS PARTY — 31.10 — 6PM — INVITATION ONLY — TEENS PARTY — 31.10 — 6PM — INVITATION ONLY — ",
+        mq:"DON'T MISS IT — BRING A FRIEND — DON'T MISS IT — BRING A FRIEND — DON'T MISS IT — BRING A FRIEND — "},
+    ru:{taken:"ЗАНЯТО",left:"ОСТАЛОСЬ МЕСТ",lgTaken:"Занято",lgFree:"Свободно",lgMe:"Твоё место",starts:"ДО НАЧАЛА",admit:"ПРОПУСК",spots:"МЕСТ",
+        monthV:"ОКТЯБРЯ",dayV:"СУББОТА",doors:"НАЧАЛО",timeV:"18:00",venue:"АДРЕС ↗",cta:"ПОЛУЧИТЬ БИЛЕТ",
+        busy:"ОФОРМЛЯЕМ…",soldout:"МЕСТ НЕТ",youreIn:"ТЫ В СПИСКЕ",already:"УЖЕ ЗАРЕГИСТРИРОВАН",again:"Зарегистрировать ещё одного",
+        smsSent:"Билет отправлен SMS на {p}.",noSms:"Сделай скриншот билета и покажи QR-код на входе. Потерял? Зарегистрируйся ещё раз с тем же номером.",
+        q1:"Как тебя зовут? Имя и фамилия",q2:"Твой номер телефона",h2:"Сюда придёт билет.",q3:"Сколько тебе лет?",
+        q4:"Имя родителя",q5:"Телефон родителя",optional:"НЕОБЯЗАТЕЛЬНО",next:"Далее",back:"Назад",skip:"Пропустить",close:"Закрыть",
+        eName:"Введи имя и фамилию.",ePhone:"Введи номер США из 10 цифр.",eAge:"Введи возраст числом.",
+        ePPhone:"Проверь телефон родителя: 10 цифр.",eSold:"Все {n} мест заняты.",eGen:"Не получилось. Попробуй ещё раз.",
+        demo:"Предпросмотр: регистрации здесь не сохраняются.",uD:"ДНЕЙ",uH:"ЧАСОВ",uM:"МИН",uS:"СЕК",
+        invite:"ТОЛЬКО ПО ПРИГЛАШЕНИЯМ",mqTop:"TEENS PARTY — 31.10 — 18:00 — ТОЛЬКО ПО ПРИГЛАШЕНИЯМ — TEENS PARTY — 31.10 — 18:00 — ТОЛЬКО ПО ПРИГЛАШЕНИЯМ — ",
+        mq:"НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — "},
+    uk:{taken:"ЗАЙНЯТО",left:"ЗАЛИШИЛОСЬ МІСЦЬ",lgTaken:"Зайнято",lgFree:"Вільно",lgMe:"Твоє місце",starts:"ДО ПОЧАТКУ",admit:"ПЕРЕПУСТКА",spots:"МІСЦЬ",
+        monthV:"ЖОВТНЯ",dayV:"СУБОТА",doors:"ПОЧАТОК",timeV:"18:00",venue:"АДРЕСА ↗",cta:"ОТРИМАТИ КВИТОК",
+        busy:"ОФОРМЛЮЄМО…",soldout:"МІСЦЬ НЕМАЄ",youreIn:"ТИ В СПИСКУ",already:"ВЖЕ ЗАРЕЄСТРОВАНО",again:"Зареєструвати ще когось",
+        smsSent:"Квиток надіслано SMS на {p}.",noSms:"Зроби скриншот квитка і покажи QR-код на вході. Загубив? Зареєструйся ще раз з тим самим номером.",
+        q1:"Як тебе звати? Ім'я та прізвище",q2:"Твій номер телефону",h2:"Сюди прийде квиток.",q3:"Скільки тобі років?",
+        q4:"Ім'я одного з батьків",q5:"Телефон одного з батьків",optional:"НЕОБОВ'ЯЗКОВО",next:"Далі",back:"Назад",skip:"Пропустити",close:"Закрити",
+        eName:"Введи ім'я та прізвище.",ePhone:"Введи номер США з 10 цифр.",eAge:"Введи вік числом.",
+        ePPhone:"Перевір телефон батьків: 10 цифр.",eSold:"Усі {n} місць зайняті.",eGen:"Не вийшло. Спробуй ще раз.",
+        demo:"Попередній перегляд: реєстрації тут не зберігаються.",uD:"ДНІВ",uH:"ГОДИН",uM:"ХВ",uS:"СЕК",
+        invite:"ЛИШЕ ЗА ЗАПРОШЕННЯМИ",mqTop:"TEENS PARTY — 31.10 — 18:00 — ЛИШЕ ЗА ЗАПРОШЕННЯМИ — TEENS PARTY — 31.10 — 18:00 — ЛИШЕ ЗА ЗАПРОШЕННЯМИ — ",
+        mq:"НЕ ПРОПУСТИ — КЛИЧ ДРУЗІВ — НЕ ПРОПУСТИ — КЛИЧ ДРУЗІВ — НЕ ПРОПУСТИ — КЛИЧ ДРУЗІВ — "}
+  };
+
+  var $ = function(id){ return document.getElementById(id); };
+  var lang = 'en', stats = {capacity:CAPACITY, taken:0, left:CAPACITY}, mine = null, busy = false, step = 0;
+  var steps = Array.prototype.slice.call(document.querySelectorAll('.step'));
+  var inputs = ['f-name','f-phone','f-age','f-pname','f-pphone'].map($);
+  var OPTIONAL = {3:true, 4:true};
+  var STEP_ERR = {name:0, phone:1, age:2, pphone:4};
+
+  function store(k, v){ try{ if(v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); }catch(e){ return null; } }
+
+  /* validation shared with the server's rules */
+  function digits10(p){ var d = String(p || '').replace(/\D/g,''); if(d.length === 11 && d[0] === '1') d = d.slice(1); return d.length === 10 ? d : null; }
+  function validName(n){ return String(n || '').trim().split(/\s+/).filter(function(w){ return w.length > 0; }).length >= 2; }
+  function validAge(a){ var s = String(a || '').trim(); return /^\d{1,2}$/.test(s) && +s >= 5 && +s <= 99; }
+  function checkStep(i){
+    var v = inputs[i].value;
+    if(i === 0 && !validName(v)) return 'name';
+    if(i === 1 && !digits10(v)) return 'phone';
+    if(i === 2 && !validAge(v)) return 'age';
+    if(i === 4 && v.trim() && !digits10(v)) return 'pphone';
+    return null;
+  }
+
+  /* backend: google.script.run inside Apps Script, JSON API on teensparty.fun, demo elsewhere */
+  var API = 'https://script.google.com/macros/s/AKfycbzrKsCRRilLJLRPbAgoQ26ONDOv3liAsMgXgN0V3gIIInhhtdk8ZjMxWhABss3qh-Hq/exec';
+  var gas = (typeof google !== 'undefined' && google.script && google.script.run) ? true : false;
+  var useApi = !gas && /(^|\.)teensparty\.fun$|\.github\.io$|^localhost$|^127\.0\.0\.1$/.test(location.hostname);
+  var live = gas || useApi;
+  var demo = {
+    taken: 13, phones: {},
+    getStats: function(){ return {capacity:CAPACITY, taken:this.taken, left:CAPACITY - this.taken}; },
+    register: function(f){
+      if(!validName(f.name)) return {ok:false, code:'name'};
+      var d = digits10(f.phone); if(!d) return {ok:false, code:'phone'};
+      if(!validAge(f.age)) return {ok:false, code:'age'};
+      if(String(f.parentPhone || '').trim() && !digits10(f.parentPhone)) return {ok:false, code:'pphone'};
+      if(this.phones[d]){ var e = this.phones[d]; return {ok:true, existing:true, ticket:e.t, seat:e.s, name:e.n, qr:e.q, sms:false, stats:this.getStats()}; }
+      if(this.taken >= CAPACITY) return {ok:false, code:'soldout', stats:this.getStats()};
+      this.taken++;
+      var t = 'TP-' + String(this.taken).padStart(3,'0');
+      var q = 'DEMO' + String(this.taken).padStart(2,'0');
+      this.phones[d] = {t:t, s:this.taken, n:f.name.trim(), q:q};
+      return {ok:true, ticket:t, seat:this.taken, name:f.name.trim(), qr:q, sms:false, stats:this.getStats()};
+    }
+  };
+  function call(fn, arg){
+    return new Promise(function(res, rej){
+      if(gas){
+        var r = google.script.run.withSuccessHandler(res).withFailureHandler(rej);
+        if(arg === undefined) r[fn](); else r[fn](arg);
+      } else if(useApi){
+        var req = fn === 'getStats'
+          ? fetch(API + '?action=stats&t=' + Date.now())
+          : fetch(API, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(arg)});
+        req.then(function(x){ if(!x.ok) throw new Error('HTTP ' + x.status); return x.json(); }).then(res, rej);
+      } else {
+        setTimeout(function(){ try{ res(demo[fn](arg)); }catch(e){ rej(e); } }, 600);
+      }
+    });
+  }
+
+  /* seats */
+  var seatEls = [];
+  for(var i = 0; i < CAPACITY; i++){ var s = document.createElement('span'); s.className = 'seat'; $('seats').appendChild(s); seatEls.push(s); }
+
+  function renderStats(){
+    var cap = stats.capacity || CAPACITY, taken = Math.min(cap, stats.taken || 0), left = Math.max(0, cap - taken);
+    $('taken').textContent = taken;
+    $('left').textContent = left;
+    document.querySelectorAll('.capn').forEach(function(el){ el.textContent = cap; });
+    $('seats').setAttribute('aria-label', taken + ' / ' + cap);
+    var mySeat = mine ? Math.min(cap, mine.seat || 0) : 0;
+    seatEls.forEach(function(el, idx){
+      el.classList.toggle('on', idx < taken && idx + 1 !== mySeat);
+      el.classList.toggle('me', idx + 1 === mySeat);
+    });
+    $('lgMe').hidden = !mySeat;
+    var sold = left === 0 && !mine;
+    $('open').disabled = sold; $('open2').disabled = sold;
+    $('open').textContent = $('open2').textContent = sold ? T[lang].soldout : T[lang].cta;
+    $('next').disabled = busy;
+    $('next').textContent = busy ? T[lang].busy : (step === STEPS - 1 ? T[lang].cta : T[lang].next);
+  }
+
+  function fmtPhone(p){ var d = digits10(p); return d ? '(' + d.slice(0,3) + ') ' + d.slice(3,6) + '-' + d.slice(6) : p; }
+
+  var qrDrawn = '';
+  function drawQr(){
+    var box = $('qr');
+    if(!mine || !mine.qr){ box.hidden = true; qrDrawn = ''; return; }
+    var payload = 'https://teensparty.fun/check.html#' + mine.ticket + '.' + mine.qr;
+    box.hidden = false;
+    if(qrDrawn === payload) return;
+    if(typeof qrcode !== 'function'){ box.textContent = mine.ticket + '.' + mine.qr; qrDrawn = ''; return; }
+    var q = qrcode(0, 'M'); q.addData(payload); q.make();
+    box.innerHTML = q.createSvgTag({cellSize:4, margin:0, scalable:true});
+    qrDrawn = payload;
+  }
+
+  function renderDone(){
+    $('open').hidden = !!mine;
+    $('mcta').hidden = !!mine;
+    $('done').hidden = !mine;
+    $('barcode').hidden = !!mine;
+    $('stamp').hidden = !!mine;
+    drawQr();
+    if(!mine) return;
+    $('doneHead').textContent = mine.existing ? T[lang].already : T[lang].youreIn;
+    $('tno').textContent = mine.ticket;
+    $('tname').textContent = mine.name;
+    $('dmsg').textContent = mine.sms ? T[lang].smsSent.replace('{p}', fmtPhone(mine.phone)) : T[lang].noSms;
+  }
+
+  /* popup steps */
+  function showStep(i){
+    step = i;
+    steps.forEach(function(el, idx){ el.hidden = idx !== i; });
+    $('qcount').textContent = (i + 1) + ' / ' + STEPS;
+    $('qbar').style.width = ((i + 1) / STEPS * 100) + '%';
+    $('back').hidden = i === 0;
+    $('skip').hidden = !OPTIONAL[i];
+    renderStats();
+    setTimeout(function(){ inputs[i].focus(); }, 30);
+  }
+  function hideErr(){ $('err').hidden = true; $('err').dataset.code = ''; }
+  function showErr(code){
+    var map = {name:'eName', phone:'ePhone', age:'eAge', pphone:'ePPhone', soldout:'eSold'};
+    $('err').dataset.code = code;
+    $('err').textContent = T[lang][map[code] || 'eGen'].replace('{n}', stats.capacity || CAPACITY);
+    $('err').hidden = false;
+  }
+  function openDlg(){
+    hideErr(); showStep(0);
+    if(typeof $('dlg').showModal === 'function') $('dlg').showModal(); else $('dlg').setAttribute('open', '');
+  }
+  function closeDlg(){ if($('dlg').open){ if(typeof $('dlg').close === 'function') $('dlg').close(); else $('dlg').removeAttribute('open'); } }
+
+  function submitAll(){
+    busy = true; renderStats();
+    var data = {name:inputs[0].value.trim(), phone:inputs[1].value, age:inputs[2].value.trim(),
+                parentName:inputs[3].value.trim(), parentPhone:inputs[4].value, lang:lang};
+    call('register', data).then(function(r){
+      busy = false;
+      if(r && r.stats) stats = r.stats;
+      if(!r || !r.ok){
+        var code = r && r.code;
+        if(STEP_ERR[code] !== undefined) showStep(STEP_ERR[code]);
+        showErr(code); renderStats(); return;
+      }
+      mine = {ticket:r.ticket, seat:r.seat, name:r.name, qr:r.qr || '', sms:!!r.sms, phone:data.phone, existing:!!r.existing};
+      store('tp_ticket', JSON.stringify(mine));
+      closeDlg(); renderStats(); renderDone();
+    }).catch(function(){ busy = false; showErr('gen'); renderStats(); });
+  }
+
+  $('qform').addEventListener('submit', function(e){
+    e.preventDefault();
+    if(busy) return;
+    var err = checkStep(step);
+    if(err){ showErr(err); inputs[step].focus(); return; }
+    hideErr();
+    if(step < STEPS - 1) showStep(step + 1); else submitAll();
+  });
+  $('back').addEventListener('click', function(){ if(step > 0 && !busy){ hideErr(); showStep(step - 1); } });
+  $('skip').addEventListener('click', function(){
+    if(busy) return;
+    inputs[step].value = ''; hideErr();
+    if(step < STEPS - 1) showStep(step + 1); else submitAll();
+  });
+  $('qclose').addEventListener('click', closeDlg);
+  $('open').addEventListener('click', openDlg);
+  $('open2').addEventListener('click', openDlg);
+
+  /* phone mask */
+  [inputs[1], inputs[4]].forEach(function(inp){
+    inp.addEventListener('input', function(e){
+      var d = e.target.value.replace(/\D/g,'');
+      if(d.length === 11 && d[0] === '1') d = d.slice(1);
+      d = d.slice(0,10);
+      var out = d;
+      if(d.length > 6) out = '(' + d.slice(0,3) + ') ' + d.slice(3,6) + '-' + d.slice(6);
+      else if(d.length > 3) out = '(' + d.slice(0,3) + ') ' + d.slice(3);
+      else if(d.length > 0) out = '(' + d;
+      e.target.value = out;
+    });
+  });
+  inputs[2].addEventListener('input', function(e){ e.target.value = e.target.value.replace(/\D/g,'').slice(0,2); });
+
+  $('again').addEventListener('click', function(){
+    mine = null; store('tp_ticket', '');
+    inputs.forEach(function(inp){ inp.value = ''; });
+    renderStats(); renderDone(); openDlg();
+  });
+
+  function setLang(l){
+    if(!T[l]) l = 'en';
+    lang = l;
+    document.documentElement.lang = l;
+    document.querySelectorAll('[data-i]').forEach(function(el){ var v = T[l][el.getAttribute('data-i')]; if(typeof v === 'string') el.textContent = v; });
+    document.querySelectorAll('.lang button').forEach(function(b){ b.setAttribute('aria-pressed', b.getAttribute('data-lang') === l ? 'true' : 'false'); });
+    $('qclose').setAttribute('aria-label', T[l].close);
+    if(!$('err').hidden && $('err').dataset.code) showErr($('err').dataset.code);
+    store('tp_lang', l);
+    renderStats(); renderDone(); tick();
+  }
+  document.querySelectorAll('.lang button').forEach(function(b){ b.addEventListener('click', function(){ setLang(b.getAttribute('data-lang')); }); });
+
+  function p2(n){ return String(n).padStart(2,'0'); }
+  function tick(){
+    var d = Math.max(0, TARGET - Date.now());
+    $('tD').textContent = p2(Math.floor(d/864e5));
+    $('tH').textContent = p2(Math.floor(d/36e5)%24);
+    $('tM').textContent = p2(Math.floor(d/6e4)%60);
+    $('tS').textContent = p2(Math.floor(d/1e3)%60);
+  }
+  function refresh(){ call('getStats').then(function(s){ if(s){ stats = s; renderStats(); } }).catch(function(){}); }
+
+  /* boot */
+  try{ var saved = JSON.parse(store('tp_ticket') || 'null'); if(saved && saved.ticket) mine = saved; }catch(e){}
+  setLang(store('tp_lang') || 'en');
+  if(!live) $('demo').hidden = false;
+  refresh();
+  setInterval(tick, 1000);
+  if(live) setInterval(refresh, 20000);
+})();
+</script>
