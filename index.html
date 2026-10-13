@@ -576,7 +576,6 @@ ONLY</span></div>
     x.fillStyle = '#f2efe8'; x.fillRect(cx, cy, cw, ch);
     x.lineWidth = 6; x.strokeStyle = '#0d0d0d'; x.strokeRect(cx, cy, cw, ch);
     x.fillStyle = '#0d0d0d'; x.font = '800 30px ' + B; x.fillText(L.admit, cx + 50, cy + 80);
-    x.font = '900 40px ' + D; x.textAlign = 'right'; x.fillText(mine ? mine.ticket : '', cx + cw - 50, cy + 82); x.textAlign = 'left';
     var nm = mine ? mine.name : '', size = 72, lines;
     do { x.font = '900 ' + size + 'px ' + D; lines = wrapLines(x, nm, cw - 100); size -= 4; } while((lines.length > 2 || lines.some(function(l){ return x.measureText(l).width > cw - 100; })) && size > 32);
     lines.slice(0, 2).forEach(function(ln, i){ x.fillText(ln, cx + 50, cy + 200 + i * (size + 14)); });
