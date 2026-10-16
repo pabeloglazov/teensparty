@@ -286,7 +286,9 @@ body.cur .lsw{opacity:1;pointer-events:auto}
   });
   $('fin').addEventListener('click', function () { if (revealed < 3) { revealed++; renderFin(); } });
   /* клик по QR — крупно поверх размытого экрана; клик или Esc закрывает */
-  document.querySelector('.join').addEventListener('click', function () {
+  function hideQr() { var z = document.querySelector('.qz'); if (z) z.remove(); }
+  document.querySelector('.join').addEventListener('click', showQr);
+  function showQr() {
     if (document.querySelector('.qz')) return;
     var z = document.createElement('div'); z.className = 'qz';
     var svg = ''; try { var q = qrcode(0, 'M'); q.addData(JOIN); q.make(); svg = q.createSvgTag({ cellSize: 8, margin: 1, scalable: true }); } catch (e) {}
@@ -295,7 +297,7 @@ body.cur .lsw{opacity:1;pointer-events:auto}
     function close() { z.remove(); document.removeEventListener('keydown', k); }
     function k(e) { if (e.key === 'Escape') close(); }
     z.onclick = close; document.addEventListener('keydown', k);
-  });
+  }
   var curT; document.addEventListener('mousemove', function () { document.body.classList.add('cur'); clearTimeout(curT); curT = setTimeout(function () { document.body.classList.remove('cur'); }, 2000); });
   if (Q.get('final') === '1') { $('fin').hidden = false; }
   /* пульт из админки: ведущий переключает этот экран (живая игра / итоги и номинации) */
@@ -305,12 +307,12 @@ body.cur .lsw{opacity:1;pointer-events:auto}
       .then(function (r) { return r.json(); })
       .then(function (j) {
         if (!j.ok || !j.data) return; var s = j.data;
-        if (SCR.t === -1) { SCR = s; if (s.m !== 'final' || !s.t) return; }
+        if (SCR.t === -1) { SCR = s; if (!s.t || (s.m !== 'final' && !s.q)) return; }
         else if (s.t === SCR.t) return;
         SCR = s;
         var f = $('fin');
-        if (s.m === 'final') { f.hidden = false; revealed = s.r || 0; renderFin(); }
-        else if (!f.hidden) { f.hidden = true; revealed = 0; nextSpot(); }
+        if (s.m === 'final') { hideQr(); f.hidden = false; revealed = s.r || 0; renderFin(); }
+        else { if (!f.hidden) { f.hidden = true; revealed = 0; nextSpot(); } if (s.q) showQr(); else hideQr(); }
       }).catch(function () {})
       .then(function () { setTimeout(pollScreen, 2500); });
   }
