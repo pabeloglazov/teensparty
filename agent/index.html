@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Агент 3:16 · TEENS PARTY</title>
+<meta name="description" content="Агент 3:16 — секретные миссии на TEENS PARTY">
+<meta name="theme-color" content="#0d0d0d">
+<meta property="og:title" content="Агент 3:16 · TEENS PARTY">
+<meta property="og:description" content="Получи кодовое имя и секретные миссии · Get your code name and secret missions">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%95%B6%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;900&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d0d0d; --fg:#f2efe8; --paper:#f2efe8; --ink:#0d0d0d; --orange:#ff5a1f; --orange-dark:#b83606;
+    --muted:#b9b4ab; --pmuted:#55524c; --line:#d9d4ca; --err:#b3200c; --ok:#ff5a1f;
+    --display:Unbounded,"Arial Black",Impact,sans-serif; --body:Manrope,"Segoe UI",system-ui,sans-serif;
+    color-scheme:dark;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  [hidden]{display:none!important}
+  html,body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.45}
+  body{min-height:100vh;overflow-x:hidden;padding-bottom:calc(env(safe-area-inset-bottom) + 28px)}
+  button,input,textarea{font:inherit}
+  :focus-visible{outline:3px solid var(--orange);outline-offset:3px}
+  .strip{overflow:hidden;font-family:var(--display);font-weight:900;white-space:nowrap;line-height:1;background:var(--orange);color:var(--ink);font-size:22px;padding:12px 0;transform:rotate(-1.5deg) scale(1.08);margin:calc(env(safe-area-inset-top) + 18px) 0 6px}
+  .strip.bot{background:var(--paper);transform:rotate(1deg) scale(1.08);margin:34px 0 10px;font-size:18px}
+  .track{display:inline-flex;animation:mq 22s linear infinite}
+  .track span{padding-right:28px}
+  .strip.bot .track{animation-direction:reverse;animation-duration:28s}
+  @keyframes mq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  .wrap{max-width:480px;margin:0 auto;padding:0 16px}
+  h1,h2{font-family:var(--display);font-weight:900;margin:0;line-height:.95;letter-spacing:-.02em}
+  h1{font-size:clamp(58px,19vw,88px);line-height:.86}
+  h1 span{display:block;animation:slam .5s cubic-bezier(.2,1.2,.4,1) both}
+  h1 .outline{color:var(--bg);-webkit-text-stroke:2px var(--fg);animation-delay:.12s}
+  @keyframes slam{from{transform:translateY(40%) scaleY(1.4);opacity:.2}to{transform:none;opacity:1}}
+  h2{font-size:26px;line-height:1.08}
+  .langbar{display:flex;justify-content:flex-end;margin:18px 0 10px}
+  .lang{display:inline-flex;border:2px solid var(--fg)}
+  .lang button{background:transparent;color:var(--fg);border:0;padding:8px 14px;min-width:48px;min-height:40px;font-weight:800;letter-spacing:.1em;cursor:pointer;font-size:13px}
+  .lang button+button{border-left:2px solid var(--fg)}
+  .lang button.on{background:var(--fg);color:var(--ink)}
+  .hero{padding:6px 0 26px}
+  .hero .kicker{color:var(--orange)}
+  .kicker{font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:800;margin-bottom:10px;color:var(--orange-dark)}
+  .lead{color:var(--muted);margin:18px 0 0;font-size:16px;font-weight:600;max-width:34ch}
+  .card{background:var(--paper);color:var(--ink);border:3px solid var(--ink);box-shadow:8px 8px 0 var(--orange);padding:20px;margin:0 8px 22px 0;position:relative}
+  .card.dark{background:var(--bg);color:var(--fg);border-color:var(--fg);box-shadow:none}
+  .card.mission{animation:drop .7s cubic-bezier(.2,1.4,.4,1) both;transform:rotate(-1deg)}
+  @keyframes drop{from{transform:translateY(-50px) rotate(-7deg);opacity:.1}to{transform:rotate(-1deg);opacity:1}}
+  .card.mission .tag{position:absolute;top:-14px;right:14px;background:var(--ink);color:var(--paper);font-weight:800;font-size:11px;letter-spacing:.16em;padding:5px 9px;text-transform:uppercase}
+  .center{text-align:center}
+  .lbl{display:block;font-family:var(--display);font-weight:900;font-size:17px;line-height:1.2;margin:4px 0 10px}
+  .lbl .opt{font-family:var(--body);font-size:11px;font-weight:800;letter-spacing:.08em;background:var(--ink);color:var(--paper);padding:2px 7px;margin-left:4px;vertical-align:middle;text-transform:uppercase}
+  .lbl + .inp{margin-bottom:20px}
+  .hint{color:var(--pmuted);font-size:14px;font-weight:700;margin:-4px 0 12px}
+  .inp{width:100%;border:3px solid var(--ink);border-radius:0;padding:13px 14px;font-size:19px;font-weight:700;background:#fff;color:var(--ink);outline:none;resize:none}
+  .inp:focus{border-color:var(--orange)}
+  .inp.code{font-family:var(--display);font-size:38px;letter-spacing:.3em;text-align:center;font-weight:900;padding:10px}
+  textarea.inp{font-size:16px;font-weight:600}
+  .facts{display:grid;grid-template-columns:1fr;gap:6px}
+  .fact{display:flex;align-items:center;gap:12px;text-align:left;border:2px solid var(--ink);background:#fff;padding:11px 12px;font-size:15px;font-weight:700;color:var(--ink);cursor:pointer;transition:transform .12s}
+  .fact .box{flex:0 0 22px;height:22px;border:2px solid var(--ink);position:relative;background:#fff}
+  .fact.on{background:var(--ink);color:var(--paper)}
+  .fact.on .box{background:var(--orange);border-color:var(--orange)}
+  .fact.on .box:after{content:"";position:absolute;left:6px;top:1px;width:5px;height:11px;border:solid var(--ink);border-width:0 3px 3px 0;transform:rotate(45deg)}
+  .fact:active{transform:scale(.98)}
+  .btn{display:block;width:100%;background:var(--orange);color:var(--ink);border:3px solid var(--ink);box-shadow:6px 6px 0 var(--ink);font-family:var(--display);font-weight:900;font-size:17px;letter-spacing:.02em;padding:16px;min-height:56px;margin-top:20px;cursor:pointer;transition:transform .12s ease,box-shadow .12s ease;border-radius:0}
+  .btn:active:not(:disabled),.btn:hover:not(:disabled){transform:translate(4px,4px);box-shadow:2px 2px 0 var(--ink)}
+  .btn.ghost{background:var(--paper)}
+  .btn:disabled{background:#c9c4ba;cursor:default}
+  .link{display:block;margin:6px auto 0;background:none;border:0;color:var(--muted);font-size:14px;font-weight:800;letter-spacing:.04em;text-decoration:underline;text-underline-offset:3px;padding:12px;cursor:pointer}
+  .card .link,.ovcard .link{color:var(--ink)}
+  .err{color:var(--err);font-size:14px;font-weight:800;margin-top:10px}
+  .err:empty{display:none}
+  .muted{color:var(--pmuted);font-weight:600}
+  .top{display:flex;align-items:stretch;justify-content:space-between;gap:10px;margin:0 0 22px}
+  .agent{flex:1;min-width:0;border:2px solid var(--fg);padding:10px 12px;display:flex;flex-direction:column;justify-content:center}
+  .agent small{font-size:10px;font-weight:800;letter-spacing:.16em;color:var(--muted);text-transform:uppercase}
+  .agent b{font-family:var(--display);font-weight:900;font-size:19px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .agent i{font-style:normal;font-size:12px;color:var(--muted);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .dots{display:flex;gap:4px;margin-top:8px;align-items:center;flex-wrap:wrap}
+  .dot{width:16px;height:8px;background:#3a3732}
+  .dot.on{background:var(--orange)}
+  .plus{font-size:12px;color:var(--orange);font-weight:800;margin-left:4px}
+  .codechip{border:2px solid var(--fg);background:var(--fg);color:var(--ink);padding:8px 12px;text-align:center;cursor:pointer;min-width:92px}
+  .codechip span{display:block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:800}
+  .codechip b{font-family:var(--display);font-weight:900;font-size:26px;letter-spacing:.08em}
+  .task{font-size:18px;font-weight:700;line-height:1.4;margin:12px 0 0}
+  .task.big{font-family:var(--display);font-weight:900;font-size:23px;line-height:1.2;text-wrap:balance}
+  .secret{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;background:var(--ink);color:var(--paper);padding:5px 8px;margin:18px 0 0}
+  .emoji{font-size:110px;line-height:1;margin:14px 0 6px;animation:wob 2.4s ease-in-out infinite}
+  @keyframes wob{50%{transform:rotate(-6deg) scale(1.06)}}
+  .ename{font-family:var(--display);font-weight:900;font-size:26px}
+  .banner{background:var(--orange);color:var(--ink);border:3px solid var(--ink);padding:14px 16px;margin:0 0 22px;font-weight:700}
+  .banner b{font-family:var(--display);font-weight:900}
+  .photo{display:flex;align-items:center;justify-content:center;gap:10px;border:3px dashed var(--ink);padding:16px;margin-top:16px;color:var(--ink);font-weight:800;cursor:pointer;flex-direction:column;background:#fff}
+  .photo input{display:none}
+  .photo img{max-width:100%;max-height:240px;border:3px solid var(--ink)}
+  .spin{width:56px;height:56px;margin:22px auto;background:var(--orange);border:3px solid var(--ink);animation:sq 1.1s cubic-bezier(.6,0,.4,1) infinite}
+  @keyframes sq{50%{transform:rotate(90deg) scale(.7)}100%{transform:rotate(180deg)}}
+  .ov{position:fixed;inset:0;background:rgba(13,13,13,.82);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:16px;z-index:10;animation:fi .2s}
+  .ovcard{background:var(--paper);color:var(--ink);border:3px solid var(--ink);box-shadow:10px 10px 0 var(--orange);padding:26px 20px 16px;width:100%;max-width:440px;text-align:center;animation:pop .35s cubic-bezier(.2,1.3,.4,1);position:relative;overflow:hidden}
+  @keyframes fi{from{opacity:0}}
+  @keyframes pop{from{transform:translateY(40px) scale(.94);opacity:0}to{transform:none;opacity:1}}
+  .stampx{display:inline-block;border:4px solid var(--orange-dark);color:var(--orange-dark);font-family:var(--display);font-weight:900;font-size:30px;padding:8px 14px;transform:rotate(-8deg);margin:6px 0 14px;animation:stamp .45s cubic-bezier(.3,1.6,.5,1) both .1s}
+  @keyframes stamp{from{transform:rotate(-20deg) scale(3);opacity:0}to{transform:rotate(-8deg) scale(1);opacity:1}}
+  .check{font-size:56px;line-height:1;margin:0 auto 10px}
+  .bigcode{font-family:var(--display);font-size:82px;font-weight:900;letter-spacing:.1em;margin:8px 0}
+  .progress{font-family:var(--display);font-weight:900;color:var(--orange-dark);margin-top:10px;font-size:20px}
+  .loading{text-align:center;padding-top:22vh;color:var(--muted)}
+  .reveal .rk{font-size:12px;font-weight:800;letter-spacing:.18em;color:var(--orange-dark)}
+  .reveal .rn{font-family:var(--display);font-weight:900;font-size:clamp(36px,11vw,52px);line-height:1;margin:14px 0 6px;min-height:1.1em;word-break:break-word}
+  .reveal .rn.done{animation:slam .45s cubic-bezier(.2,1.2,.4,1)}
+  .reveal .bar{height:28px;margin:16px 0 4px;background:repeating-linear-gradient(90deg,var(--ink) 0 2px,transparent 2px 5px,var(--ink) 5px 9px,transparent 9px 11px,var(--ink) 11px 12px,transparent 12px 16px)}
+  /* лента */
+  .live{background:var(--bg);color:var(--fg);border:2px solid var(--fg);padding:16px;margin-top:8px}
+  .livehead{display:flex;align-items:center;gap:8px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:800}
+  .pulse{width:10px;height:10px;background:var(--orange);animation:bl 1s steps(2) infinite}
+  @keyframes bl{50%{opacity:.2}}
+  .lstats{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--fg);border:2px solid var(--fg);margin:14px 0 6px}
+  .lstats div{background:var(--bg);padding:10px 6px;text-align:center}
+  .lstats div:first-child{background:var(--orange);color:var(--ink)}
+  .lstats b{display:block;font-family:var(--display);font-size:28px;font-weight:900;line-height:1.05}
+  .lstats span{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+  .podium{margin:16px 0 4px}
+  .podium h3,.ticker h3{margin:0 0 6px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:800}
+  .prow{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #2c2a27}
+  .prow:last-child{border:0}
+  .medal{font-size:22px;width:28px;text-align:center}
+  .pname{flex:1;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .pscore{font-size:13px;color:var(--muted);font-weight:700;white-space:nowrap}
+  .ticker{margin-top:14px}
+  .trow{display:flex;gap:10px;align-items:baseline;padding:7px 0;border-bottom:1px solid #2c2a27;font-size:14px;font-weight:600}
+  .trow:last-child{border:0}
+  .trow .tt{flex:1}
+  .trow .ago{font-size:12px;color:var(--muted);white-space:nowrap}
+  .trow.new{animation:nw 1.2s ease}
+  @keyframes nw{from{background:rgba(255,90,31,.35)}to{background:transparent}}
+  .empty{color:var(--muted);font-size:14px;padding:6px 0 10px}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+<div class="strip" aria-hidden="true"><div class="track"><span>АГЕНТ 3:16 ✦</span><span>СЕКРЕТНАЯ МИССИЯ ✦</span><span>TEENS PARTY ✦</span><span>31.10 ✦</span><span>АГЕНТ 3:16 ✦</span><span>СЕКРЕТНАЯ МИССИЯ ✦</span><span>TEENS PARTY ✦</span><span>31.10 ✦</span><span>АГЕНТ 3:16 ✦</span><span>СЕКРЕТНАЯ МИССИЯ ✦</span><span>TEENS PARTY ✦</span><span>31.10 ✦</span><span>АГЕНТ 3:16 ✦</span><span>СЕКРЕТНАЯ МИССИЯ ✦</span><span>TEENS PARTY ✦</span><span>31.10 ✦</span></div></div>
+<div class="wrap">
+  <div class="langbar"><div class="lang" id="lang"><button data-l="ru">RU</button><button data-l="en">EN</button></div></div>
+  <div id="app"><div class="loading"><div class="spin"></div></div></div>
+  <div id="live"></div>
+</div>
+<div class="strip bot" aria-hidden="true"><div class="track"><span>NO PHONES SHOWN ✦</span><span>НИКОМУ НЕ ПОКАЗЫВАЙ ЭКРАН ✦</span><span>MISSION 3:16 ✦</span><span>NO PHONES SHOWN ✦</span><span>НИКОМУ НЕ ПОКАЗЫВАЙ ЭКРАН ✦</span><span>MISSION 3:16 ✦</span><span>NO PHONES SHOWN ✦</span><span>НИКОМУ НЕ ПОКАЗЫВАЙ ЭКРАН ✦</span><span>MISSION 3:16 ✦</span><span>NO PHONES SHOWN ✦</span><span>НИКОМУ НЕ ПОКАЗЫВАЙ ЭКРАН ✦</span><span>MISSION 3:16 ✦</span></div></div>
+<script>window.SM_API = "https://script.google.com/macros/s/AKfycbwvLVfMge8_eCpteZrgj-MpxqO1W_TvQoMAz0jxqx42W8ySqwz2xmutpwKfVGUGZXcG3w/exec"; window.SM_EV = "wzr48u5z8b"; var CFG = null;</script>
+<script>
+window.SM_START = function () {
+  var app = document.getElementById('app');
+  var liveEl = document.getElementById('live');
+  var LS = 'sm_gid_' + (window.SM_EV || 'x'), LS_LANG = 'tp_agent_lang';
+  var gid = store('get', LS);
+  var ST = null, pollT = null, feedT = null, lastSig = '', photoData = null, busy = false;
+  var regSide = '', regFacts = {}, view = 'welcome', FEED = null, seenEv = {};
+
+  var I = {
+    ru: {
+      name: 'Как тебя зовут?', namePh: 'Имя', side: 'Ты гость со стороны…', groom: 'жениха', bride: 'невесты', both: 'обоих',
+      factsLbl: 'Досье: что про тебя правда?', factsHint: 'По этим пунктам тебя будут искать другие агенты. Можно ничего не отмечать.',
+      getMission: 'Получить миссию', join: 'Стать агентом', issuing: 'Шифруем досье…', lost: 'Я уже играю, но потерял(а) страницу', enterName: 'Напиши своё имя',
+      backTitle: 'Вернуться в игру', backLead: 'Введи имя и свой код — так же, как при регистрации.', nameShort: 'Имя', yourCode: 'Твой код',
+      back: 'Вернуться', goBack: 'Назад', closed: 'Штаб пока закрыт. Следи за организатором!', doneCount: 'Выполнено миссий: ',
+      codeChip: 'твой код', finale: 'Финал!', noteLbl: 'Рапорт: что узнал(а)?', optional: 'по желанию', notePh: 'Пара слов для штаба',
+      addPhoto: '+ Добавить фото', mission: 'Миссия № ', ready: 'Готов(а), агент?', readyNext: 'Готов(а) к следующей?',
+      onlyYou: 'Задание видишь только ты. Никому не показывай экран.',
+      tFind: 'найди агента', tMeet: 'знакомство', tFun: 'спецзадание',
+      pairLost: 'Твоя пара потерялась', pairPick: 'Подбираем тебе пару', pairNew: 'Ищем тебе новую. ', pairWait: 'Это займёт до 20 секунд. Не закрывай страницу.', noWait: 'Не ждать — дать другое задание',
+      findPair: 'найди свою пару', pairText: 'Где-то в зале есть ещё один человек с таким же символом. Найдите друг друга!',
+      pairHint: 'Подсказка: можно показывать экран — символ не секрет', pairCode: 'Нашли? Введите код друг друга', weFound: 'Мы нашли друг друга',
+      metKicker: 'вы нашлись', itsX: 'Это {n}!', didIt: 'Выполнили', secret: 'Совершенно секретно',
+      askCode: 'Нашёл(ла)? Спроси его код', count: 'Засчитать', done: 'Готово', skip: 'Пропустить эту миссию (осталось: {n})',
+      cantFind: 'Не можем найти друг друга', processing: 'Обрабатываем…', replacePhoto: 'Заменить фото', photoFail: 'Не получилось, попробуй другое фото',
+      choosing: 'Выбираем миссию…', code3: 'Код — это 3 цифры', checking: 'Проверяем…', enterCode3: 'Введи 3-значный код человека',
+      uploading: 'Загружаем фото…', changing: 'Меняем…', giveUpQ: 'Точно не можете найти друг друга? Выдадим тебе другую миссию.',
+      showCode: 'Скажи его агенту, который тебя нашёл.', close: 'Закрыть', allDone: 'Все миссии выполнены', inFinal: 'Ты в финале!',
+      playOn: 'Играть дальше', counted: 'Миссия выполнена', newFriend: 'Новое знакомство: ', of: ' из ', nextMission: 'Следующая миссия', later: 'Чуть позже',
+      wait: 'Секунду…',
+      live: 'Штаб · в эфире', players: 'агентов', meets: 'знакомств', missions: 'миссий', top3: 'Лидеры', tick: 'Что происходит',
+      noLeaders: 'Первые миссии вот-вот будут выполнены', noEvents: 'Скоро здесь появятся первые события',
+      eJoin: '🕶 В игре новый агент', ePair: '{e} Пара нашла друг друга', eFind: '🔎 Агент нашёл цель',
+      eMeet: '🤝 Новое знакомство', eFun: '📸 Выполнено спецзадание', ePairDone: '💬 Пара выполнила общее задание', eFinish: '🏆 Агент прошёл все миссии!',
+      now: 'только что', min: ' мин', hour: ' ч', ago: ' назад', finishedMark: '★ финал',
+      agentK: 'кодовое имя', yourName: 'Твоё кодовое имя', nameNote: 'Так тебя зовут в штабе. Настоящее имя знает только организатор.', toMission: 'К миссиям', stamp: 'ВЫПОЛНЕНО', agentPfx: 'Агент '
+    },
+    en: {
+      name: 'What’s your name?', namePh: 'Name', side: 'You’re a guest of the…', groom: 'groom', bride: 'bride', both: 'both',
+      factsLbl: 'Your file: what’s true about you?', factsHint: 'Other agents will look for you by these. You can skip them all.',
+      getMission: 'Get my mission', join: 'Become an agent', issuing: 'Encrypting your file…', lost: 'I’m already playing but lost the page', enterName: 'Please enter your name',
+      backTitle: 'Back to the game', backLead: 'Enter your name and code, exactly as when you signed up.', nameShort: 'Name', yourCode: 'Your code',
+      back: 'Continue', goBack: 'Back', closed: 'HQ is closed right now. Watch for the organizer!', doneCount: 'Missions completed: ',
+      codeChip: 'your code', finale: 'Finale!', noteLbl: 'Report: what did you learn?', optional: 'optional', notePh: 'A few words for HQ',
+      addPhoto: '+ Add a photo', mission: 'Mission #', ready: 'Ready, agent?', readyNext: 'Ready for the next one?',
+      onlyYou: 'Only you will see the mission. Don’t show it to anyone.',
+      tFind: 'find an agent', tMeet: 'meet', tFun: 'special task',
+      pairLost: 'Your partner got lost', pairPick: 'Finding you a partner', pairNew: 'Looking for a new one. ', pairWait: 'This takes up to 20 seconds. Keep this page open.', noWait: 'Don’t wait — give me another mission',
+      findPair: 'find your match', pairText: 'Somewhere in the room there’s one more person with the same symbol. Find each other!',
+      pairHint: 'Tip: you can show your screen — the symbol isn’t secret', pairCode: 'Found each other? Enter each other’s code', weFound: 'We found each other',
+      metKicker: 'you found each other', itsX: 'It’s {n}!', didIt: 'Done', secret: 'Top secret',
+      askCode: 'Found them? Ask for their code', count: 'Submit', done: 'Done', skip: 'Skip this mission ({n} left)',
+      cantFind: 'We can’t find each other', processing: 'Processing…', replacePhoto: 'Replace photo', photoFail: 'That didn’t work, try another photo',
+      choosing: 'Picking a mission…', code3: 'The code is 3 digits', checking: 'Checking…', enterCode3: 'Enter the person’s 3-digit code',
+      uploading: 'Uploading photo…', changing: 'Switching…', giveUpQ: 'Really can’t find each other? We’ll give you another mission.',
+      showCode: 'Show it to the person who found you.', close: 'Close', allDone: 'All missions complete', inFinal: 'You made the finale!',
+      playOn: 'Keep playing', counted: 'Mission complete', newFriend: 'New acquaintance: ', of: ' of ', nextMission: 'Next mission', later: 'Later',
+      wait: 'One sec…',
+      live: 'HQ · live', players: 'agents', meets: 'new friends', missions: 'missions', top3: 'Leaderboard', tick: 'What’s happening',
+      noLeaders: 'The first missions are about to be completed', noEvents: 'The first events will show up here soon',
+      eJoin: '🕶 A new agent joined', ePair: '{e} A pair found each other', eFind: '🔎 An agent found the target',
+      eMeet: '🤝 A new acquaintance', eFun: '📸 A special task was completed', ePairDone: '💬 A pair completed their task', eFinish: '🏆 An agent completed all missions!',
+      now: 'just now', min: ' min', hour: ' h', ago: ' ago', finishedMark: '★ finale',
+      agentK: 'code name', yourName: 'Your code name', nameNote: 'That’s what HQ calls you. Only the organizer knows your real name.', toMission: 'To my missions', stamp: 'COMPLETE', agentPfx: 'Agent '
+    }
+  };
+
+  var CN = {
+    ru: ['Сова', 'Комета', 'Эхо', 'Тень', 'Пиксель', 'Шторм', 'Феникс', 'Радар', 'Кварц', 'Ниндзя', 'Маяк', 'Байт', 'Кит', 'Искра', 'Ворон', 'Призрак', 'Лис', 'Нео', 'Орбита', 'Спутник'],
+    en: ['Owl', 'Comet', 'Echo', 'Shadow', 'Pixel', 'Storm', 'Phoenix', 'Radar', 'Quartz', 'Ninja', 'Beacon', 'Byte', 'Orca', 'Spark', 'Raven', 'Ghost', 'Fox', 'Neo', 'Orbit', 'Sputnik']
+  };
+  function codeName(code) { var n = parseInt(code, 10) || 0; return T('agentPfx') + CN[L][(n * 7) % 20]; }
+  var L = pickLang();
+  function pickLang() {
+    var s = store('get', LS_LANG);
+    if (s === 'ru' || s === 'en') return s;
+    if (CFG.defaultLang === 'ru' || CFG.defaultLang === 'en') return CFG.defaultLang;
+    var n = (navigator.language || 'ru').toLowerCase();
+    return /^(ru|uk|be|kk|uz|hy|ka)/.test(n) ? 'ru' : 'en';
+  }
+  function T(k, n) { var s = (I[L] && I[L][k]) || I.ru[k] || k; return n === undefined ? s : s.replace('{n}', n); }
+  function cfgTitle() { return L === 'en' ? CFG.titleEn : CFG.title; }
+  function cfgCouple() { return L === 'en' ? CFG.coupleEn : CFG.couple; }
+  function cfgIntro() { return L === 'en' ? CFG.introEn : CFG.intro; }
+
+  document.documentElement.style.setProperty('--accent', CFG.accent || '#b8894d');
+
+  function store(op, key, v) {
+    try {
+      if (op === 'get') return localStorage.getItem(key);
+      if (op === 'set') localStorage.setItem(key, v);
+      if (op === 'del') localStorage.removeItem(key);
+    } catch (e) {}
+    return null;
+  }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function nl(s) { return esc(s).replace(/\n/g, '<br>'); }
+  function $(id) { return document.getElementById(id); }
+  function callApi(name, args, tries) {
+    tries = tries || 0;
+    return fetch(window.SM_API, {
+      method: 'POST', credentials: 'omit', redirect: 'follow',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ fn: name, args: args, ev: window.SM_EV })
+    }).then(function (r) { return r.json(); }).then(function (j) {
+      if (!j.ok) throw { api: true, msg: String(j.error || '').replace(/^(Exception|Error|Исключение):\s*/i, '') };
+      return j.data;
+    }).catch(function (e) {
+      if (e && e.api) throw e.msg;
+      if (tries < 2 && /^api(State|Feed|Config)$/.test(name)) return new Promise(function (r) { setTimeout(r, 800 * (tries + 1)); }).then(function () { return callApi(name, args, tries + 1); });
+      throw (L === 'en' ? 'No connection. Try again.' : 'Нет связи. Попробуй ещё раз.');
+    });
+  }
+  function call(name) {
+    var args = [].slice.call(arguments, 1);
+    if (window.SM_API) return callApi(name, args);
+    return new Promise(function (res, rej) {
+      var r = google.script.run.withSuccessHandler(res).withFailureHandler(function (e) {
+        var msg = (e && e.message) ? e.message : String(e);
+        rej(msg.replace(/^(Exception|Error|Исключение):\s*/i, ''));
+      });
+      r[name].apply(r, args);
+    });
+  }
+  function setErr(msg) { var e = $('err'); if (e) e.textContent = msg || ''; }
+  function lock(btn, text) {
+    busy = true;
+    if (btn) { btn.dataset.t = btn.textContent; btn.textContent = text || T('wait'); btn.disabled = true; }
+  }
+  function unlock(btn) {
+    busy = false;
+    if (btn && btn.dataset.t) { btn.textContent = btn.dataset.t; btn.disabled = false; }
+  }
+
+  /* ---------- язык ---------- */
+
+  function paintLang() {
+    document.documentElement.lang = L;
+    document.title = cfgTitle();
+    [].forEach.call($('lang').children, function (b) { b.classList.toggle('on', b.dataset.l === L); });
+  }
+  $('lang').onclick = function (e) {
+    var b = e.target.closest('button'); if (!b || b.dataset.l === L) return;
+    L = b.dataset.l; store('set', LS_LANG, L); paintLang();
+    renderLive();
+    if (view === 'welcome') welcome();
+    else if (view === 'recover') recoverView();
+    else if (gid) { lastSig = ''; if (ST) showState(ST, true); refresh(); }
+  };
+
+  /* ---------- регистрация ---------- */
+
+  function welcome() {
+    view = 'welcome';
+    clearTimeout(pollT);
+    if (!CFG.open) { app.innerHTML = closedView(null); return; }
+    var nameVal = $('name') ? $('name').value : '';
+    var facts = (CFG.facts || []).map(function (f) {
+      return '<button type="button" class="fact' + (regFacts[f.key] ? ' on' : '') + '" data-k="' + esc(f.key) + '"><span class="box"></span><span>' + esc(L === 'en' ? f.qEn : f.q) + '</span></button>';
+    }).join('');
+    app.innerHTML =
+      '<div class="hero"><div class="kicker">TEENS PARTY · 31.10</div>' +
+      '<h1><span>' + (L === 'en' ? 'AGENT' : 'АГЕНТ') + '</span><span class="outline">3:16</span></h1><p class="lead">' + nl(cfgIntro()) + '</p></div>' +
+      '<div class="card">' +
+      '<label class="lbl" for="name">' + T('name') + '</label>' +
+      '<input id="name" class="inp" maxlength="40" autocomplete="given-name" placeholder="' + T('namePh') + '" value="' + esc(nameVal) + '">' +
+      (facts ? '<label class="lbl">' + T('factsLbl') + '</label><p class="hint">' + T('factsHint') + '</p><div class="facts" id="facts">' + facts + '</div>' : '') +
+      '<div class="err" id="err"></div>' +
+      '<button class="btn acc" id="go">' + T('join') + '</button>' +
+      '</div>' +
+      '<button class="link" id="rec">' + T('lost') + '</button>';
+
+    if ($('facts')) $('facts').onclick = function (e) {
+      var b = e.target.closest('.fact'); if (!b) return;
+      var k = b.dataset.k; regFacts[k] = !regFacts[k]; b.classList.toggle('on', regFacts[k]);
+    };
+    $('rec').onclick = recoverView;
+    $('go').onclick = function () {
+      if (busy) return;
+      var name = $('name').value.trim();
+      if (!name) { setErr(T('enterName')); $('name').focus(); return; }
+      var facts = Object.keys(regFacts).filter(function (k) { return regFacts[k]; });
+      var btn = this; lock(btn, T('issuing')); setErr('');
+      call('apiRegister', name, regSide, facts, L).then(function (r) {
+        busy = false; gid = r.guestId; store('set', LS, gid); lastSig = ''; showState(r.state, true); loadFeed(); revealName(r.state.me.code);
+      }).catch(function (m) { unlock(btn); setErr(m); });
+    };
+  }
+
+  function recoverView() {
+    view = 'recover';
+    app.innerHTML =
+      '<div class="hero"><h2>' + T('backTitle') + '</h2><p class="lead">' + T('backLead') + '</p></div>' +
+      '<div class="card"><label class="lbl" for="rname">' + T('nameShort') + '</label><input id="rname" class="inp" maxlength="40">' +
+      '<label class="lbl" for="rcode">' + T('yourCode') + '</label><input id="rcode" class="inp code" inputmode="numeric" maxlength="3" placeholder="000">' +
+      '<div class="err" id="err"></div><button class="btn" id="rgo">' + T('back') + '</button></div>' +
+      '<button class="link" id="back">' + T('goBack') + '</button>';
+    $('back').onclick = welcome;
+    $('rgo').onclick = function () {
+      if (busy) return;
+      var btn = this; lock(btn); setErr('');
+      call('apiRecover', $('rname').value, $('rcode').value, L).then(function (r) {
+        busy = false; gid = r.guestId; store('set', LS, gid); lastSig = ''; showState(r.state, true);
+      }).catch(function (m) { unlock(btn); setErr(m); });
+    };
+  }
+
+  function closedView(st) {
+    return '<div class="hero"><div class="kicker">TEENS PARTY · 31.10</div>' +
+      '<h1><span>' + (L === 'en' ? 'AGENT' : 'АГЕНТ') + '</span><span class="outline">3:16</span></h1><p class="lead">' + T('closed') + '</p></div>' +
+      (st ? '<div class="card center"><div class="kicker">' + T('yourCode') + '</div><div class="bigcode">' + esc(st.me.code) + '</div><p class="muted">' + T('doneCount') + st.me.done + '</p></div>' : '');
+  }
+
+  /* ---------- основной экран ---------- */
+
+  function sigOf(st) {
+    var m = st.mission;
+    if (!st.open) return 'closed|' + L;
+    if (!m) return 'none|' + st.me.done + '|' + st.me.finished + '|' + L;
+    return [m.type, m.status, m.emoji || '', m.partnerName || '', m.text, m.requeued ? 1 : 0, L].join('|');
+  }
+
+  function showState(st, force) {
+    view = 'game';
+    ST = st;
+    clearTimeout(pollT);
+    var sig = sigOf(st);
+    if (sig !== lastSig || force) {
+      var note = $('note') ? $('note').value : '', code = $('code') ? $('code').value : '';
+      lastSig = sig; photoData = null;
+      app.innerHTML = st.open ? mainView(st) : closedView(st);
+      if (note && $('note')) $('note').value = note;
+      if (code && $('code')) $('code').value = code;
+      if (force) window.scrollTo(0, 0);
+    }
+    updateLive(st);
+    schedule(st);
+  }
+
+  function schedule(st) {
+    var m = st.mission;
+    var ms = 0;
+    if (!st.open) ms = 20000;
+    else if (m && m.type === 'pair' && m.status === 'waiting') ms = 3000;
+    else if (m && m.type === 'pair' && m.status === 'searching') ms = 6000;
+    if (ms) pollT = setTimeout(refresh, ms);
+  }
+
+  function refresh() {
+    if (!gid) return;
+    call('apiState', gid, L).then(handle).catch(function () { pollT = setTimeout(refresh, 8000); });
+  }
+
+  function handle(r) {
+    if (r && r.lost) { store('del', LS); gid = null; lastSig = ''; welcome(); return; }
+    showState(r.state);
+  }
+
+  function dots(me) {
+    var h = '';
+    for (var i = 0; i < me.goal; i++) h += '<span class="dot' + (i < me.done ? ' on' : '') + '"></span>';
+    if (me.done > me.goal) h += '<span class="plus">+' + (me.done - me.goal) + '</span>';
+    return h;
+  }
+
+  function mainView(st) {
+    var me = st.me, m = st.mission;
+    var h = '<div class="top"><div class="agent"><small>' + T('agentK') + '</small><b>' + esc(codeName(me.code)) + '</b><i>' + esc(me.name) + '</i><div class="dots">' + dots(me) + '</div></div>' +
+      '<button class="codechip" data-act="code"><span>' + T('codeChip') + '</span><b>' + esc(me.code) + '</b></button></div>';
+    if (me.finished) h += '<div class="banner"><b>' + T('finale') + '</b> ' + esc(st.finale) + '</div>';
+    h += missionView(st, m);
+    return h;
+  }
+
+  function noteField() {
+    return '<label class="lbl" for="note">' + T('noteLbl') + ' <span class="opt">' + T('optional') + '</span></label>' +
+      '<textarea id="note" class="inp" rows="2" maxlength="300" placeholder="' + T('notePh') + '"></textarea>';
+  }
+  function photoField() {
+    return '<label class="photo" id="photoLbl"><input type="file" id="photo" accept="image/*">' +
+      '<span id="photoTxt">' + T('addPhoto') + '</span><img id="photoPrev" alt="" hidden></label>';
+  }
+
+  function missionView(st, m) {
+    var me = st.me;
+    if (!m) {
+      return '<div class="card mission center"><span class="tag">3:16</span><div class="kicker">' + T('mission') + (me.done + 1) + '</div>' +
+        '<h2>' + (me.done ? T('readyNext') : T('ready')) + '</h2>' +
+        '<p class="muted">' + T('onlyYou') + '</p>' +
+        '<button class="btn acc" data-act="next">' + T('getMission') + '</button></div>';
+    }
+    var labels = { find: T('tFind'), meet: T('tMeet'), fun: T('tFun') };
+
+    if (m.type === 'pair' && m.status === 'waiting') {
+      return '<div class="card center"><div class="kicker">' + T('mission') + m.num + '</div>' +
+        '<h2>' + (m.requeued ? T('pairLost') : T('pairPick')) + '</h2>' +
+        '<div class="spin"></div><p class="muted">' + (m.requeued ? T('pairNew') : '') + T('pairWait') + '</p>' +
+        '<button class="link" data-act="nowait">' + T('noWait') + '</button></div>';
+    }
+    if (m.type === 'pair' && m.status === 'searching') {
+      return '<div class="card mission center"><span class="tag">' + T('findPair') + '</span><div class="kicker">' + T('mission') + m.num + '</div>' +
+        '<div class="emoji">' + esc(m.emoji) + '</div><div class="ename">' + esc(m.emojiName) + '</div>' +
+        '<p>' + T('pairText') + '</p>' +
+        '<p class="secret">' + T('pairHint') + '</p></div>' +
+        '<div class="card"><label class="lbl" for="code">' + T('pairCode') + '</label>' +
+        '<input id="code" class="inp code" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="000">' +
+        '<div class="err" id="err"></div><button class="btn" data-act="confirm">' + T('weFound') + '</button></div>' +
+        '<div id="giveup"></div>';
+    }
+    if (m.type === 'pair' && m.status === 'met') {
+      return '<div class="card mission"><span class="tag">' + T('metKicker') + '</span><div class="kicker">' + T('mission') + m.num + '</div>' +
+        '<h2>' + esc(T('itsX', m.partnerName)) + '</h2><p class="task">' + nl(m.text) + '</p></div>' +
+        '<div class="card">' + noteField() + (m.photo ? photoField() : '') +
+        '<div class="err" id="err"></div><button class="btn acc" data-act="complete">' + T('didIt') + '</button></div>';
+    }
+    var h = '<div class="card mission"><span class="tag">' + (labels[m.type] || '') + '</span><div class="kicker">' + T('mission') + m.num + '</div>' +
+      '<p class="task big">' + nl(m.text) + '</p><p class="secret">' + T('secret') + '</p></div>' +
+      '<div class="card">';
+    if (m.needCode) {
+      h += '<label class="lbl" for="code">' + T('askCode') + '</label>' +
+        '<input id="code" class="inp code" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="000">';
+    }
+    h += noteField() + (m.photo ? photoField() : '') +
+      '<div class="err" id="err"></div><button class="btn acc" data-act="complete">' + (m.needCode ? T('count') : T('done')) + '</button></div>';
+    if (m.canSkip) h += '<button class="link" data-act="skip">' + T('skip', st.me.skipsLeft) + '</button>';
+    return h;
+  }
+
+  function updateLive(st) {
+    var m = st.mission, box = $('giveup');
+    if (!box) return;
+    if (m && m.type === 'pair' && m.status === 'searching' && m.elapsed >= m.giveUpAfter) {
+      if (!box.innerHTML) box.innerHTML = '<button class="link" data-act="giveup">' + T('cantFind') + '</button>';
+    } else box.innerHTML = '';
+  }
+
+  /* ---------- живая лента ---------- */
+
+  function loadFeed() {
+    if (!CFG.feed) return;
+    clearTimeout(feedT);
+    call('apiFeed').then(function (f) {
+      if (f && f.off) { liveEl.innerHTML = ''; return; }
+      FEED = f; renderLive();
+      feedT = setTimeout(loadFeed, 20000);
+    }).catch(function () { feedT = setTimeout(loadFeed, 30000); });
+  }
+
+  function ago(t) {
+    var base = FEED ? FEED.now : Date.now();
+    var s = Math.max(0, (base - t) / 1000);
+    if (s < 60) return T('now');
+    if (s < 3600) return Math.floor(s / 60) + T('min') + T('ago');
+    return Math.floor(s / 3600) + T('hour') + T('ago');
+  }
+
+  function evText(e) {
+    if (e.type === 'join') return T('eJoin');
+    if (e.type === 'pair') return T('ePair').replace('{e}', e.emoji || '🤝');
+    if (e.type === 'finish') return T('eFinish');
+    if (e.type === 'done') return e.mtype === 'find' ? T('eFind') : e.mtype === 'meet' ? T('eMeet') : e.mtype === 'pair' ? T('ePairDone') : T('eFun');
+    return '';
+  }
+
+  function renderLive() {
+    if (!FEED || !CFG.feed) { liveEl.innerHTML = ''; return; }
+    var s = FEED.stats, medals = ['🥇', '🥈', '🥉'];
+    var top = FEED.top.length ? FEED.top.map(function (p, i) {
+      return '<div class="prow"><span class="medal">' + medals[i] + '</span><span class="pname">' + esc(p.name) + '</span>' +
+        '<span class="pscore">' + (p.finished ? T('finishedMark') + ' · ' : '') + p.done + T('of') + FEED.goal + '</span></div>';
+    }).join('') : '<div class="empty">' + T('noLeaders') + '</div>';
+    var evs = FEED.events.length ? FEED.events.slice(0, 8).map(function (e) {
+      var k = e.t + e.type + (e.emoji || '') + (e.mtype || ''), isNew = Object.keys(seenEv).length && !seenEv[k];
+      seenEv[k] = 1;
+      return '<div class="trow' + (isNew ? ' new' : '') + '"><span class="tt">' + esc(evText(e)) + '</span><span class="ago">' + ago(e.t) + '</span></div>';
+    }).join('') : '<div class="empty">' + T('noEvents') + '</div>';
+    liveEl.innerHTML = '<div class="live">' +
+      '<div class="livehead"><span class="pulse"></span>' + T('live') + '</div>' +
+      '<div class="lstats"><div><b>' + s.players + '</b><span>' + T('players') + '</span></div><div><b>' + s.meets + '</b><span>' + T('meets') + '</span></div><div><b>' + s.done + '</b><span>' + T('missions') + '</span></div></div>' +
+      '<div class="podium"><h3>' + T('top3') + '</h3>' + top + '</div>' +
+      '<div class="ticker"><h3>' + T('tick') + '</h3>' + evs + '</div></div>';
+  }
+
+  /* ---------- действия ---------- */
+
+  app.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-act]');
+    if (!b) return;
+    var a = b.dataset.act;
+    if (a === 'code') return showCode();
+    if (a === 'closeov') return closeOv();
+    if (busy) return;
+    if (a === 'next') return doNext(b);
+    if (a === 'confirm') return doConfirm(b);
+    if (a === 'complete') return doComplete(b);
+    if (a === 'skip') return doSkip(b);
+    if (a === 'giveup') return doGiveUp(b);
+    if (a === 'nowait') return doNoWait(b);
+  });
+
+  app.addEventListener('change', function (e) {
+    if (e.target.id !== 'photo' || !e.target.files || !e.target.files[0]) return;
+    $('photoTxt').textContent = T('processing');
+    resize(e.target.files[0], function (data) {
+      photoData = data;
+      var img = $('photoPrev');
+      if (data && img) { img.src = data; img.hidden = false; $('photoTxt').textContent = T('replacePhoto'); }
+      else $('photoTxt').textContent = T('photoFail');
+    });
+  });
+
+  app.addEventListener('input', function (e) {
+    if (e.target.id === 'code' || e.target.id === 'rcode') e.target.value = e.target.value.replace(/\D/g, '').slice(0, 3);
+  });
+
+  function doNext(b) {
+    lock(b, T('choosing'));
+    call('apiNext', gid, L).then(function (r) { busy = false; closeOv(); if (r.lost) return handle(r); lastSig = ''; showState(r.state, true); })
+      .catch(function (m) { unlock(b); alert(m); });
+  }
+
+  function doConfirm(b) {
+    var code = ($('code') || {}).value || '';
+    if (!/^\d{3}$/.test(code)) { setErr(T('code3')); return; }
+    lock(b, T('checking')); setErr('');
+    call('apiConfirmPair', gid, code, L).then(function (r) { busy = false; handle(r); loadFeed(); })
+      .catch(function (m) { unlock(b); setErr(m); });
+  }
+
+  function doComplete(b) {
+    var m = ST && ST.mission; if (!m) return;
+    var code = ($('code') || {}).value || '';
+    if (m.needCode && !/^\d{3}$/.test(code)) { setErr(T('enterCode3')); return; }
+    var note = ($('note') || {}).value || '';
+    lock(b, photoData ? T('uploading') : T('checking')); setErr('');
+    call('apiComplete', gid, code, note, photoData, L).then(function (r) {
+      busy = false;
+      if (r.lost) return handle(r);
+      lastSig = ''; showState(r.state, true);
+      showResult(r.state, r.state.result || {});
+      loadFeed();
+    }).catch(function (msg) { unlock(b); setErr(msg); });
+  }
+
+  function doSkip(b) {
+    lock(b, T('changing'));
+    call('apiSkip', gid, L).then(function (r) { busy = false; lastSig = ''; handle(r); })
+      .catch(function (m) { unlock(b); alert(m); });
+  }
+
+  function doGiveUp(b) {
+    if (!confirm(T('giveUpQ'))) return;
+    lock(b);
+    call('apiGiveUpPair', gid, L).then(function (r) { busy = false; lastSig = ''; handle(r); })
+      .catch(function (m) { unlock(b); alert(m); });
+  }
+
+  function doNoWait(b) {
+    lock(b, T('choosing'));
+    call('apiGiveUpPair', gid, L).then(function (r) { busy = false; lastSig = ''; handle(r); })
+      .catch(function (m) { unlock(b); alert(m); });
+  }
+
+  /* ---------- оверлеи ---------- */
+
+  function overlay(html) {
+    closeOv();
+    var d = document.createElement('div');
+    d.className = 'ov'; d.id = 'ov';
+    d.innerHTML = '<div class="ovcard">' + html + '</div>';
+    d.addEventListener('click', function (e) { if (e.target === d) closeOv(); });
+    app.appendChild(d);
+  }
+  function closeOv() { var o = $('ov'); if (o) o.remove(); }
+
+  function revealName(code) {
+    var name = codeName(code), ABC = 'АБВГДЕЖЗИКЛМНОПРСТУФХЦЧШЭЮЯ0123456789#@*';
+    if (L === 'en') ABC = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#@*';
+    overlay('<div class="reveal"><div class="rk">' + T('yourName').toUpperCase() + '</div><div class="rn" id="rn"></div>' +
+      '<div class="bar"></div><p class="muted">' + T('nameNote') + '</p><button class="btn" data-act="closeov">' + T('toMission') + '</button></div>');
+    var el = $('rn'), t0 = Date.now(), dur = 1300;
+    (function tick() {
+      if (!el.isConnected) return;
+      var k = Math.min(1, (Date.now() - t0) / dur), fixed = Math.floor(name.length * k), s = '';
+      for (var i = 0; i < name.length; i++) s += i < fixed || name[i] === ' ' ? name[i] : ABC[Math.floor(Math.random() * ABC.length)];
+      el.textContent = s;
+      if (k < 1) setTimeout(tick, 45); else el.classList.add('done');
+    })();
+  }
+
+  function showCode() {
+    overlay('<div class="kicker">' + esc(codeName(ST.me.code)) + ' · ' + T('yourCode') + '</div><div class="bigcode">' + esc(ST.me.code) + '</div>' +
+      '<p class="muted">' + T('showCode') + '</p><button class="btn" data-act="closeov">' + T('close') + '</button>');
+  }
+
+  function showResult(st, res) {
+    var me = st.me;
+    if (res.justFinished) {
+      overlay('<div class="stampx">' + T('stamp') + '</div><div class="kicker">' + T('allDone') + '</div><h2>' + T('inFinal') + '</h2>' +
+        '<p>' + nl(st.finale) + '</p>' +
+        '<button class="btn acc" data-act="next">' + T('playOn') + '</button><button class="link" data-act="closeov">' + T('close') + '</button>');
+      return;
+    }
+    overlay('<div class="stampx">' + T('stamp') + '</div><h2>' + T('counted') + '</h2>' +
+      (res.partner ? '<p>' + T('newFriend') + '<b>' + esc(res.partner) + '</b></p>' : '') +
+      '<div class="progress">' + me.done + ' / ' + me.goal + '</div>' +
+      '<button class="btn acc" data-act="next">' + T('nextMission') + '</button><button class="link" data-act="closeov">' + T('later') + '</button>');
+  }
+
+  /* ---------- фото ---------- */
+
+  function resize(file, cb) {
+    var url = URL.createObjectURL(file);
+    var img = new Image();
+    img.onload = function () {
+      var max = 1280, w = img.naturalWidth, h = img.naturalHeight;
+      var k = Math.min(1, max / Math.max(w, h));
+      var c = document.createElement('canvas');
+      c.width = Math.round(w * k); c.height = Math.round(h * k);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      try { cb(c.toDataURL('image/jpeg', 0.82)); } catch (e) { cb(null); }
+    };
+    img.onerror = function () { URL.revokeObjectURL(url); cb(null); };
+    img.src = url;
+  }
+
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState !== 'visible') return;
+    if (gid && !busy) { clearTimeout(pollT); refresh(); }
+    loadFeed();
+  });
+
+  /* ---------- старт ---------- */
+  paintLang();
+  if (gid) refresh(); else welcome();
+  loadFeed();
+};
+</script>
+<script>
+(function boot(n) {
+  if (!window.SM_EV) { document.getElementById('app').innerHTML = '<div style="text-align:center;padding:40px 16px;color:#b9b4ab;line-height:1.6">Отсканируйте QR-код у организатора.<br>Scan the organizer’s QR code.</div>'; return; }
+  fetch(window.SM_API, { method: 'POST', credentials: 'omit', redirect: 'follow',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ fn: 'apiConfig', args: [], ev: window.SM_EV }) })
+    .then(function (r) { return r.json(); })
+    .then(function (j) { if (!j.ok) { var er = new Error(j.error); er.api = true; throw er; } CFG = j.data; window.SM_START(); })
+    .catch(function (err) {
+      if (err && err.api) { document.getElementById('app').innerHTML = '<div style="text-align:center;padding:40px 16px;color:#b9b4ab;line-height:1.6">Игра не найдена. Отсканируйте QR у ведущего ещё раз.<br>Game not found. Please scan the host’s QR code again.</div>'; return; }
+      if (n < 3) return setTimeout(function () { boot(n + 1); }, 1000 * (n + 1));
+      document.getElementById('app').innerHTML = '<div style="text-align:center;padding:40px 10px;color:#b9b4ab">Нет связи · No connection<br><br><button onclick="location.reload()" style="border:0;border-radius:12px;padding:12px 20px;background:#ff5a1f;color:#0d0d0d;font-weight:800;font:inherit">Обновить · Reload</button></div>';
+    });
+})(0);
+</script>
+</body>
+</html>
