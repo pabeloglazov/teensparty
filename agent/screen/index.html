@@ -262,6 +262,7 @@ body.cur .lsw{opacity:1;pointer-events:auto}
   /* финал: F — открыть/закрыть, пробел/клик — открыть следующую номинацию */
   var revealed = 0;
   function nomName(i) {
+    if (SCR.n && SCR.n[i] && SCR.m === 'final') return SCR.n[i];
     var custom = Q.get('n' + (i + 1));
     if (custom) return custom;
     if (i === 0 && W && W.top && W.top[0]) return W.top[0].name;
@@ -297,6 +298,23 @@ body.cur .lsw{opacity:1;pointer-events:auto}
   });
   var curT; document.addEventListener('mousemove', function () { document.body.classList.add('cur'); clearTimeout(curT); curT = setTimeout(function () { document.body.classList.remove('cur'); }, 2000); });
   if (Q.get('final') === '1') { $('fin').hidden = false; }
+  /* пульт из админки: ведущий переключает этот экран (живая игра / итоги и номинации) */
+  var SCR = { m: 'live', r: 0, n: [], t: -1 };
+  function pollScreen() {
+    fetch(API, { method: 'POST', credentials: 'omit', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ fn: 'apiScreen', args: [], ev: EV }) })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        if (!j.ok || !j.data) return; var s = j.data;
+        if (SCR.t === -1) { SCR = s; if (s.m !== 'final' || !s.t) return; }
+        else if (s.t === SCR.t) return;
+        SCR = s;
+        var f = $('fin');
+        if (s.m === 'final') { f.hidden = false; revealed = s.r || 0; renderFin(); }
+        else if (!f.hidden) { f.hidden = true; revealed = 0; nextSpot(); }
+      }).catch(function () {})
+      .then(function () { setTimeout(pollScreen, 2500); });
+  }
+  pollScreen();
   load();
 })();
 </script>
