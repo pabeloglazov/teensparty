@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Квиз 3:16 · TEENS PARTY</title>
+<meta name="description" content="Квиз агента 3:16 на TEENS PARTY — введи код с большого экрана">
+<meta name="theme-color" content="#0d0d0d">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%A7%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;900&family=Manrope:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d0d0d;--fg:#f2efe8;--paper:#f2efe8;--ink:#0d0d0d;--orange:#ff5a1f;--orange-dark:#b83606;--muted:#b9b4ab;--pmuted:#55524c;--err:#b3200c;
+  --display:Unbounded,"Arial Black",Impact,sans-serif;--body:Manrope,"Segoe UI",system-ui,sans-serif;color-scheme:dark}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body)}
+body{min-height:100svh;overflow-x:hidden;display:flex;flex-direction:column}
+button,input{font:inherit}
+:focus-visible{outline:3px solid var(--orange);outline-offset:3px}
+.strip{overflow:hidden;font-family:var(--display);font-weight:900;white-space:nowrap;line-height:1;background:var(--orange);color:var(--ink);font-size:22px;padding:12px 0;transform:rotate(-1.5deg) scale(1.08);margin:calc(env(safe-area-inset-top) + 18px) 0 6px}
+.strip.bot{background:var(--paper);transform:rotate(1deg) scale(1.08);margin:auto 0 18px;font-size:18px}
+.track{display:inline-flex;animation:mq 22s linear infinite}
+.track span{padding-right:28px}
+.strip.bot .track{animation-direction:reverse;animation-duration:28s}
+@keyframes mq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.wrap{width:100%;max-width:480px;margin:0 auto;padding:28px 16px 40px}
+.kick{font-size:12px;letter-spacing:.16em;font-weight:800;color:var(--orange);margin-bottom:10px}
+h1{margin:0;font-family:var(--display);font-weight:900;font-size:clamp(58px,19vw,88px);line-height:.86;letter-spacing:-.02em}
+h1 span{display:block;animation:slam .5s cubic-bezier(.2,1.2,.4,1) both}
+h1 .outline{color:var(--bg);-webkit-text-stroke:2px var(--fg);animation-delay:.12s}
+@keyframes slam{from{transform:translateY(40%) scaleY(1.4);opacity:.2}to{transform:none;opacity:1}}
+.lead{color:var(--muted);margin:18px 0 26px;font-size:16px;font-weight:700;max-width:32ch}
+.card{background:var(--paper);color:var(--ink);border:3px solid var(--ink);box-shadow:8px 8px 0 var(--orange);padding:20px;margin-right:8px;animation:drop .7s cubic-bezier(.2,1.4,.4,1) both .2s;transform:rotate(-1deg)}
+@keyframes drop{from{transform:translateY(-50px) rotate(-7deg);opacity:.1}to{transform:rotate(-1deg);opacity:1}}
+label{display:block;font-family:var(--display);font-weight:900;font-size:18px;margin-bottom:12px}
+input{width:100%;border:3px solid var(--ink);border-radius:0;background:#fff;color:var(--ink);font-family:var(--display);font-weight:900;font-size:40px;letter-spacing:.18em;text-align:center;padding:10px 6px;outline:none}
+input:focus{border-color:var(--orange)}
+.btn{display:block;width:100%;background:var(--orange);color:var(--ink);border:3px solid var(--ink);box-shadow:6px 6px 0 var(--ink);font-family:var(--display);font-weight:900;font-size:17px;padding:16px;min-height:56px;margin-top:20px;cursor:pointer;transition:transform .12s,box-shadow .12s}
+.btn:active,.btn:hover{transform:translate(4px,4px);box-shadow:2px 2px 0 var(--ink)}
+.err{color:var(--err);font-weight:800;font-size:14px;margin-top:10px;min-height:1.2em}
+.hint{font-size:14px;font-weight:700;color:var(--pmuted);margin:14px 0 0}
+.other{display:block;margin:30px 0 0;color:var(--fg);font-weight:800;font-size:14px;letter-spacing:.04em;text-decoration:underline;text-underline-offset:3px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+<div class="strip" aria-hidden="true"><div class="track" id="t1"></div></div>
+<main class="wrap">
+  <div class="kick">TEENS PARTY · 31.10</div>
+  <h1><span id="hA">КВИЗ</span><span class="outline">3:16</span></h1>
+  <p class="lead" id="lead">Досье агента, мемы и угадай мелодию. Введи код с большого экрана — и погнали.</p>
+  <form class="card" id="f" novalidate>
+    <label for="code" id="lbl">Код игры</label>
+    <input id="code" inputmode="numeric" autocomplete="one-time-code" maxlength="7" placeholder="000 000">
+    <div class="err" id="err" role="alert"></div>
+    <button class="btn" id="go">Войти в квиз</button>
+    <p class="hint" id="hint">Код — 6 цифр, он на экране, пока квиз ждёт игроков.</p>
+  </form>
+  <a class="other" href="../agent/" id="oth">Ещё игра: Агент 3:16 — секретные миссии →</a>
+</main>
+<div class="strip bot" aria-hidden="true"><div class="track" id="t2"></div></div>
+<script>
+(function () {
+  var en = !/^(ru|uk|be)/i.test(navigator.language || 'ru');
+  function strip(id, a) { var s = a.map(function (x) { return '<span>' + x + ' ✦</span>'; }).join(''); document.getElementById(id).innerHTML = s + s + s + s; }
+  strip('t1', ['КВИЗ 3:16', 'ДОСЬЕ АГЕНТА', 'МЕМЫ И ЭМОДЗИ', 'УГАДАЙ МЕЛОДИЮ']);
+  strip('t2', ['TEENS PARTY 31.10', '3:16 TEENS', 'teensparty.fun/quiz']);
+  if (en) {
+    document.documentElement.lang = 'en';
+    document.getElementById('hA').textContent = 'QUIZ';
+    document.getElementById('lead').textContent = 'Agent file, memes and name-that-tune. Enter the code from the big screen and let’s go.';
+    document.getElementById('lbl').textContent = 'Game code';
+    document.getElementById('go').textContent = 'Join the quiz';
+    document.getElementById('hint').textContent = 'The code is 6 digits — it’s on the screen while the quiz waits for players.';
+    document.getElementById('oth').textContent = 'Another game: Agent 3:16 — secret missions →';
+  }
+  var inp = document.getElementById('code'), err = document.getElementById('err');
+  inp.addEventListener('input', function () {
+    var d = inp.value.replace(/\D/g, '').slice(0, 6);
+    inp.value = d.length > 3 ? d.slice(0, 3) + ' ' + d.slice(3) : d;
+    err.textContent = '';
+  });
+  document.getElementById('f').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var d = inp.value.replace(/\D/g, '');
+    if (d.length !== 6) { err.textContent = en ? 'The code is 6 digits' : 'Код — это 6 цифр'; inp.focus(); return; }
+    location.href = 'http://game.pabeloglazov.com/quiz/?view=play&c=' + d;
+  });
+  var q = new URLSearchParams(location.search).get('c');
+  if (q && /^\d{6}$/.test(q)) location.replace('http://game.pabeloglazov.com/quiz/?view=play&c=' + q);
+})();
+</script>
+</body>
+</html>
