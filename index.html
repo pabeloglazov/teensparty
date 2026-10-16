@@ -144,6 +144,13 @@ dialog::backdrop{background:rgba(13,13,13,.78);backdrop-filter:blur(4px);-webkit
   dialog[open]{animation:sheet .35s cubic-bezier(.2,1,.4,1)}
   @keyframes sheet{from{transform:translateY(100%)}to{transform:none}}
 }
+.vid{width:100%;max-width:1200px;margin:0 auto;padding:8px clamp(16px,4vw,48px) 72px;display:flex;flex-direction:column;align-items:center;gap:18px}
+.vid .k{font-size:13px;font-weight:800;letter-spacing:.16em;color:var(--muted)}
+.vid h2{margin:0;font-family:var(--display);font-weight:900;font-size:clamp(26px,4.4vw,44px);line-height:1;text-align:center;letter-spacing:-.01em}
+.vframe{position:relative;width:min(100%,460px);aspect-ratio:4/5;border:3px solid var(--paper);box-shadow:12px 12px 0 var(--orange);background:#000;transform:rotate(1deg)}
+.vframe video{display:block;width:100%;height:100%;object-fit:cover}
+.snd{position:absolute;left:12px;bottom:12px;display:flex;align-items:center;gap:8px;background:var(--orange);color:var(--ink);border:3px solid var(--ink);font-family:var(--display);font-weight:900;font-size:13px;padding:10px 14px;min-height:44px;cursor:pointer}
+.snd[aria-pressed="true"]{background:var(--paper)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important}}
 </style>
 
@@ -221,6 +228,15 @@ ONLY</span></div>
     <span data-i="mq">DON'T MISS IT — BRING A FRIEND — DON'T MISS IT — BRING A FRIEND — DON'T MISS IT — BRING A FRIEND — </span>
     <span data-i="mq">DON'T MISS IT — BRING A FRIEND — DON'T MISS IT — BRING A FRIEND — DON'T MISS IT — BRING A FRIEND — </span>
   </div></div>
+
+  <section class="vid" aria-labelledby="vidH">
+    <span class="k" data-i="vidK">WATCH · 29 SEC</span>
+    <h2 id="vidH" data-i="vidH">EVERYTHING ABOUT TEENS PARTY</h2>
+    <div class="vframe">
+      <video id="promo" muted loop playsinline preload="metadata" poster="media/poster-en.jpg" src="media/teensparty-en.mp4"></video>
+      <button type="button" class="snd" id="snd" aria-pressed="false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4z"></path><path id="sndWave" d="M16 9a4 4 0 0 1 0 6M19 6a8 8 0 0 1 0 12"></path></svg><span id="sndTxt">SOUND ON</span></button>
+    </div>
+  </section>
 </main>
 
 <div class="mcta" id="mcta"><button class="btn" type="button" id="open2" data-i="cta">GET MY TICKET</button></div>
@@ -306,7 +322,7 @@ ONLY</span></div>
         ePPhone:"Check the parent's phone: 10 digits.",eSold:"All {n} spots are taken.",eGen:"Something went wrong. Try again.",
         uD:"DAYS",uH:"HRS",uM:"MIN",uS:"SEC",
         check:"Already registered? Check my ticket",checkTitle:"FIND YOUR TICKET",checkQ:"Phone number you registered with",find:"SHOW MY TICKET",eNotFound:"No ticket for this number yet. Register first.",share:"SHARE TO STORIES",shareHint:"Press and hold the image to save it, then post it to your story.",shareLink:"SHARE LINK",copied:"LINK COPIED",storyIn:"I'M IN",storyCta:"Register at teensparty.fun",storyDate:"SAT · OCT 31 · 6:00 PM",invite:"INVITATION\nONLY",mqTop:"TEENS PARTY — OCT 31 — 6 PM — INVITATION ONLY — TEENS PARTY — OCT 31 — 6 PM — INVITATION ONLY — ",
-        mq:"DON'T MISS IT — BRING A FRIEND — DON'T MISS IT — BRING A FRIEND — DON'T MISS IT — BRING A FRIEND — "},
+        mq:"DON'T MISS IT — BRING A FRIEND — DON'T MISS IT — BRING A FRIEND — DON'T MISS IT — BRING A FRIEND — ", vidK:"WATCH · 29 SEC", vidH:"EVERYTHING ABOUT TEENS PARTY", sndOn:"SOUND ON", sndOff:"SOUND OFF"},
     ru:{taken:"ЗАНЯТО",left:"ОСТАЛОСЬ МЕСТ",lgTaken:"Занято",lgFree:"Свободно",lgMe:"Твоё место",starts:"ДО НАЧАЛА",admit:"ПРОПУСК",spots:"МЕСТ",
         monthV:"OCTOBER",dayV:"СУББОТА",doors:"НАЧАЛО",timeV:"6:00 PM",venue:"АДРЕС ↗",cta:"ПОЛУЧИТЬ БИЛЕТ",
         busy:"ОФОРМЛЯЕМ…",soldout:"МЕСТ НЕТ",youreIn:"ТЫ В СПИСКЕ",already:"УЖЕ ЗАРЕГИСТРИРОВАН",again:"Зарегистрировать ещё одного",
@@ -317,7 +333,7 @@ ONLY</span></div>
         ePPhone:"Проверь телефон родителя: 10 цифр.",eSold:"Все {n} мест заняты.",eGen:"Не получилось. Попробуй ещё раз.",
         uD:"ДНЕЙ",uH:"ЧАСОВ",uM:"МИН",uS:"СЕК",
         check:"Уже зарегистрирован? Проверить билет",checkTitle:"НАЙТИ СВОЙ БИЛЕТ",checkQ:"Номер, с которым ты регистрировался",find:"ПОКАЗАТЬ БИЛЕТ",eNotFound:"На этот номер билета нет. Сначала зарегистрируйся.",share:"ПОДЕЛИТЬСЯ В СТОРИС",shareHint:"Нажми и удерживай картинку, чтобы сохранить, и выложи её в сторис.",shareLink:"ПОДЕЛИТЬСЯ ССЫЛКОЙ",copied:"ССЫЛКА СКОПИРОВАНА",storyIn:"Я ИДУ",storyCta:"Регистрация на teensparty.fun",storyDate:"СБ · OCT 31 · 6:00 PM",invite:"ТОЛЬКО ПО\nПРИГЛАШЕНИЯМ",mqTop:"TEENS PARTY — OCT 31 — 6 PM — ТОЛЬКО ПО ПРИГЛАШЕНИЯМ — TEENS PARTY — OCT 31 — 6 PM — ТОЛЬКО ПО ПРИГЛАШЕНИЯМ — ",
-        mq:"НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — "},
+        mq:"НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — ", vidK:"СМОТРИ · 29 СЕК", vidH:"ВСЁ О TEENS PARTY", sndOn:"ВКЛЮЧИТЬ ЗВУК", sndOff:"ВЫКЛЮЧИТЬ ЗВУК"},
     uk:{taken:"ЗАЙНЯТО",left:"ЗАЛИШИЛОСЬ МІСЦЬ",lgTaken:"Зайнято",lgFree:"Вільно",lgMe:"Твоє місце",starts:"ДО ПОЧАТКУ",admit:"ПЕРЕПУСТКА",spots:"МІСЦЬ",
         monthV:"OCTOBER",dayV:"СУБОТА",doors:"ПОЧАТОК",timeV:"6:00 PM",venue:"АДРЕСА ↗",cta:"ОТРИМАТИ КВИТОК",
         busy:"ОФОРМЛЮЄМО…",soldout:"МІСЦЬ НЕМАЄ",youreIn:"ТИ В СПИСКУ",already:"ВЖЕ ЗАРЕЄСТРОВАНО",again:"Зареєструвати ще когось",
@@ -328,7 +344,7 @@ ONLY</span></div>
         ePPhone:"Перевір телефон батьків: 10 цифр.",eSold:"Усі {n} місць зайняті.",eGen:"Не вийшло. Спробуй ще раз.",
         uD:"ДНІВ",uH:"ГОДИН",uM:"ХВ",uS:"СЕК",
         check:"Вже зареєстрований? Перевірити квиток",checkTitle:"ЗНАЙТИ СВІЙ КВИТОК",checkQ:"Номер, з яким ти реєструвався",find:"ПОКАЗАТИ КВИТОК",eNotFound:"На цей номер квитка немає. Спочатку зареєструйся.",share:"ПОДІЛИТИСЯ В СТОРІС",shareHint:"Натисни й утримуй картинку, щоб зберегти, і виклади її в сторіс.",shareLink:"ПОДІЛИТИСЯ ПОСИЛАННЯМ",copied:"ПОСИЛАННЯ СКОПІЙОВАНО",storyIn:"Я ЙДУ",storyCta:"Реєстрація на teensparty.fun",storyDate:"СБ · OCT 31 · 6:00 PM",invite:"ЛИШЕ ЗА\nЗАПРОШЕННЯМИ",mqTop:"TEENS PARTY — OCT 31 — 6 PM — ЛИШЕ ЗА ЗАПРОШЕННЯМИ — TEENS PARTY — OCT 31 — 6 PM — ЛИШЕ ЗА ЗАПРОШЕННЯМИ — ",
-        mq:"НЕ ПРОПУСТИ — КЛИЧ ДРУЗІВ — НЕ ПРОПУСТИ — КЛИЧ ДРУЗІВ — НЕ ПРОПУСТИ — КЛИЧ ДРУЗІВ — "}
+        mq:"НЕ ПРОПУСТИ — КЛИЧ ДРУЗІВ — НЕ ПРОПУСТИ — КЛИЧ ДРУЗІВ — НЕ ПРОПУСТИ — КЛИЧ ДРУЗІВ — ", vidK:"ДИВИСЬ · 29 СЕК", vidH:"ВСЕ ПРО TEENS PARTY", sndOn:"УВІМКНУТИ ЗВУК", sndOff:"ВИМКНУТИ ЗВУК"}
   };
 
   var $ = function(id){ return document.getElementById(id); };
@@ -674,7 +690,34 @@ ONLY</span></div>
     $('pvClose').setAttribute('aria-label', T[l].close);
     if(!$('err').hidden && $('err').dataset.code) showErr($('err').dataset.code);
     store('tp_lang', l);
+    setVideo(l);
     renderStats(); renderDone(); tick(); fitStamp(); setTimeout(fitStamp, 400); setTimeout(fitStamp, 1500);
+  }
+
+  /* promo video: language-specific file, muted autoplay while visible, sound toggle */
+  var vid = $('promo'), vidLang = 'en', vidSeen = false;
+  function sndLabel(){ var on = !vid.muted; $('snd').setAttribute('aria-pressed', on ? 'true' : 'false'); $('sndTxt').textContent = T[lang][on ? 'sndOff' : 'sndOn']; $('sndWave').style.display = on ? '' : 'none'; }
+  function setVideo(l){
+    if(!vid) return;
+    if(vidLang !== l){
+      var playing = !vid.paused; vidLang = l;
+      vid.poster = 'media/poster-' + l + '.jpg'; vid.src = 'media/teensparty-' + l + '.mp4'; vid.load();
+      if(playing || vidSeen) vid.play().catch(function(){});
+    }
+    sndLabel();
+  }
+  if(vid){
+    $('snd').addEventListener('click', function(){
+      vid.muted = !vid.muted;
+      if(!vid.muted){ vid.currentTime = 0; vid.loop = false; } else { vid.loop = true; }
+      vid.play().catch(function(){}); sndLabel();
+    });
+    vid.addEventListener('ended', function(){ vid.muted = true; vid.loop = true; vid.play().catch(function(){}); sndLabel(); });
+    if('IntersectionObserver' in window){
+      new IntersectionObserver(function(es){ es.forEach(function(e){
+        if(e.isIntersecting){ vidSeen = true; vid.play().catch(function(){}); } else { vid.pause(); }
+      }); }, {threshold: .4}).observe(vid);
+    }
   }
 
   /* shrink the stamp text until it fits the ticket width */
