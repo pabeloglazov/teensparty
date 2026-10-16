@@ -43,7 +43,7 @@ h1 .outline{color:var(--bg);-webkit-text-stroke:.14vw var(--fg);animation-delay:
 .qr svg{display:block;width:100%;height:100%}
 .join b{display:block;font-family:var(--display);font-weight:900;font-size:1.45vw;line-height:1.1}
 .join span{display:block;font-weight:800;font-size:1vw;margin-top:.5vw;letter-spacing:.04em}
-.top3{border:2px solid var(--fg);padding:.8vw 1vw;flex:1;min-height:0;overflow:hidden}
+.top3{border:2px solid var(--fg);padding:.8vw 1vw;flex:0 1 auto;min-height:0;overflow:hidden}
 .top3 h3,.feed h3{margin:0 0 .4vw;font-size:.72vw;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:800;display:flex;align-items:center;gap:.5vw}
 .pulse{width:.55vw;height:.55vw;background:var(--orange);animation:bl 1s steps(2) infinite}
 @keyframes bl{50%{opacity:.2}}
@@ -91,6 +91,11 @@ h1 .outline{color:var(--bg);-webkit-text-stroke:.14vw var(--fg);animation-delay:
 .nom .n{font-family:var(--display);font-weight:900;font-size:2.4vw;line-height:1.05;min-height:1.1em}
 .nom .n.hid{color:transparent;background:repeating-linear-gradient(90deg,var(--ink) 0 2px,transparent 2px 5px,var(--ink) 5px 9px,transparent 9px 11px);height:2.6vw}
 .nom.on .n{animation:slam .5s cubic-bezier(.2,1.2,.4,1)}
+.fstats{display:grid;grid-template-columns:repeat(4,13vw);gap:2px;background:var(--fg);border:2px solid var(--fg)}
+.fstats div{background:var(--bg);padding:.8vw 1vw;display:flex;flex-direction:column;gap:.3vw}
+.fstats div:first-child{background:var(--orange);color:var(--ink)}
+.fstats b{font-family:var(--display);font-weight:900;font-size:3.2vw;line-height:1}
+.fstats span{font-size:.75vw;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
 .fsub{font-weight:800;letter-spacing:.2em;font-size:1.1vw;color:var(--muted);text-transform:uppercase}
 .err{position:fixed;right:1vw;bottom:1vw;font-size:.8vw;color:var(--muted);font-weight:700}
 .qz{position:fixed;inset:0;z-index:40;display:grid;place-items:center;background:rgba(13,13,13,.55);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);cursor:pointer;animation:fi .25s}
@@ -136,6 +141,7 @@ body.cur .lsw{opacity:1;pointer-events:auto}
   <div class="mosaic" id="mosaic"></div>
   <div class="fwrap">
     <h2><span data-i="done1">МИССИЯ</span><span class="outline" data-i="done2">ВЫПОЛНЕНА</span></h2>
+    <div class="fstats" id="fstats"></div>
     <div class="noms" id="noms"></div>
     <div class="fsub">3:16 TEENS · TEENS PARTY 31.10</div>
   </div>
@@ -265,6 +271,8 @@ body.cur .lsw{opacity:1;pointer-events:auto}
     var ph = (W && W.photos) || [];
     var mm = []; for (var k = 0; ph.length && k < 40; k++) mm.push(ph[k % ph.length]);
     $('mosaic').innerHTML = mm.map(function (p) { return '<img src="' + img(p.id, 400) + '" alt="">'; }).join('');
+    var s = (W && W.stats) || {};
+    $('fstats').innerHTML = [[s.players, I.agents], [s.meets, I.meets], [s.done, I.missions], [s.finished, I.finished]].map(function (x) { return '<div><b>' + (x[0] || 0) + '</b><span>' + esc(x[1]) + '</span></div>'; }).join('');
     $('noms').innerHTML = I.noms.map(function (n, i) {
       var on = i < revealed, nm = nomName(i);
       return '<div class="nom' + (on ? ' on' : '') + '"><span class="k">' + esc(n[1]) + '</span><span class="t">' + esc(n[0]) + '</span><span class="n' + (on ? '' : ' hid') + '">' + (on ? esc(nm || '???') : '') + '</span></div>';
