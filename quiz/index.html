@@ -85,10 +85,10 @@ input:focus{border-color:var(--orange)}
     e.preventDefault();
     var d = inp.value.replace(/\D/g, '');
     if (d.length !== 6) { err.textContent = en ? 'The code is 6 digits' : 'Код — это 6 цифр'; inp.focus(); return; }
-    location.href = 'https://wedding-8wm.pages.dev/quiz/?view=play&c=' + d;
+    location.href = 'https://game.pabeloglazov.com/quiz/?view=play&c=' + d;
   });
   var q = new URLSearchParams(location.search).get('c');
-  if (q && /^\d{6}$/.test(q)) location.replace('https://wedding-8wm.pages.dev/quiz/?view=play&c=' + q);
+  if (q && /^\d{6}$/.test(q)) location.replace('https://game.pabeloglazov.com/quiz/?view=play&c=' + q);
 })();
 </script>
 </body>
