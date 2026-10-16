@@ -93,6 +93,18 @@ h1 .outline{color:var(--bg);-webkit-text-stroke:.14vw var(--fg);animation-delay:
 .nom.on .n{animation:slam .5s cubic-bezier(.2,1.2,.4,1)}
 .fsub{font-weight:800;letter-spacing:.2em;font-size:1.1vw;color:var(--muted);text-transform:uppercase}
 .err{position:fixed;right:1vw;bottom:1vw;font-size:.8vw;color:var(--muted);font-weight:700}
+.qz{position:fixed;inset:0;z-index:40;display:grid;place-items:center;background:rgba(13,13,13,.55);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);cursor:pointer;animation:fi .25s}
+.qz .box{background:var(--paper);color:var(--ink);border:4px solid var(--ink);box-shadow:1.2vw 1.2vw 0 var(--orange);padding:2vw;display:flex;flex-direction:column;align-items:center;gap:1.2vw;animation:pop .45s cubic-bezier(.2,1.4,.4,1) both;transform:rotate(-1.5deg)}
+.qz .big{width:min(60vh,34vw);height:min(60vh,34vw);background:#fff}
+.qz .big svg{display:block;width:100%;height:100%}
+.qz b{font-family:var(--display);font-weight:900;font-size:2.4vw;line-height:1}
+.qz span{font-weight:800;font-size:1.4vw;letter-spacing:.06em}
+.join{cursor:pointer}
+.lsw{position:fixed;right:1.2vw;top:5.6vw;z-index:35;display:flex;border:2px solid var(--fg);opacity:0;transition:opacity .3s;pointer-events:none}
+body.cur .lsw{opacity:1;pointer-events:auto}
+.lsw button{background:var(--bg);color:var(--fg);border:0;font-family:var(--body);font-weight:800;font-size:.9vw;letter-spacing:.1em;padding:.5vw .9vw;cursor:pointer}
+.lsw button+button{border-left:2px solid var(--fg)}
+.lsw button.on{background:var(--fg);color:var(--ink)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important}}
 </style>
 </head>
@@ -128,14 +140,15 @@ h1 .outline{color:var(--bg);-webkit-text-stroke:.14vw var(--fg);animation-delay:
     <div class="fsub">3:16 TEENS · TEENS PARTY 31.10</div>
   </div>
 </div>
+<div class="lsw" id="lsw"><button data-l="ru">RU</button><button data-l="en">EN</button></div>
 <div class="err" id="err"></div>
 <script>
 (function () {
   var API = 'https://script.google.com/macros/s/AKfycbwvLVfMge8_eCpteZrgj-MpxqO1W_TvQoMAz0jxqx42W8ySqwz2xmutpwKfVGUGZXcG3w/exec';
   var EV = 'wzr48u5z8b', JOIN = 'https://teensparty.fun/agent/';
   var Q = new URLSearchParams(location.search);
-  var L = Q.get('lang') === 'en' ? 'en' : 'ru';
-  var I = {
+  var L = Q.get('lang') === 'en' ? 'en' : Q.get('lang') === 'ru' ? 'ru' : (function () { try { return localStorage.getItem('tp_scr_lang') === 'en' ? 'en' : 'ru'; } catch (e) { return 'ru'; } })();
+  var IA = {
     ru: { secret: 'СЕКРЕТНАЯ МИССИЯ', agent: 'АГЕНТ', agents: 'агентов', missions: 'миссий', meets: 'знакомств', finished: 'прошли всё', scan: 'Сканируй — стань агентом',
       top: 'Лучшие агенты', live: 'Штаб · в эфире', done1: 'МИССИЯ', done2: 'ВЫПОЛНЕНА', wait: 'Здесь появятся улики', of: ' из ', fin: '★',
       eJoin: '{n} — новый агент в игре', ePair: '{n} и {w} нашли друг друга', eDone: '{n}: миссия выполнена', eDoneW: '{n} и {w}: миссия выполнена', eFinish: '{n} прошёл(ла) все миссии!',
@@ -148,15 +161,22 @@ h1 .outline{color:var(--bg);-webkit-text-stroke:.14vw var(--fg);animation-delay:
       now: 'now', min: ' min', stamp: 'EVIDENCE #{n}', noTop: 'First missions coming up…', noFeed: 'Waiting for the first agents',
       noms: [['Best agent', 'most missions'], ['Master of disguise', 'funniest photo'], ['Field connector', 'most new friends']],
       mq1: ['AGENT 3:16', 'SECRET MISSION', 'TEENS PARTY', 'DON’T SHOW YOUR SCREEN'] }
-  }[L];
+  }, I = IA[L];
   function $(id) { return document.getElementById(id); }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function first(n) { return String(n || '').trim().split(/\s+/)[0]; }
   function img(id, w) { return 'https://drive.google.com/thumbnail?id=' + encodeURIComponent(id) + '&sz=w' + (w || 800); }
-  document.documentElement.lang = L;
-  [].forEach.call(document.querySelectorAll('[data-i]'), function (e) { if (I[e.dataset.i]) e.textContent = I[e.dataset.i]; });
+  function applyLang() {
+    document.documentElement.lang = L;
+    [].forEach.call(document.querySelectorAll('[data-i]'), function (e) { if (I[e.dataset.i]) e.textContent = I[e.dataset.i]; });
+    strip($('mq1'), I.mq1);
+    [].forEach.call(document.querySelectorAll('#lsw button'), function (b) { b.classList.toggle('on', b.dataset.l === L); });
+  }
+  function setLang(l) { if (l === L) return; L = l; I = IA[L]; try { localStorage.setItem('tp_scr_lang', L); } catch (e) {} applyLang(); seenEv = {}; if (W) { firstLoad = true; render(); } if (!$('fin').hidden) renderFin(); }
   function strip(el, arr) { var s = arr.map(function (x) { return '<span>' + esc(x) + ' ✦</span>'; }).join(''); el.innerHTML = s + s + s + s; }
-  strip($('mq1'), I.mq1);
+  applyLang();
+  $('lsw').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) setLang(b.dataset.l); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'l' || e.key === 'L' || e.key === 'д' || e.key === 'Д') setLang(L === 'ru' ? 'en' : 'ru'); });
   strip($('mq2'), ['3:16 TEENS', 'TEENS PARTY 31.10', 'teensparty.fun/agent']);
   try { var q = qrcode(0, 'M'); q.addData(JOIN); q.make(); $('qr').innerHTML = q.createSvgTag({ cellSize: 4, margin: 0, scalable: true }); } catch (e) { $('qr').textContent = 'teensparty.fun/agent'; }
 
@@ -256,6 +276,17 @@ h1 .outline{color:var(--bg);-webkit-text-stroke:.14vw var(--fg);animation-delay:
     else if (e.key === 'ArrowLeft' && !$('fin').hidden) { if (revealed > 0) { revealed--; renderFin(); } }
   });
   $('fin').addEventListener('click', function () { if (revealed < 3) { revealed++; renderFin(); } });
+  /* клик по QR — крупно поверх размытого экрана; клик или Esc закрывает */
+  document.querySelector('.join').addEventListener('click', function () {
+    if (document.querySelector('.qz')) return;
+    var z = document.createElement('div'); z.className = 'qz';
+    var svg = ''; try { var q = qrcode(0, 'M'); q.addData(JOIN); q.make(); svg = q.createSvgTag({ cellSize: 8, margin: 1, scalable: true }); } catch (e) {}
+    z.innerHTML = '<div class="box"><div class="big">' + svg + '</div><b>' + esc(I.scan) + '</b><span>teensparty.fun/agent</span></div>';
+    document.body.appendChild(z);
+    function close() { z.remove(); document.removeEventListener('keydown', k); }
+    function k(e) { if (e.key === 'Escape') close(); }
+    z.onclick = close; document.addEventListener('keydown', k);
+  });
   var curT; document.addEventListener('mousemove', function () { document.body.classList.add('cur'); clearTimeout(curT); curT = setTimeout(function () { document.body.classList.remove('cur'); }, 2000); });
   if (Q.get('final') === '1') { $('fin').hidden = false; }
   load();
