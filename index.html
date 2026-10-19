@@ -104,8 +104,18 @@ h1 .outline{color:var(--bg);-webkit-text-stroke:2px var(--fg);animation-delay:.1
 .done .k{font-size:13px;font-weight:800;letter-spacing:.18em;color:var(--orange-dark)}
 .tno{font-family:var(--display);font-weight:900;font-size:clamp(44px,8vw,60px);line-height:1;font-variant-numeric:tabular-nums}
 .tname{font-size:20px;font-weight:800}
-.qr{width:200px;max-width:100%;aspect-ratio:1;background:#fff;border:3px solid var(--ink);padding:8px;margin-top:6px}
+.qr{width:200px;max-width:100%;aspect-ratio:1;background:#fff;border:3px solid var(--ink);padding:8px;margin-top:6px;cursor:zoom-in;transition:transform .15s ease}
+.qr:hover{transform:scale(1.03)}
 .qr svg{display:block;width:100%;height:100%}
+.qrhint{margin:-2px 0 0;font-size:13px;font-weight:700;opacity:.6}
+.qrz{position:fixed;inset:0;z-index:1000;background:rgba(13,13,13,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:20px;cursor:zoom-out;opacity:0;pointer-events:none;transition:opacity .2s ease}
+.qrz.on{opacity:1;pointer-events:auto}
+.qrz .big{width:min(88vw,72vh,520px);aspect-ratio:1;background:#fff;border:6px solid var(--orange);padding:16px;transform:scale(.6);transition:transform .25s cubic-bezier(.2,.9,.3,1.2)}
+.qrz.on .big{transform:scale(1)}
+.qrz .big svg{display:block;width:100%;height:100%}
+.qrz .zt{font-family:var(--display);font-weight:900;font-size:clamp(30px,8vw,44px);color:var(--paper);line-height:1}
+.qrz .zn{font-size:18px;font-weight:800;color:var(--paper);margin-top:-8px}
+.qrz .zc{font-size:14px;font-weight:700;letter-spacing:.08em;color:var(--paper);opacity:.6;text-transform:uppercase}
 .dmsg{margin:0;font-size:15px;font-weight:600;line-height:1.45}
 .linkbtn{align-self:center;background:none;border:0;padding:6px 0;min-height:56px;line-height:1.35;text-align:center;color:var(--ink);font-weight:800;font-size:14px;letter-spacing:.06em;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 .share{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:6px;background:var(--ink);color:var(--paper);border:3px solid var(--ink);font-family:var(--display);font-weight:900;font-size:15px;padding:14px;min-height:52px;cursor:pointer;white-space:nowrap}
@@ -214,7 +224,8 @@ ONLY</span></div>
           <span class="k" id="doneHead" data-i="youreIn">YOU'RE IN</span>
           <div class="tno" id="tno">TP-000</div>
           <div class="tname" id="tname"></div>
-          <div class="qr" id="qr" role="img" aria-label="QR"></div>
+          <div class="qr" id="qr" role="button" tabindex="0" aria-label="QR"></div>
+          <p class="qrhint" id="qrhint" data-i="qrTap">Tap the QR to enlarge it</p>
           <p class="dmsg" id="dmsg"></p>
           <button type="button" class="share" id="shareBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"></path><path d="M7 8l5-5 5 5"></path><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"></path></svg><span data-i="share">SHARE TO STORIES</span></button>
           <button type="button" class="again" id="again" data-i="again">Register someone else</button>
@@ -237,6 +248,7 @@ ONLY</span></div>
     </div>
   </section>
 </main>
+<div class="qrz" id="qrz" aria-hidden="true"><div class="zt" id="zt"></div><div class="big" id="qrbig"></div><div class="zn" id="zn"></div><div class="zc" data-i="qrClose">Tap anywhere to close</div></div>
 
 <div class="mcta" id="mcta"><button class="btn" type="button" id="open2" data-i="cta">GET MY TICKET</button></div>
 
@@ -314,7 +326,7 @@ ONLY</span></div>
     en:{taken:"TAKEN",left:"SPOTS LEFT",lgTaken:"Taken",lgFree:"Free",lgMe:"Your spot",starts:"STARTS IN",admit:"ADMIT ONE",spots:"SPOTS",
         monthV:"OCTOBER",dayV:"SATURDAY",doors:"START",timeV:"6:00 PM",venue:"ADDRESS ↗",cta:"GET MY TICKET",
         busy:"BOOKING…",soldout:"SOLD OUT",youreIn:"YOU'RE IN",already:"ALREADY REGISTERED",again:"Register someone else",
-        smsSent:"Your ticket was texted to {p}.",noSms:"Screenshot this ticket and show the QR code at the entrance. Lost it? Register again with the same phone number.",
+        qrTap:"Tap the QR to enlarge it",qrClose:"Tap anywhere to close",smsSent:"Your ticket was texted to {p}.",noSms:"Screenshot this ticket and show the QR code at the entrance. Lost it? Register again with the same phone number.",
         q1:"What's your first and last name?",q2:"Your phone number",h2:"Your ticket goes here.",q3:"How old are you?",
         q4:"Parent's name",q5:"Parent's phone",optional:"OPTIONAL",next:"Next",back:"Back",skip:"Skip",close:"Close",
         eName:"Enter your first and last name.",ePhone:"Enter a 10-digit US phone number.",eAge:"Enter your age as a number.",
@@ -325,7 +337,7 @@ ONLY</span></div>
     ru:{taken:"ЗАНЯТО",left:"ОСТАЛОСЬ МЕСТ",lgTaken:"Занято",lgFree:"Свободно",lgMe:"Твоё место",starts:"ДО НАЧАЛА",admit:"ПРОПУСК",spots:"МЕСТ",
         monthV:"OCTOBER",dayV:"СУББОТА",doors:"НАЧАЛО",timeV:"6:00 PM",venue:"АДРЕС ↗",cta:"ПОЛУЧИТЬ БИЛЕТ",
         busy:"ОФОРМЛЯЕМ…",soldout:"МЕСТ НЕТ",youreIn:"ТЫ В СПИСКЕ",already:"УЖЕ ЗАРЕГИСТРИРОВАН",again:"Зарегистрировать ещё одного",
-        smsSent:"Билет отправлен SMS на {p}.",noSms:"Сделай скриншот билета и покажи QR-код на входе. Потерял? Зарегистрируйся ещё раз с тем же номером.",
+        qrTap:"Нажми на QR, чтобы увеличить",qrClose:"Нажми в любом месте, чтобы закрыть",smsSent:"Билет отправлен SMS на {p}.",noSms:"Сделай скриншот билета и покажи QR-код на входе. Потерял? Зарегистрируйся ещё раз с тем же номером.",
         q1:"Как тебя зовут? Имя и фамилия",q2:"Твой номер телефона",h2:"Сюда придёт билет.",q3:"Сколько тебе лет?",
         q4:"Имя родителя",q5:"Телефон родителя",optional:"НЕОБЯЗАТЕЛЬНО",next:"Далее",back:"Назад",skip:"Пропустить",close:"Закрыть",
         eName:"Введи имя и фамилию.",ePhone:"Введи номер США из 10 цифр.",eAge:"Введи возраст числом.",
@@ -336,7 +348,7 @@ ONLY</span></div>
     uk:{taken:"ЗАЙНЯТО",left:"ЗАЛИШИЛОСЬ МІСЦЬ",lgTaken:"Зайнято",lgFree:"Вільно",lgMe:"Твоє місце",starts:"ДО ПОЧАТКУ",admit:"ПЕРЕПУСТКА",spots:"МІСЦЬ",
         monthV:"OCTOBER",dayV:"СУБОТА",doors:"ПОЧАТОК",timeV:"6:00 PM",venue:"АДРЕСА ↗",cta:"ОТРИМАТИ КВИТОК",
         busy:"ОФОРМЛЮЄМО…",soldout:"МІСЦЬ НЕМАЄ",youreIn:"ТИ В СПИСКУ",already:"ВЖЕ ЗАРЕЄСТРОВАНО",again:"Зареєструвати ще когось",
-        smsSent:"Квиток надіслано SMS на {p}.",noSms:"Зроби скриншот квитка і покажи QR-код на вході. Загубив? Зареєструйся ще раз з тим самим номером.",
+        qrTap:"Натисни на QR, щоб збільшити",qrClose:"Натисни будь-де, щоб закрити",smsSent:"Квиток надіслано SMS на {p}.",noSms:"Зроби скриншот квитка і покажи QR-код на вході. Загубив? Зареєструйся ще раз з тим самим номером.",
         q1:"Як тебе звати? Ім'я та прізвище",q2:"Твій номер телефону",h2:"Сюди прийде квиток.",q3:"Скільки тобі років?",
         q4:"Ім'я одного з батьків",q5:"Телефон одного з батьків",optional:"НЕОБОВ'ЯЗКОВО",next:"Далі",back:"Назад",skip:"Пропустити",close:"Закрити",
         eName:"Введи ім'я та прізвище.",ePhone:"Введи номер США з 10 цифр.",eAge:"Введи вік числом.",
@@ -439,7 +451,8 @@ ONLY</span></div>
   var qrDrawn = '';
   function drawQr(){
     var box = $('qr');
-    if(!mine || !mine.qr){ box.hidden = true; qrDrawn = ''; return; }
+    if(!mine || !mine.qr){ box.hidden = true; $('qrhint').hidden = true; qrDrawn = ''; return; }
+    $('qrhint').hidden = false;
     var payload = 'https://teensparty.fun/check.html#' + mine.ticket + '.' + mine.qr;
     box.hidden = false;
     if(qrDrawn === payload) return;
@@ -448,6 +461,17 @@ ONLY</span></div>
     box.innerHTML = q.createSvgTag({cellSize:4, margin:0, scalable:true});
     qrDrawn = payload;
   }
+  function qrOpen(){
+    if(!mine || !qrDrawn) return;
+    $('qrbig').innerHTML = $('qr').innerHTML;
+    $('zt').textContent = mine.ticket; $('zn').textContent = mine.name || '';
+    $('qrz').classList.add('on'); $('qrz').setAttribute('aria-hidden','false');
+  }
+  function qrClose(){ $('qrz').classList.remove('on'); $('qrz').setAttribute('aria-hidden','true'); }
+  $('qr').addEventListener('click', qrOpen);
+  $('qr').addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); qrOpen(); } });
+  $('qrz').addEventListener('click', qrClose);
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape') qrClose(); });
 
   function renderDone(){
     $('open').hidden = !!mine;
