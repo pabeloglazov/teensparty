@@ -154,6 +154,21 @@ dialog::backdrop{background:rgba(13,13,13,.78);backdrop-filter:blur(4px);-webkit
   dialog[open]{animation:sheet .35s cubic-bezier(.2,1,.4,1)}
   @keyframes sheet{from{transform:translateY(100%)}to{transform:none}}
 }
+.prog{width:100%;max-width:1200px;margin:0 auto;padding:16px clamp(16px,4vw,48px) 80px;display:flex;flex-direction:column;gap:28px}
+.prog .ph{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:10px 24px}
+.prog h2{margin:0;font-family:var(--display);font-weight:900;font-size:clamp(40px,7vw,84px);line-height:.9;letter-spacing:-.03em}
+.prog .pk{font-size:13px;font-weight:800;letter-spacing:.16em;color:var(--orange)}
+.pgrid{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr));gap:18px}
+.pi{position:relative;background:var(--paper);color:var(--ink);border:3px solid var(--ink);box-shadow:8px 8px 0 var(--orange);padding:22px 22px 24px;display:flex;flex-direction:column;gap:10px}
+.pi .n{display:block;height:48px;font-family:var(--display);font-weight:900;font-size:56px;line-height:48px;color:var(--orange);-webkit-text-stroke:4px var(--ink);paint-order:stroke fill}
+.pi .ic{position:absolute;top:24px;right:22px;width:44px;height:44px;color:var(--orange-dark)}
+.pi h3{margin:34px 0 0;min-height:2.04em;display:flex;align-items:flex-end;white-space:pre-line;font-family:var(--display);font-weight:900;font-size:clamp(22px,2.3vw,27px);line-height:1.02;letter-spacing:-.01em}
+.pi p{min-height:2.8em}
+.pi p{margin:0;font-size:15px;font-weight:700;line-height:1.4;color:var(--paper-muted)}
+.pi.hot{background:var(--orange);box-shadow:6px 6px 0 var(--paper)}
+.pi.hot p{color:var(--ink)}
+@media (max-width:600px){.pgrid{gap:16px}.pi{min-height:0;padding:18px 18px 20px;gap:8px}.pi .n{font-size:40px}.pi .ic{width:36px;height:36px}.pi h3{margin-top:14px;min-height:0;display:block}.pi p{min-height:0}.pi .n{height:36px;line-height:36px}.pi .ic{top:18px;right:18px}}
+.pi.hot .tag{position:absolute;top:-14px;left:18px;background:var(--ink);color:var(--paper);font-size:11px;font-weight:800;letter-spacing:.14em;padding:6px 10px}
 .vid{width:100%;max-width:1200px;margin:0 auto;padding:8px clamp(16px,4vw,48px) 72px;display:flex;flex-direction:column;align-items:center;gap:18px}
 .vid .k{font-size:13px;font-weight:800;letter-spacing:.16em;color:var(--muted)}
 .vid h2{margin:0;font-family:var(--display);font-weight:900;font-size:clamp(26px,4.4vw,44px);line-height:1;text-align:center;letter-spacing:-.01em}
@@ -240,6 +255,10 @@ ONLY</span></div>
     <span data-i="mq">DON'T MISS IT — BRING A FRIEND — DON'T MISS IT — BRING A FRIEND — DON'T MISS IT — BRING A FRIEND — </span>
   </div></div>
 
+  <section class="prog" aria-labelledby="progH">
+    <div class="ph"><h2 id="progH" data-i="progH">PROGRAM</h2></div>
+    <ol class="pgrid"><li class="pi"><span class="n">01</span><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h4l2-3h6l2 3h4v11H3z"/><circle cx="12" cy="13" r="3.5"/></svg><h3 data-i="p1h">x</h3><p data-i="p1d">x</p></li><li class="pi"><span class="n">02</span><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r=".6" fill="currentColor"/><path d="M12 1v4M12 19v4M1 12h4M19 12h4"/></svg><h3 data-i="p2h">x</h3><p data-i="p2d">x</p></li><li class="pi"><span class="n">03</span><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10h16M6 10l1.5-5h9L18 10"/><circle cx="8" cy="15" r="3"/><circle cx="16" cy="15" r="3"/><path d="M11 15h2"/></svg><h3 data-i="p3h">x</h3><p data-i="p3d">x</p></li><li class="pi"><span class="n">04</span><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a3 3 0 0 1 3 3v5a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3z"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M9 21h6"/></svg><h3 data-i="p4h">x</h3><p data-i="p4d">x</p></li><li class="pi"><span class="n">05</span><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11h16l-1.5 9h-13z"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><h3 data-i="p5h">x</h3><p data-i="p5d">x</p></li><li class="pi"><span class="n">06</span><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h11v8H8l-4 3z"/><path d="M15 9h5v8l-3-2h-6v-2"/></svg><h3 data-i="p6h">x</h3><p data-i="p6d">x</p></li></ol>
+  </section>
   <section class="vid" aria-labelledby="vidH">
     <h2 id="vidH" data-i="vidH">EVERYTHING ABOUT TEENS PARTY</h2>
     <div class="vframe">
@@ -333,7 +352,7 @@ ONLY</span></div>
         ePPhone:"Check the parent's phone: 10 digits.",eSold:"All {n} spots are taken.",eGen:"Something went wrong. Try again.",
         uD:"DAYS",uH:"HRS",uM:"MIN",uS:"SEC",
         check:"Already registered? Check my ticket",checkTitle:"FIND YOUR TICKET",checkQ:"Phone number you registered with",find:"SHOW MY TICKET",eNotFound:"No ticket for this number yet. Register first.",share:"SHARE TO STORIES",shareHint:"Press and hold the image to save it, then post it to your story.",shareLink:"SHARE LINK",copied:"LINK COPIED",storyIn:"I'M IN",storyCta:"Register at teensparty.fun",storyDate:"SAT · OCT 31 · 6:00 PM",invite:"INVITATION\nONLY",mqTop:"TEENS PARTY — OCT 31 — 6 PM — INVITATION ONLY — TEENS PARTY — OCT 31 — 6 PM — INVITATION ONLY — ",
-        mq:"DON'T MISS IT — BRING A FRIEND — DON'T MISS IT — BRING A FRIEND — DON'T MISS IT — BRING A FRIEND — ", vidK:"WATCH · 29 SEC", vidH:"EVERYTHING ABOUT TEENS PARTY", sndOn:"SOUND ON", sndOff:"SOUND OFF"},
+        mq:"DON'T MISS IT — BRING A FRIEND — DON'T MISS IT — BRING A FRIEND — DON'T MISS IT — BRING A FRIEND — ", vidK:"WATCH · 29 SEC", vidH:"EVERYTHING ABOUT TEENS PARTY",progH:"PROGRAM",pTag:"DON'T MISS",p1h:"PHOTO\nZONE",p1d:"Grab shots for your stories with friends.",p2h:"SECRET\nMISSION",p2d:"Scan the QR, get your missions and meet new people across the room.",p3h:"SECRET\nAGENT",p3d:"A team quiz to find the best agent in the room.",p4h:"REAL\nTALK",p4d:"A short, honest talk with the pastor about what really matters.",p5h:"FOOD &\nDRINKS",p5d:"Food, drinks and snacks — enough for everyone.",p6h:"HANG\nOUT",p6d:"Meet new people, talk and just have a good time.", sndOn:"SOUND ON", sndOff:"SOUND OFF"},
     ru:{taken:"ЗАНЯТО",left:"ОСТАЛОСЬ МЕСТ",lgTaken:"Занято",lgFree:"Свободно",lgMe:"Твоё место",starts:"ДО НАЧАЛА",admit:"ПРОПУСК",spots:"МЕСТ",
         monthV:"OCTOBER",dayV:"СУББОТА",doors:"НАЧАЛО",timeV:"6:00 PM",venue:"АДРЕС ↗",cta:"ПОЛУЧИТЬ БИЛЕТ",
         busy:"ОФОРМЛЯЕМ…",soldout:"МЕСТ НЕТ",youreIn:"ТЫ В СПИСКЕ",already:"УЖЕ ЗАРЕГИСТРИРОВАН",again:"Зарегистрировать ещё одного",
@@ -344,7 +363,7 @@ ONLY</span></div>
         ePPhone:"Проверь телефон родителя: 10 цифр.",eSold:"Все {n} мест заняты.",eGen:"Не получилось. Попробуй ещё раз.",
         uD:"ДНЕЙ",uH:"ЧАСОВ",uM:"МИН",uS:"СЕК",
         check:"Уже зарегистрирован? Проверить билет",checkTitle:"НАЙТИ СВОЙ БИЛЕТ",checkQ:"Номер, с которым ты регистрировался",find:"ПОКАЗАТЬ БИЛЕТ",eNotFound:"На этот номер билета нет. Сначала зарегистрируйся.",share:"ПОДЕЛИТЬСЯ В СТОРИС",shareHint:"Нажми и удерживай картинку, чтобы сохранить, и выложи её в сторис.",shareLink:"ПОДЕЛИТЬСЯ ССЫЛКОЙ",copied:"ССЫЛКА СКОПИРОВАНА",storyIn:"Я ИДУ",storyCta:"Регистрация на teensparty.fun",storyDate:"СБ · OCT 31 · 6:00 PM",invite:"ТОЛЬКО ПО\nПРИГЛАШЕНИЯМ",mqTop:"TEENS PARTY — OCT 31 — 6 PM — ТОЛЬКО ПО ПРИГЛАШЕНИЯМ — TEENS PARTY — OCT 31 — 6 PM — ТОЛЬКО ПО ПРИГЛАШЕНИЯМ — ",
-        mq:"НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — ", vidK:"СМОТРИ · 29 СЕК", vidH:"ВСЁ О TEENS PARTY", sndOn:"ВКЛЮЧИТЬ ЗВУК", sndOff:"ВЫКЛЮЧИТЬ ЗВУК"},
+        mq:"НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — ", vidK:"СМОТРИ · 29 СЕК", vidH:"ВСЁ О TEENS PARTY",progH:"ПРОГРАММА",pTag:"ГЛАВНОЕ",p1h:"ФОТО\nЗОНА",p1d:"Кадры для сторис с друзьями.",p2h:"СЕКРЕТНАЯ\nМИССИЯ",p2d:"Сканируй QR, получи задания и знакомься с людьми по всему залу.",p3h:"СЕКРЕТНЫЙ\nАГЕНТ",p3d:"Командный квиз: узнаем, кто здесь лучший агент.",p4h:"REAL\nTALK",p4d:"Короткий честный разговор с пастором о главном.",p5h:"ЕДА И\nНАПИТКИ",p5d:"Еда, напитки и закуски — хватит всем.",p6h:"ЖИВОЕ\nОБЩЕНИЕ",p6d:"Новые знакомства, разговоры и просто классное время вместе.", sndOn:"ВКЛЮЧИТЬ ЗВУК", sndOff:"ВЫКЛЮЧИТЬ ЗВУК"},
     uk:{taken:"ЗАЙНЯТО",left:"ЗАЛИШИЛОСЬ МІСЦЬ",lgTaken:"Зайнято",lgFree:"Вільно",lgMe:"Твоє місце",starts:"ДО ПОЧАТКУ",admit:"ПЕРЕПУСТКА",spots:"МІСЦЬ",
         monthV:"OCTOBER",dayV:"СУБОТА",doors:"ПОЧАТОК",timeV:"6:00 PM",venue:"АДРЕСА ↗",cta:"ОТРИМАТИ КВИТОК",
         busy:"ОФОРМЛЮЄМО…",soldout:"МІСЦЬ НЕМАЄ",youreIn:"ТИ В СПИСКУ",already:"ВЖЕ ЗАРЕЄСТРОВАНО",again:"Зареєструвати ще когось",
@@ -355,7 +374,7 @@ ONLY</span></div>
         ePPhone:"Перевір телефон батьків: 10 цифр.",eSold:"Усі {n} місць зайняті.",eGen:"Не вийшло. Спробуй ще раз.",
         uD:"ДНІВ",uH:"ГОДИН",uM:"ХВ",uS:"СЕК",
         check:"Вже зареєстрований? Перевірити квиток",checkTitle:"ЗНАЙТИ СВІЙ КВИТОК",checkQ:"Номер, з яким ти реєструвався",find:"ПОКАЗАТИ КВИТОК",eNotFound:"На цей номер квитка немає. Спочатку зареєструйся.",share:"ПОДІЛИТИСЯ В СТОРІС",shareHint:"Натисни й утримуй картинку, щоб зберегти, і виклади її в сторіс.",shareLink:"ПОДІЛИТИСЯ ПОСИЛАННЯМ",copied:"ПОСИЛАННЯ СКОПІЙОВАНО",storyIn:"Я ЙДУ",storyCta:"Реєстрація на teensparty.fun",storyDate:"СБ · OCT 31 · 6:00 PM",invite:"ЛИШЕ ЗА\nЗАПРОШЕННЯМИ",mqTop:"TEENS PARTY — OCT 31 — 6 PM — ЛИШЕ ЗА ЗАПРОШЕННЯМИ — TEENS PARTY — OCT 31 — 6 PM — ЛИШЕ ЗА ЗАПРОШЕННЯМИ — ",
-        mq:"НЕ ПРОПУСТИ — КЛИЧ ДРУЗІВ — НЕ ПРОПУСТИ — КЛИЧ ДРУЗІВ — НЕ ПРОПУСТИ — КЛИЧ ДРУЗІВ — ", vidK:"ДИВИСЬ · 29 СЕК", vidH:"ВСЕ ПРО TEENS PARTY", sndOn:"УВІМКНУТИ ЗВУК", sndOff:"ВИМКНУТИ ЗВУК"}
+        mq:"НЕ ПРОПУСТИ — КЛИЧ ДРУЗІВ — НЕ ПРОПУСТИ — КЛИЧ ДРУЗІВ — НЕ ПРОПУСТИ — КЛИЧ ДРУЗІВ — ", vidK:"ДИВИСЬ · 29 СЕК", vidH:"ВСЕ ПРО TEENS PARTY",progH:"ПРОГРАМА",pTag:"ГОЛОВНЕ",p1h:"ФОТО\nЗОНА",p1d:"Кадри для сторіс з друзями.",p2h:"СЕКРЕТНА\nМІСІЯ",p2d:"Скануй QR, отримай завдання і знайомся з людьми по всій залі.",p3h:"СЕКРЕТНИЙ\nАГЕНТ",p3d:"Командний квіз: дізнаємось, хто тут найкращий агент.",p4h:"REAL\nTALK",p4d:"Коротка чесна розмова з пастором про головне.",p5h:"ЇЖА\nЙ НАПОЇ",p5d:"Їжа, напої та закуски — вистачить усім.",p6h:"ЖИВЕ\nСПІЛКУВАННЯ",p6d:"Нові знайомства, розмови і просто класний час разом.", sndOn:"УВІМКНУТИ ЗВУК", sndOff:"ВИМКНУТИ ЗВУК"}
   };
 
   var $ = function(id){ return document.getElementById(id); };
