@@ -441,6 +441,30 @@ ONLY</span></div>
   var API = 'https://script.google.com/macros/s/AKfycbzrKsCRRilLJLRPbAgoQ26ONDOv3liAsMgXgN0V3gIIInhhtdk8ZjMxWhABss3qh-Hq/exec';
   var gas = (typeof google !== 'undefined' && google.script && google.script.run) ? true : false;
   var useApi = !gas && /(^|\.)teensparty\.fun$|\.github\.io$|^localhost$|^127\.0\.0\.1$/.test(location.hostname);
+
+  /* Aggregate-only analytics (first-party, no cookies, no IDs, no personal data, nothing sent to Meta).
+     Sends event name + UTM tags to our own backend; "reg_done" is counted by the server after a NEW ticket is written. */
+  var UTM = (function(){
+    var o = {};
+    try{
+      var p = new URLSearchParams(location.search);
+      ['source','medium','campaign','content'].forEach(function(k){
+        var v = p.get('utm_' + k); if(v) o[k] = v.replace(/[^A-Za-z0-9_.\-]/g,'').slice(0,60);
+      });
+      if(o.source) sessionStorage.setItem('tp_utm', JSON.stringify(o));
+      else o = JSON.parse(sessionStorage.getItem('tp_utm') || '{}') || {};
+    }catch(e){ o = {}; }
+    return o;
+  })();
+  var canTrack = /(^|\.)teensparty\.fun$/.test(location.hostname);
+  function track(ev){
+    if(!canTrack) return;
+    var body = JSON.stringify({action:'evt', e:ev, utm:UTM});
+    try{
+      if(navigator.sendBeacon && navigator.sendBeacon(API, new Blob([body], {type:'text/plain;charset=utf-8'}))) return;
+      fetch(API, {method:'POST', body:body, keepalive:true, mode:'no-cors', headers:{'Content-Type':'text/plain;charset=utf-8'}});
+    }catch(e){}
+  }
   var live = gas || useApi;
   var demo = {
     taken: 13, phones: {},
@@ -574,7 +598,7 @@ ONLY</span></div>
   function submitAll(){
     busy = true; renderStats();
     var data = {name:inputs[0].value.trim(), phone:inputs[1].value, age:inputs[2].value.trim(),
-                parentName:inputs[3].value.trim(), parentPhone:inputs[4].value, lang:lang};
+                parentName:inputs[3].value.trim(), parentPhone:inputs[4].value, lang:lang, utm:UTM};
     call('register', data).then(function(r){
       busy = false;
       if(r && r.stats) stats = r.stats;
@@ -604,6 +628,10 @@ ONLY</span></div>
     if(step < STEPS - 1) showStep(step + 1); else submitAll();
   });
   $('qclose').addEventListener('click', closeDlg);
+  $('open').addEventListener('click', function(){ track('reg_open'); });
+  $('open2').addEventListener('click', function(){ track('reg_open'); });
+  document.querySelectorAll('a[href*="instagram.com"]').forEach(function(a){ a.addEventListener('click', function(){ track('ig_click'); }); });
+  track('view');
   $('open').addEventListener('click', openDlg);
   $('finBtn').addEventListener('click', function(){ window.scrollTo({top:0, behavior:'smooth'}); });
   $('open2').addEventListener('click', openDlg);
