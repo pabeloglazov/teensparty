@@ -174,21 +174,6 @@ dialog::backdrop{background:rgba(13,13,13,.78);backdrop-filter:blur(4px);-webkit
 .pi .cls{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-6deg);white-space:nowrap;border:3px solid var(--orange);color:var(--orange);background:transparent;font-family:var(--display);font-weight:900;font-size:12.5px;letter-spacing:.07em;padding:7px 12px;outline:2px solid var(--orange);outline-offset:3px;text-shadow:0 0 1px var(--orange)}
 .pi .sec svg{width:12px;height:12px}
 .pi.hot .tag{position:absolute;top:-14px;left:18px;background:var(--ink);color:var(--paper);font-size:11px;font-weight:800;letter-spacing:.14em;padding:6px 10px}
-.give{width:100%;max-width:1200px;margin:0 auto;padding:16px clamp(16px,4vw,48px) 80px;display:flex;flex-direction:column;align-items:center;gap:26px}
-.give .gh{text-align:center;display:flex;flex-direction:column;align-items:center;gap:16px}
-.give .gk{background:var(--orange);color:var(--ink);font-family:var(--display);font-weight:900;font-size:18px;padding:10px 16px;transform:rotate(-2deg)}
-.give h2{margin:0;white-space:pre-line;font-family:var(--display);font-weight:900;font-size:clamp(30px,5.4vw,64px);line-height:.95;letter-spacing:-.02em}
-.gwrap{position:relative;width:100%;max-width:520px}
-.gtrack{list-style:none;margin:0;padding:0;display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;border:3px solid var(--fg);box-shadow:8px 8px 0 var(--orange)}
-.gtrack::-webkit-scrollbar{display:none}
-.gs{flex:0 0 100%;scroll-snap-align:center}
-.gs img{display:block;width:100%;height:auto;aspect-ratio:4/5}
-.garr{position:absolute;top:50%;transform:translateY(-50%);width:48px;height:48px;border:3px solid var(--ink);background:var(--paper);color:var(--ink);font-weight:900;font-size:22px;cursor:pointer;box-shadow:4px 4px 0 var(--orange)}
-.garr.prev{left:-24px}.garr.next{right:-24px}
-.garr:disabled{opacity:.35;cursor:default}
-.gdots{display:flex;gap:8px}.gdots i{width:10px;height:10px;border:2px solid var(--fg)}.gdots i.on{background:var(--orange);border-color:var(--orange)}
-.gbtn{display:inline-flex;align-items:center;gap:10px;text-decoration:none;padding:18px 26px;font-size:17px}
-@media (max-width:600px){.give h2{font-size:clamp(24px,7vw,34px)}.gbtn{font-size:14px;padding:16px 18px;max-width:100%}.garr.prev{left:6px}.garr.next{right:6px}.garr{width:42px;height:42px}}
 .fin{width:100%;max-width:1200px;margin:0 auto;padding:24px clamp(16px,4vw,48px) 120px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:18px}
 .fin h2{margin:0;font-family:var(--display);font-weight:900;font-size:clamp(38px,7vw,84px);line-height:.92;letter-spacing:-.03em}
 .fin p{margin:0;font-size:18px;font-weight:700;color:var(--muted)}
@@ -290,16 +275,6 @@ ONLY</span></div>
     <div class="ph"><h2 id="progH" data-i="progH">PROGRAM</h2></div>
     <ol class="pgrid"><li class="pi"><span class="n">01</span><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h4l2-3h6l2 3h4v11H3z"/><circle cx="12" cy="13" r="3.5"/></svg><h3 data-i="p1h">x</h3></li><li class="pi"><span class="sec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span data-i="pSec">GAME DETAILS CLASSIFIED</span></span><span class="n">02</span><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r=".6" fill="currentColor"/><path d="M12 1v4M12 19v4M1 12h4M19 12h4"/></svg><h3 data-i="p2h">x</h3></li><li class="pi"><span class="sec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span data-i="pSec">GAME DETAILS CLASSIFIED</span></span><span class="n">03</span><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10h16M6 10l1.5-5h9L18 10"/><circle cx="8" cy="15" r="3"/><circle cx="16" cy="15" r="3"/><path d="M11 15h2"/></svg><h3 data-i="p3h">x</h3></li><li class="pi"><span class="n">04</span><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a3 3 0 0 1 3 3v5a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3z"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M9 21h6"/></svg><h3 data-i="p4h">x</h3></li><li class="pi"><span class="n">05</span><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11h16l-1.5 9h-13z"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><h3 data-i="p5h">x</h3></li><li class="pi"><span class="n">06</span><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h11v8H8l-4 3z"/><path d="M15 9h5v8l-3-2h-6v-2"/></svg><h3 data-i="p6h">x</h3></li></ol>
   </section>
-  <section class="give" id="giveaway" aria-labelledby="giveH">
-    <div class="gh"><span class="gk" data-i="giveK">GIVEAWAY</span><h2 id="giveH" data-i="giveH">WIN 2 SIX FLAGS PASSES</h2></div>
-    <div class="gwrap">
-      <ul class="gtrack" id="gtrack"><li class="gs"><img data-n="01" src="media/giveaway/en/01.jpg" alt="" loading="lazy" width="1080" height="1350"></li><li class="gs"><img data-n="02" src="media/giveaway/en/02.jpg" alt="" loading="lazy" width="1080" height="1350"></li><li class="gs"><img data-n="03" src="media/giveaway/en/03.jpg" alt="" loading="lazy" width="1080" height="1350"></li><li class="gs"><img data-n="04" src="media/giveaway/en/04.jpg" alt="" loading="lazy" width="1080" height="1350"></li><li class="gs"><img data-n="05" src="media/giveaway/en/05.jpg" alt="" loading="lazy" width="1080" height="1350"></li><li class="gs"><img data-n="06" src="media/giveaway/en/06.jpg" alt="" loading="lazy" width="1080" height="1350"></li></ul>
-      <button type="button" class="garr prev" id="gPrev" aria-label="Previous">←</button>
-      <button type="button" class="garr next" id="gNext" aria-label="Next">→</button>
-    </div>
-    <div class="gdots" id="gdots"><i></i><i></i><i></i><i></i><i></i><i></i></div>
-    <a class="btn gbtn" href="https://www.instagram.com/p/De2TcBJAQ_s/" target="_blank" rel="noopener"><span data-i="giveBtn">ENTER ON INSTAGRAM</span> ↗</a>
-  </section>
   <section class="fin" id="fin" aria-labelledby="finH">
     <h2 id="finH" data-i="finH">NO TICKET YET?</h2>
     <button type="button" class="btn" id="finBtn"><span data-i="cta">GET MY TICKET</span> ↑</button>
@@ -390,7 +365,7 @@ ONLY</span></div>
         ePPhone:"Check the parent's phone: 10 digits.",eSold:"All {n} spots are taken.",eGen:"Something went wrong. Try again.",
         uD:"DAYS",uH:"HRS",uM:"MIN",uS:"SEC",
         check:"Already registered? Check my ticket",checkTitle:"FIND YOUR TICKET",checkQ:"Phone number you registered with",find:"SHOW MY TICKET",eNotFound:"No ticket for this number yet. Register first.",share:"SHARE TO STORIES",shareHint:"Press and hold the image to save it, then post it to your story.",shareLink:"SHARE LINK",copied:"LINK COPIED",storyIn:"I'M IN",storyCta:"Register at teensparty.fun",storyDate:"SAT · OCT 31 · 6:00 PM",invite:"INVITATION\nONLY",mqTop:"TEENS PARTY — OCT 31 — 6 PM — INVITATION ONLY — TEENS PARTY — OCT 31 — 6 PM — INVITATION ONLY — ",
-        mq:"DON'T MISS IT — BRING A FRIEND — DON'T MISS IT — BRING A FRIEND — DON'T MISS IT — BRING A FRIEND — ", vidK:"WATCH · 29 SEC", vidH:"EVERYTHING ABOUT TEENS PARTY",progH:"PROGRAM",giveK:"GIVEAWAY",giveH:"WIN 2 PASSES\nTO SIX FLAGS",giveBtn:"ENTER ON INSTAGRAM",finH:"NO TICKET YET?",finP:"Only 67 spots — grab yours before they're gone.",pSec:"GAME DETAILS CLASSIFIED",pTag:"DON'T MISS",p1h:"PHOTO\nZONE",p1d:"Grab shots for your stories with friends.",p2h:"SECRET\nMISSION",p2d:"Scan the QR, get your missions and meet new people across the room.",p3h:"SECRET\nAGENT",p3d:"A team quiz to find the best agent in the room.",p4h:"REAL\nTALK",p4d:"A short, honest talk with the pastor about what really matters.",p5h:"FOOD &\nDRINKS",p5d:"Food, drinks and snacks — enough for everyone.",p6h:"HANG\nOUT",p6d:"Meet new people, talk and just have a good time.", sndOn:"SOUND ON", sndOff:"SOUND OFF"},
+        mq:"DON'T MISS IT — BRING A FRIEND — DON'T MISS IT — BRING A FRIEND — DON'T MISS IT — BRING A FRIEND — ", vidK:"WATCH · 29 SEC", vidH:"EVERYTHING ABOUT TEENS PARTY",progH:"PROGRAM",finH:"NO TICKET YET?",finP:"Only 67 spots — grab yours before they're gone.",pSec:"GAME DETAILS CLASSIFIED",pTag:"DON'T MISS",p1h:"PHOTO\nZONE",p1d:"Grab shots for your stories with friends.",p2h:"SECRET\nMISSION",p2d:"Scan the QR, get your missions and meet new people across the room.",p3h:"SECRET\nAGENT",p3d:"A team quiz to find the best agent in the room.",p4h:"REAL\nTALK",p4d:"A short, honest talk with the pastor about what really matters.",p5h:"FOOD &\nDRINKS",p5d:"Food, drinks and snacks — enough for everyone.",p6h:"HANG\nOUT",p6d:"Meet new people, talk and just have a good time.", sndOn:"SOUND ON", sndOff:"SOUND OFF"},
     ru:{taken:"ЗАНЯТО",left:"ОСТАЛОСЬ МЕСТ",lgTaken:"Занято",lgFree:"Свободно",lgMe:"Твоё место",starts:"ДО НАЧАЛА",admit:"ПРОПУСК",spots:"МЕСТ",
         monthV:"OCTOBER",dayV:"СУББОТА",doors:"НАЧАЛО",timeV:"6:00 PM",venue:"АДРЕС ↗",cta:"ПОЛУЧИТЬ БИЛЕТ",
         busy:"ОФОРМЛЯЕМ…",soldout:"МЕСТ НЕТ",youreIn:"ТЫ В СПИСКЕ",already:"УЖЕ ЗАРЕГИСТРИРОВАН",again:"Зарегистрировать ещё одного",
@@ -401,7 +376,7 @@ ONLY</span></div>
         ePPhone:"Проверь телефон родителя: 10 цифр.",eSold:"Все {n} мест заняты.",eGen:"Не получилось. Попробуй ещё раз.",
         uD:"ДНЕЙ",uH:"ЧАСОВ",uM:"МИН",uS:"СЕК",
         check:"Уже зарегистрирован? Проверить билет",checkTitle:"НАЙТИ СВОЙ БИЛЕТ",checkQ:"Номер, с которым ты регистрировался",find:"ПОКАЗАТЬ БИЛЕТ",eNotFound:"На этот номер билета нет. Сначала зарегистрируйся.",share:"ПОДЕЛИТЬСЯ В СТОРИС",shareHint:"Нажми и удерживай картинку, чтобы сохранить, и выложи её в сторис.",shareLink:"ПОДЕЛИТЬСЯ ССЫЛКОЙ",copied:"ССЫЛКА СКОПИРОВАНА",storyIn:"Я ИДУ",storyCta:"Регистрация на teensparty.fun",storyDate:"СБ · OCT 31 · 6:00 PM",invite:"ТОЛЬКО ПО\nПРИГЛАШЕНИЯМ",mqTop:"TEENS PARTY — OCT 31 — 6 PM — ТОЛЬКО ПО ПРИГЛАШЕНИЯМ — TEENS PARTY — OCT 31 — 6 PM — ТОЛЬКО ПО ПРИГЛАШЕНИЯМ — ",
-        mq:"НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — ", vidK:"СМОТРИ · 29 СЕК", vidH:"ВСЁ О TEENS PARTY",progH:"ПРОГРАММА",giveK:"РОЗЫГРЫШ",giveH:"ВЫИГРАЙ 2 ПРОПУСКА\nВ SIX FLAGS",giveBtn:"УЧАСТВОВАТЬ В INSTAGRAM",finH:"ЕЩЁ НЕТ БИЛЕТА?",finP:"Мест всего 67 — успей забрать своё.",pSec:"ДЕТАЛИ ИГРЫ ЗАСЕКРЕЧЕНЫ",pTag:"ГЛАВНОЕ",p1h:"ФОТО\nЗОНА",p1d:"Кадры для сторис с друзьями.",p2h:"СЕКРЕТНАЯ\nМИССИЯ",p2d:"Сканируй QR, получи задания и знакомься с людьми по всему залу.",p3h:"СЕКРЕТНЫЙ\nАГЕНТ",p3d:"Командный квиз: узнаем, кто здесь лучший агент.",p4h:"REAL\nTALK",p4d:"Короткий честный разговор с пастором о главном.",p5h:"ЕДА И\nНАПИТКИ",p5d:"Еда, напитки и закуски — хватит всем.",p6h:"ЖИВОЕ\nОБЩЕНИЕ",p6d:"Новые знакомства, разговоры и просто классное время вместе.", sndOn:"ВКЛЮЧИТЬ ЗВУК", sndOff:"ВЫКЛЮЧИТЬ ЗВУК"},
+        mq:"НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — ", vidK:"СМОТРИ · 29 СЕК", vidH:"ВСЁ О TEENS PARTY",progH:"ПРОГРАММА",finH:"ЕЩЁ НЕТ БИЛЕТА?",finP:"Мест всего 67 — успей забрать своё.",pSec:"ДЕТАЛИ ИГРЫ ЗАСЕКРЕЧЕНЫ",pTag:"ГЛАВНОЕ",p1h:"ФОТО\nЗОНА",p1d:"Кадры для сторис с друзьями.",p2h:"СЕКРЕТНАЯ\nМИССИЯ",p2d:"Сканируй QR, получи задания и знакомься с людьми по всему залу.",p3h:"СЕКРЕТНЫЙ\nАГЕНТ",p3d:"Командный квиз: узнаем, кто здесь лучший агент.",p4h:"REAL\nTALK",p4d:"Короткий честный разговор с пастором о главном.",p5h:"ЕДА И\nНАПИТКИ",p5d:"Еда, напитки и закуски — хватит всем.",p6h:"ЖИВОЕ\nОБЩЕНИЕ",p6d:"Новые знакомства, разговоры и просто классное время вместе.", sndOn:"ВКЛЮЧИТЬ ЗВУК", sndOff:"ВЫКЛЮЧИТЬ ЗВУК"},
     uk:{taken:"ЗАЙНЯТО",left:"ЗАЛИШИЛОСЬ МІСЦЬ",lgTaken:"Зайнято",lgFree:"Вільно",lgMe:"Твоє місце",starts:"ДО ПОЧАТКУ",admit:"ПЕРЕПУСТКА",spots:"МІСЦЬ",
         monthV:"OCTOBER",dayV:"СУБОТА",doors:"ПОЧАТОК",timeV:"6:00 PM",venue:"АДРЕСА ↗",cta:"ОТРИМАТИ КВИТОК",
         busy:"ОФОРМЛЮЄМО…",soldout:"МІСЦЬ НЕМАЄ",youreIn:"ТИ В СПИСКУ",already:"ВЖЕ ЗАРЕЄСТРОВАНО",again:"Зареєструвати ще когось",
@@ -412,7 +387,7 @@ ONLY</span></div>
         ePPhone:"Перевір телефон батьків: 10 цифр.",eSold:"Усі {n} місць зайняті.",eGen:"Не вийшло. Спробуй ще раз.",
         uD:"ДНІВ",uH:"ГОДИН",uM:"ХВ",uS:"СЕК",
         check:"Вже зареєстрований? Перевірити квиток",checkTitle:"ЗНАЙТИ СВІЙ КВИТОК",checkQ:"Номер, з яким ти реєструвався",find:"ПОКАЗАТИ КВИТОК",eNotFound:"На цей номер квитка немає. Спочатку зареєструйся.",share:"ПОДІЛИТИСЯ В СТОРІС",shareHint:"Натисни й утримуй картинку, щоб зберегти, і виклади її в сторіс.",shareLink:"ПОДІЛИТИСЯ ПОСИЛАННЯМ",copied:"ПОСИЛАННЯ СКОПІЙОВАНО",storyIn:"Я ЙДУ",storyCta:"Реєстрація на teensparty.fun",storyDate:"СБ · OCT 31 · 6:00 PM",invite:"ЛИШЕ ЗА\nЗАПРОШЕННЯМИ",mqTop:"TEENS PARTY — OCT 31 — 6 PM — ЛИШЕ ЗА ЗАПРОШЕННЯМИ — TEENS PARTY — OCT 31 — 6 PM — ЛИШЕ ЗА ЗАПРОШЕННЯМИ — ",
-        mq:"НЕ ПРОПУСТИ — КЛИЧ ДРУЗІВ — НЕ ПРОПУСТИ — КЛИЧ ДРУЗІВ — НЕ ПРОПУСТИ — КЛИЧ ДРУЗІВ — ", vidK:"ДИВИСЬ · 29 СЕК", vidH:"ВСЕ ПРО TEENS PARTY",progH:"ПРОГРАМА",giveK:"РОЗІГРАШ",giveH:"ВИГРАЙ 2 ПЕРЕПУСТКИ\nВ SIX FLAGS",giveBtn:"ВЗЯТИ УЧАСТЬ В INSTAGRAM",finH:"ЩЕ НЕМАЄ КВИТКА?",finP:"Місць лише 67 — встигни забрати своє.",pSec:"ДЕТАЛІ ГРИ ЗАСЕКРЕЧЕНІ",pTag:"ГОЛОВНЕ",p1h:"ФОТО\nЗОНА",p1d:"Кадри для сторіс з друзями.",p2h:"СЕКРЕТНА\nМІСІЯ",p2d:"Скануй QR, отримай завдання і знайомся з людьми по всій залі.",p3h:"СЕКРЕТНИЙ\nАГЕНТ",p3d:"Командний квіз: дізнаємось, хто тут найкращий агент.",p4h:"REAL\nTALK",p4d:"Коротка чесна розмова з пастором про головне.",p5h:"ЇЖА\nЙ НАПОЇ",p5d:"Їжа, напої та закуски — вистачить усім.",p6h:"ЖИВЕ\nСПІЛКУВАННЯ",p6d:"Нові знайомства, розмови і просто класний час разом.", sndOn:"УВІМКНУТИ ЗВУК", sndOff:"ВИМКНУТИ ЗВУК"}
+        mq:"НЕ ПРОПУСТИ — КЛИЧ ДРУЗІВ — НЕ ПРОПУСТИ — КЛИЧ ДРУЗІВ — НЕ ПРОПУСТИ — КЛИЧ ДРУЗІВ — ", vidK:"ДИВИСЬ · 29 СЕК", vidH:"ВСЕ ПРО TEENS PARTY",progH:"ПРОГРАМА",finH:"ЩЕ НЕМАЄ КВИТКА?",finP:"Місць лише 67 — встигни забрати своє.",pSec:"ДЕТАЛІ ГРИ ЗАСЕКРЕЧЕНІ",pTag:"ГОЛОВНЕ",p1h:"ФОТО\nЗОНА",p1d:"Кадри для сторіс з друзями.",p2h:"СЕКРЕТНА\nМІСІЯ",p2d:"Скануй QR, отримай завдання і знайомся з людьми по всій залі.",p3h:"СЕКРЕТНИЙ\nАГЕНТ",p3d:"Командний квіз: дізнаємось, хто тут найкращий агент.",p4h:"REAL\nTALK",p4d:"Коротка чесна розмова з пастором про головне.",p5h:"ЇЖА\nЙ НАПОЇ",p5d:"Їжа, напої та закуски — вистачить усім.",p6h:"ЖИВЕ\nСПІЛКУВАННЯ",p6d:"Нові знайомства, розмови і просто класний час разом.", sndOn:"УВІМКНУТИ ЗВУК", sndOff:"ВИМКНУТИ ЗВУК"}
   };
 
   var $ = function(id){ return document.getElementById(id); };
@@ -801,7 +776,6 @@ ONLY</span></div>
     if(!$('err').hidden && $('err').dataset.code) showErr($('err').dataset.code);
     store('tp_lang', l);
     setVideo(l);
-    setGive(l);
     renderStats(); renderDone(); tick(); fitStamp(); setTimeout(fitStamp, 400); setTimeout(fitStamp, 1500);
   }
 
@@ -809,19 +783,6 @@ ONLY</span></div>
   var vid = $('promo'), vidLang = 'en', vidSeen = false;
   function sndLabel(){ var on = !vid.muted; $('snd').setAttribute('aria-pressed', on ? 'true' : 'false'); $('sndTxt').textContent = T[lang][on ? 'sndOff' : 'sndOn']; $('sndWave').style.display = on ? '' : 'none'; }
 
-  function setGive(l){
-    document.querySelectorAll('#gtrack img').forEach(function(im){ var u='media/giveaway/'+l+'/'+im.getAttribute('data-n')+'.jpg'; if(im.getAttribute('src')!==u) im.setAttribute('src',u); });
-  }
-  (function(){
-    var tr=$('gtrack'), dots=$('gdots').children, n=dots.length;
-    function idx(){ return Math.round(tr.scrollLeft/tr.clientWidth); }
-    function upd(){ var i=idx(); for(var k=0;k<n;k++) dots[k].className = k===i?'on':''; $('gPrev').disabled = i<=0; $('gNext').disabled = i>=n-1; }
-    function go(d){ tr.scrollTo({left:(idx()+d)*tr.clientWidth, behavior:'smooth'}); }
-    $('gPrev').addEventListener('click', function(){ go(-1); });
-    $('gNext').addEventListener('click', function(){ go(1); });
-    tr.addEventListener('scroll', function(){ window.requestAnimationFrame(upd); }, {passive:true});
-    upd();
-  })();
   function setVideo(l){
     if(!vid) return;
     if(vidLang !== l){
