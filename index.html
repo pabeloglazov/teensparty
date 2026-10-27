@@ -117,6 +117,9 @@ h1 .outline{color:var(--bg);-webkit-text-stroke:2px var(--fg);animation-delay:.1
 .qrz .zn{font-size:18px;font-weight:800;color:var(--paper);margin-top:-8px}
 .qrz .zc{font-size:14px;font-weight:700;letter-spacing:.08em;color:var(--paper);opacity:.6;text-transform:uppercase}
 .dmsg{margin:0;font-size:15px;font-weight:600;line-height:1.45}
+.btn2{background:transparent;color:var(--ink);border:3px solid var(--ink);font-family:var(--display);font-weight:900;font-size:14px;letter-spacing:.02em;line-height:1.25;padding:12px 14px;min-height:52px;cursor:pointer;text-align:center}
+.btn2:hover:not(:disabled){background:var(--ink);color:var(--paper)}
+.btn2:disabled{opacity:.4;cursor:default}
 .linkbtn{align-self:center;background:none;border:0;padding:6px 0;min-height:56px;line-height:1.35;text-align:center;color:var(--ink);font-weight:800;font-size:14px;letter-spacing:.06em;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 .share{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:6px;background:var(--ink);color:var(--paper);border:3px solid var(--ink);font-family:var(--display);font-weight:900;font-size:15px;padding:14px;min-height:52px;cursor:pointer;white-space:nowrap}
 .share:hover{background:var(--orange);color:var(--ink)}
@@ -241,6 +244,7 @@ dialog::backdrop{background:rgba(13,13,13,.78);backdrop-filter:blur(4px);-webkit
       <div class="perf" aria-hidden="true"></div>
       <div class="part stub">
         <button class="btn" type="button" id="open" data-i="cta">GET MY TICKET</button>
+        <button class="btn2" type="button" id="openParent" data-i="parentBtn">I'M A PARENT — REGISTER MY TEEN</button>
         <button class="linkbtn" type="button" id="checkBtn" data-i="check">Already registered? Check my ticket</button>
         <div class="stamp" id="stamp" aria-hidden="true"><span class="stamp-box" id="stampText" data-i="invite">INVITATION
 ONLY</span></div>
@@ -320,24 +324,24 @@ ONLY</span></div>
   <div class="q-bar" aria-hidden="true"><i id="qbar" style="width:20%"></i></div>
   <form id="qform" novalidate>
     <div class="step" data-step="0">
-      <label for="f-name" data-i="q1">What's your first and last name?</label>
+      <label for="f-name" id="l-q1" data-i="q1">What's your first and last name?</label>
       <input id="f-name" name="name" autocomplete="name" maxlength="60">
     </div>
     <div class="step" data-step="1" hidden>
-      <label for="f-phone" data-i="q2">Your phone number</label>
-      <p class="hint" data-i="h2">Your ticket goes here.</p>
+      <label for="f-phone" id="l-q2" data-i="q2">Your phone number</label>
+      <p class="hint" id="l-h2" data-i="h2">Your ticket goes here.</p>
       <input id="f-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(916) 555-0123">
     </div>
     <div class="step" data-step="2" hidden>
-      <label for="f-age" data-i="q3">How old are you?</label>
+      <label for="f-age" id="l-q3" data-i="q3">How old are you?</label>
       <input id="f-age" name="age" type="text" inputmode="numeric" maxlength="2" autocomplete="off">
     </div>
     <div class="step" data-step="3" hidden>
-      <label for="f-pname"><span data-i="q4">Parent's name</span><span class="opt" data-i="optional">OPTIONAL</span></label>
+      <label for="f-pname"><span id="l-q4" data-i="q4">Parent's name</span><span class="opt" data-i="optional">OPTIONAL</span></label>
       <input id="f-pname" name="parentName" maxlength="60" autocomplete="off">
     </div>
     <div class="step" data-step="4" hidden>
-      <label for="f-pphone"><span data-i="q5">Parent's phone</span><span class="opt" data-i="optional">OPTIONAL</span></label>
+      <label for="f-pphone"><span id="l-q5" data-i="q5">Parent's phone</span><span class="opt" data-i="optional">OPTIONAL</span></label>
       <input id="f-pphone" name="parentPhone" type="tel" inputmode="tel" autocomplete="off" placeholder="(916) 555-0123">
     </div>
     <p class="err" id="err" role="alert" hidden></p>
@@ -355,7 +359,7 @@ ONLY</span></div>
   var TARGET = Date.parse('2026-10-31T18:00:00-07:00');
 
   var T = {
-    en:{taken:"TAKEN",left:"SPOTS LEFT",lgTaken:"Taken",lgFree:"Free",lgMe:"Your spot",starts:"STARTS IN",admit:"ADMIT ONE",spots:"SPOTS",
+    en:{pyoureIn:"YOUR TEEN IS IN",parentBtn:"I'M A PARENT — REGISTER MY TEEN",pq1:"Your teen's first and last name",pq2:"Phone number for the ticket",ph2:"Your number or your teen's. With it you can find the ticket on this site.",pq3:"How old is your teen?",pq4:"Your name",pq5:"Your phone (if different)",taken:"TAKEN",left:"SPOTS LEFT",lgTaken:"Taken",lgFree:"Free",lgMe:"Your spot",starts:"STARTS IN",admit:"ADMIT ONE",spots:"SPOTS",
         monthV:"OCTOBER",dayV:"SATURDAY",doors:"START",timeV:"6:00 PM",venue:"ADDRESS ↗",cta:"GET MY TICKET",
         busy:"BOOKING…",soldout:"SOLD OUT",youreIn:"YOU'RE IN",already:"ALREADY REGISTERED",again:"Register someone else",
         qrTap:"Tap the QR to enlarge it",qrClose:"Tap anywhere to close",smsSent:"Your ticket was texted to {p}.",noSms:"Screenshot this ticket and show the QR code at the entrance. Lost it? Register again with the same phone number.",
@@ -366,7 +370,7 @@ ONLY</span></div>
         uD:"DAYS",uH:"HRS",uM:"MIN",uS:"SEC",
         check:"Already registered? Check my ticket",checkTitle:"FIND YOUR TICKET",checkQ:"Phone number you registered with",find:"SHOW MY TICKET",eNotFound:"No ticket for this number yet. Register first.",share:"SHARE TO STORIES",shareHint:"Press and hold the image to save it, then post it to your story.",shareLink:"SHARE LINK",copied:"LINK COPIED",storyIn:"I'M IN",storyCta:"Register at teensparty.fun",storyDate:"SAT · OCT 31 · 6:00 PM",invite:"INVITATION\nONLY",mqTop:"TEENS PARTY — OCT 31 — 6 PM — INVITATION ONLY — TEENS PARTY — OCT 31 — 6 PM — INVITATION ONLY — ",
         mq:"DON'T MISS IT — BRING A FRIEND — DON'T MISS IT — BRING A FRIEND — DON'T MISS IT — BRING A FRIEND — ", vidK:"WATCH · 29 SEC", vidH:"EVERYTHING ABOUT TEENS PARTY",progH:"PROGRAM",finH:"NO TICKET YET?",finP:"Only 67 spots — grab yours before they're gone.",pSec:"GAME DETAILS CLASSIFIED",pTag:"DON'T MISS",p1h:"PHOTO\nZONE",p1d:"Grab shots for your stories with friends.",p2h:"SECRET\nMISSION",p2d:"Scan the QR, get your missions and meet new people across the room.",p3h:"SECRET\nAGENT",p3d:"A team quiz to find the best agent in the room.",p4h:"REAL\nTALK",p4d:"A short, honest talk with the pastor about what really matters.",p5h:"FOOD &\nDRINKS",p5d:"Food, drinks and snacks — enough for everyone.",p6h:"HANG\nOUT",p6d:"Meet new people, talk and just have a good time.", sndOn:"SOUND ON", sndOff:"SOUND OFF"},
-    ru:{taken:"ЗАНЯТО",left:"ОСТАЛОСЬ МЕСТ",lgTaken:"Занято",lgFree:"Свободно",lgMe:"Твоё место",starts:"ДО НАЧАЛА",admit:"ПРОПУСК",spots:"МЕСТ",
+    ru:{pyoureIn:"ПОДРОСТОК В СПИСКЕ",parentBtn:"Я РОДИТЕЛЬ — ЗАПИСАТЬ ПОДРОСТКА",pq1:"Имя и фамилия подростка",pq2:"Номер телефона для билета",ph2:"Ваш номер или номер подростка. По нему можно найти билет на сайте.",pq3:"Сколько лет подростку?",pq4:"Ваше имя",pq5:"Ваш телефон (если другой)",taken:"ЗАНЯТО",left:"ОСТАЛОСЬ МЕСТ",lgTaken:"Занято",lgFree:"Свободно",lgMe:"Твоё место",starts:"ДО НАЧАЛА",admit:"ПРОПУСК",spots:"МЕСТ",
         monthV:"OCTOBER",dayV:"СУББОТА",doors:"НАЧАЛО",timeV:"6:00 PM",venue:"АДРЕС ↗",cta:"ПОЛУЧИТЬ БИЛЕТ",
         busy:"ОФОРМЛЯЕМ…",soldout:"МЕСТ НЕТ",youreIn:"ТЫ В СПИСКЕ",already:"УЖЕ ЗАРЕГИСТРИРОВАН",again:"Зарегистрировать ещё одного",
         qrTap:"Нажми на QR, чтобы увеличить",qrClose:"Нажми в любом месте, чтобы закрыть",smsSent:"Билет отправлен SMS на {p}.",noSms:"Сделай скриншот билета и покажи QR-код на входе. Потерял? Зарегистрируйся ещё раз с тем же номером.",
@@ -377,7 +381,7 @@ ONLY</span></div>
         uD:"ДНЕЙ",uH:"ЧАСОВ",uM:"МИН",uS:"СЕК",
         check:"Уже зарегистрирован? Проверить билет",checkTitle:"НАЙТИ СВОЙ БИЛЕТ",checkQ:"Номер, с которым ты регистрировался",find:"ПОКАЗАТЬ БИЛЕТ",eNotFound:"На этот номер билета нет. Сначала зарегистрируйся.",share:"ПОДЕЛИТЬСЯ В СТОРИС",shareHint:"Нажми и удерживай картинку, чтобы сохранить, и выложи её в сторис.",shareLink:"ПОДЕЛИТЬСЯ ССЫЛКОЙ",copied:"ССЫЛКА СКОПИРОВАНА",storyIn:"Я ИДУ",storyCta:"Регистрация на teensparty.fun",storyDate:"СБ · OCT 31 · 6:00 PM",invite:"ТОЛЬКО ПО\nПРИГЛАШЕНИЯМ",mqTop:"TEENS PARTY — OCT 31 — 6 PM — ТОЛЬКО ПО ПРИГЛАШЕНИЯМ — TEENS PARTY — OCT 31 — 6 PM — ТОЛЬКО ПО ПРИГЛАШЕНИЯМ — ",
         mq:"НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — ", vidK:"СМОТРИ · 29 СЕК", vidH:"ВСЁ О TEENS PARTY",progH:"ПРОГРАММА",finH:"ЕЩЁ НЕТ БИЛЕТА?",finP:"Мест всего 67 — успей забрать своё.",pSec:"ДЕТАЛИ ИГРЫ ЗАСЕКРЕЧЕНЫ",pTag:"ГЛАВНОЕ",p1h:"ФОТО\nЗОНА",p1d:"Кадры для сторис с друзьями.",p2h:"СЕКРЕТНАЯ\nМИССИЯ",p2d:"Сканируй QR, получи задания и знакомься с людьми по всему залу.",p3h:"СЕКРЕТНЫЙ\nАГЕНТ",p3d:"Командный квиз: узнаем, кто здесь лучший агент.",p4h:"REAL\nTALK",p4d:"Короткий честный разговор с пастором о главном.",p5h:"ЕДА И\nНАПИТКИ",p5d:"Еда, напитки и закуски — хватит всем.",p6h:"ЖИВОЕ\nОБЩЕНИЕ",p6d:"Новые знакомства, разговоры и просто классное время вместе.", sndOn:"ВКЛЮЧИТЬ ЗВУК", sndOff:"ВЫКЛЮЧИТЬ ЗВУК"},
-    uk:{taken:"ЗАЙНЯТО",left:"ЗАЛИШИЛОСЬ МІСЦЬ",lgTaken:"Зайнято",lgFree:"Вільно",lgMe:"Твоє місце",starts:"ДО ПОЧАТКУ",admit:"ПЕРЕПУСТКА",spots:"МІСЦЬ",
+    uk:{pyoureIn:"ПІДЛІТОК У СПИСКУ",parentBtn:"Я З БАТЬКІВ — ЗАПИСАТИ ПІДЛІТКА",pq1:"Ім'я та прізвище підлітка",pq2:"Номер телефону для квитка",ph2:"Ваш номер або номер підлітка. За ним можна знайти квиток на сайті.",pq3:"Скільки років підлітку?",pq4:"Ваше ім'я",pq5:"Ваш телефон (якщо інший)",taken:"ЗАЙНЯТО",left:"ЗАЛИШИЛОСЬ МІСЦЬ",lgTaken:"Зайнято",lgFree:"Вільно",lgMe:"Твоє місце",starts:"ДО ПОЧАТКУ",admit:"ПЕРЕПУСТКА",spots:"МІСЦЬ",
         monthV:"OCTOBER",dayV:"СУБОТА",doors:"ПОЧАТОК",timeV:"6:00 PM",venue:"АДРЕСА ↗",cta:"ОТРИМАТИ КВИТОК",
         busy:"ОФОРМЛЮЄМО…",soldout:"МІСЦЬ НЕМАЄ",youreIn:"ТИ В СПИСКУ",already:"ВЖЕ ЗАРЕЄСТРОВАНО",again:"Зареєструвати ще когось",
         qrTap:"Натисни на QR, щоб збільшити",qrClose:"Натисни будь-де, щоб закрити",smsSent:"Квиток надіслано SMS на {p}.",noSms:"Зроби скриншот квитка і покажи QR-код на вході. Загубив? Зареєструйся ще раз з тим самим номером.",
@@ -391,7 +395,7 @@ ONLY</span></div>
   };
 
   var $ = function(id){ return document.getElementById(id); };
-  var lang = 'en', stats = {capacity:CAPACITY, taken:0, left:CAPACITY}, mine = null, busy = false, step = 0;
+  var parentMode = false, lang = 'en', stats = {capacity:CAPACITY, taken:0, left:CAPACITY}, mine = null, busy = false, step = 0;
   var steps = Array.prototype.slice.call(document.querySelectorAll('#qform .step'));
   var inputs = ['f-name','f-phone','f-age','f-pname','f-pphone'].map($);
   var OPTIONAL = {3:true, 4:true};
@@ -496,7 +500,7 @@ ONLY</span></div>
     });
     $('lgMe').hidden = !mySeat;
     var sold = left === 0 && !mine;
-    $('open').disabled = sold; $('open2').disabled = sold;
+    $('open').disabled = sold; $('open2').disabled = sold; $('openParent').disabled = sold;
     $('open').textContent = $('open2').textContent = sold ? T[lang].soldout : T[lang].cta;
     $('next').disabled = busy;
     $('next').textContent = busy ? T[lang].busy : (step === STEPS - 1 ? T[lang].cta : T[lang].next);
@@ -532,6 +536,7 @@ ONLY</span></div>
   function renderDone(){
     $('fin').hidden = !!mine;
     $('open').hidden = !!mine;
+    $('openParent').hidden = !!mine;
     $('checkBtn').hidden = !!mine;
     $('mcta').hidden = !!mine;
     $('done').hidden = !mine;
@@ -540,7 +545,7 @@ ONLY</span></div>
     drawQr();
     prepStory();
     if(!mine) return;
-    $('doneHead').textContent = mine.existing ? T[lang].already : T[lang].youreIn;
+    $('doneHead').textContent = mine.existing ? T[lang].already : (mine.parent ? T[lang].pyoureIn : T[lang].youreIn);
     $('tno').textContent = mine.ticket;
     $('tname').textContent = mine.name;
     $('dmsg').textContent = mine.sms ? T[lang].smsSent.replace('{p}', fmtPhone(mine.phone)) : T[lang].noSms;
@@ -564,8 +569,15 @@ ONLY</span></div>
     $('err').textContent = T[lang][map[code] || 'eGen'].replace('{n}', stats.capacity || CAPACITY);
     $('err').hidden = false;
   }
+  /* parent mode: same form and same backend fields, questions worded for a parent registering their teen */
+  function applyMode(){
+    var L = T[lang], P = parentMode;
+    [['l-q1','q1'],['l-q2','q2'],['l-h2','h2'],['l-q3','q3'],['l-q4','q4'],['l-q5','q5']].forEach(function(x){
+      $(x[0]).textContent = L[(P ? 'p' : '') + x[1]] || L[x[1]];
+    });
+  }
   function openDlg(){
-    hideErr(); showStep(0);
+    hideErr(); applyMode(); showStep(0);
     if(typeof $('dlg').showModal === 'function') $('dlg').showModal(); else $('dlg').setAttribute('open', '');
   }
   function closeDlg(){ if($('dlg').open){ if(typeof $('dlg').close === 'function') $('dlg').close(); else $('dlg').removeAttribute('open'); } }
@@ -582,7 +594,7 @@ ONLY</span></div>
         if(STEP_ERR[code] !== undefined) showStep(STEP_ERR[code]);
         showErr(code); renderStats(); return;
       }
-      mine = {ticket:r.ticket, seat:r.seat, name:r.name, qr:r.qr || '', sms:!!r.sms, phone:data.phone, existing:!!r.existing};
+      mine = {ticket:r.ticket, seat:r.seat, name:r.name, qr:r.qr || '', sms:!!r.sms, phone:data.phone, existing:!!r.existing, parent:parentMode};
       store('tp_ticket', JSON.stringify(mine));
       closeDlg(); renderStats(); renderDone();
     }).catch(function(){ busy = false; showErr('gen'); renderStats(); });
@@ -607,9 +619,10 @@ ONLY</span></div>
   $('open2').addEventListener('click', function(){ track('reg_open'); });
   document.querySelectorAll('a[href*="instagram.com"]').forEach(function(a){ a.addEventListener('click', function(){ track('ig_click'); }); });
   track('view');
-  $('open').addEventListener('click', openDlg);
+  $('open').addEventListener('click', function(){ parentMode = false; openDlg(); });
   $('finBtn').addEventListener('click', function(){ window.scrollTo({top:0, behavior:'smooth'}); });
-  $('open2').addEventListener('click', openDlg);
+  $('open2').addEventListener('click', function(){ parentMode = false; openDlg(); });
+  $('openParent').addEventListener('click', function(){ track('reg_open'); parentMode = true; openDlg(); });
 
   /* phone mask */
   [inputs[1], inputs[4]].forEach(function(inp){
@@ -774,6 +787,7 @@ ONLY</span></div>
     $('cclose').setAttribute('aria-label', T[l].close);
     $('pvClose').setAttribute('aria-label', T[l].close);
     if(!$('err').hidden && $('err').dataset.code) showErr($('err').dataset.code);
+    applyMode();
     store('tp_lang', l);
     setVideo(l);
     renderStats(); renderDone(); tick(); fitStamp(); setTimeout(fitStamp, 400); setTimeout(fitStamp, 1500);
