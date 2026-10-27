@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;900&family=Manrope:wght@500;700;800&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <style>
-/* Layout: marquee strips; left = title + key facts + register button, then seat board + countdown; right = ticket (desktop; on phones only after registering); registration = one short form */
+/* Layout: big marquee strips top/bottom; left = title + seat board + countdown; right = ticket; registration = step-by-step popup */
 :root{
   --bg:#0d0d0d; --fg:#f2efe8; --paper:#f2efe8; --ink:#0d0d0d; --orange:#ff5a1f; --orange-dark:#b83606;
   --muted:#b9b4ab; --paper-muted:#55524c; --seat-empty:#262421; --err:#b3200c; --track:#d9d4ca;
@@ -39,22 +39,6 @@ a,button,input{font:inherit}
 
 .wrap{flex:1;width:100%;max-width:1200px;margin:0 auto;padding:clamp(24px,4vw,48px) clamp(16px,4vw,48px) clamp(40px,5vw,64px);display:flex;flex-wrap:wrap;align-items:stretch;gap:clamp(40px,5vw,72px)}
 .left{flex:999 1 440px;min-width:0;display:flex;flex-direction:column;gap:36px}
-.hero{display:flex;flex-direction:column;align-items:flex-start;gap:12px;max-width:560px;margin-top:-12px}
-.hage{background:var(--orange);color:var(--ink);font-family:var(--display);font-weight:900;font-size:clamp(15px,2.2vw,20px);padding:9px 13px;transform:rotate(-1.5deg)}
-.hdate{margin:4px 0 0;font-family:var(--display);font-weight:900;font-size:clamp(21px,3.2vw,32px);line-height:1.15;text-wrap:balance}
-.haddr{color:var(--fg);font-weight:800;font-size:clamp(16px,2vw,19px);text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:2px;min-height:44px;display:inline-flex;align-items:center}
-.hentry{margin:0;font-weight:800;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);border:2px solid var(--muted);padding:7px 10px}
-.hact{display:flex;flex-wrap:wrap;align-items:center;gap:6px 22px;margin-top:8px}
-.hact .btn{font-size:17px;padding:16px 24px}
-.hlink{background:none;border:0;padding:0;min-height:44px;color:var(--fg);font-weight:800;font-size:15px;text-decoration:underline;text-underline-offset:3px;cursor:pointer;text-align:left}
-#qform{padding:8px 20px 22px;display:flex;flex-direction:column;gap:16px}
-.fnote{margin:0;font-weight:800;font-size:14px;color:var(--paper-muted)}
-.fld{display:flex;flex-direction:column;gap:8px}
-.fld label{font-family:var(--display);font-weight:900;font-size:clamp(17px,4vw,20px);line-height:1.2}
-.fld input{width:100%;min-height:56px;padding:12px 14px;border:3px solid var(--ink);background:#fff;color:var(--ink);font-size:20px;font-weight:700;border-radius:0}
-.fld input[aria-invalid="true"]{border-color:var(--err)}
-#qform .hint{min-height:0;line-height:1.4}
-#qform .btn{width:100%;margin-top:4px}
 h1{margin:0;font-family:var(--display);font-weight:900;font-size:clamp(54px,9.4vw,134px);line-height:.88;letter-spacing:-.03em}
 h1 span{display:block;animation:slam .5s cubic-bezier(.2,1.2,.4,1) both}
 h1 .outline{color:var(--bg);-webkit-text-stroke:2px var(--fg);animation-delay:.12s}
@@ -97,14 +81,12 @@ h1 .outline{color:var(--bg);-webkit-text-stroke:2px var(--fg);animation-delay:.1
 .bigdate .dm{display:flex;flex-direction:column;gap:6px;padding-bottom:4px;font-family:var(--display);font-weight:900;font-size:16px;min-width:0}
 .bigdate .dm span{display:block;height:20px;line-height:20px;white-space:nowrap}
 .bigdate .dm span:last-child{font-family:var(--body);font-size:13px;font-weight:800;letter-spacing:.14em;color:var(--paper-muted)}
-@media (max-width:899px){ .stamp{display:none} .page:not(.has-ticket) .ticket{display:none} .hact .btn{width:100%} }
+@media (max-width:899px){ .stamp{display:none} }
 @media (min-width:900px){ .ticket{flex:0 0 400px;width:400px} }
 .mcta{display:none}
 @media (max-width:899px){
   .mcta{display:block;position:fixed;left:0;right:0;bottom:0;z-index:5;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));background:linear-gradient(180deg,rgba(13,13,13,0),rgba(13,13,13,.92) 35%)}
   .mcta .btn{width:100%}
-  .mcta{transition:transform .25s ease,opacity .25s ease}
-  .mcta.off{transform:translateY(110%);opacity:0;pointer-events:none;visibility:hidden}
   .page{padding-bottom:84px}
 }
 .head{display:flex;justify-content:space-between;align-items:center;gap:12px;height:28px;font-weight:800;font-size:12px;line-height:20px;letter-spacing:.14em;white-space:nowrap}
@@ -208,33 +190,21 @@ dialog::backdrop{background:rgba(13,13,13,.78);backdrop-filter:blur(4px);-webkit
 
 <main class="page">
   <div class="strip top" aria-hidden="true"><div class="track">
-    <span data-i="mqTop">TEENS PARTY — 31 ОКТЯБРЯ — 18:00 — ВХОД ПО ПРЕДВАРИТЕЛЬНОЙ РЕГИСТРАЦИИ — TEENS PARTY — 31 ОКТЯБРЯ — 18:00 — ВХОД ПО ПРЕДВАРИТЕЛЬНОЙ РЕГИСТРАЦИИ — </span>
-    <span data-i="mqTop">TEENS PARTY — 31 ОКТЯБРЯ — 18:00 — ВХОД ПО ПРЕДВАРИТЕЛЬНОЙ РЕГИСТРАЦИИ — TEENS PARTY — 31 ОКТЯБРЯ — 18:00 — ВХОД ПО ПРЕДВАРИТЕЛЬНОЙ РЕГИСТРАЦИИ — </span>
+    <span data-i="mqTop">TEENS PARTY — OCT 31 — 6 PM — INVITATION ONLY — TEENS PARTY — OCT 31 — 6 PM — INVITATION ONLY — </span>
+    <span data-i="mqTop">TEENS PARTY — OCT 31 — 6 PM — INVITATION ONLY — TEENS PARTY — OCT 31 — 6 PM — INVITATION ONLY — </span>
   </div></div>
 
   <div class="langbar">
     <div class="lang" role="group" aria-label="Language">
-      <button type="button" data-lang="ru" aria-pressed="true">RU</button>
+      <button type="button" data-lang="en" aria-pressed="true">EN</button>
       <button type="button" data-lang="uk" aria-pressed="false">UA</button>
-      <button type="button" data-lang="en" aria-pressed="false">EN</button>
+      <button type="button" data-lang="ru" aria-pressed="false">RU</button>
     </div>
   </div>
 
   <div class="wrap">
     <div class="left">
       <h1><span>TEENS</span><span class="outline">PARTY</span></h1>
-
-      <div class="hero">
-        <span class="hage" data-i="heroAge">ДЛЯ ПОДРОСТКОВ 12–17 ЛЕТ</span>
-        <p class="hdate" data-i="heroDate">Суббота, 31 октября 2026 · 18:00</p>
-        <a class="haddr" href="https://maps.google.com/?q=5948+Pecan+Ave,+Orangevale,+CA+95662" target="_blank" rel="noopener">5948 Pecan Ave, Orangevale, CA 95662 <span aria-hidden="true">↗</span></a>
-        <p class="hentry" data-i="heroEntry">Вход по предварительной регистрации</p>
-        <div class="hact">
-          <button class="btn" type="button" id="open" data-i="cta">ЗАПИСАТЬ ПОДРОСТКА</button>
-          <button class="hlink" type="button" id="checkBtn" data-i="check">Уже записаны? Найти билет</button>
-          <button class="hlink" type="button" id="myTicketBtn" data-i="myTicket" hidden>Показать мой билет ↓</button>
-        </div>
-      </div>
 
       <div class="board">
         <div class="stats">
@@ -270,8 +240,10 @@ dialog::backdrop{background:rgba(13,13,13,.78);backdrop-filter:blur(4px);-webkit
       </div>
       <div class="perf" aria-hidden="true"></div>
       <div class="part stub">
-        <div class="stamp" id="stamp" aria-hidden="true"><span class="stamp-box" id="stampText" data-i="invite">ВХОД ПО
-ПРЕДВАРИТЕЛЬНОЙ РЕГИСТРАЦИИ</span></div>
+        <button class="btn" type="button" id="open" data-i="cta">GET MY TICKET</button>
+        <button class="linkbtn" type="button" id="checkBtn" data-i="check">Already registered? Check my ticket</button>
+        <div class="stamp" id="stamp" aria-hidden="true"><span class="stamp-box" id="stampText" data-i="invite">INVITATION
+ONLY</span></div>
         <div class="done" id="done" hidden aria-live="polite">
           <span class="k" id="doneHead" data-i="youreIn">YOU'RE IN</span>
           <div class="tno" id="tno">TP-000</div>
@@ -304,13 +276,13 @@ dialog::backdrop{background:rgba(13,13,13,.78);backdrop-filter:blur(4px);-webkit
     <ol class="pgrid"><li class="pi"><span class="n">01</span><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h4l2-3h6l2 3h4v11H3z"/><circle cx="12" cy="13" r="3.5"/></svg><h3 data-i="p1h">x</h3></li><li class="pi"><span class="sec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span data-i="pSec">GAME DETAILS CLASSIFIED</span></span><span class="n">02</span><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r=".6" fill="currentColor"/><path d="M12 1v4M12 19v4M1 12h4M19 12h4"/></svg><h3 data-i="p2h">x</h3></li><li class="pi"><span class="sec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span data-i="pSec">GAME DETAILS CLASSIFIED</span></span><span class="n">03</span><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10h16M6 10l1.5-5h9L18 10"/><circle cx="8" cy="15" r="3"/><circle cx="16" cy="15" r="3"/><path d="M11 15h2"/></svg><h3 data-i="p3h">x</h3></li><li class="pi"><span class="n">04</span><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a3 3 0 0 1 3 3v5a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3z"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M9 21h6"/></svg><h3 data-i="p4h">x</h3></li><li class="pi"><span class="n">05</span><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11h16l-1.5 9h-13z"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><h3 data-i="p5h">x</h3></li><li class="pi"><span class="n">06</span><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h11v8H8l-4 3z"/><path d="M15 9h5v8l-3-2h-6v-2"/></svg><h3 data-i="p6h">x</h3></li></ol>
   </section>
   <section class="fin" id="fin" aria-labelledby="finH">
-    <h2 id="finH" data-i="finH">ЕЩЁ НЕ ЗАПИСАЛИСЬ?</h2>
-    <button type="button" class="btn" id="finBtn"><span data-i="cta">ЗАПИСАТЬ ПОДРОСТКА</span> ↑</button>
+    <h2 id="finH" data-i="finH">NO TICKET YET?</h2>
+    <button type="button" class="btn" id="finBtn"><span data-i="cta">GET MY TICKET</span> ↑</button>
   </section>
 </main>
 <div class="qrz" id="qrz" aria-hidden="true"><div class="zt" id="zt"></div><div class="big" id="qrbig"></div><div class="zn" id="zn"></div><div class="zc" data-i="qrClose">Tap anywhere to close</div></div>
 
-<div class="mcta" id="mcta"><button class="btn" type="button" id="open2" data-i="cta">ЗАПИСАТЬ ПОДРОСТКА</button></div>
+<div class="mcta" id="mcta"><button class="btn" type="button" id="open2" data-i="cta">GET MY TICKET</button></div>
 
 <dialog id="dlg3" class="pv" aria-labelledby="pvTitle">
   <div class="q-top">
@@ -340,84 +312,103 @@ dialog::backdrop{background:rgba(13,13,13,.78);backdrop-filter:blur(4px);-webkit
   </form>
 </dialog>
 
-<dialog id="dlg" aria-labelledby="qtitle">
+<dialog id="dlg" aria-labelledby="qcount">
   <div class="q-top">
-    <span class="q-count" id="qtitle" data-i="formTitle">ЗАПИСЬ НА TEENS PARTY</span>
-    <button type="button" class="q-close" id="qclose" aria-label="Закрыть"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"></path></svg></button>
+    <span class="q-count" id="qcount">1 / 5</span>
+    <button type="button" class="q-close" id="qclose" aria-label="Close"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"></path></svg></button>
   </div>
+  <div class="q-bar" aria-hidden="true"><i id="qbar" style="width:20%"></i></div>
   <form id="qform" novalidate>
-    <p class="fnote" data-i="formNote">31 октября 2026 · 18:00 · 5948 Pecan Ave, Orangevale</p>
-    <div class="fld">
-      <label for="f-name" data-i="fName">Имя и фамилия подростка</label>
-      <input id="f-name" name="name" autocomplete="off" maxlength="60" autocapitalize="words" enterkeyhint="next">
+    <div class="step" data-step="0">
+      <label for="f-name" data-i="q1">What's your first and last name?</label>
+      <input id="f-name" name="name" autocomplete="name" maxlength="60">
     </div>
-    <div class="fld">
-      <label for="f-age" data-i="fAge">Возраст (12–17)</label>
-      <input id="f-age" name="age" type="text" inputmode="numeric" maxlength="2" autocomplete="off" enterkeyhint="next">
+    <div class="step" data-step="1" hidden>
+      <label for="f-phone" data-i="q2">Your phone number</label>
+      <p class="hint" data-i="h2">Your ticket goes here.</p>
+      <input id="f-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(916) 555-0123">
     </div>
-    <div class="fld">
-      <label for="f-phone" data-i="fPhone">Контактный телефон</label>
-      <input id="f-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(916) 555-0123" aria-describedby="h-phone" enterkeyhint="done">
-      <p class="hint" id="h-phone" data-i="hPhone">Номер подростка или родителя.</p>
+    <div class="step" data-step="2" hidden>
+      <label for="f-age" data-i="q3">How old are you?</label>
+      <input id="f-age" name="age" type="text" inputmode="numeric" maxlength="2" autocomplete="off">
+    </div>
+    <div class="step" data-step="3" hidden>
+      <label for="f-pname"><span data-i="q4">Parent's name</span><span class="opt" data-i="optional">OPTIONAL</span></label>
+      <input id="f-pname" name="parentName" maxlength="60" autocomplete="off">
+    </div>
+    <div class="step" data-step="4" hidden>
+      <label for="f-pphone"><span data-i="q5">Parent's phone</span><span class="opt" data-i="optional">OPTIONAL</span></label>
+      <input id="f-pphone" name="parentPhone" type="tel" inputmode="tel" autocomplete="off" placeholder="(916) 555-0123">
     </div>
     <p class="err" id="err" role="alert" hidden></p>
-    <button type="submit" class="btn" id="next" data-i="submit">ЗАПИСАТЬ</button>
+    <div class="q-nav">
+      <button type="button" class="ghost" id="back" data-i="back">Back</button>
+      <button type="button" class="ghost" id="skip" data-i="skip" hidden>Skip</button>
+      <button type="submit" class="btn" id="next" data-i="next">Next</button>
+    </div>
   </form>
 </dialog>
 
 <script>
 (function(){
-  var CAPACITY = 67;
+  var CAPACITY = 67, STEPS = 5;
   var TARGET = Date.parse('2026-10-31T18:00:00-07:00');
 
   var T = {
-    en:{submit:"REGISTER",hPhone:"The teen's or a parent's number. With it you can find the ticket on this site if it gets lost, and the organizers can reach you about the event. One number = one ticket: use a different number for a second teen.",fPhone:"Contact phone",fAge:"Age (12–17)",fName:"Teen's first and last name",formNote:"October 31, 2026 · 6:00 PM · 5948 Pecan Ave, Orangevale",formTitle:"TEENS PARTY REGISTRATION",myTicket:"Show my ticket ↓",heroEntry:"Entry by pre-registration",heroDate:"Saturday, October 31, 2026 · 6:00 PM",heroAge:"FOR TEENS AGED 12–17",taken:"TAKEN",left:"SPOTS LEFT",lgTaken:"Taken",lgFree:"Free",lgMe:"Your spot",starts:"STARTS IN",admit:"ADMIT ONE",spots:"SPOTS",
-        monthV:"OCTOBER",dayV:"SATURDAY",doors:"START",timeV:"6:00 PM",venue:"ADDRESS ↗",cta:"REGISTER A TEEN",
-        busy:"REGISTERING…",soldout:"SOLD OUT",youreIn:"YOU'RE IN",already:"ALREADY REGISTERED",again:"Register another teen",
-        qrTap:"Tap the QR to enlarge it",qrClose:"Tap anywhere to close",smsSent:"Your ticket was texted to {p}.",noSms:"Save a screenshot of this ticket and show the QR code at the entrance. Lost it? Tap “Find the ticket” and enter the same phone number.",
-                close:"Close",
-        eName:"Enter the teen's first and last name.",ePhone:"Enter a 10-digit US phone number.",eAge:"TEENS PARTY is for ages 12–17.",
-        eSold:"All {n} spots are taken.",eGen:"Something went wrong. Try again.",
+    en:{taken:"TAKEN",left:"SPOTS LEFT",lgTaken:"Taken",lgFree:"Free",lgMe:"Your spot",starts:"STARTS IN",admit:"ADMIT ONE",spots:"SPOTS",
+        monthV:"OCTOBER",dayV:"SATURDAY",doors:"START",timeV:"6:00 PM",venue:"ADDRESS ↗",cta:"GET MY TICKET",
+        busy:"BOOKING…",soldout:"SOLD OUT",youreIn:"YOU'RE IN",already:"ALREADY REGISTERED",again:"Register someone else",
+        qrTap:"Tap the QR to enlarge it",qrClose:"Tap anywhere to close",smsSent:"Your ticket was texted to {p}.",noSms:"Screenshot this ticket and show the QR code at the entrance. Lost it? Register again with the same phone number.",
+        q1:"What's your first and last name?",q2:"Your phone number",h2:"Your ticket goes here.",q3:"How old are you?",
+        q4:"Parent's name",q5:"Parent's phone",optional:"OPTIONAL",next:"Next",back:"Back",skip:"Skip",close:"Close",
+        eName:"Enter your first and last name.",ePhone:"Enter a 10-digit US phone number.",eAge:"Enter your age as a number.",
+        ePPhone:"Check the parent's phone: 10 digits.",eSold:"All {n} spots are taken.",eGen:"Something went wrong. Try again.",
         uD:"DAYS",uH:"HRS",uM:"MIN",uS:"SEC",
-        check:"Already registered? Find the ticket",checkTitle:"FIND THE TICKET",checkQ:"Phone number used for registration",find:"SHOW MY TICKET",eNotFound:"No registration for this number. Check the number or register a teen.",share:"SHARE TO STORIES",shareHint:"Press and hold the image to save it, then post it to your story.",shareLink:"SHARE LINK",copied:"LINK COPIED",storyIn:"I'M IN",storyCta:"Register at teensparty.fun",storyDate:"SAT · OCT 31 · 6:00 PM",invite:"ENTRY BY\nPRE-REGISTRATION",mqTop:"TEENS PARTY — OCT 31 — 6:00 PM — ENTRY BY PRE-REGISTRATION — TEENS PARTY — OCT 31 — 6:00 PM — ENTRY BY PRE-REGISTRATION — ",
-        mq:"DON'T MISS IT — BRING A FRIEND — DON'T MISS IT — BRING A FRIEND — DON'T MISS IT — BRING A FRIEND — ", vidK:"WATCH · 29 SEC", vidH:"EVERYTHING ABOUT TEENS PARTY",progH:"PROGRAM",finH:"NOT REGISTERED YET?",pSec:"GAME DETAILS CLASSIFIED",pTag:"DON'T MISS",p1h:"PHOTO\nZONE",p1d:"Grab shots for your stories with friends.",p2h:"SECRET\nMISSION",p2d:"Scan the QR, get your missions and meet new people across the room.",p3h:"SECRET\nAGENT",p3d:"A team quiz to find the best agent in the room.",p4h:"REAL\nTALK",p4d:"A short, honest talk with the pastor about what really matters.",p5h:"FOOD &\nDRINKS",p5d:"Food, drinks and snacks — enough for everyone.",p6h:"HANG\nOUT",p6d:"Meet new people, talk and just have a good time.", sndOn:"SOUND ON", sndOff:"SOUND OFF"},
-    ru:{submit:"ЗАПИСАТЬ",hPhone:"Номер подростка или родителя. По нему можно найти билет на этом сайте, если он потеряется, и организаторы смогут связаться по поводу вечера. Один номер — один билет: для второго подростка укажите другой номер.",fPhone:"Контактный телефон",fAge:"Возраст (12–17)",fName:"Имя и фамилия подростка",formNote:"31 октября 2026 · 18:00 · 5948 Pecan Ave, Orangevale",formTitle:"ЗАПИСЬ НА TEENS PARTY",myTicket:"Показать мой билет ↓",heroEntry:"Вход по предварительной регистрации",heroDate:"Суббота, 31 октября 2026 · 18:00",heroAge:"ДЛЯ ПОДРОСТКОВ 12–17 ЛЕТ",taken:"ЗАНЯТО",left:"ОСТАЛОСЬ МЕСТ",lgTaken:"Занято",lgFree:"Свободно",lgMe:"Твоё место",starts:"ДО НАЧАЛА",admit:"ПРОПУСК",spots:"МЕСТ",
-        monthV:"ОКТЯБРЯ",dayV:"СУББОТА",doors:"НАЧАЛО",timeV:"18:00",venue:"АДРЕС ↗",cta:"ЗАПИСАТЬ ПОДРОСТКА",
-        busy:"ЗАПИСЫВАЕМ…",soldout:"МЕСТ НЕТ",youreIn:"ЗАПИСЬ ГОТОВА",already:"ЭТОТ НОМЕР УЖЕ ЗАПИСАН",again:"Записать ещё одного подростка",
-        qrTap:"Нажми на QR, чтобы увеличить",qrClose:"Нажми в любом месте, чтобы закрыть",smsSent:"Билет отправлен SMS на {p}.",noSms:"Сохраните скриншот билета и покажите QR-код на входе. Потеряли? Нажмите «Найти билет» и введите тот же номер телефона.",
-                close:"Закрыть",
-        eName:"Укажите имя и фамилию подростка.",ePhone:"Укажите номер США из 10 цифр.",eAge:"TEENS PARTY — для подростков 12–17 лет.",
-        eSold:"Все {n} мест заняты.",eGen:"Не получилось. Попробуйте ещё раз.",
+        check:"Already registered? Check my ticket",checkTitle:"FIND YOUR TICKET",checkQ:"Phone number you registered with",find:"SHOW MY TICKET",eNotFound:"No ticket for this number yet. Register first.",share:"SHARE TO STORIES",shareHint:"Press and hold the image to save it, then post it to your story.",shareLink:"SHARE LINK",copied:"LINK COPIED",storyIn:"I'M IN",storyCta:"Register at teensparty.fun",storyDate:"SAT · OCT 31 · 6:00 PM",invite:"INVITATION\nONLY",mqTop:"TEENS PARTY — OCT 31 — 6 PM — INVITATION ONLY — TEENS PARTY — OCT 31 — 6 PM — INVITATION ONLY — ",
+        mq:"DON'T MISS IT — BRING A FRIEND — DON'T MISS IT — BRING A FRIEND — DON'T MISS IT — BRING A FRIEND — ", vidK:"WATCH · 29 SEC", vidH:"EVERYTHING ABOUT TEENS PARTY",progH:"PROGRAM",finH:"NO TICKET YET?",finP:"Only 67 spots — grab yours before they're gone.",pSec:"GAME DETAILS CLASSIFIED",pTag:"DON'T MISS",p1h:"PHOTO\nZONE",p1d:"Grab shots for your stories with friends.",p2h:"SECRET\nMISSION",p2d:"Scan the QR, get your missions and meet new people across the room.",p3h:"SECRET\nAGENT",p3d:"A team quiz to find the best agent in the room.",p4h:"REAL\nTALK",p4d:"A short, honest talk with the pastor about what really matters.",p5h:"FOOD &\nDRINKS",p5d:"Food, drinks and snacks — enough for everyone.",p6h:"HANG\nOUT",p6d:"Meet new people, talk and just have a good time.", sndOn:"SOUND ON", sndOff:"SOUND OFF"},
+    ru:{taken:"ЗАНЯТО",left:"ОСТАЛОСЬ МЕСТ",lgTaken:"Занято",lgFree:"Свободно",lgMe:"Твоё место",starts:"ДО НАЧАЛА",admit:"ПРОПУСК",spots:"МЕСТ",
+        monthV:"OCTOBER",dayV:"СУББОТА",doors:"НАЧАЛО",timeV:"6:00 PM",venue:"АДРЕС ↗",cta:"ПОЛУЧИТЬ БИЛЕТ",
+        busy:"ОФОРМЛЯЕМ…",soldout:"МЕСТ НЕТ",youreIn:"ТЫ В СПИСКЕ",already:"УЖЕ ЗАРЕГИСТРИРОВАН",again:"Зарегистрировать ещё одного",
+        qrTap:"Нажми на QR, чтобы увеличить",qrClose:"Нажми в любом месте, чтобы закрыть",smsSent:"Билет отправлен SMS на {p}.",noSms:"Сделай скриншот билета и покажи QR-код на входе. Потерял? Зарегистрируйся ещё раз с тем же номером.",
+        q1:"Как тебя зовут? Имя и фамилия",q2:"Твой номер телефона",h2:"Сюда придёт билет.",q3:"Сколько тебе лет?",
+        q4:"Имя родителя",q5:"Телефон родителя",optional:"НЕОБЯЗАТЕЛЬНО",next:"Далее",back:"Назад",skip:"Пропустить",close:"Закрыть",
+        eName:"Введи имя и фамилию.",ePhone:"Введи номер США из 10 цифр.",eAge:"Введи возраст числом.",
+        ePPhone:"Проверь телефон родителя: 10 цифр.",eSold:"Все {n} мест заняты.",eGen:"Не получилось. Попробуй ещё раз.",
         uD:"ДНЕЙ",uH:"ЧАСОВ",uM:"МИН",uS:"СЕК",
-        check:"Уже записаны? Найти билет",checkTitle:"НАЙТИ БИЛЕТ",checkQ:"Номер телефона, указанный при записи",find:"ПОКАЗАТЬ БИЛЕТ",eNotFound:"На этот номер записи нет. Проверьте номер или запишите подростка.",share:"ПОДЕЛИТЬСЯ В СТОРИС",shareHint:"Нажми и удерживай картинку, чтобы сохранить, и выложи её в сторис.",shareLink:"ПОДЕЛИТЬСЯ ССЫЛКОЙ",copied:"ССЫЛКА СКОПИРОВАНА",storyIn:"Я ИДУ",storyCta:"Регистрация на teensparty.fun",storyDate:"СБ · 31 ОКТЯБРЯ · 18:00",invite:"ВХОД ПО\nПРЕДВАРИТЕЛЬНОЙ РЕГИСТРАЦИИ",mqTop:"TEENS PARTY — 31 ОКТЯБРЯ — 18:00 — ВХОД ПО ПРЕДВАРИТЕЛЬНОЙ РЕГИСТРАЦИИ — TEENS PARTY — 31 ОКТЯБРЯ — 18:00 — ВХОД ПО ПРЕДВАРИТЕЛЬНОЙ РЕГИСТРАЦИИ — ",
-        mq:"НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — ", vidK:"СМОТРИ · 29 СЕК", vidH:"ВСЁ О TEENS PARTY",progH:"ПРОГРАММА",finH:"ЕЩЁ НЕ ЗАПИСАЛИСЬ?",pSec:"ДЕТАЛИ ИГРЫ ЗАСЕКРЕЧЕНЫ",pTag:"ГЛАВНОЕ",p1h:"ФОТО\nЗОНА",p1d:"Кадры для сторис с друзьями.",p2h:"СЕКРЕТНАЯ\nМИССИЯ",p2d:"Сканируй QR, получи задания и знакомься с людьми по всему залу.",p3h:"СЕКРЕТНЫЙ\nАГЕНТ",p3d:"Командный квиз: узнаем, кто здесь лучший агент.",p4h:"REAL\nTALK",p4d:"Короткий честный разговор с пастором о главном.",p5h:"ЕДА И\nНАПИТКИ",p5d:"Еда, напитки и закуски — хватит всем.",p6h:"ЖИВОЕ\nОБЩЕНИЕ",p6d:"Новые знакомства, разговоры и просто классное время вместе.", sndOn:"ВКЛЮЧИТЬ ЗВУК", sndOff:"ВЫКЛЮЧИТЬ ЗВУК"},
-    uk:{submit:"ЗАПИСАТИ",hPhone:"Номер підлітка або батьків. За ним можна знайти квиток на цьому сайті, якщо він загубиться, і організатори зможуть зв'язатися щодо вечора. Один номер — один квиток: для другого підлітка вкажіть інший номер.",fPhone:"Контактний телефон",fAge:"Вік (12–17)",fName:"Ім'я та прізвище підлітка",formNote:"31 жовтня 2026 · 18:00 · 5948 Pecan Ave, Orangevale",formTitle:"ЗАПИС НА TEENS PARTY",myTicket:"Показати мій квиток ↓",heroEntry:"Вхід за попередньою реєстрацією",heroDate:"Субота, 31 жовтня 2026 · 18:00",heroAge:"ДЛЯ ПІДЛІТКІВ 12–17 РОКІВ",taken:"ЗАЙНЯТО",left:"ЗАЛИШИЛОСЬ МІСЦЬ",lgTaken:"Зайнято",lgFree:"Вільно",lgMe:"Твоє місце",starts:"ДО ПОЧАТКУ",admit:"ПЕРЕПУСТКА",spots:"МІСЦЬ",
-        monthV:"ЖОВТНЯ",dayV:"СУБОТА",doors:"ПОЧАТОК",timeV:"18:00",venue:"АДРЕСА ↗",cta:"ЗАПИСАТИ ПІДЛІТКА",
-        busy:"ЗАПИСУЄМО…",soldout:"МІСЦЬ НЕМАЄ",youreIn:"ЗАПИС ГОТОВИЙ",already:"ЦЕЙ НОМЕР УЖЕ ЗАПИСАНИЙ",again:"Записати ще одного підлітка",
-        qrTap:"Натисни на QR, щоб збільшити",qrClose:"Натисни будь-де, щоб закрити",smsSent:"Квиток надіслано SMS на {p}.",noSms:"Збережіть скриншот квитка й покажіть QR-код на вході. Загубили? Натисніть «Знайти квиток» і введіть той самий номер телефону.",
-                close:"Закрити",
-        eName:"Вкажіть ім'я та прізвище підлітка.",ePhone:"Вкажіть номер США з 10 цифр.",eAge:"TEENS PARTY — для підлітків 12–17 років.",
-        eSold:"Усі {n} місць зайняті.",eGen:"Не вийшло. Спробуйте ще раз.",
+        check:"Уже зарегистрирован? Проверить билет",checkTitle:"НАЙТИ СВОЙ БИЛЕТ",checkQ:"Номер, с которым ты регистрировался",find:"ПОКАЗАТЬ БИЛЕТ",eNotFound:"На этот номер билета нет. Сначала зарегистрируйся.",share:"ПОДЕЛИТЬСЯ В СТОРИС",shareHint:"Нажми и удерживай картинку, чтобы сохранить, и выложи её в сторис.",shareLink:"ПОДЕЛИТЬСЯ ССЫЛКОЙ",copied:"ССЫЛКА СКОПИРОВАНА",storyIn:"Я ИДУ",storyCta:"Регистрация на teensparty.fun",storyDate:"СБ · OCT 31 · 6:00 PM",invite:"ТОЛЬКО ПО\nПРИГЛАШЕНИЯМ",mqTop:"TEENS PARTY — OCT 31 — 6 PM — ТОЛЬКО ПО ПРИГЛАШЕНИЯМ — TEENS PARTY — OCT 31 — 6 PM — ТОЛЬКО ПО ПРИГЛАШЕНИЯМ — ",
+        mq:"НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — ", vidK:"СМОТРИ · 29 СЕК", vidH:"ВСЁ О TEENS PARTY",progH:"ПРОГРАММА",finH:"ЕЩЁ НЕТ БИЛЕТА?",finP:"Мест всего 67 — успей забрать своё.",pSec:"ДЕТАЛИ ИГРЫ ЗАСЕКРЕЧЕНЫ",pTag:"ГЛАВНОЕ",p1h:"ФОТО\nЗОНА",p1d:"Кадры для сторис с друзьями.",p2h:"СЕКРЕТНАЯ\nМИССИЯ",p2d:"Сканируй QR, получи задания и знакомься с людьми по всему залу.",p3h:"СЕКРЕТНЫЙ\nАГЕНТ",p3d:"Командный квиз: узнаем, кто здесь лучший агент.",p4h:"REAL\nTALK",p4d:"Короткий честный разговор с пастором о главном.",p5h:"ЕДА И\nНАПИТКИ",p5d:"Еда, напитки и закуски — хватит всем.",p6h:"ЖИВОЕ\nОБЩЕНИЕ",p6d:"Новые знакомства, разговоры и просто классное время вместе.", sndOn:"ВКЛЮЧИТЬ ЗВУК", sndOff:"ВЫКЛЮЧИТЬ ЗВУК"},
+    uk:{taken:"ЗАЙНЯТО",left:"ЗАЛИШИЛОСЬ МІСЦЬ",lgTaken:"Зайнято",lgFree:"Вільно",lgMe:"Твоє місце",starts:"ДО ПОЧАТКУ",admit:"ПЕРЕПУСТКА",spots:"МІСЦЬ",
+        monthV:"OCTOBER",dayV:"СУБОТА",doors:"ПОЧАТОК",timeV:"6:00 PM",venue:"АДРЕСА ↗",cta:"ОТРИМАТИ КВИТОК",
+        busy:"ОФОРМЛЮЄМО…",soldout:"МІСЦЬ НЕМАЄ",youreIn:"ТИ В СПИСКУ",already:"ВЖЕ ЗАРЕЄСТРОВАНО",again:"Зареєструвати ще когось",
+        qrTap:"Натисни на QR, щоб збільшити",qrClose:"Натисни будь-де, щоб закрити",smsSent:"Квиток надіслано SMS на {p}.",noSms:"Зроби скриншот квитка і покажи QR-код на вході. Загубив? Зареєструйся ще раз з тим самим номером.",
+        q1:"Як тебе звати? Ім'я та прізвище",q2:"Твій номер телефону",h2:"Сюди прийде квиток.",q3:"Скільки тобі років?",
+        q4:"Ім'я одного з батьків",q5:"Телефон одного з батьків",optional:"НЕОБОВ'ЯЗКОВО",next:"Далі",back:"Назад",skip:"Пропустити",close:"Закрити",
+        eName:"Введи ім'я та прізвище.",ePhone:"Введи номер США з 10 цифр.",eAge:"Введи вік числом.",
+        ePPhone:"Перевір телефон батьків: 10 цифр.",eSold:"Усі {n} місць зайняті.",eGen:"Не вийшло. Спробуй ще раз.",
         uD:"ДНІВ",uH:"ГОДИН",uM:"ХВ",uS:"СЕК",
-        check:"Вже записані? Знайти квиток",checkTitle:"ЗНАЙТИ КВИТОК",checkQ:"Номер телефону, вказаний під час запису",find:"ПОКАЗАТИ КВИТОК",eNotFound:"На цей номер запису немає. Перевірте номер або запишіть підлітка.",share:"ПОДІЛИТИСЯ В СТОРІС",shareHint:"Натисни й утримуй картинку, щоб зберегти, і виклади її в сторіс.",shareLink:"ПОДІЛИТИСЯ ПОСИЛАННЯМ",copied:"ПОСИЛАННЯ СКОПІЙОВАНО",storyIn:"Я ЙДУ",storyCta:"Реєстрація на teensparty.fun",storyDate:"СБ · 31 ЖОВТНЯ · 18:00",invite:"ВХІД ЗА\nПОПЕРЕДНЬОЮ РЕЄСТРАЦІЄЮ",mqTop:"TEENS PARTY — 31 ЖОВТНЯ — 18:00 — ВХІД ЗА ПОПЕРЕДНЬОЮ РЕЄСТРАЦІЄЮ — TEENS PARTY — 31 ЖОВТНЯ — 18:00 — ВХІД ЗА ПОПЕРЕДНЬОЮ РЕЄСТРАЦІЄЮ — ",
-        mq:"НЕ ПРОПУСТИ — КЛИЧ ДРУЗІВ — НЕ ПРОПУСТИ — КЛИЧ ДРУЗІВ — НЕ ПРОПУСТИ — КЛИЧ ДРУЗІВ — ", vidK:"ДИВИСЬ · 29 СЕК", vidH:"ВСЕ ПРО TEENS PARTY",progH:"ПРОГРАМА",finH:"ЩЕ НЕ ЗАПИСАЛИСЯ?",pSec:"ДЕТАЛІ ГРИ ЗАСЕКРЕЧЕНІ",pTag:"ГОЛОВНЕ",p1h:"ФОТО\nЗОНА",p1d:"Кадри для сторіс з друзями.",p2h:"СЕКРЕТНА\nМІСІЯ",p2d:"Скануй QR, отримай завдання і знайомся з людьми по всій залі.",p3h:"СЕКРЕТНИЙ\nАГЕНТ",p3d:"Командний квіз: дізнаємось, хто тут найкращий агент.",p4h:"REAL\nTALK",p4d:"Коротка чесна розмова з пастором про головне.",p5h:"ЇЖА\nЙ НАПОЇ",p5d:"Їжа, напої та закуски — вистачить усім.",p6h:"ЖИВЕ\nСПІЛКУВАННЯ",p6d:"Нові знайомства, розмови і просто класний час разом.", sndOn:"УВІМКНУТИ ЗВУК", sndOff:"ВИМКНУТИ ЗВУК"}
+        check:"Вже зареєстрований? Перевірити квиток",checkTitle:"ЗНАЙТИ СВІЙ КВИТОК",checkQ:"Номер, з яким ти реєструвався",find:"ПОКАЗАТИ КВИТОК",eNotFound:"На цей номер квитка немає. Спочатку зареєструйся.",share:"ПОДІЛИТИСЯ В СТОРІС",shareHint:"Натисни й утримуй картинку, щоб зберегти, і виклади її в сторіс.",shareLink:"ПОДІЛИТИСЯ ПОСИЛАННЯМ",copied:"ПОСИЛАННЯ СКОПІЙОВАНО",storyIn:"Я ЙДУ",storyCta:"Реєстрація на teensparty.fun",storyDate:"СБ · OCT 31 · 6:00 PM",invite:"ЛИШЕ ЗА\nЗАПРОШЕННЯМИ",mqTop:"TEENS PARTY — OCT 31 — 6 PM — ЛИШЕ ЗА ЗАПРОШЕННЯМИ — TEENS PARTY — OCT 31 — 6 PM — ЛИШЕ ЗА ЗАПРОШЕННЯМИ — ",
+        mq:"НЕ ПРОПУСТИ — КЛИЧ ДРУЗІВ — НЕ ПРОПУСТИ — КЛИЧ ДРУЗІВ — НЕ ПРОПУСТИ — КЛИЧ ДРУЗІВ — ", vidK:"ДИВИСЬ · 29 СЕК", vidH:"ВСЕ ПРО TEENS PARTY",progH:"ПРОГРАМА",finH:"ЩЕ НЕМАЄ КВИТКА?",finP:"Місць лише 67 — встигни забрати своє.",pSec:"ДЕТАЛІ ГРИ ЗАСЕКРЕЧЕНІ",pTag:"ГОЛОВНЕ",p1h:"ФОТО\nЗОНА",p1d:"Кадри для сторіс з друзями.",p2h:"СЕКРЕТНА\nМІСІЯ",p2d:"Скануй QR, отримай завдання і знайомся з людьми по всій залі.",p3h:"СЕКРЕТНИЙ\nАГЕНТ",p3d:"Командний квіз: дізнаємось, хто тут найкращий агент.",p4h:"REAL\nTALK",p4d:"Коротка чесна розмова з пастором про головне.",p5h:"ЇЖА\nЙ НАПОЇ",p5d:"Їжа, напої та закуски — вистачить усім.",p6h:"ЖИВЕ\nСПІЛКУВАННЯ",p6d:"Нові знайомства, розмови і просто класний час разом.", sndOn:"УВІМКНУТИ ЗВУК", sndOff:"ВИМКНУТИ ЗВУК"}
   };
 
   var $ = function(id){ return document.getElementById(id); };
-  var lang = 'ru', stats = {capacity:CAPACITY, taken:0, left:CAPACITY}, mine = null, busy = false;
-  var inputs = ['f-name','f-age','f-phone'].map($);
-  var FIELD = {name:0, age:1, phone:2};
+  var lang = 'en', stats = {capacity:CAPACITY, taken:0, left:CAPACITY}, mine = null, busy = false, step = 0;
+  var steps = Array.prototype.slice.call(document.querySelectorAll('#qform .step'));
+  var inputs = ['f-name','f-phone','f-age','f-pname','f-pphone'].map($);
+  var OPTIONAL = {3:true, 4:true};
+  var STEP_ERR = {name:0, phone:1, age:2, pphone:4};
 
   function store(k, v){ try{ if(v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); }catch(e){ return null; } }
 
   /* validation shared with the server's rules */
   function digits10(p){ var d = String(p || '').replace(/\D/g,''); if(d.length === 11 && d[0] === '1') d = d.slice(1); return d.length === 10 ? d : null; }
   function validName(n){ return String(n || '').trim().split(/\s+/).filter(function(w){ return w.length > 0; }).length >= 2; }
-  function validAge(a){ var s = String(a || '').trim(); return /^\d{1,2}$/.test(s) && +s >= 12 && +s <= 17; }
-  function checkForm(){
-    if(!validName(inputs[0].value)) return 'name';
-    if(!validAge(inputs[1].value)) return 'age';
-    if(!digits10(inputs[2].value)) return 'phone';
+  function validAge(a){ var s = String(a || '').trim(); return /^\d{1,2}$/.test(s) && +s >= 5 && +s <= 99; }
+  function checkStep(i){
+    var v = inputs[i].value;
+    if(i === 0 && !validName(v)) return 'name';
+    if(i === 1 && !digits10(v)) return 'phone';
+    if(i === 2 && !validAge(v)) return 'age';
+    if(i === 4 && v.trim() && !digits10(v)) return 'pphone';
     return null;
   }
 
@@ -508,7 +499,7 @@ dialog::backdrop{background:rgba(13,13,13,.78);backdrop-filter:blur(4px);-webkit
     $('open').disabled = sold; $('open2').disabled = sold;
     $('open').textContent = $('open2').textContent = sold ? T[lang].soldout : T[lang].cta;
     $('next').disabled = busy;
-    $('next').textContent = busy ? T[lang].busy : T[lang].submit;
+    $('next').textContent = busy ? T[lang].busy : (step === STEPS - 1 ? T[lang].cta : T[lang].next);
   }
 
   function fmtPhone(p){ var d = digits10(p); return d ? '(' + d.slice(0,3) + ') ' + d.slice(3,6) + '-' + d.slice(6) : p; }
@@ -542,8 +533,6 @@ dialog::backdrop{background:rgba(13,13,13,.78);backdrop-filter:blur(4px);-webkit
     $('fin').hidden = !!mine;
     $('open').hidden = !!mine;
     $('checkBtn').hidden = !!mine;
-    $('myTicketBtn').hidden = !mine;
-    document.querySelector('.page').classList.toggle('has-ticket', !!mine);
     $('mcta').hidden = !!mine;
     $('done').hidden = !mine;
     $('barcode').hidden = !!mine;
@@ -557,54 +546,61 @@ dialog::backdrop{background:rgba(13,13,13,.78);backdrop-filter:blur(4px);-webkit
     $('dmsg').textContent = mine.sms ? T[lang].smsSent.replace('{p}', fmtPhone(mine.phone)) : T[lang].noSms;
   }
 
-  /* registration form: one screen, three fields */
-  function hideErr(){ $('err').hidden = true; $('err').dataset.code = ''; inputs.forEach(function(inp){ inp.removeAttribute('aria-invalid'); }); }
+  /* popup steps */
+  function showStep(i){
+    step = i;
+    steps.forEach(function(el, idx){ el.hidden = idx !== i; });
+    $('qcount').textContent = (i + 1) + ' / ' + STEPS;
+    $('qbar').style.width = ((i + 1) / STEPS * 100) + '%';
+    $('back').hidden = i === 0;
+    $('skip').hidden = !OPTIONAL[i];
+    renderStats();
+    setTimeout(function(){ inputs[i].focus(); }, 30);
+  }
+  function hideErr(){ $('err').hidden = true; $('err').dataset.code = ''; }
   function showErr(code){
-    var map = {name:'eName', phone:'ePhone', age:'eAge', soldout:'eSold'};
+    var map = {name:'eName', phone:'ePhone', age:'eAge', pphone:'ePPhone', soldout:'eSold'};
     $('err').dataset.code = code;
     $('err').textContent = T[lang][map[code] || 'eGen'].replace('{n}', stats.capacity || CAPACITY);
     $('err').hidden = false;
-    inputs.forEach(function(inp){ inp.removeAttribute('aria-invalid'); });
-    if(FIELD[code] !== undefined){ var f = inputs[FIELD[code]]; f.setAttribute('aria-invalid', 'true'); f.setAttribute('aria-describedby', f.id === 'f-phone' ? 'h-phone err' : 'err'); }
   }
   function openDlg(){
-    hideErr(); renderStats();
+    hideErr(); showStep(0);
     if(typeof $('dlg').showModal === 'function') $('dlg').showModal(); else $('dlg').setAttribute('open', '');
-    setTimeout(function(){ inputs[0].focus(); }, 30);
   }
   function closeDlg(){ if($('dlg').open){ if(typeof $('dlg').close === 'function') $('dlg').close(); else $('dlg').removeAttribute('open'); } }
-  function showTicket(){ setTimeout(function(){ $('done').scrollIntoView({behavior:'smooth', block:'center'}); }, 60); }
 
   function submitAll(){
     busy = true; renderStats();
-    /* parent fields stay in the backend schema but are no longer asked for */
-    var data = {name:inputs[0].value.trim(), phone:inputs[2].value, age:inputs[1].value.trim(),
-                parentName:'', parentPhone:'', lang:lang, utm:UTM};
+    var data = {name:inputs[0].value.trim(), phone:inputs[1].value, age:inputs[2].value.trim(),
+                parentName:inputs[3].value.trim(), parentPhone:inputs[4].value, lang:lang, utm:UTM};
     call('register', data).then(function(r){
       busy = false;
       if(r && r.stats) stats = r.stats;
       if(!r || !r.ok){
         var code = r && r.code;
-        showErr(code); renderStats();
-        if(FIELD[code] !== undefined) inputs[FIELD[code]].focus();
-        return;
+        if(STEP_ERR[code] !== undefined) showStep(STEP_ERR[code]);
+        showErr(code); renderStats(); return;
       }
       mine = {ticket:r.ticket, seat:r.seat, name:r.name, qr:r.qr || '', sms:!!r.sms, phone:data.phone, existing:!!r.existing};
       store('tp_ticket', JSON.stringify(mine));
-      closeDlg(); renderStats(); renderDone(); showTicket();
+      closeDlg(); renderStats(); renderDone();
     }).catch(function(){ busy = false; showErr('gen'); renderStats(); });
   }
 
   $('qform').addEventListener('submit', function(e){
     e.preventDefault();
     if(busy) return;
-    var err = checkForm();
-    if(err){ showErr(err); inputs[FIELD[err]].focus(); return; }
+    var err = checkStep(step);
+    if(err){ showErr(err); inputs[step].focus(); return; }
     hideErr();
-    submitAll();
+    if(step < STEPS - 1) showStep(step + 1); else submitAll();
   });
-  inputs.forEach(function(inp, i){
-    inp.addEventListener('keydown', function(e){ if(e.key === 'Enter' && i < inputs.length - 1){ e.preventDefault(); inputs[i + 1].focus(); } });
+  $('back').addEventListener('click', function(){ if(step > 0 && !busy){ hideErr(); showStep(step - 1); } });
+  $('skip').addEventListener('click', function(){
+    if(busy) return;
+    inputs[step].value = ''; hideErr();
+    if(step < STEPS - 1) showStep(step + 1); else submitAll();
   });
   $('qclose').addEventListener('click', closeDlg);
   $('open').addEventListener('click', function(){ track('reg_open'); });
@@ -614,21 +610,9 @@ dialog::backdrop{background:rgba(13,13,13,.78);backdrop-filter:blur(4px);-webkit
   $('open').addEventListener('click', openDlg);
   $('finBtn').addEventListener('click', function(){ window.scrollTo({top:0, behavior:'smooth'}); });
   $('open2').addEventListener('click', openDlg);
-  $('myTicketBtn').addEventListener('click', showTicket);
-  /* sticky bottom button only when the main register buttons are off-screen */
-  (function(){
-    var mc = $('mcta'); if(!('IntersectionObserver' in window)) return;
-    var seen = {};
-    mc.classList.add('off');
-    var io = new IntersectionObserver(function(es){
-      es.forEach(function(e){ seen[e.target.id] = e.isIntersecting; });
-      mc.classList.toggle('off', !!(seen.open || seen.finBtn));
-    }, {threshold: .01});
-    io.observe($('open')); io.observe($('finBtn'));
-  })();
 
   /* phone mask */
-  [inputs[2]].forEach(function(inp){
+  [inputs[1], inputs[4]].forEach(function(inp){
     inp.addEventListener('input', function(e){
       var d = e.target.value.replace(/\D/g,'');
       if(d.length === 11 && d[0] === '1') d = d.slice(1);
@@ -640,7 +624,7 @@ dialog::backdrop{background:rgba(13,13,13,.78);backdrop-filter:blur(4px);-webkit
       e.target.value = out;
     });
   });
-  inputs[1].addEventListener('input', function(e){ e.target.value = e.target.value.replace(/\D/g,'').slice(0,2); });
+  inputs[2].addEventListener('input', function(e){ e.target.value = e.target.value.replace(/\D/g,'').slice(0,2); });
 
   /* check my ticket */
   function openCheck(){
@@ -662,7 +646,8 @@ dialog::backdrop{background:rgba(13,13,13,.78);backdrop-filter:blur(4px);-webkit
       if(!r || !r.ok){ $('cerr').textContent = (r && r.code === 'notfound') ? T[lang].eNotFound : T[lang].eGen; $('cerr').hidden = false; renderStats(); return; }
       mine = {ticket:r.ticket, seat:r.seat, name:r.name, qr:r.qr || '', sms:false, phone:phone, existing:true};
       store('tp_ticket', JSON.stringify(mine));
-      closeCheck(); renderStats(); renderDone(); showTicket();
+      closeCheck(); renderStats(); renderDone();
+      $('done').scrollIntoView({behavior:'smooth', block:'center'});
     }).catch(function(){ $('cfind').disabled = false; $('cfind').textContent = T[lang].find; $('cerr').textContent = T[lang].eGen; $('cerr').hidden = false; });
   });
   $('c-phone').addEventListener('input', function(e){
@@ -780,7 +765,7 @@ dialog::backdrop{background:rgba(13,13,13,.78);backdrop-filter:blur(4px);-webkit
   });
 
   function setLang(l){
-    if(!T[l]) l = 'ru';
+    if(!T[l]) l = 'en';
     lang = l;
     document.documentElement.lang = l;
     document.querySelectorAll('[data-i]').forEach(function(el){ var v = T[l][el.getAttribute('data-i')]; if(typeof v === 'string') el.textContent = v; });
@@ -795,7 +780,7 @@ dialog::backdrop{background:rgba(13,13,13,.78);backdrop-filter:blur(4px);-webkit
   }
 
   /* promo video: language-specific file, muted autoplay while visible, sound toggle */
-  var vid = $('promo'), vidLang = '', vidSeen = false;
+  var vid = $('promo'), vidLang = 'en', vidSeen = false;
   function sndLabel(){ var on = !vid.muted; $('snd').setAttribute('aria-pressed', on ? 'true' : 'false'); $('sndTxt').textContent = T[lang][on ? 'sndOff' : 'sndOn']; $('sndWave').style.display = on ? '' : 'none'; }
 
   function setVideo(l){
@@ -848,7 +833,7 @@ dialog::backdrop{background:rgba(13,13,13,.78);backdrop-filter:blur(4px);-webkit
 
   /* boot */
   try{ var saved = JSON.parse(store('tp_ticket') || 'null'); if(saved && saved.ticket) mine = saved; }catch(e){}
-  setLang(store('tp_lang') || 'ru');
+  setLang(store('tp_lang') || 'en');
   refresh();
   setInterval(tick, 1000);
   if(live) setInterval(refresh, 20000);
