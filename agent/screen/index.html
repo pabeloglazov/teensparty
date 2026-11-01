@@ -83,10 +83,14 @@ h1 .outline{color:var(--bg);-webkit-text-stroke:.14vw var(--fg);animation-delay:
 .fwrap{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2.4vw;padding:2vw}
 .fwrap h2{margin:0;font-family:var(--display);font-weight:900;font-size:6vw;line-height:.9;text-align:center}
 .fwrap h2 .outline{display:block;color:transparent;-webkit-text-stroke:.14vw var(--fg)}
-.noms{display:grid;grid-template-columns:repeat(3,22vw);gap:2.4vw}
+.noms{display:grid;grid-template-columns:repeat(3,22vw);gap:2.4vw;align-items:end}
+.nom.p3{min-height:14vw}.nom.p2{min-height:17vw}.nom.p1{min-height:20vw;border-color:var(--orange);box-shadow:.9vw .9vw 0 var(--fg)}
+.nom.p1 .k{color:var(--ink);background:var(--orange);align-self:center;padding:.3vw .7vw}
+.nom .c{font-weight:800;font-size:1.2vw;color:var(--pmuted,#55524c);min-height:1.3em}
+.podh{font-family:var(--display);font-weight:900;font-size:1.4vw;letter-spacing:.06em;color:var(--orange)}
 .nom{background:var(--paper);color:var(--ink);border:4px solid var(--ink);box-shadow:.9vw .9vw 0 var(--orange);padding:1.6vw 1.2vw;text-align:center;min-height:15vw;display:flex;flex-direction:column;justify-content:center;gap:1vw;transform:rotate(-1.5deg)}
 .nom:nth-child(2){transform:rotate(1.2deg)}
-.nom .k{font-size:.9vw;font-weight:800;letter-spacing:.16em;color:var(--orange-dark);text-transform:uppercase}
+.nom .k{font-size:1.3vw;font-weight:800;letter-spacing:.16em;color:var(--orange-dark);text-transform:uppercase}
 .nom .t{font-family:var(--display);font-weight:900;font-size:1.7vw;line-height:1.1}
 .nom .n{font-family:var(--display);font-weight:900;font-size:2.4vw;line-height:1.05;min-height:1.1em}
 .nom .n.hid{color:transparent;background:repeating-linear-gradient(90deg,var(--ink) 0 2px,transparent 2px 5px,var(--ink) 5px 9px,transparent 9px 11px);height:2.6vw}
@@ -142,6 +146,7 @@ body.cur .lsw{opacity:1;pointer-events:auto}
   <div class="fwrap">
     <h2><span data-i="done1">МИССИЯ</span><span class="outline" data-i="done2">ВЫПОЛНЕНА</span></h2>
     <div class="fstats" id="fstats"></div>
+    <div class="podh" id="podh"></div>
     <div class="noms" id="noms"></div>
     <div class="fsub">3:16 TEENS · TEENS PARTY 31.10</div>
   </div>
@@ -159,13 +164,13 @@ body.cur .lsw{opacity:1;pointer-events:auto}
       top: 'Лучшие агенты', live: 'Штаб · в эфире', done1: 'МИССИЯ', done2: 'ВЫПОЛНЕНА', wait: 'Здесь появятся улики', of: ' из ', fin: '★',
       eJoin: '{n} — новый агент в игре', ePair: '{n} и {w} нашли друг друга', eDone: '{n}: миссия выполнена', eDoneW: '{n} и {w}: миссия выполнена', eFinish: '{n} прошёл(ла) все миссии!',
       now: 'сейчас', min: ' мин', stamp: 'УЛИКА №{n}', noTop: 'Первые миссии вот-вот…', noFeed: 'Ждём первых агентов',
-      noms: [['Лучший агент', 'больше всех миссий'], ['Мастер маскировки', 'больше всех фото-улик'], ['Агент-связной', 'больше всех знакомств']],
+      noms: [['3 МЕСТО', 'бронза'], ['2 МЕСТО', 'серебро'], ['1 МЕСТО', 'лучший агент']], podH: 'ЛУЧШИЕ АГЕНТЫ ВЕЧЕРА',
       mq1: ['АГЕНТ 3:16', 'СЕКРЕТНАЯ МИССИЯ', 'TEENS PARTY', 'НИКОМУ НЕ ПОКАЗЫВАЙ ЭКРАН'] },
     en: { secret: 'SECRET MISSION', agent: 'AGENT', agents: 'agents', missions: 'missions', meets: 'new friends', finished: 'finished', scan: 'Scan — become an agent',
       top: 'Top agents', live: 'HQ · live', done1: 'MISSION', done2: 'COMPLETE', wait: 'Evidence will appear here', of: ' of ', fin: '★',
       eJoin: '{n} joined as an agent', ePair: '{n} and {w} found each other', eDone: '{n}: mission complete', eDoneW: '{n} & {w}: mission complete', eFinish: '{n} completed every mission!',
       now: 'now', min: ' min', stamp: 'EVIDENCE #{n}', noTop: 'First missions coming up…', noFeed: 'Waiting for the first agents',
-      noms: [['Best agent', 'most missions'], ['Master of disguise', 'most photo evidence'], ['Field connector', 'most new friends']],
+      noms: [['3RD PLACE', 'bronze'], ['2ND PLACE', 'silver'], ['1ST PLACE', 'best agent']], podH: 'TOP AGENTS OF THE NIGHT',
       mq1: ['AGENT 3:16', 'SECRET MISSION', 'TEENS PARTY', 'DON’T SHOW YOUR SCREEN'] }
   }, I = IA[L];
   function $(id) { return document.getElementById(id); }
@@ -261,22 +266,20 @@ body.cur .lsw{opacity:1;pointer-events:auto}
   }
   /* финал: F — открыть/закрыть, пробел/клик — открыть следующую номинацию */
   var revealed = 0;
-  function nomName(i) {
-    if (SCR.n && SCR.n[i] && SCR.m === 'final') return SCR.n[i];
-    var custom = Q.get('n' + (i + 1));
-    if (custom) return custom;
-    if (i === 0 && W && W.top && W.top[0]) return W.top[0].name;
-    return '';
-  }
+  /* пьедестал: карточки слева направо — 3, 2, 1 место; открываются по очереди (пульт / пробел) */
+  function podPerson(place) { var t = (W && W.top) || []; return t[place - 1] || null; }
   function renderFin() {
     var ph = (W && W.photos) || [];
     var mm = []; for (var k = 0; ph.length && k < 40; k++) mm.push(ph[k % ph.length]);
     $('mosaic').innerHTML = mm.map(function (p) { return '<img src="' + img(p.id, 400) + '" alt="">'; }).join('');
     var s = (W && W.stats) || {};
     $('fstats').innerHTML = [[s.players, I.agents], [s.meets, I.meets], [s.done, I.missions], [s.finished, I.finished]].map(function (x) { return '<div><b>' + (x[0] || 0) + '</b><span>' + esc(x[1]) + '</span></div>'; }).join('');
+    $('podh').textContent = I.podH;
     $('noms').innerHTML = I.noms.map(function (n, i) {
-      var on = i < revealed, nm = nomName(i);
-      return '<div class="nom' + (on ? ' on' : '') + '"><span class="k">' + esc(n[1]) + '</span><span class="t">' + esc(n[0]) + '</span><span class="n' + (on ? '' : ' hid') + '">' + (on ? esc(nm || '???') : '') + '</span></div>';
+      var place = 3 - i, on = i < revealed, p = podPerson(place);
+      var cnt = p ? ((p.finished ? I.fin + ' ' : '') + p.done + I.of + ((W && W.goal) || '')) : '';
+      return '<div class="nom p' + place + (on ? ' on' : '') + '"><span class="k">' + esc(n[0]) + '</span><span class="t">' + esc(n[1]) + '</span>' +
+        '<span class="n' + (on ? '' : ' hid') + '">' + (on ? esc(p ? p.name : '—') : '') + '</span><span class="c">' + (on ? esc(cnt) : '') + '</span></div>';
     }).join('');
   }
   document.addEventListener('keydown', function (e) {
