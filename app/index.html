@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SOL Teens</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0E0F12">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SOL Teens">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Unbounded:wght@600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root{--bg:#0E0F12;--card:#15171B;--card2:#17191E;--line:#1F2127;--line2:#2A2D35;--line3:#3A3D46;--tx:#F4F4F5;--tx2:#D4D4D8;--mu:#A1A1AA;--mu2:#8B8B94;--acc:#FF8A3D;--acc2:#FFB27A;--accbg:#1C140F;--accbg2:#2A1A10;--blue:#6FA8FF;--green:#4ADE80;--red:#F87171}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--tx);font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;color:inherit;cursor:pointer}
+input{font-family:inherit}
+input::placeholder{color:var(--mu2)}
+a{color:var(--acc)}
+.h1{font-family:Unbounded,Inter,sans-serif;font-weight:700;font-size:22px;margin:0}
+.h2{font-family:Unbounded,Inter,sans-serif;font-weight:700;font-size:18px;margin:0}
+.sec{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--mu)}
+.mut{color:var(--mu)} .sm{font-size:13px} .xs{font-size:12px}
+.app{height:100%;display:flex;flex-direction:column}
+.main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.wrap{max-width:760px;margin:0 auto;padding:20px 16px 130px;display:flex;flex-direction:column;gap:8px}
+.inp{width:100%;height:52px;border-radius:14px;border:1px solid var(--line2);background:var(--card2);color:var(--tx);padding:0 14px;font-size:16px;color-scheme:dark;outline:none}
+.inp:focus{border-color:var(--acc)}
+.lbl{font-size:13px;font-weight:600;color:var(--mu)}
+.field{display:flex;flex-direction:column;gap:8px}
+.btn{height:54px;border-radius:16px;border:none;background:var(--acc);color:#0E0F12;font-size:16px;font-weight:700;width:100%}
+.btn2{height:50px;border-radius:14px;border:1px solid var(--line3);background:transparent;color:var(--mu);font-size:15px;font-weight:600;width:100%}
+.btnA{height:44px;border-radius:12px;border:1px solid var(--acc);background:var(--accbg);color:var(--acc);font-size:14px;font-weight:700;padding:0 14px}
+.icb{width:44px;height:44px;border-radius:12px;border:none;background:var(--card2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.plus{width:44px;height:44px;border-radius:999px;border:none;background:var(--acc);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px}
+.row{display:flex;align-items:center;gap:12px;width:100%;min-height:56px;padding:8px 12px;border-radius:16px;border:1px solid var(--line);background:var(--card);text-align:left}
+.row.on{border-color:var(--acc);background:var(--accbg2)}
+.av{width:36px;height:36px;border-radius:999px;background:#2A2D35;color:var(--tx);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;flex-shrink:0}
+.dot{width:24px;height:24px;border-radius:999px;flex-shrink:0;border:2px solid var(--line3)}
+.row.on .dot{border:none;background:var(--acc)}
+.nm{flex:1;min-width:0;font-size:15px;font-weight:500}
+.tag{font-size:12px;color:var(--mu);white-space:nowrap}
+.tag.blue{color:var(--blue)}
+.sh{display:flex;align-items:center;gap:6px;min-height:44px;background:none;border:none;padding:6px 8px 2px;font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--mu)}
+.sh .num{min-width:22px;height:20px;padding:0 6px;border-radius:999px;background:var(--line);color:var(--mu);font-size:11px;letter-spacing:0;display:inline-flex;align-items:center;justify-content:center}
+.sh svg{transition:transform .2s}
+.sh.closed svg{transform:rotate(-90deg)}
+.cap{flex:1;min-width:0;height:44px;display:flex;align-items:center;justify-content:space-between;gap:6px;padding:0 14px;border-radius:999px;border:none;background:var(--card2);font-size:15px;font-weight:700}
+.cap span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cnt{height:44px;min-width:44px;padding:0 12px;border-radius:999px;border:none;background:var(--card2);color:var(--acc);font-weight:700;font-size:15px}
+.search{display:flex;align-items:center;gap:10px;height:48px;border-radius:14px;background:var(--card2);padding:0 14px}
+.search input{flex:1;min-width:0;border:none;background:transparent;color:var(--tx);font-size:16px;outline:none}
+.stats3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;justify-content:space-between;gap:4px;min-height:72px}
+.stat.acc{background:var(--accbg2);border-color:var(--acc)}
+.stat b{font-family:Unbounded,sans-serif;font-size:20px;font-weight:700}
+.stat.acc b{color:var(--acc)}
+.chip{flex-shrink:0;min-height:40px;padding:0 14px;border-radius:999px;font-size:13px;font-weight:600;white-space:nowrap;border:1px solid var(--line2);background:var(--card);color:var(--tx2)}
+.chip.on{background:var(--acc);border-color:var(--acc);color:#0E0F12}
+.seg{display:grid;gap:4px;background:var(--bg);border-radius:14px;padding:4px}
+.seg button{height:44px;border-radius:11px;border:none;background:transparent;color:var(--mu);font-size:14px;font-weight:700}
+.seg button.on{background:var(--acc);color:#0E0F12}
+.opt{height:48px;border-radius:14px;font-size:14px;font-weight:700;border:1px solid var(--line2);background:var(--card2);color:var(--tx2)}
+.opt.on{background:var(--acc);border-color:var(--acc);color:#0E0F12}
+.dd{border:1px solid var(--line2);border-radius:14px;background:var(--card2);overflow:hidden}
+.dd>button{width:100%;min-height:52px;padding:8px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;border:none;background:transparent;text-align:left}
+.dd .it{width:100%;min-height:52px;padding:8px 14px;display:flex;align-items:center;gap:12px;border:none;border-top:1px solid #23262D;background:transparent;text-align:left}
+.cb{width:22px;height:22px;border-radius:6px;flex-shrink:0;border:2px solid var(--line3);display:flex;align-items:center;justify-content:center}
+.cb.on{border:none;background:var(--acc)}
+.rd{width:20px;height:20px;border-radius:999px;flex-shrink:0;border:2px solid var(--line3)}
+.rd.on{border:6px solid var(--acc)}
+.rot180{transform:rotate(180deg)}
+.bars{display:flex;align-items:flex-end;gap:6px;height:130px}
+.bars>div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;height:100%}
+.bars i{display:block;width:100%;border-radius:6px;background:var(--line3)}
+.bars i.last{background:var(--acc)}
+.prog{height:6px;border-radius:999px;background:#22252C;overflow:hidden}
+.prog i{display:block;height:100%;border-radius:999px;background:var(--acc)}
+.hist{display:flex;gap:6px}
+.hist button{flex:1;height:28px;border-radius:8px;border:none;padding:0}
+.hist .h1x{background:var(--acc)} .hist .h0{background:#22252C} .hist .hn{background:transparent;border:1px dashed var(--line3)}
+.hist button.sel{outline:2px solid var(--tx);outline-offset:-2px}
+/* навигация */
+.nav{position:fixed;left:0;right:0;bottom:0;background:#121318;border-top:1px solid #22252C;padding:8px 6px calc(20px + env(safe-area-inset-bottom));display:grid;align-items:end;z-index:5}
+.nav button{min-height:52px;background:none;border:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11px;font-weight:600;color:var(--mu2)}
+.nav button.on{color:var(--acc)}
+.nav .c .ring{width:64px;height:64px;margin-top:-34px;border-radius:999px;background:var(--acc);border:5px solid var(--bg);display:flex;align-items:center;justify-content:center}
+.nav .c{color:var(--acc);font-weight:700}
+.brand{display:none}
+/* слои */
+.ov{position:fixed;inset:0;z-index:20;display:flex;flex-direction:column;justify-content:flex-end;background:rgba(0,0,0,.6)}
+.ov .bd{flex:1;min-height:40px;border:none;background:transparent}
+.sheet{background:var(--card);border-radius:24px 24px 0 0;border-top:1px solid var(--line2);max-height:92vh;display:flex;flex-direction:column}
+.sheet .sc{overflow-y:auto;padding:10px 20px 20px;display:flex;flex-direction:column;gap:16px}
+.sheet .ft{padding:12px 20px calc(24px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}
+.grab{width:40px;height:4px;border-radius:999px;background:var(--line3);align-self:center}
+.full{position:fixed;inset:0;z-index:20;background:var(--bg);display:flex;flex-direction:column}
+.full .hd{padding:16px 16px 12px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line)}
+.full .sc{flex:1;overflow-y:auto}
+.full .in{max-width:640px;margin:0 auto;padding:16px 20px 24px;display:flex;flex-direction:column;gap:20px}
+.full .ft{padding:12px 20px calc(24px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}
+.full .ft>*{max-width:600px;margin:0 auto;display:block}
+.toast{position:fixed;left:16px;right:16px;bottom:110px;z-index:50;background:var(--tx);color:#0E0F12;border-radius:14px;padding:14px 16px;font-size:14px;font-weight:600;text-align:center;max-width:480px;margin:0 auto}
+.busy{position:fixed;top:0;left:0;right:0;height:3px;z-index:60;background:linear-gradient(90deg,transparent,var(--acc),transparent);background-size:200% 100%;animation:b 1s linear infinite}
+@keyframes b{from{background-position:200% 0}to{background-position:-200% 0}}
+.empty{padding:28px 8px;text-align:center;color:var(--mu);font-size:14px}
+.banner{display:flex;align-items:center;gap:12px;min-height:64px;padding:10px 14px;border-radius:16px;border:1px solid var(--acc);background:var(--accbg);text-align:left;width:100%}
+.tip{min-height:18px;font-size:13px;font-weight:600;color:var(--tx2)}
+.qrbox{background:#fff;border-radius:18px;padding:18px;display:flex;justify-content:center}
+.login{max-width:420px;margin:0 auto;padding:56px 24px;display:flex;flex-direction:column;gap:18px}
+.err{font-size:13px;color:var(--acc)}
+.list2{display:flex;flex-direction:column;gap:6px}
+/* ПК */
+@media (min-width:900px){
+  .app{flex-direction:row}
+  .nav{position:static;width:240px;flex-shrink:0;display:flex;flex-direction:column;align-items:stretch;gap:4px;padding:24px 14px;border-top:none;border-right:1px solid #22252C}
+  .nav button{flex-direction:row;justify-content:flex-start;gap:12px;padding:0 14px;min-height:48px;border-radius:12px;font-size:15px}
+  .nav button.on{background:var(--accbg)}
+  .nav .c .ring{width:auto;height:auto;margin:0;border:none;background:none}
+  .nav .c .ring svg{stroke:var(--acc)}
+  .brand{display:block;font-family:Unbounded,sans-serif;font-weight:700;font-size:18px;padding:4px 14px 20px;color:var(--tx)}
+  .brand span{color:var(--acc)}
+  .wrap{padding:32px 32px 60px;max-width:820px}
+  .ov{justify-content:center;align-items:center}
+  .ov .bd{position:absolute;inset:0}
+  .sheet{position:relative;width:520px;border-radius:24px;border:1px solid var(--line2);max-height:88vh}
+  .full{left:auto;width:560px;border-left:1px solid var(--line2);box-shadow:-24px 0 60px rgba(0,0,0,.5)}
+  .toast{bottom:32px}
+  .teens2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .dashgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}
+}
+@media print{.nav,.noprint{display:none!important}.qrbox{border:none}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const API = 'https://script.google.com/macros/s/AKfycbw1J4PnxNLtZ8H8dCWhJpTiAeA2V-X5RWmJdB6VQPr_IFzemiKS-y_SW50PvR0dAnL6Cg/exec';
+const APP = new URL('./', location.href).href;
+const EXEC = APP;
+const LS = { get: k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} }, del: k => { try { localStorage.removeItem(k); } catch (e) {} } };
+let S = { lang: LS.get('sol_lang') || 'ru', token: LS.get('sol_tok') || '', tab: null, more: 'root', q: '', tq: '', closed: {}, meet: null, ov: null, toast: '', busy: 0, dash: 'all', login: { step: 'email' } };
+let D = null, IDX = null;
+const $app = document.getElementById('app');
+const L = () => S.lang === 'en';
+const tr = (ru, en) => L() ? en : ru;
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const ACC = '#FF8A3D';
+
+// ---------- иконки ----------
+const IC = {
+  dash: 'M18 20V10M12 20V4M6 20v-6', teens: 'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 3a4 4 0 1 1 0 8a4 4 0 1 1 0-8M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75',
+  mark: 'M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11', tasks: 'M4 19.5A2.5 2.5 0 0 1 6.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z',
+  more: 'M3 12h18M3 6h18M3 18h18', back: 'M15 18l-6-6 6-6', chev: 'M6 9l6 6 6-6', right: 'M9 18l6-6-6-6', plus: 'M12 5v14M5 12h14', check: 'M5 12l5 5L19 7',
+  search: 'M11 4a7 7 0 1 1 0 14a7 7 0 1 1 0-14M21 21l-4.3-4.3', x: 'M6 6l12 12M18 6L6 18', medal: 'M12 15a6 6 0 1 1 0-12a6 6 0 1 1 0 12M8.2 13.9L7 22l5-3 5 3-1.2-8.1',
+  userplus: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 3a4 4 0 1 1 0 8a4 4 0 1 1 0-8M20 8v6M23 11h-6', qr: 'M3 3h6v6H3zM15 3h6v6h-6zM3 15h6v6H3zM15 15h2v2h-2zM19 15h2M15 19h2M19 19h2v2'
+};
+const svg = (d, c, w, sw) => `<svg width="${w || 20}" height="${w || 20}" viewBox="0 0 24 24" fill="none" stroke="${c || 'currentColor'}" stroke-width="${sw || 2}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"></path></svg>`;
+
+// ---------- даты ----------
+const MON_RU = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+const MON_EN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DLONG = () => L() ? ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'] : ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'];
+const DSHORT = () => L() ? ['Su','Mo','Tu','We','Th','Fr','Sa'] : ['вс','пн','вт','ср','чт','пт','сб'];
+const pad = n => (n < 10 ? '0' : '') + n;
+const parse = s => { const p = String(s).split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); };
+const iso = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+const human = s => { if (!s) return ''; const d = parse(s); return L() ? MON_EN[d.getMonth()] + ' ' + d.getDate() : d.getDate() + ' ' + MON_RU[d.getMonth()]; };
+const todayD = () => parse(D.today);
+const daysAgo = s => Math.round((todayD() - parse(s)) / 86400000);
+const word = s => { const n = daysAgo(s); return n === 0 ? tr('сегодня', 'today') : n === 1 ? tr('вчера', 'yesterday') : human(s); };
+const lastDow = wd => { const t = todayD(); const x = new Date(t); x.setDate(t.getDate() - ((t.getDay() - wd + 7) % 7)); return iso(x); };
+const plural = (n, a, b, c) => (n % 10 === 1 && n % 100 !== 11) ? a : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? b : c;
+
+// ---------- сервер ----------
+function call(fn, ...args) {
+  S.busy++; paintBusy();
+  return fetch(API, { method: 'POST', body: JSON.stringify({ fn, args }) })
+    .then(r => r.json(), () => { throw new Error('network'); })
+    .then(j => { if (!j.ok) throw new Error(j.error); return j.data; })
+    .finally(() => { S.busy--; paintBusy(); });
+}
+function api(action, p) {
+  return call('api', S.token, action, p || {}).catch(e => {
+    if (e.message === 'auth') { S.token = ''; LS.del('sol_tok'); D = null; render(); }
+    if (e.message === 'forbidden') toast(tr('Нет доступа', 'No access'));
+    throw e;
+  });
+}
+function paintBusy() { let b = document.querySelector('.busy'); if (S.busy > 0 && !b) { b = document.createElement('div'); b.className = 'busy'; document.body.appendChild(b); } if (S.busy <= 0 && b) b.remove(); }
+let toastT;
+function toast(m) { S.toast = m; paintToast(); clearTimeout(toastT); toastT = setTimeout(() => { S.toast = ''; paintToast(); }, 2600); }
+function paintToast() { let t = document.querySelector('.toast'); if (S.toast) { if (!t) { t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); } t.textContent = S.toast; } else if (t) t.remove(); }
+const ERR = () => ({ network: tr('Нет связи с сервером. Проверьте интернет.', 'No connection. Check your internet.'), bad_email: tr('Проверьте email', 'Check the email'), not_invited: tr('Этой почты нет в команде. Попросите админа пригласить вас.', 'This email isn’t on the team. Ask an admin to invite you.'), bad_code: tr('Неверный или устаревший код', 'Wrong or expired code'), bad_invite: tr('Код приглашения не найден', 'Invite code not found'), invite_expired: tr('Код приглашения устарел', 'Invite code expired'), email_taken: tr('Эта почта уже в команде', 'This email is already on the team'), need_name: tr('Введите имя', 'Enter a name'), need_title: tr('Напишите, что нужно сделать', 'Describe the task') });
+const errText = e => ERR()[e && e.message] || tr('Что-то пошло не так: ', 'Something went wrong: ') + (e && e.message || e);
+
+async function load() {
+  try { D = await api('bootstrap'); buildIdx(); if (!S.tab) S.tab = tabs()[0] === 'dash' && tabs().indexOf('mark') >= 0 ? 'mark' : (tabs().indexOf('mark') >= 0 ? 'mark' : tabs()[0]); render(); }
+  catch (e) { if (S.token) { $app.innerHTML = `<div class="login"><div class="h2">${tr('Не удалось загрузить', 'Could not load')}</div><div class="mut">${esc(errText(e))}</div><button class="btn" data-a="reload">${tr('Повторить', 'Retry')}</button></div>`; } }
+}
+
+// ---------- индексы ----------
+function buildIdx() {
+  const set = new Set(), sess = {}, total = {}, allDates = {};
+  D.att.forEach(([d, k, m, t]) => {
+    set.add(d + '|' + k + '|' + m + '|' + t);
+    const key = k + ':' + m; (sess[key] = sess[key] || new Set()).add(d);
+    total[t] = (total[t] || 0) + 1;
+    allDates[d] = 1;
+  });
+  const S2 = {}; Object.keys(sess).forEach(k => S2[k] = Array.from(sess[k]).sort());
+  IDX = { set, sess: S2, total, teen: Object.fromEntries(D.teens.map(t => [t.id, t])), group: Object.fromEntries(D.groups.map(g => [g.id, g])) };
+}
+const has = (d, k, m, t) => IDX.set.has(d + '|' + k + '|' + m + '|' + t);
+const R = () => ({ win: +D.settings.win || 8, reg: +D.settings.reg || 6, gone: +D.settings.gone || 3 });
+const tname = t => ((t.first || '') + ' ' + (t.last || '')).trim();
+const ini = n => String(n).split(/\s+/).map(x => x[0] || '').join('').slice(0, 2).toUpperCase();
+const members = gid => D.teens.filter(t => t.groups.indexOf(gid) >= 0);
+const myRole = () => D.me.role;
+const isAdmin = () => myRole() === 'admin';
+
+function stat(t, kind, meetId, before) {
+  const key = kind === 'event' ? 'service:sunday' : kind + ':' + meetId;
+  const [k, m] = key.split(':');
+  const r = R();
+  const sess = (IDX.sess[key] || []).filter(d => d < before).slice(-r.win);
+  const created = t.createdAt || '0000';
+  const h = sess.map(d => d < created ? '-' : (has(d, k, m, t.id) ? '1' : '0'));
+  const known = h.filter(c => c !== '-').length;
+  const cnt = h.filter(c => c === '1').length;
+  let miss = 0; for (let i = h.length - 1; i >= 0; i--) { if (h[i] === '1') break; if (h[i] === '0') miss++; }
+  const total = IDX.total[t.id] || 0;
+  let cat;
+  if (total < 4) cat = 'new';
+  else if (!known) cat = 'some';
+  else if (cnt === 0) cat = 'archive';
+  else if (miss >= r.gone) cat = 'gone';
+  else if (cnt >= r.reg || (known < r.win && cnt / known >= r.reg / r.win)) cat = 'reg';
+  else cat = 'some';
+  const label = cat === 'gone' ? tr('нет ' + miss + ' подряд', 'missed ' + miss + ' in a row') : (known ? cnt + tr(' из ', ' of ') + known : tr('новый', 'new'));
+  return { cat, label, cnt, miss, total, known, h, sess };
+}
+const CAT = () => ({ reg: tr('обычно приходит', 'regular'), some: tr('иногда', 'sometimes'), gone: tr('давно не был', 'missing lately'), archive: tr('архив', 'archive'), new: tr('новенький', 'newcomer') });
+
+// ---------- встреча ----------
+const svc = date => ({ kind: 'service', meetId: 'sunday', label: 'Sunday Service', date });
+function autoMeet() {
+  const dow = todayD().getDay();
+  const ev = D.events.find(e => e.date === D.today);
+  if (ev) return { kind: 'event', meetId: ev.id, label: ev.name, date: D.today };
+  if (dow === 0) return svc(D.today);
+  const g = visibleGroups().find(x => x.day === dow);
+  if (g) return { kind: 'group', meetId: g.id, label: g.name, date: D.today };
+  return svc(lastDow(0));
+}
+const meet = () => S.meet || autoMeet();
+function visibleGroups() { return myRole() === 'leader' ? D.groups.filter(g => D.me.groups.indexOf(g.id) >= 0) : D.groups; }
+
+// ---------- вкладки ----------
+function tabs() {
+  const r = myRole();
+  if (r === 'viewer') return ['dash', 'more'];
+  if (r === 'mod') return ['teens', 'mark', 'more'];
+  return ['dash', 'teens', 'mark', 'tasks', 'more'];
+}
+const TABL = () => ({ dash: tr('Дашборд', 'Dashboard'), teens: tr('Подростки', 'Teens'), mark: tr('Отметка', 'Check-in'), tasks: tr('Задания', 'Tasks'), more: tr('Ещё', 'More') });
+
+// =================== РЕНДЕР ===================
+function render() {
+  document.documentElement.lang = S.lang;
+  if (!S.token) { $app.innerHTML = viewLogin(); return; }
+  if (!D) { $app.innerHTML = `<div class="login"><div class="h2">SOL Teens</div><div class="mut">${tr('Загрузка…', 'Loading…')}</div></div>`; return; }
+  const scroll = document.querySelector('.main') ? document.querySelector('.main').scrollTop : 0;
+  const t = tabs();
+  const nav = `<nav class="nav" aria-label="${tr('Меню', 'Menu')}" style="grid-template-columns:repeat(${t.length},minmax(0,1fr))"><div class="brand">SOL <span>Teens</span></div>${t.map(k => k === 'mark'
+    ? `<button class="c ${S.tab === k ? 'on' : ''}" data-a="tab" data-x="${k}" aria-label="${TABL()[k]}"><div class="ring">${svg(IC.mark, '#0E0F12', 26, 2.5)}</div><span>${TABL()[k]}</span></button>`
+    : `<button class="${S.tab === k ? 'on' : ''}" data-a="tab" data-x="${k}" aria-label="${TABL()[k]}">${svg(IC[k], S.tab === k ? ACC : '#8B8B94', 24)}<span>${TABL()[k]}</span></button>`).join('')}</nav>`;
+  const body = { mark: viewMark, dash: viewDash, teens: viewTeens, tasks: viewTasks, more: viewMore }[S.tab]();
+  $app.innerHTML = `<div class="app"><main class="main"><div class="wrap">${body}</div></main>${nav}</div>${viewOverlay()}`;
+  const m = document.querySelector('.main'); if (m && S.keepScroll) m.scrollTop = scroll; S.keepScroll = false;
+  if (S.ov && S.ov.type === 'qr') drawQR();
+}
+function rerender() { S.keepScroll = true; render(); }
+
+// ---------- вход ----------
+function viewLogin() {
+  const l = S.login;
+  const head = `<div class="sec" style="color:var(--acc)">SOL TEENS</div><h1 class="h1" style="font-size:28px">${tr('Вход для лидеров', 'Leader sign-in')}</h1>`;
+  const lang = `<div class="seg" style="grid-template-columns:1fr 1fr;width:140px"><button class="${!L() ? 'on' : ''}" data-a="lang" data-x="ru">RU</button><button class="${L() ? 'on' : ''}" data-a="lang" data-x="en">EN</button></div>`;
+  const err = l.err ? `<div class="err">${esc(l.err)}</div>` : '';
+  if (l.step === 'code') return `<div class="login">${head}<div class="mut">${tr('Мы отправили код на ', 'We sent a code to ')}<b style="color:var(--tx)">${esc(l.email)}</b></div>
+    <div class="field"><label class="lbl" for="lc">${tr('Код из письма', 'Code from the email')}</label><input class="inp" id="lc" inputmode="numeric" autocomplete="one-time-code" data-b="login.code" value="${esc(l.code || '')}" style="font-size:22px;letter-spacing:6px"></div>${err}
+    <button class="btn" data-a="verify">${tr('Войти', 'Sign in')}</button><button class="btn2" data-a="loginBack">${tr('Другая почта', 'Different email')}</button></div>`;
+  if (l.step === 'invite') return `<div class="login">${head}<div class="mut">${tr('Введите код приглашения, который вам дал админ.', 'Enter the invite code you got from an admin.')}</div>
+    <div class="field"><label class="lbl" for="ic">${tr('Код приглашения', 'Invite code')}</label><input class="inp" id="ic" data-b="login.inv" value="${esc(l.inv || '')}" placeholder="SOL-1234" style="text-transform:uppercase"></div>
+    <div class="field"><label class="lbl" for="in">${tr('Ваше имя', 'Your name')}</label><input class="inp" id="in" data-b="login.name" value="${esc(l.name || '')}"></div>
+    <div class="field"><label class="lbl" for="ie">${tr('Ваша почта — для следующих входов', 'Your email — for future sign-ins')}</label><input class="inp" id="ie" type="email" data-b="login.email" value="${esc(l.email || '')}"></div>${err}
+    <button class="btn" data-a="joinInvite">${tr('Войти', 'Sign in')}</button><button class="btn2" data-a="loginBack">${tr('Назад', 'Back')}</button></div>`;
+  return `<div class="login">${head}<div class="mut">${tr('Введите почту — пришлём код для входа.', 'Enter your email — we’ll send a sign-in code.')}</div>
+    <div class="field"><label class="lbl" for="le">Email</label><input class="inp" id="le" type="email" autocomplete="email" data-b="login.email" value="${esc(l.email || '')}" placeholder="name@gmail.com"></div>${err}
+    <button class="btn" data-a="sendCode">${tr('Получить код', 'Get code')}</button>
+    <button class="btn2" data-a="toInvite">${tr('У меня есть код приглашения', 'I have an invite code')}</button>${lang}</div>`;
+}
+
+// ---------- ОТМЕТКА ----------
+function markSections() {
+  const m = meet(); const q = S.q.trim().toLowerCase();
+  const on = id => has(m.date, m.kind, m.meetId, id);
+  const before = m.date;
+  const ST = {}; D.teens.forEach(t => ST[t.id] = stat(t, m.kind, m.meetId, before));
+  const mk = t => ({ t, st: ST[t.id], on: on(t.id) });
+  let secs = [];
+  if (q) {
+    const hits = D.teens.filter(t => tname(t).toLowerCase().indexOf(q) >= 0).map(mk);
+    if (hits.length) secs.push({ key: 'found', title: tr('НАЙДЕНО', 'FOUND'), items: hits, open: true });
+  } else {
+    let pool = D.teens;
+    if (m.kind === 'group') {
+      pool = members(m.meetId);
+      const guests = D.teens.filter(t => on(t.id) && t.groups.indexOf(m.meetId) < 0).map(mk);
+      if (guests.length) secs.push({ key: 'guests', title: tr('ГОСТИ', 'GUESTS'), items: guests });
+    }
+    const of = c => pool.filter(t => ST[t.id].cat === c).map(mk);
+    secs.push({ key: 'new', title: tr('НОВЕНЬКИЕ', 'NEWCOMERS'), items: of('new'), color: ACC });
+    secs.push({ key: 'reg', title: tr('ОБЫЧНО ПРИХОДЯТ', 'REGULARS'), items: of('reg').sort((a, b) => b.st.cnt - a.st.cnt) });
+    secs.push({ key: 'some', title: tr('ИНОГДА', 'SOMETIMES'), items: of('some').sort((a, b) => b.st.cnt - a.st.cnt) });
+    secs.push({ key: 'gone', title: tr('ДАВНО НЕ БЫЛИ', 'MISSING LATELY'), items: of('gone').sort((a, b) => a.st.miss - b.st.miss), color: '#6FA8FF' });
+    secs.push({ key: 'archive', title: tr('АРХИВ', 'ARCHIVE'), items: of('archive'), color: '#8B8B94', defClosed: true });
+    secs = secs.filter(s => s.items.length);
+    secs.forEach(s => s.open = S.closed[s.key] !== undefined ? !S.closed[s.key] : !s.defClosed);
+  }
+  return secs;
+}
+function rowHtml(x) {
+  const n = tname(x.t);
+  const tag = x.st.cat === 'new' ? (x.t.source === 'qr' ? tr('отметился сам', 'self check-in') : tr('новый', 'new')) : x.st.label;
+  return `<button class="row ${x.on ? 'on' : ''}" data-a="toggle" data-x="${x.t.id}"><div class="av">${esc(ini(n))}</div><div class="nm">${esc(n)}</div><div class="tag ${x.st.cat === 'gone' ? 'blue' : ''}">${esc(tag)}</div><div class="dot"></div></button>`;
+}
+function listHtml() {
+  const secs = markSections();
+  if (!secs.length) return `<div class="empty">${S.q ? tr('Никого не нашли', 'No one found') + `<div style="margin-top:12px"><button class="btnA" data-a="newTeen">+ ${tr('Добавить как нового', 'Add as new')}</button></div>` : tr('Список пуст — добавьте подростков через «+»', 'The list is empty — add teens with “+”')}</div>`;
+  return secs.map(s => `<button class="sh ${s.open ? '' : 'closed'}" data-a="sec" data-x="${s.key}" aria-expanded="${s.open}" style="${s.color ? 'color:' + s.color : ''}">${svg(IC.chev, 'currentColor', 16, 2.5)}<span>${s.title}</span><span class="num">${s.items.length}</span></button>${s.open ? `<div class="list2">${s.items.map(rowHtml).join('')}</div>` : ''}`).join('');
+}
+function viewMark() {
+  const m = meet();
+  const cnt = D.teens.filter(t => has(m.date, m.kind, m.meetId, t.id)).length;
+  const review = D.teens.filter(t => t.review);
+  return `<div style="display:flex;align-items:center;gap:8px">
+    <button class="cap" data-a="openMeet" aria-label="${tr('Выбрать встречу', 'Choose meeting')}"><span>${esc(m.label)}</span>${svg(IC.chev, '#A1A1AA', 18, 2.5)}</button>
+    <button class="cnt" data-a="noop" aria-label="${tr('Отмечено', 'Checked in')}">${cnt}</button>
+    <button class="plus" data-a="newTeen" aria-label="${tr('Добавить нового подростка', 'Add new teen')}">${svg(IC.plus, '#0E0F12', 20, 2.5)}</button></div>
+    ${m.date !== D.today ? `<div class="xs" style="color:var(--acc2);padding:0 4px">${word(m.date) === human(m.date) ? '' : word(m.date) + ', '}${human(m.date)}</div>` : ''}
+    <label class="search"><span style="display:flex">${svg(IC.search, '#8B8B94', 18)}</span><input data-b="q" data-live="list" value="${esc(S.q)}" placeholder="${tr('Поиск по имени', 'Search by name')}" aria-label="${tr('Поиск подростка', 'Search teen')}"></label>
+    ${review.map(t => `<button class="banner" data-a="openProf" data-x="${t.id}"><div style="width:38px;height:38px;border-radius:999px;background:var(--acc);display:flex;align-items:center;justify-content:center;flex-shrink:0">${svg(IC.userplus, '#0E0F12', 20, 2.5)}</div><div style="flex:1;display:flex;flex-direction:column;gap:2px"><span class="xs" style="font-weight:700;color:var(--acc2);letter-spacing:.04em">${tr('ЗАРЕГИСТРИРОВАЛСЯ САМ ПО QR', 'SELF-REGISTERED VIA QR')}</span><span style="font-size:15px;font-weight:600">${esc(tname(t))}</span></div><span class="sm" style="font-weight:700;color:var(--acc)">${tr('Проверить', 'Review')} ›</span></button>`).join('')}
+    <div id="list" style="display:flex;flex-direction:column;gap:6px">${listHtml()}</div>`;
+}
+
+// ---------- ДАШБОРД ----------
+function series(f) {
+  const by = {};
+  D.att.forEach(([d, k, m, t]) => {
+    const ok = f === 'all' || (f === 'sunday' && k === 'service') || (f === 'events' && k === 'event') || (k === 'group' && m === f);
+    if (!ok) return; (by[d] = by[d] || new Set()).add(t);
+  });
+  return Object.keys(by).sort().map(d => ({ d, v: by[d].size }));
+}
+function viewDash() {
+  const groups = visibleGroups();
+  const fk = [['all', tr('Всё', 'All')], ['sunday', tr('Воскресенья', 'Sundays')], ...groups.map(g => [g.id, g.name]), ['events', tr('События', 'Events')]];
+  if (!fk.find(x => x[0] === S.dash)) S.dash = 'all';
+  const ser = series(S.dash).slice(-10);
+  const vals = ser.map(x => x.v);
+  const mx = Math.max(1, ...vals);
+  const last = vals.length ? vals[vals.length - 1] : 0;
+  const avg = vals.length ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length) : 0;
+  const allSer = series('all'); const rec = Math.max(0, ...allSer.map(x => x.v));
+  const gs = groups.map(g => {
+    const s = series(g.id).map(x => x.v); if (!s.length) return { g, txt: tr('пока нет встреч', 'no meetings yet'), arrow: '' };
+    const a = Math.round(s.reduce((x, y) => x + y, 0) / s.length);
+    let arrow = '';
+    if (s.length >= 2) { const h = Math.floor(s.length / 2); const p1 = s.slice(0, h), p2 = s.slice(h); const m1 = p1.reduce((x, y) => x + y, 0) / p1.length, m2 = p2.reduce((x, y) => x + y, 0) / p2.length; arrow = m2 >= m1 ? `<span style="color:var(--green);font-weight:700;font-size:16px" aria-label="${tr('растёт', 'growing')}">↑</span>` : `<span style="color:var(--red);font-weight:700;font-size:16px" aria-label="${tr('падает', 'declining')}">↓</span>`; }
+    return { g, txt: a + tr(' чел.', ' people'), arrow };
+  });
+  const label = fk.find(x => x[0] === S.dash)[1];
+  return `<h1 class="h1">${tr('Дашборд', 'Dashboard')}</h1>
+  <div style="display:flex;gap:6px;overflow-x:auto;padding:4px 0">${fk.map(([k, l]) => `<button class="chip ${k === S.dash ? 'on' : ''}" data-a="dash" data-x="${k}">${esc(l)}</button>`).join('')}</div>
+  <div class="stats3"><div class="stat acc"><b>${last}</b><span class="xs mut">${tr('последняя', 'latest')}</span></div><div class="stat"><b>${avg}</b><span class="xs mut">${tr('в среднем', 'average')}</span></div><div class="stat"><b>${S.dash === 'all' ? rec : Math.max(0, ...vals)}</b><span class="xs mut">${tr('рекорд', 'record')}</span></div></div>
+  <div class="dashgrid">
+  <div class="card" style="display:flex;flex-direction:column;gap:12px"><div style="font-size:14px;font-weight:600">${tr('Посещаемость · ', 'Attendance · ')}${esc(label)}${tr(' · последние встречи', ' · recent meetings')}</div>
+  ${ser.length ? `<div class="bars">${ser.map((x, i) => `<div title="${esc(human(x.d))}: ${x.v}"><span class="xs mut" style="font-size:10px">${x.v}</span><i class="${i === ser.length - 1 ? 'last' : ''}" style="height:${Math.round(x.v / mx * 100)}px"></i></div>`).join('')}</div><div class="xs mut">${S.dash === 'all' ? tr('До цели 50 не хватает ', 'Short of the 50 goal by ') + Math.max(0, 50 - last) : esc(human(ser[0].d)) + ' — ' + esc(human(ser[ser.length - 1].d))}</div>` : `<div class="empty">${tr('Пока нет данных', 'No data yet')}</div>`}</div>
+  <div class="card" style="display:flex;flex-direction:column;gap:10px"><div style="font-size:14px;font-weight:600">${tr('Группы', 'Groups')}</div>
+  ${gs.length ? gs.map(x => `<div style="display:flex;justify-content:space-between;align-items:center;font-size:14px;min-height:28px"><span>${esc(x.g.name)}</span><span style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--tx2)">${x.txt}${x.arrow}</span></div>`).join('') : `<div class="xs mut">${tr('Групп пока нет. Добавьте их в «Ещё → Группы».', 'No groups yet. Add them in More → Groups.')}</div>`}</div>
+  </div>`;
+}
+
+// ---------- ПОДРОСТКИ ----------
+function teenRowsHtml() {
+  const q = S.tq.trim().toLowerCase();
+  const list = D.teens.filter(t => !q || tname(t).toLowerCase().indexOf(q) >= 0).sort((a, b) => tname(a).localeCompare(tname(b)));
+  if (!list.length) return `<div class="empty">${tr('Никого не нашли', 'No one found')}</div>`;
+  return list.map(t => { const st = stat(t, 'service', 'sunday', '9999'); const gs = t.groups.map(g => IDX.group[g] && IDX.group[g].name).filter(Boolean).join(', ') || tr('без группы', 'no group');
+    return `<button class="row" data-a="openProf" data-x="${t.id}"><div class="av">${esc(ini(tname(t)))}</div><div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:500">${esc(tname(t))}</span><span class="xs mut">${esc(gs)} · ${CAT()[st.cat]}</span></div>${svg(IC.right, '#5F626B', 18, 2.5)}</button>`; }).join('');
+}
+function viewTeens() {
+  return `<div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><div><div class="sm mut">${D.teens.length}${tr(' в базе', ' in database')}</div><h1 class="h1">${tr('Подростки', 'Teens')}</h1></div>${myRole() !== 'viewer' ? `<button class="plus" data-a="newTeen" aria-label="${tr('Добавить нового подростка', 'Add new teen')}">${svg(IC.plus, '#0E0F12', 20, 2.5)}</button>` : ''}</div>
+  <label class="search"><span style="display:flex">${svg(IC.search, '#8B8B94', 18)}</span><input data-b="tq" data-live="teens" value="${esc(S.tq)}" placeholder="${tr('Поиск по имени', 'Search by name')}" aria-label="${tr('Поиск подростка', 'Search teen')}"></label>
+  <div id="teens" class="teens2 list2">${teenRowsHtml()}</div>`;
+}
+
+// ---------- ЗАДАНИЯ ----------
+const KINDS = () => ({ read: tr('Чтение', 'Reading'), verse: tr('Стих', 'Verse'), act: tr('Действие', 'Action') });
+const audMembers = aud => aud && aud.length ? D.teens.filter(t => t.groups.some(g => aud.indexOf(g) >= 0)) : D.teens;
+const audLabel = aud => aud && aud.length ? aud.map(g => IDX.group[g] && IDX.group[g].name).filter(Boolean).join(', ') : tr('Все подростки', 'All teens');
+const doneMap = id => { const m = {}; D.done.forEach(([k, t, d]) => { if (k === id) m[t] = d; }); return m; };
+const MANUAL = () => [
+  ['help', tr('Помощник', 'Helper'), tr('Помог на служении: техника, прославление, встреча гостей', 'Served: tech, worship, welcome team'), 40, 'M18 11V6a2 2 0 0 0-4 0v5M14 10V4a2 2 0 0 0-4 0v6M10 10.5V6a2 2 0 0 0-4 0v8a8 8 0 0 0 16 0v-3a2 2 0 0 0-4 0'],
+  ['friend', tr('Позвал друга', 'Brought a friend'), tr('Друг пришёл по его приглашению', 'A friend came because of them'), 30, IC.userplus],
+  ['night', tr('Ночёвка', 'Sleepover'), tr('Остался на ночёвку в SOL', 'Stayed for the SOL sleepover'), 20, 'M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z'],
+  ['camp', tr('Выезд', 'Trip'), tr('Съездил на выезд или в лагерь', 'Went on a trip or camp'), 30, 'M3 21L12 4l9 17zM12 4v17M8 21l4-7 4 7'],
+  ['bday', tr('День рождения в SOL', 'Birthday at SOL'), tr('Пришёл в неделю своего дня рождения', 'Came during their birthday week'), 20, 'M4 21h16v-8H4zM4 16c2 1 4 1 6 0s4-1 6 0 4 1 4 0M12 13V9M12 6a1.5 1.5 0 0 1 0-3'],
+  ['back', tr('С возвращением', 'Welcome back'), tr('Вернулся после долгого перерыва', 'Came back after a long break'), 20, 'M3 12a9 9 0 1 0 3-6.7M3 4v5h5'],
+  ['thanks', tr('Особая благодарность', 'Special thanks'), tr('За поступок, который хочется отметить', 'For something worth celebrating'), 50, 'M12 2l3 7h7l-5.5 4 2 7-6.5-4.5L5.5 20l2-7L2 9h7z']
+];
+function viewTasks() {
+  const list = D.tasks.slice().sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+  const recent = D.awards.slice(-40).reverse();
+  const grouped = []; recent.forEach(a => { const g = grouped.find(x => x.badge === a.badge && x.date === a.date); if (g) g.who.push(a.teenId); else grouped.push({ badge: a.badge, date: a.date, who: [a.teenId] }); });
+  return `<div style="display:flex;align-items:center;justify-content:space-between"><h1 class="h1">${tr('Задания', 'Tasks')}</h1><button class="plus" data-a="openPlus" aria-label="${tr('Добавить', 'Add')}">${svg(IC.plus, '#0E0F12', 20, 2.5)}</button></div>
+  ${list.length ? list.map(k => { const mem = audMembers(k.aud); const dm = doneMap(k.id); const n = mem.filter(t => dm[t.id]).length;
+    return `<button class="card" data-a="openTask" data-x="${k.id}" style="display:flex;flex-direction:column;gap:10px;text-align:left;width:100%"><div style="display:flex;justify-content:space-between;gap:10px;width:100%"><span style="font-size:15px;font-weight:700;line-height:1.3">${esc(k.title)}</span><span class="sm" style="color:var(--acc);font-weight:700;flex-shrink:0">+${k.pts}</span></div><span class="xs mut">${KINDS()[k.kind] || ''} · ${tr('до ', 'due ')}${esc(human(k.due))} · ${esc(audLabel(k.aud))}</span><div class="prog" style="width:100%"><i style="width:${mem.length ? Math.round(n / mem.length * 100) : 0}%"></i></div><span class="xs" style="color:var(--tx2)">${tr('Выполнили ', 'Done by ')}${n}${tr(' из ', ' of ')}${mem.length}</span></button>`; }).join('')
+    : `<div class="empty">${tr('Заданий пока нет. Нажмите «+», чтобы создать первое.', 'No tasks yet. Tap “+” to create one.')}</div>`}
+  ${grouped.length ? `<div class="sec" style="padding:12px 4px 0">${tr('НЕДАВНО ЗАСЧИТАННЫЕ АЧИВКИ', 'RECENTLY AWARDED')}</div>${grouped.slice(0, 8).map(g => { const m = MANUAL().find(x => x[0] === g.badge) || [g.badge, g.badge, '', 0, IC.medal]; return `<div class="row" style="cursor:default"><div style="width:36px;height:36px;border-radius:999px;background:var(--acc);display:flex;align-items:center;justify-content:center;flex-shrink:0">${svg(m[4], '#0E0F12', 18)}</div><div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span style="font-size:14px;font-weight:700">${esc(m[1])}</span><span class="xs mut" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(human(g.date))} · ${esc(g.who.map(id => IDX.teen[id] ? IDX.teen[id].first : '?').join(', '))}</span></div><span class="sm" style="color:var(--acc);font-weight:700">+${m[3]}</span></div>`; }).join('')}` : ''}`;
+}
+
+// ---------- ЕЩЁ ----------
+function moreRow(a, label, hint, accent) { return `<button class="row" data-a="${a}" style="${accent ? 'border-color:var(--acc);background:var(--accbg)' : ''}"><span style="flex:1;font-size:15px;font-weight:600">${label}</span><span class="sm" style="color:${accent ? 'var(--acc2)' : 'var(--mu)'}">${hint || ''}</span>${svg(IC.right, '#5F626B', 18, 2.5)}</button>`; }
+function viewMore() {
+  if (S.more === 'groups') return viewGroups();
+  if (S.more === 'rules') return viewRules();
+  if (S.more === 'access') return viewAccess();
+  if (S.more === 'qr') return viewQR();
+  const r = myRole();
+  return `<h1 class="h1">${tr('Ещё', 'More')}</h1>
+  <div class="row" style="cursor:default"><span style="flex:1;font-size:15px;font-weight:600">${tr('Язык', 'Language')}</span><div class="seg" style="grid-template-columns:1fr 1fr;width:120px"><button class="${!L() ? 'on' : ''}" data-a="lang" data-x="ru">RU</button><button class="${L() ? 'on' : ''}" data-a="lang" data-x="en">EN</button></div></div>
+  ${r === 'admin' || r === 'leader' ? moreRow('goQR', tr('QR для отметки', 'Check-in QR'), tr('распечатать', 'print'), true) : ''}
+  ${r === 'admin' ? moreRow('goGroups', tr('Группы и встречи', 'Groups & meetings'), D.groups.length + tr(' групп', ' groups')) : ''}
+  ${r === 'admin' ? moreRow('goRules', tr('Правила списков', 'List rules'), R().reg + tr(' из ', ' of ') + R().win + ' · ' + R().gone + tr(' подряд', ' in a row')) : ''}
+  ${r === 'admin' ? moreRow('goAccess', tr('Лидеры и доступ', 'Leaders & access'), (D.leaders || []).length + tr(' в команде', ' in team')) : ''}
+  ${D.ssUrl ? `<a class="row" href="${esc(D.ssUrl)}" target="_blank" rel="noopener" style="text-decoration:none;color:var(--tx)"><span style="flex:1;font-size:15px;font-weight:600">Google ${tr('Таблица', 'Sheet')}</span><span class="sm mut">${tr('открыть', 'open')}</span>${svg(IC.right, '#5F626B', 18, 2.5)}</a>` : ''}
+  <div class="xs mut" style="padding:12px 4px 0">${esc(D.me.name || '')} · ${esc(D.me.email)} · ${ROLES().find(x => x[0] === r)[1]}</div>
+  <button class="btn2" data-a="logout">${tr('Выйти', 'Sign out')}</button>`;
+}
+const subHead = (title, back) => `<div style="display:flex;align-items:center;gap:10px"><button class="icb" data-a="${back || 'moreRoot'}" aria-label="${tr('Назад', 'Back')}">${svg(IC.back, '#F4F4F5', 20, 2.5)}</button><h1 class="h2">${title}</h1></div>`;
+function viewGroups() {
+  return `${subHead(tr('Группы и встречи', 'Groups & meetings'))}
+  <div class="sec" style="padding:8px 4px 0">${tr('ВОСКРЕСНАЯ ВСТРЕЧА', 'SUNDAY SERVICE')}</div>
+  <div class="row" style="cursor:default"><span style="flex:1;font-size:15px;font-weight:600">Sunday Service</span><label class="sm mut" for="svt">${tr('начало', 'starts')}</label><input id="svt" type="time" class="inp" style="width:120px;height:44px" data-b="set.serviceTime" data-save="settings" value="${esc(D.settings.serviceTime)}"></div>
+  <div class="sec" style="padding:12px 4px 0">${tr('МАЛЫЕ ГРУППЫ', 'SMALL GROUPS')}</div>
+  ${D.groups.map(g => `<button class="row" data-a="editGroup" data-x="${g.id}"><div style="flex:1;display:flex;flex-direction:column;gap:3px"><span style="font-size:15px;font-weight:600">${esc(g.name)}</span><span class="xs mut">${tr('Лидер: ', 'Leader: ')}${esc(g.leader || '—')} · ${DLONG()[g.day]} ${esc(g.time)}</span></div><span class="sm" style="color:var(--acc);font-weight:600">${members(g.id).length}${tr(' чел.', ' people')}</span></button>`).join('') || `<div class="xs mut" style="padding:0 4px">${tr('Пока нет групп', 'No groups yet')}</div>`}
+  <button class="btn2" style="border:2px dashed var(--line3);color:var(--acc)" data-a="editGroup" data-x="">+ ${tr('Новая группа', 'New group')}</button>
+  <div class="sec" style="padding:12px 4px 0">${tr('СОБЫТИЯ', 'EVENTS')}</div>
+  ${D.events.slice().sort((a, b) => b.date.localeCompare(a.date)).slice(0, 12).map(e => `<div class="row" style="cursor:default"><span style="flex:1;font-size:15px;font-weight:600">${esc(e.name)}</span><span class="sm mut">${esc(human(e.date))}</span></div>`).join('') || `<div class="xs mut" style="padding:0 4px">${tr('События создаются на экране отметки: «Встреча ▾» → «+ Новое событие».', 'Create events from Check-in: meeting ▾ → + New event.')}</div>`}`;
+}
+function viewRules() {
+  const r = R();
+  const step = (k, title, sub, v) => `<div class="card" style="display:flex;align-items:center;gap:12px;padding:14px 16px"><div style="flex:1;display:flex;flex-direction:column;gap:4px"><span style="font-size:15px;font-weight:600">${title}</span><span class="sm mut">${sub}</span></div><button class="icb" style="border:1px solid var(--line2);background:var(--bg);font-size:20px" data-a="rule" data-x="${k}:-1" aria-label="${tr('Меньше', 'Decrease')}">−</button><span style="min-width:28px;text-align:center;font-family:Unbounded,sans-serif;font-size:20px;font-weight:700;color:var(--acc)">${v}</span><button class="icb" style="border:1px solid var(--line2);background:var(--bg);font-size:20px" data-a="rule" data-x="${k}:1" aria-label="${tr('Больше', 'Increase')}">+</button></div>`;
+  return `${subHead(tr('Правила списков', 'List rules'))}
+  <div class="sm mut" style="padding:0 4px 4px;line-height:1.45">${tr('Списки на экране отметки считаются по последним встречам того же типа. Меняйте числа — группы пересчитаются сразу.', 'Check-in lists are based on the latest meetings of the same type. Change the numbers — groups update instantly.')}</div>
+  ${step('win', tr('Окно', 'Window'), tr('сколько последних встреч учитывать', 'how many recent meetings to count'), r.win)}
+  ${step('reg', tr('Обычно приходят', 'Regulars'), tr('был минимум столько раз из ', 'attended at least this many of ') + r.win, r.reg)}
+  ${step('gone', tr('Давно не были', 'Missing lately'), tr('пропустил подряд столько встреч', 'missed this many in a row'), r.gone)}
+  <div class="card sm mut" style="display:flex;flex-direction:column;gap:6px;line-height:1.4"><div><b style="color:var(--tx)">${tr('Новенькие', 'Newcomers')}</b> — ${tr('меньше 4 посещений всего', 'fewer than 4 visits in total')}</div><div><b style="color:var(--tx)">${tr('Архив', 'Archive')}</b> — ${tr('ни разу за всё окно; находятся через поиск', 'no visits in the whole window; find them via search')}</div></div>`;
+}
+const ROLES = () => [
+  ['admin', tr('Админ', 'Admin'), tr('Всё: отметки, дашборд, контакты подростков и родителей, группы, правила и команда.', 'Everything: check-ins, dashboard, teen and parent contacts, groups, rules and the team.')],
+  ['leader', tr('Лидер группы', 'Group leader'), tr('Отмечает и видит статистику своих групп. Видит контакты своих подростков и их родителей.', 'Checks in and sees stats for their groups. Sees contacts of their teens and parents.')],
+  ['mod', tr('Модератор', 'Moderator'), tr('Только отмечает на встречах и добавляет новеньких. Не видит контакты родителей и дашборд.', 'Only checks teens in and adds newcomers. No parent contacts, no dashboard.')],
+  ['viewer', tr('Наблюдатель', 'Viewer'), tr('Только смотрит дашборд, ничего не меняет. Например, для пастора.', 'Read-only dashboard. E.g. for the pastor.')]
+];
+const RCOL = { admin: ACC, leader: '#6FA8FF', mod: '#C8F45A', viewer: '#A1A1AA' };
+function viewAccess() {
+  const ls = D.leaders || [];
+  return `${subHead(tr('Лидеры и доступ', 'Leaders & access'))}
+  <button class="btn" data-a="openInvite">+ ${tr('Пригласить лидера', 'Invite a leader')}</button>
+  <div class="sec" style="padding:10px 4px 0">${tr('КОМАНДА', 'TEAM')}</div>
+  ${ls.map(l => `<button class="row" data-a="editLeader" data-x="${l.id}" style="min-height:64px"><div class="av" style="width:40px;height:40px">${esc(ini(l.name || l.email || '?'))}</div><div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px"><span style="font-size:15px;font-weight:600">${esc(l.name || '—')}${l.me ? tr(' (вы)', ' (you)') : ''}</span><span class="xs mut" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${l.status === 'pending' ? (l.code ? tr('ждёт входа по коду ', 'waiting to join with code ') + esc(l.code) : tr('приглашение отправлено · ', 'invite sent · ') + esc(l.email)) : (l.groups.length ? esc(l.groups.map(g => IDX.group[g] && IDX.group[g].name).filter(Boolean).join(', ')) : esc(l.email))}</span></div><span style="flex-shrink:0;font-size:12px;font-weight:700;padding:5px 10px;border-radius:999px;border:1px solid ${RCOL[l.role]};color:${RCOL[l.role]}">${ROLES().find(r => r[0] === l.role)[1]}</span></button>`).join('')}
+  <div class="sec" style="padding:12px 4px 0">${tr('УРОВНИ ДОСТУПА', 'ACCESS LEVELS')}</div>
+  ${ROLES().map(r => `<div class="card" style="padding:12px 14px;display:flex;flex-direction:column;gap:4px"><span style="font-size:14px;font-weight:700">${r[1]}</span><span class="sm mut" style="line-height:1.4">${r[2]}</span></div>`).join('')}`;
+}
+function joinUrl() { return APP + 'join/'; }
+function viewQR() {
+  return `<div class="noprint">${subHead(tr('QR для отметки', 'Check-in QR'))}</div>
+  <div class="sm mut noprint" style="line-height:1.45">${tr('Распечатайте и повесьте у входа. Подросток сканирует камерой телефона — без приложения. Новенькие заполняют короткую анкету и сразу попадают в базу.', 'Print and put it at the entrance. Teens scan with the phone camera — no app needed. Newcomers fill a short form and land in the database.')}</div>
+  <div style="text-align:center;font-family:Unbounded,sans-serif;font-size:22px;font-weight:700;padding-top:8px">${tr('Отметься в SOL Teens', 'Check in to SOL Teens')}</div>
+  <div class="qrbox"><div id="qr"></div></div>
+  <div class="xs mut" style="text-align:center;word-break:break-all">${esc(joinUrl())}</div>
+  <div class="noprint" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btnA" data-a="copyJoin">${tr('Скопировать ссылку', 'Copy link')}</button><button class="btnA" data-a="print">${tr('Печать', 'Print')}</button></div>
+  ${isAdmin() ? `<div class="noprint" style="display:flex;flex-direction:column;gap:8px;padding-top:8px">
+  <div class="sec">${tr('КОГДА РАБОТАЕТ QR', 'WHEN THE QR WORKS')}</div>
+  <div class="sm mut" style="line-height:1.45">${tr('Только во время встречи: от «за … мин до начала» до «… мин после». Время воскресной встречи и групп задаётся в «Группы и встречи».', 'Only during a meeting: from “… min before start” to “… min after”. Sunday and group times are set in Groups & meetings.')}</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div class="field"><label class="lbl" for="sb">${tr('За сколько минут до', 'Minutes before')}</label><input id="sb" class="inp" inputmode="numeric" data-b="set.before" data-save="settings" value="${esc(D.settings.before)}"></div><div class="field"><label class="lbl" for="sa">${tr('Сколько минут после', 'Minutes after')}</label><input id="sa" class="inp" inputmode="numeric" data-b="set.after" data-save="settings" value="${esc(D.settings.after)}"></div></div>
+  <button class="row" data-a="qrAlways"><div class="cb ${D.settings.qrAlways === '1' ? 'on' : ''}">${D.settings.qrAlways === '1' ? svg(IC.check, '#0E0F12', 14, 3.5) : ''}</div><span style="flex:1;font-size:15px">${tr('Тестовый режим: QR работает всегда', 'Test mode: QR always works')}</span></button></div>` : ''}`;
+}
+function drawQR() {
+  const el = document.getElementById('qr'); if (!el || !window.QRCode) return;
+  el.innerHTML = ''; new QRCode(el, { text: joinUrl(), width: 260, height: 260, colorDark: '#0E0F12', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
+}
+
+// =================== СЛОИ ===================
+const full = (title, body, foot) => `<div class="full" role="dialog" aria-label="${esc(title)}"><div class="hd"><button class="icb" data-a="close" aria-label="${tr('Назад', 'Back')}">${svg(IC.back, '#F4F4F5', 20, 2.5)}</button><h2 class="h2" style="font-size:17px;line-height:1.25;overflow:hidden;text-overflow:ellipsis">${title}</h2></div><div class="sc"><div class="in">${body}</div></div>${foot ? `<div class="ft">${foot}</div>` : ''}</div>`;
+const sheet = (title, body, foot) => `<div class="ov"><button class="bd" data-a="close" aria-label="${tr('Закрыть', 'Close')}"></button><div class="sheet" role="dialog" aria-label="${esc(title)}"><div class="sc"><div class="grab"></div><div class="h2" style="font-size:20px">${title}</div>${body}</div>${foot ? `<div class="ft">${foot}</div>` : ''}</div></div>`;
+const fld = (path, label, val, type, ph, extra) => `<div class="field"><label class="lbl" for="f_${path.replace(/\W/g, '_')}">${label}</label><input class="inp" id="f_${path.replace(/\W/g, '_')}" type="${type || 'text'}" data-b="${path}" value="${esc(val || '')}" placeholder="${esc(ph || '')}" ${type === 'date' ? 'data-picker="1"' : ''} ${extra || ''}></div>`;
+const cbx = on => `<div class="cb ${on ? 'on' : ''}">${on ? svg(IC.check, '#0E0F12', 14, 3.5) : ''}</div>`;
+function ddGroups(path, sel, open, toggleA, pickA, opts) {
+  const names = sel.map(g => IDX.group[g] && IDX.group[g].name).filter(Boolean);
+  return `<div class="dd"><button data-a="${toggleA}" aria-expanded="${!!open}"><span style="font-size:15px;font-weight:600;color:${names.length ? 'var(--tx)' : 'var(--mu2)'}">${esc(names.join(', ') || (opts && opts.empty) || tr('Выберите группы', 'Choose groups'))}</span><span class="${open ? 'rot180' : ''}" style="display:flex;transition:transform .2s">${svg(IC.chev, '#A1A1AA', 18, 2.5)}</span></button>
+  ${open ? D.groups.map(g => `<button class="it" data-a="${pickA}" data-x="${g.id}">${cbx(sel.indexOf(g.id) >= 0)}<div style="flex:1;display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:600">${esc(g.name)}</span><span class="xs mut">${DLONG()[g.day]} ${esc(g.time)} · ${members(g.id).length}${tr(' чел.', ' people')}</span></div></button>`).join('') : ''}</div>`;
+}
+
+function viewOverlay() {
+  const o = S.ov; if (!o) return '';
+  const F = o.f || {};
+  if (o.type === 'meet') {
+    const m = meet(); const dow = todayD().getDay();
+    const isOn = x => x.kind === m.kind && x.meetId === m.meetId && x.date === m.date;
+    const item = (x, sub) => `<button class="row ${isOn(x) ? 'on' : ''}" data-a="pickMeet" data-x='${esc(JSON.stringify(x))}' style="justify-content:space-between"><div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:600">${esc(x.label)}</span><span class="xs mut">${esc(sub)}</span></div>${isOn(x) ? svg(IC.check, ACC, 20, 3) : ''}</button>`;
+    const now = [];
+    D.events.filter(e => e.date === D.today).forEach(e => now.push(item({ kind: 'event', meetId: e.id, label: e.name, date: e.date }, tr('сегодня · событие', 'today · event'))));
+    if (dow === 0) now.push(item(svc(D.today), tr('сегодня · по расписанию', 'today · scheduled')));
+    visibleGroups().filter(g => g.day === dow).forEach(g => now.push(item({ kind: 'group', meetId: g.id, label: g.name, date: D.today }, tr('сегодня · ', 'today · ') + g.time)));
+    if (dow !== 0) { const ls = lastDow(0); now.push(item(svc(ls), tr('прошедшее · ', 'past · ') + word(ls) + ', ' + human(ls))); }
+    const grp = visibleGroups().map(g => { const gd = lastDow(g.day); return item({ kind: 'group', meetId: g.id, label: g.name, date: gd }, DLONG()[g.day] + ' ' + g.time + tr(' · последняя ', ' · latest ') + word(gd)); });
+    const evs = D.events.slice().sort((a, b) => b.date.localeCompare(a.date)).slice(0, 10).map(e => item({ kind: 'event', meetId: e.id, label: e.name, date: e.date }, 'Church Event · ' + human(e.date)));
+    const canEv = ['admin', 'leader'].indexOf(myRole()) >= 0;
+    return sheet(tr('Какая встреча?', 'Which meeting?'), `
+      <div class="list2"><div class="sec">${tr('СЕЙЧАС', 'NOW')}</div>${now.join('')}</div>
+      ${grp.length ? `<div class="list2"><div class="sec">${tr('МАЛЫЕ ГРУППЫ', 'SMALL GROUPS')}</div>${grp.join('')}</div>` : ''}
+      ${evs.length ? `<div class="list2"><div class="sec">${tr('СОБЫТИЯ', 'EVENTS')}</div>${evs.join('')}</div>` : ''}
+      <div class="list2"><div class="sec">${tr('ДАТА', 'DATE')}</div><div class="row" style="cursor:default"><label for="od" style="flex:1;font-size:15px;font-weight:600">${tr('Другая дата', 'Other date')}</label><input id="od" type="date" class="inp" style="width:170px;height:42px" data-picker="1" data-change="otherDate" value="${esc(m.date)}"></div></div>
+      ${canEv ? (o.newEv ? `<div class="card" style="display:flex;flex-direction:column;gap:12px;background:var(--bg)">${fld('ov.f.name', tr('Название события', 'Event name'), F.name, 'text', tr('Например, Выезд на озеро', 'e.g. Lake trip'))}${fld('ov.f.date', tr('Дата', 'Date'), F.date || D.today, 'date')}<button class="btn" data-a="saveEvent">${tr('Создать и отмечать', 'Create & check in')}</button></div>`
+        : `<button class="btn2" style="border:2px dashed var(--line3);color:var(--acc)" data-a="ovSet" data-x="newEv">+ ${tr('Новое событие', 'New event')}</button>`) : ''}`);
+  }
+  if (o.type === 'teenForm') {
+    const dup = o.dup ? `<div class="card" style="border-color:var(--acc);background:var(--accbg);display:flex;flex-direction:column;gap:10px"><div style="font-weight:700">${tr('Похоже, уже есть в базе: ', 'Looks like already in the database: ')}${esc(o.dup.name)}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btnA" data-a="dupIsHim">${tr('Это он — отметить', 'That’s them — check in')}</button><button class="btn2" style="height:44px" data-a="dupNew">${tr('Нет, новый', 'No, new')}</button></div></div>` : '';
+    return full(tr('Новый подросток', 'New teen'), `
+      ${fld('ov.f.first', tr('Имя', 'First name'), F.first)}${fld('ov.f.last', tr('Фамилия', 'Last name'), F.last)}${fld('ov.f.phone', tr('Телефон', 'Phone'), F.phone, 'tel', '(916) 123-4567')}${fld('ov.f.birth', tr('Дата рождения', 'Date of birth'), F.birth, 'date')}
+      <button class="row" data-a="ovToggle" data-x="addrOpen" style="justify-content:space-between"><span style="font-size:15px;font-weight:600">${tr('Адрес подростка', 'Teen’s address')}</span><span style="color:var(--acc);font-size:18px">${o.addrOpen ? '−' : '+'}</span></button>
+      ${o.addrOpen ? fld('ov.f.addr', tr('Адрес', 'Address'), F.addr, 'text', tr('Улица, дом, город', 'Street, number, city')) : ''}
+      ${myRole() !== 'mod' ? `<button class="row" data-a="ovToggle" data-x="parOpen" style="justify-content:space-between"><span style="font-size:15px;font-weight:600">${tr('Родитель', 'Parent')}</span><span style="color:var(--acc);font-size:18px">${o.parOpen ? '−' : '+'}</span></button>
+      ${o.parOpen ? fld('ov.f.pFirst', tr('Имя родителя', 'Parent first name'), F.pFirst) + fld('ov.f.pLast', tr('Фамилия родителя', 'Parent last name'), F.pLast) + fld('ov.f.pPhone', tr('Телефон родителя', 'Parent phone'), F.pPhone, 'tel') + fld('ov.f.pAddr', tr('Адрес родителя', 'Parent address'), F.pAddr) + `<button class="btnA" data-a="copyAddr" style="align-self:flex-start">${tr('Адрес как у подростка', 'Same address as teen')}</button>` : ''}` : ''}
+      ${dup}${o.err ? `<div class="err">${esc(o.err)}</div>` : ''}`, `<button class="btn" data-a="saveTeen">${tr('Сохранить и отметить', 'Save & check in')}</button>`);
+  }
+  if (o.type === 'prof') {
+    const t = IDX.teen[o.id]; if (!t) return '';
+    const st = stat(t, 'service', 'sunday', '9999-12-31');
+    const sess = (IDX.sess['service:sunday'] || []).slice(-8);
+    const created = t.createdAt || '0000';
+    const hist = sess.map(d => d < created ? '-' : (has(d, 'service', 'sunday', t.id) ? '1' : '0'));
+    while (hist.length < 8) { hist.unshift('-'); sess.unshift(''); }
+    const tipOf = i => sess[i] ? human(sess[i]) + ' — ' + (hist[i] === '1' ? tr('был', 'attended') : hist[i] === '0' ? tr('не был', 'missed') : tr('нет данных', 'no data')) : tr('нет данных', 'no data');
+    const hi = o.hov != null ? o.hov : o.hi;
+    let age = '';
+    if (F.birth) { const b = parse(F.birth); const td = todayD(); let a = td.getFullYear() - b.getFullYear(); if (td.getMonth() < b.getMonth() || (td.getMonth() === b.getMonth() && td.getDate() < b.getDate())) a--; age = a + (L() ? ' y.o.' : ' ' + plural(a, 'год', 'года', 'лет')) + ' · ' + human(F.birth); }
+    const nm = ((F.first || '') + ' ' + (F.last || '')).trim() || tname(t);
+    const canEdit = myRole() !== 'viewer';
+    return full(`${esc(nm)}${age ? `<div class="sm mut" style="font-family:Inter;font-weight:500">${esc(age)}</div>` : ''}`, `
+      <div class="stats3"><div class="stat"><b style="color:var(--acc)">${st.cat === 'gone' ? st.miss : (st.known ? st.cnt + '/' + st.known : '—')}</b><span class="xs mut">${st.cat === 'gone' ? tr('пропуска подряд', 'missed in a row') : tr('из последних', 'of recent')}</span></div><div class="stat"><b>${st.total}</b><span class="xs mut">${tr('всего раз', 'visits total')}</span></div><div class="stat"><span style="font-size:14px;font-weight:700;line-height:1.25">${CAT()[st.cat]}</span><span class="xs mut">${tr('статус', 'status')}</span></div></div>
+      <div style="display:flex;flex-direction:column;gap:6px"><div class="sec">${tr('ПОСЛЕДНИЕ 8 ВОСКРЕСЕНИЙ', 'LAST 8 SUNDAYS')}</div><div class="hist">${hist.map((c, i) => `<button class="${c === '1' ? 'h1x' : c === '0' ? 'h0' : 'hn'} ${o.hi === i ? 'sel' : ''}" data-a="hist" data-x="${i}" data-hover="${i}" title="${esc(tipOf(i))}" aria-label="${esc(tipOf(i))}"></button>`).join('')}</div><div class="tip" id="histtip">${hi != null ? esc(tipOf(hi)) : ''}</div></div>
+      ${canEdit ? `<div style="display:flex;flex-direction:column;gap:14px"><div class="sec">${tr('ПОДРОСТОК', 'TEEN')}</div>${fld('ov.f.first', tr('Имя', 'First name'), F.first)}${fld('ov.f.last', tr('Фамилия', 'Last name'), F.last)}${fld('ov.f.phone', tr('Телефон', 'Phone'), F.phone, 'tel')}${fld('ov.f.birth', tr('Дата рождения', 'Date of birth'), F.birth, 'date')}${fld('ov.f.addr', tr('Адрес', 'Address'), F.addr, 'text', tr('Улица, дом, город', 'Street, number, city'))}</div>` : ''}
+      ${myRole() === 'admin' || myRole() === 'leader' ? `<div style="display:flex;flex-direction:column;gap:8px"><div style="display:flex;justify-content:space-between;align-items:baseline"><div class="sec">${tr('ГРУППЫ', 'GROUPS')}</div><div class="xs mut">${tr('Можно выбрать несколько', 'You can pick several')}</div></div>${D.groups.length ? ddGroups('', o.groups, o.gOpen, 'profG', 'profPick', { empty: tr('Без группы', 'No group') }) : `<div class="xs mut">${tr('Групп пока нет', 'No groups yet')}</div>`}</div>` : ''}
+      ${t.canEditParent ? `<div style="display:flex;flex-direction:column;gap:14px"><div class="sec">${tr('РОДИТЕЛЬ', 'PARENT')}</div>${fld('ov.f.pFirst', tr('Имя родителя', 'Parent first name'), F.pFirst)}${fld('ov.f.pLast', tr('Фамилия родителя', 'Parent last name'), F.pLast)}${fld('ov.f.pPhone', tr('Телефон родителя', 'Parent phone'), F.pPhone, 'tel')}${fld('ov.f.pAddr', tr('Адрес родителя', 'Parent address'), F.pAddr)}</div>` : ''}
+      ${t.invitedBy && IDX.teen[t.invitedBy] ? `<div class="sm mut">${tr('Пригласил: ', 'Invited by: ')}${esc(tname(IDX.teen[t.invitedBy]))}</div>` : ''}`,
+      canEdit ? `<button class="btn" data-a="saveProf">${tr('Сохранить', 'Save')}</button>` : '');
+  }
+  if (o.type === 'plus') {
+    const opt = (a, ic, t1, t2) => `<button class="row" data-a="${a}" style="min-height:76px;background:var(--bg);border-color:var(--line2)"><div style="width:48px;height:48px;border-radius:14px;background:var(--acc);display:flex;align-items:center;justify-content:center;flex-shrink:0">${svg(ic, '#0E0F12', 24)}</div><div style="flex:1;display:flex;flex-direction:column;gap:3px"><span style="font-size:16px;font-weight:700">${t1}</span><span class="sm mut" style="line-height:1.35">${t2}</span></div>${svg(IC.right, '#5F626B', 18, 2.5)}</button>`;
+    return sheet(tr('Что добавить?', 'What to add?'), opt('newTask', IC.tasks, tr('Новое задание', 'New task'), tr('Чтение, стих или действие — для всех или для групп', 'Reading, verse or action — for everyone or groups')) + opt('openAward', IC.medal, tr('Засчитать ачивку', 'Award an achievement'), tr('Помощник, позвал друга, ночёвка и другие', 'Helper, brought a friend, sleepover and more')));
+  }
+  if (o.type === 'newTask') {
+    return full(tr('Новое задание', 'New task'), `
+      ${fld('ov.f.title', tr('Задание', 'Task'), F.title, 'text', tr('Например, прочитать Луки, гл. 15', 'e.g. Read Luke, chapter 15'))}
+      <div class="field"><div class="lbl">${tr('Тип', 'Type')}</div><div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px">${Object.keys(KINDS()).map(k => `<button class="opt ${F.kind === k ? 'on' : ''}" data-a="ovF" data-x="kind:${k}">${KINDS()[k]}</button>`).join('')}</div></div>
+      ${fld('ov.f.due', tr('Срок', 'Due date'), F.due, 'date')}
+      <div class="field"><div class="lbl">${tr('Баллы за выполнение', 'Points')}</div><div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px">${[10, 15, 20, 30].map(p => `<button class="opt ${+F.pts === p ? 'on' : ''}" data-a="ovF" data-x="pts:${p}">+${p}</button>`).join('')}</div></div>
+      <div class="field"><div class="lbl">${tr('Для кого', 'For')}</div>${ddGroups('', F.aud || [], o.gOpen, 'ovToggle" data-x="gOpen', 'taskAud', { empty: tr('Все подростки', 'All teens') })}<div class="xs mut">${tr('Не выбрано — задание для всех', 'None selected — task for everyone')}</div></div>
+      ${o.err ? `<div class="err">${esc(o.err)}</div>` : ''}`, `<button class="btn" data-a="saveTask">${tr('Опубликовать задание', 'Publish task')}</button>`);
+  }
+  if (o.type === 'task') {
+    const k = D.tasks.find(x => x.id === o.id); if (!k) return '';
+    const mem = audMembers(k.aud); const dm = doneMap(k.id);
+    const rem = new Set(D.reminders.filter(r => r[0] === k.id).map(r => r[1]));
+    const doneP = mem.filter(t => dm[t.id]).sort((a, b) => dm[b.id].localeCompare(dm[a.id])); const notP = mem.filter(t => !dm[t.id]);
+    const pct = mem.length ? Math.round(doneP.length / mem.length * 100) : 0;
+    const lst = (key, title, ppl, isDone) => { const open = !(o.closed || {})[key]; const pend = ppl.filter(t => !rem.has(t.id));
+      return `<div style="display:flex;flex-direction:column;gap:6px"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><button class="sh ${open ? '' : 'closed'}" data-a="taskSec" data-x="${key}">${svg(IC.chev, 'currentColor', 16, 2.5)}<span>${title}</span><span class="num">${ppl.length}</span></button>${!isDone && pend.length ? `<button class="btnA" style="height:36px;border-radius:999px;background:transparent" data-a="remindAll">${tr('Напомнить всем', 'Remind all')}</button>` : ''}</div>
+      ${open ? ppl.map(t => `<div class="row" style="cursor:default;padding:6px 8px 6px 14px"><div class="av">${esc(ini(tname(t)))}</div><div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:500">${esc(tname(t))}</span><span class="xs mut">${isDone ? tr('выполнил ', 'done ') + esc(human(dm[t.id])) : esc(t.groups.map(g => IDX.group[g] && IDX.group[g].name).filter(Boolean).join(', ') || tr('без группы', 'no group'))}</span></div>
+      ${isDone ? `<button class="icb" style="width:40px;height:40px;background:transparent;border:1px solid var(--line2)" data-a="undone" data-x="${t.id}" aria-label="${tr('Отменить', 'Undo')}">${svg(IC.x, '#8B8B94', 16, 2.5)}</button>` : `<button class="btnA" style="height:40px;padding:0 10px" data-a="markDone" data-x="${t.id}">${tr('Выполнил', 'Done')}</button><button class="${rem.has(t.id) ? 'btn2' : 'btnA'}" style="height:40px;width:auto;padding:0 10px;font-size:13px" data-a="remind" data-x="${t.id}">${rem.has(t.id) ? tr('Напомнено', 'Reminded') : tr('Напомнить', 'Remind')}</button>`}</div>`).join('') : ''}</div>`; };
+    return full(esc(k.title), `
+      <div class="stats3"><div class="stat"><b style="color:var(--acc)">${doneP.length}</b><span class="xs mut">${tr('выполнили', 'done')}</span></div><div class="stat"><b>${notP.length}</b><span class="xs mut">${tr('не выполнили', 'not done')}</span></div><div class="stat"><b>${pct}%</b><span class="xs mut">${tr('от всех', 'of audience')}</span></div></div>
+      <div class="card" style="padding:4px 16px">${[[tr('Тип', 'Type'), KINDS()[k.kind]], [tr('Срок', 'Due'), human(k.due)], [tr('Баллы', 'Points'), '+' + k.pts], [tr('Для кого', 'For'), audLabel(k.aud)]].map(([a, b]) => `<div style="display:flex;justify-content:space-between;gap:12px;min-height:46px;align-items:center;border-bottom:1px solid var(--line)"><span class="sm mut">${a}</span><span style="font-size:14px;font-weight:600;text-align:right">${esc(b)}</span></div>`).join('')}</div>
+      ${lst('not', tr('НЕ ВЫПОЛНИЛИ', 'NOT DONE'), notP, false)}${lst('done', tr('ВЫПОЛНИЛИ', 'DONE'), doneP, true)}
+      <div class="xs mut" style="line-height:1.4">${tr('Напоминания сохраняются и уйдут подросткам в Telegram, когда подключим бота.', 'Reminders are saved and will reach teens via Telegram once the bot is connected.')}</div>`);
+  }
+  if (o.type === 'award') {
+    const sel = MANUAL().find(m => m[0] === F.badge); const who = F.who || []; const q = (F.q || '').toLowerCase();
+    const hasA = id => sel && D.awards.some(a => a.badge === sel[0] && a.teenId === id);
+    const circ = (a, ic) => `<div style="width:38px;height:38px;border-radius:999px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:${a ? ACC : '#22252C'}">${svg(ic, a ? '#0E0F12' : '#A1A1AA', 18)}</div>`;
+    return sheet(tr('Засчитать ачивку', 'Award an achievement'), `
+      <div class="field"><div class="sec">${tr('КАКУЮ', 'WHICH ONE')}</div><div class="dd" style="background:var(--bg)"><button data-a="ovToggle" data-x="listOpen" aria-expanded="${!!o.listOpen}" style="min-height:60px">${circ(!!sel, sel ? sel[4] : IC.medal)}<div style="flex:1;display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:600;color:${sel ? 'var(--tx)' : 'var(--mu2)'}">${sel ? esc(sel[1]) : tr('Выберите ачивку', 'Choose an achievement')}</span><span class="xs mut">${sel ? esc(sel[2]) + ' · +' + sel[3] : tr('Только те, что подтверждает лидер', 'Only leader-confirmed ones')}</span></div><span class="${o.listOpen ? 'rot180' : ''}" style="display:flex">${svg(IC.chev, '#A1A1AA', 18, 2.5)}</span></button>
+      ${o.listOpen ? MANUAL().map(m => `<button class="it" data-a="ovF" data-x="badge:${m[0]}" style="min-height:60px">${circ(F.badge === m[0], m[4])}<div style="flex:1;display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:600">${esc(m[1])}</span><span class="xs mut">${esc(m[2])}</span></div><span class="sm" style="color:var(--acc);font-weight:700">+${m[3]}</span></button>`).join('') : ''}</div></div>
+      <div class="field"><div style="display:flex;justify-content:space-between"><div class="sec">${tr('КОМУ', 'TO WHOM')}</div><div class="xs" style="color:var(--acc);font-weight:700">${who.length ? tr('выбрано ', 'selected ') + who.length : ''}</div></div>
+      <input class="inp" style="height:48px;background:var(--bg)" data-b="ov.f.q" data-live="award" value="${esc(F.q || '')}" placeholder="${tr('Поиск по имени', 'Search by name')}" aria-label="${tr('Поиск', 'Search')}">
+      <div class="dd" id="awlist" style="background:var(--bg)">${awardPeople()}</div></div>
+      ${o.err ? `<div class="err">${esc(o.err)}</div>` : ''}`, `<button class="btn" data-a="saveAward">${tr('Засчитать', 'Award')}${who.length ? ' (' + who.length + ')' : ''}</button>`);
+  }
+  if (o.type === 'group') {
+    return sheet(o.id ? tr('Группа', 'Group') : tr('Новая группа', 'New group'), `
+      ${fld('ov.f.name', tr('Название группы', 'Group name'), F.name, 'text', tr('Например, Парни 13–14', 'e.g. Guys 13–14'))}
+      ${fld('ov.f.leader', tr('Лидер', 'Leader'), F.leader, 'text', tr('Имя лидера', 'Leader’s name'))}
+      <div class="field"><div class="lbl">${tr('День встречи', 'Meeting day')}</div><div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px">${[1, 2, 3, 4, 5, 6, 0].map(i => `<button class="opt ${+F.day === i ? 'on' : ''}" style="height:42px;font-size:13px" data-a="ovF" data-x="day:${i}">${DSHORT()[i]}</button>`).join('')}</div></div>
+      ${fld('ov.f.time', tr('Время', 'Time'), F.time || '19:00', 'time')}
+      ${o.err ? `<div class="err">${esc(o.err)}</div>` : ''}`, `<button class="btn" data-a="saveGroup">${o.id ? tr('Сохранить', 'Save') : tr('Создать группу', 'Create group')}</button>`);
+  }
+  if (o.type === 'invite' || o.type === 'leader') {
+    const isNew = o.type === 'invite';
+    const role = F.role || 'leader';
+    return sheet(isNew ? tr('Пригласить', 'Invite') : esc(F.name || ''), `
+      ${isNew ? `<div class="seg" style="grid-template-columns:1fr 1fr"><button class="${F.mode !== 'code' ? 'on' : ''}" data-a="ovF" data-x="mode:email">${tr('По почте', 'By email')}</button><button class="${F.mode === 'code' ? 'on' : ''}" data-a="ovF" data-x="mode:code">${tr('По коду', 'By code')}</button></div>
+      ${fld('ov.f.name', tr('Имя', 'Name'), F.name, 'text', tr('Например, Дима', 'e.g. Dima'))}
+      ${F.mode !== 'code' ? fld('ov.f.email', 'Email', F.email, 'email', 'name@gmail.com') : ''}` : `<div class="sm mut" style="margin-top:-8px">${esc(F.email || '')}</div>`}
+      <div class="field"><div class="sec">${tr('УРОВЕНЬ ДОСТУПА', 'ACCESS LEVEL')}</div>${ROLES().map(r => `<button class="row" data-a="ovF" data-x="role:${r[0]}" style="min-height:76px;gap:14px;${role === r[0] ? 'border-color:var(--acc);background:var(--accbg)' : 'background:var(--bg);border-color:var(--line2)'}"><div class="rd ${role === r[0] ? 'on' : ''}"></div><div style="flex:1;display:flex;flex-direction:column;gap:4px"><span style="font-size:15px;font-weight:700">${r[1]}</span><span class="sm mut" style="line-height:1.4">${r[2]}</span></div></button>`).join('')}</div>
+      ${role === 'leader' ? `<div class="field"><div class="sec">${tr('КАКИЕ ГРУППЫ ВЕДЁТ', 'WHICH GROUPS')}</div>${D.groups.length ? ddGroups('', F.groups || [], o.gOpen, 'ovToggle" data-x="gOpen', 'leadG') : `<div class="xs mut">${tr('Сначала создайте группы в «Ещё → Группы и встречи»', 'Create groups first in More → Groups & meetings')}</div>`}</div>` : ''}
+      ${o.code ? `<div class="card" style="border-color:var(--acc);background:var(--accbg);display:flex;flex-direction:column;align-items:center;gap:8px"><div class="sm" style="color:var(--acc2)">${tr('Код для входа', 'Sign-in code')}</div><div style="font-family:Unbounded,sans-serif;font-size:30px;font-weight:700;letter-spacing:.08em">${esc(o.code)}</div><div class="xs mut" style="text-align:center;line-height:1.4">${tr('Передайте лидеру вместе со ссылкой на приложение. Одноразовый, действует 7 дней.', 'Give it to the leader with the app link. Single use, valid for 7 days.')}</div><button class="btnA" data-a="copyCode">${tr('Скопировать текст приглашения', 'Copy invite text')}</button></div>` : ''}
+      ${o.err ? `<div class="err">${esc(o.err)}</div>` : ''}`,
+      isNew ? (o.code ? `<button class="btn" data-a="close">${tr('Готово', 'Done')}</button>` : `<button class="btn" data-a="sendInvite">${F.mode === 'code' ? tr('Создать код', 'Create code') : tr('Отправить приглашение', 'Send invite')}</button>`)
+        : `<div style="display:flex;flex-direction:column;gap:10px"><button class="btn" data-a="saveLeader">${tr('Сохранить', 'Save')}</button><button class="btn2" data-a="removeLeader">${tr('Убрать доступ', 'Remove access')}</button></div>`);
+  }
+  return '';
+}
+function awardPeople() {
+  const F = S.ov.f; const who = F.who || []; const q = (F.q || '').toLowerCase();
+  const sel = F.badge;
+  return D.teens.filter(t => !q || tname(t).toLowerCase().indexOf(q) >= 0).sort((a, b) => tname(a).localeCompare(tname(b))).map(t => `<button class="it" data-a="awWho" data-x="${t.id}">${cbx(who.indexOf(t.id) >= 0)}<span style="flex:1;font-size:15px">${esc(tname(t))}</span><span class="xs mut">${sel && D.awards.some(a => a.badge === sel && a.teenId === t.id) ? tr('уже есть', 'already has') : ''}</span></button>`).join('') || `<div class="empty">${tr('Никого не нашли', 'No one found')}</div>`;
+}
+
+// =================== СОБЫТИЯ ===================
+function setPath(path, v) { const p = path.split('.'); let o = S; for (let i = 0; i < p.length - 1; i++) { o[p[i]] = o[p[i]] || {}; o = o[p[i]]; } o[p[p.length - 1]] = v; }
+document.addEventListener('input', e => {
+  const el = e.target; const b = el.getAttribute && el.getAttribute('data-b'); if (!b) return;
+  if (b.indexOf('set.') === 0) { D.settings[b.slice(4)] = el.value; return; }
+  setPath(b, el.value);
+  const live = el.getAttribute('data-live');
+  if (live === 'list') document.getElementById('list').innerHTML = listHtml();
+  if (live === 'teens') document.getElementById('teens').innerHTML = teenRowsHtml();
+  if (live === 'award') document.getElementById('awlist').innerHTML = awardPeople();
+});
+document.addEventListener('change', e => {
+  const el = e.target;
+  if (el.getAttribute('data-save') === 'settings') { const k = el.getAttribute('data-b').slice(4); api('saveSettings', { [k]: el.value }).then(() => toast(tr('Сохранено', 'Saved'))).catch(err => toast(errText(err))); }
+  if (el.getAttribute('data-change') === 'otherDate' && el.value) { S.meet = Object.assign({}, meet(), { date: el.value }); S.ov = null; render(); }
+});
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-picker]'); if (el && el.showPicker) { try { el.showPicker(); } catch (_) {} }
+  const a = e.target.closest('[data-a]'); if (!a) return;
+  const fn = H[a.getAttribute('data-a')]; if (fn) { e.preventDefault(); fn(a.getAttribute('data-x'), a); }
+});
+document.addEventListener('mouseover', e => { const h = e.target.closest('[data-hover]'); if (h && S.ov && S.ov.type === 'prof') { S.ov.hov = +h.getAttribute('data-hover'); const t = document.getElementById('histtip'); if (t) t.textContent = h.getAttribute('title'); } });
+document.addEventListener('mouseout', e => { const h = e.target.closest('[data-hover]'); if (h && S.ov && S.ov.type === 'prof') { S.ov.hov = null; const t = document.getElementById('histtip'); const sel = document.querySelector('.hist .sel'); if (t) t.textContent = sel ? sel.getAttribute('title') : ''; } });
+document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.closest && e.target.closest('.login')) { const b = document.querySelector('.login .btn'); if (b) b.click(); } });
+
+function attAdd(m, id) { D.att.push([m.date, m.kind, m.meetId, id]); buildIdx(); }
+function attDel(m, id) { D.att = D.att.filter(a => !(a[0] === m.date && a[1] === m.kind && a[2] === m.meetId && a[3] === id)); buildIdx(); }
+function teenFromForm(F) { return { first: F.first || '', last: F.last || '', phone: F.phone || '', birth: F.birth || '', addr: F.addr || '', pFirst: F.pFirst || '', pLast: F.pLast || '', pPhone: F.pPhone || '', pAddr: F.pAddr || '' }; }
+
+const H = {
+  noop() {},
+  reload() { load(); },
+  lang(x) { S.lang = x; LS.set('sol_lang', x); rerender(); },
+  // вход
+  async sendCode() { const l = S.login; l.err = ''; try { await call('requestCode', l.email); l.step = 'code'; } catch (e) { l.err = errText(e); } render(); },
+  async verify() { const l = S.login; l.err = ''; try { const r = await call('verifyCode', l.email, l.code); S.token = r.token; LS.set('sol_tok', r.token); S.login = { step: 'email' }; render(); load(); } catch (e) { l.err = errText(e); render(); } },
+  toInvite() { S.login.step = 'invite'; S.login.err = ''; render(); },
+  loginBack() { S.login.step = 'email'; S.login.err = ''; render(); },
+  async joinInvite() { const l = S.login; l.err = ''; try { const r = await call('joinByCode', l.inv, l.name, l.email); S.token = r.token; LS.set('sol_tok', r.token); S.login = { step: 'email' }; render(); load(); } catch (e) { l.err = errText(e); render(); } },
+  async logout() { try { await call('logout', S.token); } catch (e) {} S.token = ''; LS.del('sol_tok'); D = null; S.tab = null; render(); },
+  // навигация
+  tab(x) { S.tab = x; S.more = 'root'; S.ov = null; render(); },
+  moreRoot() { S.more = 'root'; render(); }, goGroups() { S.more = 'groups'; render(); }, goRules() { S.more = 'rules'; render(); }, goAccess() { S.more = 'access'; render(); }, goQR() { S.more = 'qr'; render(); },
+  close() { S.ov = null; rerender(); },
+  ovToggle(x) { S.ov[x] = !S.ov[x]; rerender(); },
+  ovSet(x) { S.ov[x] = true; S.ov.f = S.ov.f || {}; rerender(); },
+  ovF(x) { const i = x.indexOf(':'); const k = x.slice(0, i), v = x.slice(i + 1); S.ov.f[k] = v; if (k === 'badge') S.ov.listOpen = false; S.ov.err = ''; rerender(); },
+  // отметка
+  sec(x) { const open = !document.querySelector(`[data-a="sec"][data-x="${x}"]`).classList.contains('closed'); S.closed[x] = open; document.getElementById('list').innerHTML = listHtml(); },
+  async toggle(id) {
+    const m = meet(); const on = !has(m.date, m.kind, m.meetId, id);
+    on ? attAdd(m, id) : attDel(m, id); rerender();
+    try { await api('mark', { kind: m.kind, meetId: m.meetId, date: m.date, teenId: id, on }); }
+    catch (e) { on ? attDel(m, id) : attAdd(m, id); rerender(); toast(errText(e)); }
+  },
+  openMeet() { S.ov = { type: 'meet', f: {} }; rerender(); },
+  pickMeet(x) { S.meet = JSON.parse(x); S.ov = null; S.closed = {}; render(); },
+  async saveEvent() { const F = S.ov.f; if (!(F.name || '').trim()) return toast(tr('Введите название', 'Enter a name'));
+    try { const ev = await api('addEvent', { name: F.name, date: F.date || D.today }); D.events.push(ev); S.meet = { kind: 'event', meetId: ev.id, label: ev.name, date: ev.date }; S.ov = null; render(); } catch (e) { toast(errText(e)); } },
+  newTeen() { const p = S.q.trim().split(/\s+/); S.ov = { type: 'teenForm', f: S.q.trim() ? { first: p[0], last: p.slice(1).join(' ') } : {} }; rerender(); },
+  copyAddr() { S.ov.f.pAddr = S.ov.f.addr || ''; rerender(); },
+  async saveTeen(force) {
+    const F = S.ov.f; if (!(F.first || '').trim()) { S.ov.err = tr('Введите имя', 'Enter a first name'); return rerender(); }
+    const m = meet();
+    try {
+      const r = await api('addTeen', { teen: teenFromForm(F), force: force === true, mark: S.tab === 'mark' ? { kind: m.kind, meetId: m.meetId, date: m.date } : null });
+      if (r.dup) { S.ov.dup = r.dup; return rerender(); }
+      S.ov = null; S.q = ''; toast(tr('Добавлен: ', 'Added: ') + F.first); await load();
+    } catch (e) { S.ov.err = errText(e); rerender(); }
+  },
+  dupNew() { H.saveTeen(true); },
+  async dupIsHim() { const id = S.ov.dup.id; S.ov = null; if (!has(meet().date, meet().kind, meet().meetId, id)) await H.toggle(id); else rerender(); },
+  // подростки
+  openProf(id) { const t = IDX.teen[id]; if (!t) return; S.ov = { type: 'prof', id, f: Object.assign({}, t), groups: t.groups.slice(), gOpen: false, hi: null, hov: null }; rerender(); },
+  hist(x) { const i = +x; S.ov.hi = S.ov.hi === i ? null : i; rerender(); },
+  profG() { S.ov.gOpen = !S.ov.gOpen; rerender(); },
+  profPick(g) { const a = S.ov.groups; const i = a.indexOf(g); i >= 0 ? a.splice(i, 1) : a.push(g); rerender(); },
+  async saveProf() {
+    const o = S.ov; const t = IDX.teen[o.id];
+    try { await api('updateTeen', { id: o.id, fields: o.f, groups: o.groups }); Object.assign(t, teenFromForm(o.f)); if (myRole() !== 'mod') t.groups = o.groups.slice(); t.review = false; buildIdx(); S.ov = null; toast(tr('Сохранено', 'Saved')); rerender(); }
+    catch (e) { toast(errText(e)); }
+  },
+  // дашборд
+  dash(x) { S.dash = x; rerender(); },
+  // задания
+  openPlus() { S.ov = { type: 'plus' }; rerender(); },
+  newTask() { const t = todayD(); const x = new Date(t); x.setDate(t.getDate() + ((7 - t.getDay()) % 7 || 7)); S.ov = { type: 'newTask', f: { kind: 'read', pts: '20', aud: [], due: iso(x) } }; rerender(); },
+  taskAud(g) { const a = S.ov.f.aud; const i = a.indexOf(g); i >= 0 ? a.splice(i, 1) : a.push(g); rerender(); },
+  async saveTask() { const F = S.ov.f; if (!(F.title || '').trim()) { S.ov.err = tr('Напишите, что нужно сделать', 'Describe the task'); return rerender(); }
+    try { await api('addTask', { title: F.title, kind: F.kind, due: F.due, pts: +F.pts, aud: F.aud }); S.ov = null; toast(tr('Задание опубликовано', 'Task published')); await load(); } catch (e) { S.ov.err = errText(e); rerender(); } },
+  openTask(id) { S.ov = { type: 'task', id, closed: {} }; rerender(); },
+  taskSec(x) { S.ov.closed[x] = !S.ov.closed[x]; rerender(); },
+  async markDone(tid) { const k = S.ov.id; D.done.push([k, tid, D.today]); rerender(); try { await api('taskDone', { taskId: k, teenId: tid, on: true }); } catch (e) { D.done = D.done.filter(d => !(d[0] === k && d[1] === tid)); rerender(); toast(errText(e)); } },
+  async undone(tid) { const k = S.ov.id; const old = D.done.slice(); D.done = D.done.filter(d => !(d[0] === k && d[1] === tid)); rerender(); try { await api('taskDone', { taskId: k, teenId: tid, on: false }); } catch (e) { D.done = old; rerender(); toast(errText(e)); } },
+  async remind(tid) { const k = S.ov.id; if (D.reminders.some(r => r[0] === k && r[1] === tid)) return; D.reminders.push([k, tid]); rerender(); try { await api('remind', { taskId: k, teenIds: [tid] }); toast(tr('Напоминание сохранено', 'Reminder saved')); } catch (e) { toast(errText(e)); } },
+  async remindAll() { const k = D.tasks.find(x => x.id === S.ov.id); const dm = doneMap(k.id); const rem = new Set(D.reminders.filter(r => r[0] === k.id).map(r => r[1]));
+    const ids = audMembers(k.aud).filter(t => !dm[t.id] && !rem.has(t.id)).map(t => t.id); ids.forEach(id => D.reminders.push([k.id, id])); rerender();
+    try { await api('remind', { taskId: k.id, teenIds: ids }); toast(tr('Напоминание сохранено: ', 'Reminder saved: ') + ids.length + tr(' чел.', ' people')); } catch (e) { toast(errText(e)); } },
+  openAward() { S.ov = { type: 'award', f: { who: [], q: '' } }; rerender(); },
+  awWho(id) { const a = S.ov.f.who; const i = a.indexOf(id); i >= 0 ? a.splice(i, 1) : a.push(id); S.ov.err = ''; rerender(); },
+  async saveAward() { const F = S.ov.f; if (!F.badge) { S.ov.err = tr('Выберите ачивку', 'Choose an achievement'); return rerender(); } if (!F.who.length) { S.ov.err = tr('Выберите хотя бы одного подростка', 'Pick at least one teen'); return rerender(); }
+    try { await api('award', { badge: F.badge, teenIds: F.who }); F.who.forEach(id => D.awards.push({ badge: F.badge, teenId: id, date: D.today })); const m = MANUAL().find(x => x[0] === F.badge); S.ov = null; toast('«' + m[1] + '» ' + tr('засчитана: ', 'awarded: ') + F.who.length + tr(' чел.', ' people')); rerender(); } catch (e) { S.ov.err = errText(e); rerender(); } },
+  // группы
+  editGroup(id) { const g = D.groups.find(x => x.id === id); S.ov = { type: 'group', id: id || '', f: g ? { name: g.name, leader: g.leader, day: String(g.day), time: g.time } : { day: '5', time: '19:00' } }; rerender(); },
+  async saveGroup() { const F = S.ov.f; if (!(F.name || '').trim()) { S.ov.err = tr('Введите название', 'Enter a name'); return rerender(); }
+    try { await api('saveGroup', { id: S.ov.id, name: F.name, leader: F.leader, day: +F.day, time: F.time }); S.ov = null; await load(); toast(tr('Сохранено', 'Saved')); } catch (e) { S.ov.err = errText(e); rerender(); } },
+  // правила
+  async rule(x) { const [k, d] = x.split(':'); const r = R(); const lim = { win: [3, 12], reg: [1, r.win], gone: [1, 12] }[k]; const v = Math.max(lim[0], Math.min(lim[1], r[k] + (+d))); if (v === r[k]) return;
+    D.settings[k] = String(v); rerender(); try { await api('saveSettings', { [k]: v }); } catch (e) { toast(errText(e)); } },
+  async qrAlways() { const v = D.settings.qrAlways === '1' ? '0' : '1'; D.settings.qrAlways = v; rerender(); try { await api('saveSettings', { qrAlways: v }); } catch (e) { toast(errText(e)); } },
+  // доступ
+  openInvite() { S.ov = { type: 'invite', f: { mode: 'email', role: 'leader', groups: [] } }; rerender(); },
+  editLeader(id) { const l = (D.leaders || []).find(x => x.id === id); if (!l || l.me) return; S.ov = { type: 'leader', id, f: { name: l.name, email: l.email, role: l.role, groups: l.groups.slice() } }; rerender(); },
+  leadG(g) { const a = S.ov.f.groups; const i = a.indexOf(g); i >= 0 ? a.splice(i, 1) : a.push(g); rerender(); },
+  async sendInvite() { const F = S.ov.f; S.ov.err = '';
+    try { const r = await api('invite', { mode: F.mode, name: F.name, email: F.email, role: F.role, groups: F.groups }); if (r.code) { S.ov.code = r.code; await load(); S.more = 'access'; rerender(); } else { S.ov = null; toast(tr('Приглашение отправлено', 'Invite sent')); await load(); } }
+    catch (e) { S.ov.err = errText(e); rerender(); } },
+  copyCode() { const t = tr('Привет! Вот вход в SOL Teens: ', 'Hi! Here is your SOL Teens access: ') + APP + tr(' — нажми «У меня есть код приглашения» и введи ', ' — tap “I have an invite code” and enter ') + S.ov.code; copy(t); },
+  async saveLeader() { const F = S.ov.f; try { await api('updateLeader', { id: S.ov.id, role: F.role, groups: F.groups }); S.ov = null; await load(); toast(tr('Сохранено', 'Saved')); } catch (e) { S.ov.err = errText(e); rerender(); } },
+  async removeLeader() { if (!S.ov.confirmRm) { S.ov.confirmRm = true; S.ov.err = tr('Нажмите «Убрать доступ» ещё раз, чтобы подтвердить', 'Tap “Remove access” again to confirm'); return rerender(); }
+    try { await api('removeLeader', { id: S.ov.id }); S.ov = null; await load(); toast(tr('Доступ убран', 'Access removed')); } catch (e) { S.ov.err = errText(e); rerender(); } },
+  copyJoin() { copy(joinUrl()); },
+  print() { window.print(); }
+};
+function copy(t) { const done = () => toast(tr('Скопировано', 'Copied')); if (navigator.clipboard) navigator.clipboard.writeText(t).then(done, () => fallbackCopy(t, done)); else fallbackCopy(t, done); }
+function fallbackCopy(t, done) { const a = document.createElement('textarea'); a.value = t; document.body.appendChild(a); a.select(); try { document.execCommand('copy'); done(); } catch (e) {} a.remove(); }
+
+render();
+if (S.token) load();
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+</script>
+</body>
+</html>

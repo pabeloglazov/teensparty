@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SOL Teens — отметься</title>
+<meta name="theme-color" content="#0E0F12">
+<link rel="icon" type="image/png" sizes="192x192" href="../icons/icon-192.png">
+<link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Unbounded:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0E0F12;--card:#15171B;--card2:#17191E;--line:#1F2127;--line2:#2A2D35;--line3:#3A3D46;--tx:#F4F4F5;--mu:#A1A1AA;--mu2:#8B8B94;--acc:#FF8A3D;--acc2:#FFB27A;--accbg:#1C140F}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--tx);font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;color:inherit;cursor:pointer}
+input{font-family:inherit}
+input::placeholder{color:var(--mu2)}
+.w{max-width:440px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;padding:32px 22px calc(28px + env(safe-area-inset-bottom));gap:18px}
+.h1{font-family:Unbounded,Inter,sans-serif;font-weight:700;font-size:28px;line-height:1.15;margin:0}
+.h2{font-family:Unbounded,Inter,sans-serif;font-weight:700;font-size:22px;line-height:1.2;margin:0}
+.k{font-size:13px;font-weight:700;letter-spacing:.1em;color:var(--acc)}
+.mu{color:var(--mu)}
+.btn{height:60px;border-radius:18px;border:none;background:var(--acc);color:#0E0F12;font-size:17px;font-weight:700;width:100%}
+.btn2{height:60px;border-radius:18px;border:1px solid var(--line2);background:var(--card);color:var(--tx);font-size:17px;font-weight:700;width:100%}
+.field{display:flex;flex-direction:column;gap:8px}
+.lbl{font-size:13px;font-weight:600;color:var(--mu)}
+.inp{width:100%;height:54px;border-radius:14px;border:1px solid var(--line2);background:var(--card2);color:var(--tx);padding:0 14px;font-size:17px;color-scheme:dark;outline:none}
+.inp:focus{border-color:var(--acc)}
+.sec{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--mu)}
+.back{width:44px;height:44px;border-radius:12px;border:none;background:var(--card2);display:flex;align-items:center;justify-content:center}
+.card{background:var(--card);border:1px solid var(--line2);border-radius:18px;padding:16px}
+.err{font-size:14px;color:var(--acc)}
+.sp{flex:1}
+.ok{width:104px;height:104px;border-radius:999px;background:var(--acc);display:flex;align-items:center;justify-content:center;align-self:center}
+.hit{min-height:48px;padding:0 14px;border-radius:12px;border:1px solid #23262D;background:#121318;font-size:15px;font-weight:600;text-align:left;width:100%}
+.sel{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:54px;padding:0 8px 0 14px;border-radius:14px;border:1px solid var(--acc);background:var(--accbg);font-weight:600}
+.busy{position:fixed;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--acc),transparent);background-size:200% 100%;animation:b 1s linear infinite}
+@keyframes b{from{background-position:200% 0}to{background-position:-200% 0}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+let S = { step: 'load', f: {}, meet: null, err: '', busy: 0, hits: [], inv: null, dup: null, res: null };
+const $ = document.getElementById('app');
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const ico = (d, c, w, sw) => `<svg width="${w || 20}" height="${w || 20}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="${sw || 2.5}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"></path></svg>`;
+const BACK = `<button class="back" data-a="goStart" aria-label="Назад">${ico('M15 18l-6-6 6-6', '#F4F4F5')}</button>`;
+const API = 'https://script.google.com/macros/s/AKfycbw1J4PnxNLtZ8H8dCWhJpTiAeA2V-X5RWmJdB6VQPr_IFzemiKS-y_SW50PvR0dAnL6Cg/exec';
+function call(fn, ...args) {
+  S.busy++; busy();
+  return fetch(API, { method: 'POST', body: JSON.stringify({ fn, args }) })
+    .then(r => r.json(), () => { throw new Error('network'); })
+    .then(j => { if (!j.ok) throw new Error(j.error); return j.data; })
+    .finally(() => { S.busy--; busy(); });
+}
+function busy() { let b = document.querySelector('.busy'); if (S.busy > 0 && !b) { b = document.createElement('div'); b.className = 'busy'; document.body.appendChild(b); } if (S.busy <= 0 && b) b.remove(); }
+const ERR = { no_meeting: 'Сейчас нет встречи — отметиться можно во время встречи.', bad_phone: 'Проверь номер телефона', need_fields: 'Заполни имя, фамилию и телефон (10 цифр)' };
+const errT = e => ERR[e && e.message] || 'Что-то пошло не так. Попробуй ещё раз или подойди к лидеру.';
+const fld = (k, label, type, ph) => `<div class="field"><label class="lbl" for="j_${k}">${label}</label><input class="inp" id="j_${k}" type="${type || 'text'}" data-b="${k}" value="${esc(S.f[k] || '')}" placeholder="${esc(ph || '')}" ${type === 'date' ? 'data-picker="1"' : ''} ${type === 'tel' ? 'inputmode="tel" autocomplete="tel"' : ''}></div>`;
+
+function render() {
+  const m = S.meet;
+  if (S.step === 'load') { $.innerHTML = `<div class="w"><div class="k">SOL TEENS</div><div class="mu">Загрузка…</div></div>`; return; }
+  if (S.step === 'none') { $.innerHTML = `<div class="w"><div class="k">SOL TEENS</div><h1 class="h1">Сейчас нет встречи</h1><div class="mu" style="font-size:16px;line-height:1.5">Отметиться можно во время встречи — приходи! А пока заглядывай в наш Instagram <a href="https://www.instagram.com/sol316teens/" target="_blank" rel="noopener" style="color:var(--acc)">@sol316teens</a>.</div></div>`; return; }
+  if (S.step === 'start') { $.innerHTML = `<div class="w"><div class="k">SOL TEENS</div><h1 class="h1">Привет! Ты на ${esc(m.label)}</h1><div class="mu" style="font-size:16px;line-height:1.45">Отметься, чтобы мы знали, что ты пришёл.${m.test ? '<br><span style="color:var(--acc2)">Тестовый режим</span>' : ''}</div><div class="sp"></div><button class="btn" data-a="goNew">Я здесь впервые</button><button class="btn2" data-a="goKnown">Я уже был в SOL</button></div>`; return; }
+  if (S.step === 'known') { $.innerHTML = `<div class="w">${BACK}<h1 class="h2">Введи свой телефон</h1>${fld('phone', 'Телефон', 'tel', '(916) 123-4567').replace(/j_phone/g, 'kp')}
+    ${S.notFound ? `<div class="card" style="display:flex;flex-direction:column;gap:10px"><div style="font-weight:600">Не нашли такой номер</div><div class="mu" style="font-size:14px;line-height:1.45">Возможно, тебя записали без телефона. Зарегистрируйся — если ты уже есть в базе, лидер объединит записи.</div><button class="btn2" style="height:48px;font-size:15px;border-color:var(--acc);color:var(--acc)" data-a="goNew">Зарегистрироваться</button></div>` : ''}
+    ${S.err ? `<div class="err">${esc(S.err)}</div>` : ''}<div class="sp"></div><button class="btn" data-a="checkKnown">Отметиться</button></div>`; return; }
+  if (S.step === 'form') { $.innerHTML = `<div class="w"><div style="display:flex;align-items:center;gap:10px">${BACK}<h1 class="h2">Давай знакомиться</h1></div>
+    ${fld('first', 'Имя', 'text', 'Дима')}${fld('last', 'Фамилия', 'text', 'Петров')}${fld('phone', 'Твой телефон', 'tel', '(916) 123-4567')}${fld('birth', 'Дата рождения', 'date')}
+    <div class="field"><label class="lbl" for="j_inv">Кто тебя пригласил? (необязательно)</label>
+    ${S.inv ? `<div class="sel"><span>${esc(S.inv.name)}</span><button class="back" style="background:transparent" data-a="clearInv" aria-label="Убрать">${ico('M6 6l12 12M18 6L6 18', '#A1A1AA', 18)}</button></div>`
+      : `<input class="inp" id="j_inv" data-b="invQ" data-live="inv" value="${esc(S.f.invQ || '')}" placeholder="Начни вводить имя друга"><div id="hits" style="display:flex;flex-direction:column;gap:6px">${hitsHtml()}</div>`}</div>
+    <div class="sec" style="padding-top:6px">РОДИТЕЛЬ</div>${fld('pFirst', 'Имя и фамилия родителя', 'text', 'Ольга Петрова')}${fld('pPhone', 'Телефон родителя', 'tel', '(916) 765-4321')}
+    ${S.err ? `<div class="err">${esc(S.err)}</div>` : ''}<button class="btn" data-a="submit" style="margin-top:6px">Готово</button></div>`; return; }
+  if (S.step === 'dup') { $.innerHTML = `<div class="w" style="justify-content:center"><h1 class="h2">Кажется, мы уже знакомы</h1><div class="card" style="display:flex;align-items:center;gap:14px"><div style="width:52px;height:52px;border-radius:999px;background:#2A2D35;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:17px">${esc(S.dup.name.charAt(0))}</div><div style="display:flex;flex-direction:column;gap:3px"><div style="font-size:17px;font-weight:700">${esc(S.dup.name)}</div><div class="mu" style="font-size:13px">уже есть в SOL Teens</div></div></div><button class="btn" data-a="dupYes">Да, это я</button><button class="btn2" data-a="dupNo">Нет, я другой человек</button></div>`; return; }
+  if (S.step === 'done') { const r = S.res; $.innerHTML = `<div class="w" style="align-items:stretch;text-align:center;padding-top:56px"><div class="ok">${ico('M5 12l5 5L19 7', '#0E0F12', 52, 3)}</div>
+    <h1 class="h1" style="font-size:26px">${r.already ? esc(r.first) + ', ты уже отмечен!' : r.isNew ? 'Добро пожаловать, ' + esc(r.first) + '!' : esc(r.first) + ', ты на месте!'}</h1>
+    <div class="mu">${esc(r.meet.label)} · сегодня</div>
+    ${r.isNew ? `<div class="card" style="text-align:left;font-size:15px;line-height:1.5">Рады, что ты с нами! Лидер увидит твою анкету. Скоро здесь появится приложение SOL Teens — с заданиями, ачивками и рейтингом.</div>` : ''}
+    <a class="btn2" style="display:flex;align-items:center;justify-content:center;text-decoration:none;height:54px;font-size:15px" href="https://t.me/+Q9dPL22CL5owNTUy" target="_blank" rel="noopener">Вступить в Telegram-чат SOL Teens</a>
+    <a class="btn2" style="display:flex;align-items:center;justify-content:center;text-decoration:none;height:54px;font-size:15px" href="https://www.instagram.com/sol316teens/" target="_blank" rel="noopener">Instagram @sol316teens</a>
+    <button data-a="restart" style="background:none;border:none;color:var(--mu2);font-size:14px;min-height:44px">Отметить ещё одного человека</button></div>`; return; }
+}
+function hitsHtml() { return S.hits.map(h => `<button class="hit" data-a="pickInv" data-x="${esc(h.id)}" data-n="${esc(h.name)}">${esc(h.name)}</button>`).join(''); }
+
+let invT;
+document.addEventListener('input', e => {
+  const b = e.target.getAttribute && e.target.getAttribute('data-b'); if (!b) return;
+  S.f[b] = e.target.value; S.err = '';
+  if (e.target.getAttribute('data-live') === 'inv') {
+    clearTimeout(invT); const q = e.target.value;
+    invT = setTimeout(async () => { if (q.trim().length < 2) { S.hits = []; } else { try { S.hits = await call('joinFriends', q); } catch (_) { S.hits = []; } } const h = document.getElementById('hits'); if (h) h.innerHTML = hitsHtml(); }, 250);
+  }
+});
+document.addEventListener('click', e => {
+  const p = e.target.closest('[data-picker]'); if (p && p.showPicker) { try { p.showPicker(); } catch (_) {} }
+  const a = e.target.closest('[data-a]'); if (!a) return; e.preventDefault();
+  const fn = H[a.getAttribute('data-a')]; if (fn) fn(a);
+});
+const H = {
+  goStart() { S.step = 'start'; S.err = ''; S.notFound = false; render(); },
+  goNew() { S.step = 'form'; S.err = ''; render(); },
+  goKnown() { S.step = 'known'; S.err = ''; S.notFound = false; render(); },
+  clearInv() { S.inv = null; S.f.invQ = ''; S.hits = []; render(); },
+  pickInv(a) { S.inv = { id: a.getAttribute('data-x'), name: a.getAttribute('data-n') }; S.hits = []; render(); },
+  async checkKnown() {
+    try { const r = await call('joinKnown', S.f.phone); if (!r.found) { S.notFound = true; render(); return; } S.res = { first: r.first, meet: r.meet, already: r.already, isNew: false }; S.step = 'done'; render(); }
+    catch (e) { S.err = errT(e); if (e.message === 'no_meeting') S.step = 'none'; render(); }
+  },
+  async submit(_, force) {
+    const f = Object.assign({}, S.f, { invitedBy: S.inv ? S.inv.id : '', forceNew: !!force });
+    try { const r = await call('joinNew', f, null); if (r.dup) { S.dup = r.dup; S.step = 'dup'; render(); return; } S.res = r; S.step = 'done'; render(); }
+    catch (e) { S.err = errT(e); if (e.message === 'no_meeting') S.step = 'none'; else S.step = 'form'; render(); }
+  },
+  async dupYes() { try { const r = await call('joinNew', null, S.dup.id); S.res = r; S.step = 'done'; render(); } catch (e) { S.err = errT(e); S.step = 'form'; render(); } },
+  dupNo() { H.submit(null, true); },
+  restart() { S = Object.assign(S, { step: 'start', f: {}, err: '', hits: [], inv: null, dup: null, res: null, notFound: false }); render(); }
+};
+(async () => { render(); try { const r = await call('joinInfo'); S.meet = r.meet; S.step = r.meet ? 'start' : 'none'; } catch (e) { S.step = 'none'; } render(); })();
+</script>
+</body>
+</html>
