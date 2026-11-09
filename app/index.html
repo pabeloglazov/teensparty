@@ -46,7 +46,12 @@ a{color:var(--acc)}
 .row.on{border-color:var(--acc);background:var(--accbg2)}
 .av{width:36px;height:36px;border-radius:999px;background:#2A2D35;color:var(--tx);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;flex-shrink:0}
 .dot{width:24px;height:24px;border-radius:999px;flex-shrink:0;border:2px solid var(--line3)}
-.row.on .dot{border:none;background:var(--acc)}
+.row.on .dot{border:none;background:var(--acc);display:flex;align-items:center;justify-content:center}
+.row.on .dot svg{display:block}
+.row .dot.sav{border:2px dashed var(--acc);background:transparent;animation:spin .9s linear infinite}
+.row .dot.sav svg{display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.row .dot.sav{animation-duration:3s}}
 .nm{flex:1;min-width:0;font-size:15px;font-weight:500}
 .tag{font-size:12px;color:var(--mu);white-space:nowrap}
 .tag.blue{color:var(--blue)}
@@ -370,8 +375,9 @@ function rowHtml(x) {
   const tag = x.st.cat === 'new' ? (x.t.source === 'qr' ? tr('отметился сам', 'self check-in') : tr('новый', 'new')) : x.st.label;
   const mb = x.on ? markedBy(x.t.id) : null;
   const lbl = mb ? (mb.mine ? tr('вы', 'you') : mb.n) + (mb.t ? ' · ' + mb.t : '') : tag;
-  return `<button class="row ${x.on ? 'on' : ''}" data-a="toggle" data-x="${x.t.id}"><div class="av">${esc(ini(n))}</div><div class="nm">${esc(n)}</div><div class="tag ${!mb && x.st.cat === 'gone' ? 'blue' : ''}" ${mb && !mb.mine ? 'style="color:var(--acc2)"' : ''}>${esc(lbl)}</div><div class="dot"></div></button>`;
+  return `<button class="row ${x.on ? 'on' : ''}" data-a="toggle" data-x="${x.t.id}"><div class="av">${esc(ini(n))}</div><div class="nm">${esc(n)}</div><div class="tag ${!mb && x.st.cat === 'gone' ? 'blue' : ''}" ${mb && !mb.mine ? 'style="color:var(--acc2)"' : ''}>${esc(lbl)}</div><div class="dot ${SAV.has(x.t.id) ? 'sav' : ''}">${x.on ? svg(IC.check, '#0E0F12', 15, 3.2) : ''}</div></button>`;
 }
+const SAV = new Set();
 function listHtml() {
   const secs = markSections();
   if (!secs.length) return `<div class="empty">${S.q ? tr('Никого не нашли', 'No one found') + `<div style="margin-top:12px"><button class="btnA" data-a="newTeen">+ ${tr('Добавить как нового', 'Add as new')}</button></div>` : tr('Список пуст — добавьте подростков через «+»', 'The list is empty — add teens with “+”')}</div>`;
@@ -843,9 +849,10 @@ const H = {
     pendUn = null;
     on ? attAdd(m, id) : attDel(m, id);
     if (MK.key === mkKey(m)) { if (on) MK.by[id] = { n: D.me.name, t: '', mine: true }; else delete MK.by[id]; }
+    if (on) SAV.add(id);
     rerender();
     try {
-      const r = await api('mark', { kind: m.kind, meetId: m.meetId, date: m.date, teenId: id, on });
+      const r = await api('mark', { kind: m.kind, meetId: m.meetId, date: m.date, teenId: id, on }).finally(() => { if (on && MK.key === mkKey(m) && MK.by[id] && MK.by[id].mine && !MK.by[id].t) MK.by[id].t = new Date().toTimeString().slice(0, 5); if (SAV.delete(id)) rerender(); });
       if (r && r.already && !r.mine) { if (MK.key === mkKey(m)) MK.by[id] = { n: r.by, t: '', mine: false }; rerender(); toast(tr(nm + ' уже отметил(а) ' + r.by, r.by + ' already checked in ' + nm)); }
     }
     catch (e) { on ? attDel(m, id) : attAdd(m, id); rerender(); toast(errText(e)); }
