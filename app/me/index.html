@@ -119,7 +119,7 @@ const BI = { first: I.star, m5: I.cal, m10: I.cal, m25: I.cal, m50: I.trophy, m1
   friend: I.plus, friend3: I.plus, party: I.cal, groups: I.map, night: I.moon, camp: I.tent, help: I.hand, back: I.back, bday: I.cake, thanks: I.star, legend: I.crown };
 const CATS = [['meet', 'ВСТРЕЧИ'], ['streak', 'СЕРИИ НА ВСТРЕЧАХ'], ['app', 'ПРИЛОЖЕНИЕ КАЖДЫЙ ДЕНЬ'], ['bible', 'БИБЛИЯ'], ['social', 'СОЦСЕТИ'], ['friends', 'ДРУЗЬЯ И СОБЫТИЯ'], ['special', 'ОСОБЫЕ']];
 const RULES = [['Пришёл на встречу или малую группу', '+10'], ['Событие', '+15'], ['Задание', '+10…30'], ['Зашёл в приложение (раз в день)', '+2'], ['Вступил в Telegram-чат', '+15'], ['Подписался на Instagram', '+15'], ['Ачивка', '+5…200']];
-const ERR = { network: 'Нет связи. Проверь интернет.', no_meeting: 'Сейчас нет встречи — отметиться можно во время встречи.', no_bot: 'Вход через Telegram ещё настраивается. Попробуй чуть позже.', no_chat: 'Бот ещё не добавлен в чат — скажи лидеру.', no_tg: 'Войди через Telegram ещё раз.', need_nick: 'Напиши свой ник в Instagram' };
+const ERR = { network: 'Нет связи. Проверь интернет.', no_meeting: 'Сейчас нет встречи.', no_bot: 'Вход через Telegram ещё настраивается. Попробуй чуть позже.', no_chat: 'Бот ещё не добавлен в чат — скажи лидеру.', no_tg: 'Войди через Telegram ещё раз.', need_nick: 'Напиши свой ник в Instagram' };
 const errT = e => ERR[e && e.message] || 'Что-то пошло не так. Попробуй ещё раз.';
 
 function call(fn, ...args) {
@@ -264,9 +264,8 @@ function viewOverlay() {
       <div class="sm mu" style="line-height:1.5">Пропустил день — серия начнётся заново. Но раз в неделю серию спасает «заморозка»: если забыл зайти, она сработает сама (синий кружок).</div><button class="btn" data-a="close">Понятно</button></div></div>`;
   }
   if (o.type === 'scan') {
-    const sch = (D.schedule || []).map(s => DAYS[s.day].toLowerCase() + ' ' + s.time).join(', ');
     return `<div class="ov" data-a="close"><div class="sheet" data-stop="1">${D.meet ? `<div class="circ got" style="width:96px;height:96px">${svg(I.scan, '#0E0F12', 44, 2.2)}</div><div class="h2">${esc(D.meet.label)}</div><div class="mu">Ты на встрече? Отметься — и получи +10 баллов.</div><button class="btn" data-a="checkin">Я на встрече</button>`
-      : `<div class="circ" style="width:96px;height:96px">${svg(I.scan, '#8B8B94', 44, 2.2)}</div><div class="h2">Сейчас нет встречи</div><div class="mu" style="line-height:1.5">Отметиться можно во время встречи: ${esc(sch)}.</div>`}<button class="btn2" data-a="close">Закрыть</button></div></div>`;
+      : `<div class="circ" style="width:96px;height:96px">${svg(I.scan, '#8B8B94', 44, 2.2)}</div><div class="h2">Сейчас нет встречи</div><div class="mu" style="line-height:1.5">Кнопка заработает, когда начнётся общая встреча, малая группа или событие.</div>`}<button class="btn2" data-a="close">Закрыть</button></div></div>`;
   }
   if (o.type === 'done') return `<div class="ov" data-a="close"><div class="sheet" data-stop="1"><div class="circ got" style="width:104px;height:104px">${svg(I.check, '#0E0F12', 52, 3)}</div><div class="h2">Ты на месте!</div><div class="mu">${esc(o.label)} · ${o.already ? 'уже отмечен' : '+10 баллов'}</div><button class="btn" data-a="close">Готово</button></div></div>`;
   return '';
