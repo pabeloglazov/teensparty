@@ -227,7 +227,9 @@ const myRole = () => D.me.role;
 const isAdmin = () => myRole() === 'admin';
 
 function stat(t, kind, meetId, before) {
-  const key = kind === 'event' ? 'service:sunday' : kind + ':' + meetId;
+  let key = kind === 'event' ? 'service:sunday' : kind + ':' + meetId;
+  // пока у среды/пятницы мало своей истории — списки строим по воскресеньям
+  if (kind === 'service' && (IDX.sess[key] || []).filter(d => d < before).length < 3) key = 'service:sunday';
   const [k, m] = key.split(':');
   const r = R();
   const sess = (IDX.sess[key] || []).filter(d => d < before).slice(-r.win);
@@ -250,15 +252,23 @@ function stat(t, kind, meetId, before) {
 const CAT = () => ({ reg: tr('обычно приходит', 'regular'), some: tr('иногда', 'sometimes'), gone: tr('давно не был', 'missing lately'), archive: tr('архив', 'archive'), new: tr('новенький', 'newcomer') });
 
 // ---------- встреча ----------
-const svc = date => ({ kind: 'service', meetId: 'sunday', label: 'Sunday Service', date });
+// общие встречи для всех подростков
+const SVCS = () => [
+  { id: 'sunday', day: 0, key: 'serviceTime', name: 'Sunday Service', pl: tr('Воскресенья', 'Sundays') },
+  { id: 'wed', day: 3, key: 'wedTime', name: 'Wednesday Youth', pl: tr('Среды', 'Wednesdays') },
+  { id: 'fri', day: 5, key: 'friTime', name: 'Friday Youth', pl: tr('Пятницы', 'Fridays') }
+].map(s => Object.assign(s, { time: (D.settings[s.key] || '') }));
+const svcOf = id => SVCS().find(s => s.id === id) || SVCS()[0];
+const svc = (date, id) => { const s = svcOf(id || 'sunday'); return { kind: 'service', meetId: s.id, label: s.name, date }; };
 function autoMeet() {
   const dow = todayD().getDay();
   const ev = D.events.find(e => e.date === D.today);
   if (ev) return { kind: 'event', meetId: ev.id, label: ev.name, date: D.today };
-  if (dow === 0) return svc(D.today);
+  const sv = SVCS().find(s => s.day === dow);
+  if (sv) return svc(D.today, sv.id);
   const g = visibleGroups().find(x => x.day === dow);
   if (g) return { kind: 'group', meetId: g.id, label: g.name, date: D.today };
-  return svc(lastDow(0));
+  return SVCS().map(s => svc(lastDow(s.day), s.id)).sort((x, y) => y.date.localeCompare(x.date))[0];
 }
 const meet = () => S.meet || autoMeet();
 function visibleGroups() { return myRole() === 'leader' ? D.groups.filter(g => D.me.groups.indexOf(g.id) >= 0) : D.groups; }
@@ -366,14 +376,14 @@ function viewMark() {
 function series(f) {
   const by = {};
   D.att.forEach(([d, k, m, t]) => {
-    const ok = f === 'all' || (f === 'sunday' && k === 'service') || (f === 'events' && k === 'event') || (k === 'group' && m === f);
+    const ok = f === 'all' || (k === 'service' && m === f) || (f === 'events' && k === 'event') || (k === 'group' && m === f);
     if (!ok) return; (by[d] = by[d] || new Set()).add(t);
   });
   return Object.keys(by).sort().map(d => ({ d, v: by[d].size }));
 }
 function viewDash() {
   const groups = visibleGroups();
-  const fk = [['all', tr('Всё', 'All')], ['sunday', tr('Воскресенья', 'Sundays')], ...groups.map(g => [g.id, g.name]), ['events', tr('События', 'Events')]];
+  const fk = [['all', tr('Всё', 'All')], ...SVCS().map(s => [s.id, s.pl]), ...groups.map(g => [g.id, g.name]), ['events', tr('События', 'Events')]];
   if (!fk.find(x => x[0] === S.dash)) S.dash = 'all';
   const ser = series(S.dash).slice(-10);
   const vals = ser.map(x => x.v);
@@ -460,8 +470,8 @@ function viewMore() {
 const subHead = (title, back) => `<div style="display:flex;align-items:center;gap:10px"><button class="icb" data-a="${back || 'moreRoot'}" aria-label="${tr('Назад', 'Back')}">${svg(IC.back, '#F4F4F5', 20, 2.5)}</button><h1 class="h2">${title}</h1></div>`;
 function viewGroups() {
   return `${subHead(tr('Группы и встречи', 'Groups & meetings'))}
-  <div class="sec" style="padding:8px 4px 0">${tr('ВОСКРЕСНАЯ ВСТРЕЧА', 'SUNDAY SERVICE')}</div>
-  <div class="row" style="cursor:default"><span style="flex:1;font-size:15px;font-weight:600">Sunday Service</span><label class="sm mut" for="svt">${tr('начало', 'starts')}</label><input id="svt" type="time" class="inp" style="width:120px;height:44px" data-b="set.serviceTime" data-save="settings" value="${esc(D.settings.serviceTime)}"></div>
+  <div class="sec" style="padding:8px 4px 0">${tr('ОБЩИЕ ВСТРЕЧИ ДЛЯ ВСЕХ', 'MEETINGS FOR EVERYONE')}</div>
+  ${SVCS().map(s => `<div class="row" style="cursor:default"><div style="flex:1;display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:600">${s.name}</span><span class="xs mut">${DLONG()[s.day]}</span></div><label class="sm mut" for="svt_${s.id}">${tr('начало', 'starts')}</label><input id="svt_${s.id}" type="time" class="inp" style="width:120px;height:44px" data-b="set.${s.key}" data-save="settings" value="${esc(s.time)}"></div>`).join('')}
   <div class="sec" style="padding:12px 4px 0">${tr('МАЛЫЕ ГРУППЫ', 'SMALL GROUPS')}</div>
   ${D.groups.map(g => `<button class="row" data-a="editGroup" data-x="${g.id}"><div style="flex:1;display:flex;flex-direction:column;gap:3px"><span style="font-size:15px;font-weight:600">${esc(g.name)}</span><span class="xs mut">${tr('Лидер: ', 'Leader: ')}${esc(g.leader || '—')} · ${DLONG()[g.day]} ${esc(g.time)}</span></div><span class="sm" style="color:var(--acc);font-weight:600">${members(g.id).length}${tr(' чел.', ' people')}</span></button>`).join('') || `<div class="xs mut" style="padding:0 4px">${tr('Пока нет групп', 'No groups yet')}</div>`}
   <button class="btn2" style="border:2px dashed var(--line3);color:var(--acc)" data-a="editGroup" data-x="">+ ${tr('Новая группа', 'New group')}</button>
@@ -504,7 +514,7 @@ function viewQR() {
   <div class="noprint" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btnA" data-a="copyJoin">${tr('Скопировать ссылку', 'Copy link')}</button><button class="btnA" data-a="print">${tr('Печать', 'Print')}</button></div>
   ${isAdmin() ? `<div class="noprint" style="display:flex;flex-direction:column;gap:8px;padding-top:8px">
   <div class="sec">${tr('КОГДА РАБОТАЕТ QR', 'WHEN THE QR WORKS')}</div>
-  <div class="sm mut" style="line-height:1.45">${tr('Только во время встречи: от «за … мин до начала» до «… мин после». Время воскресной встречи и групп задаётся в «Группы и встречи».', 'Only during a meeting: from “… min before start” to “… min after”. Sunday and group times are set in Groups & meetings.')}</div>
+  <div class="sm mut" style="line-height:1.45">${tr('Только во время встречи: от «за … мин до начала» до «… мин после». Время общих встреч и групп задаётся в «Группы и встречи».', 'Only during a meeting: from “… min before start” to “… min after”. Meeting and group times are set in Groups & meetings.')}</div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div class="field"><label class="lbl" for="sb">${tr('За сколько минут до', 'Minutes before')}</label><input id="sb" class="inp" inputmode="numeric" data-b="set.before" data-save="settings" value="${esc(D.settings.before)}"></div><div class="field"><label class="lbl" for="sa">${tr('Сколько минут после', 'Minutes after')}</label><input id="sa" class="inp" inputmode="numeric" data-b="set.after" data-save="settings" value="${esc(D.settings.after)}"></div></div>
   <button class="row" data-a="qrAlways"><div class="cb ${D.settings.qrAlways === '1' ? 'on' : ''}">${D.settings.qrAlways === '1' ? svg(IC.check, '#0E0F12', 14, 3.5) : ''}</div><span style="flex:1;font-size:15px">${tr('Тестовый режим: QR работает всегда', 'Test mode: QR always works')}</span></button></div>` : ''}`;
 }
@@ -533,9 +543,9 @@ function viewOverlay() {
     const item = (x, sub) => `<button class="row ${isOn(x) ? 'on' : ''}" data-a="pickMeet" data-x='${esc(JSON.stringify(x))}' style="justify-content:space-between"><div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:600">${esc(x.label)}</span><span class="xs mut">${esc(sub)}</span></div>${isOn(x) ? svg(IC.check, ACC, 20, 3) : ''}</button>`;
     const now = [];
     D.events.filter(e => e.date === D.today).forEach(e => now.push(item({ kind: 'event', meetId: e.id, label: e.name, date: e.date }, tr('сегодня · событие', 'today · event'))));
-    if (dow === 0) now.push(item(svc(D.today), tr('сегодня · по расписанию', 'today · scheduled')));
+    SVCS().filter(s => s.day === dow).forEach(s => now.push(item(svc(D.today, s.id), tr('сегодня · ', 'today · ') + s.time)));
     visibleGroups().filter(g => g.day === dow).forEach(g => now.push(item({ kind: 'group', meetId: g.id, label: g.name, date: D.today }, tr('сегодня · ', 'today · ') + g.time)));
-    if (dow !== 0) { const ls = lastDow(0); now.push(item(svc(ls), tr('прошедшее · ', 'past · ') + word(ls) + ', ' + human(ls))); }
+    SVCS().filter(s => s.day !== dow).map(s => svc(lastDow(s.day), s.id)).sort((x, y) => y.date.localeCompare(x.date)).forEach(x => now.push(item(x, tr('прошедшая · ', 'past · ') + word(x.date) + ', ' + human(x.date))));
     const grp = visibleGroups().map(g => { const gd = lastDow(g.day); return item({ kind: 'group', meetId: g.id, label: g.name, date: gd }, DLONG()[g.day] + ' ' + g.time + tr(' · последняя ', ' · latest ') + word(gd)); });
     const evs = D.events.slice().sort((a, b) => b.date.localeCompare(a.date)).slice(0, 10).map(e => item({ kind: 'event', meetId: e.id, label: e.name, date: e.date }, 'Church Event · ' + human(e.date)));
     const canEv = ['admin', 'leader'].indexOf(myRole()) >= 0;
@@ -560,11 +570,13 @@ function viewOverlay() {
   if (o.type === 'prof') {
     const t = IDX.teen[o.id]; if (!t) return '';
     const st = stat(t, 'service', 'sunday', '9999-12-31');
-    const sess = (IDX.sess['service:sunday'] || []).slice(-8);
+    const all = []; SVCS().forEach(s => (IDX.sess['service:' + s.id] || []).forEach(d => all.push([d, s.id])));
+    all.sort((x, y) => x[0].localeCompare(y[0]));
+    const last8 = all.slice(-8); const sess = last8.map(x => x[0]); const sid = last8.map(x => x[1]);
     const created = t.createdAt || '0000';
-    const hist = sess.map(d => d < created ? '-' : (has(d, 'service', 'sunday', t.id) ? '1' : '0'));
-    while (hist.length < 8) { hist.unshift('-'); sess.unshift(''); }
-    const tipOf = i => sess[i] ? human(sess[i]) + ' — ' + (hist[i] === '1' ? tr('был', 'attended') : hist[i] === '0' ? tr('не был', 'missed') : tr('нет данных', 'no data')) : tr('нет данных', 'no data');
+    const hist = last8.map(([d, id]) => d < created ? '-' : (has(d, 'service', id, t.id) ? '1' : '0'));
+    while (hist.length < 8) { hist.unshift('-'); sess.unshift(''); sid.unshift(''); }
+    const tipOf = i => sess[i] ? human(sess[i]) + ' · ' + svcOf(sid[i]).name + ' — ' + (hist[i] === '1' ? tr('был', 'attended') : hist[i] === '0' ? tr('не был', 'missed') : tr('нет данных', 'no data')) : tr('нет данных', 'no data');
     const hi = o.hov != null ? o.hov : o.hi;
     let age = '';
     if (F.birth) { const b = parse(F.birth); const td = todayD(); let a = td.getFullYear() - b.getFullYear(); if (td.getMonth() < b.getMonth() || (td.getMonth() === b.getMonth() && td.getDate() < b.getDate())) a--; age = a + (L() ? ' y.o.' : ' ' + plural(a, 'год', 'года', 'лет')) + ' · ' + human(F.birth); }
@@ -572,7 +584,7 @@ function viewOverlay() {
     const canEdit = myRole() !== 'viewer';
     return full(`${esc(nm)}${age ? `<div class="sm mut" style="font-family:Inter;font-weight:500">${esc(age)}</div>` : ''}`, `
       <div class="stats3"><div class="stat"><b style="color:var(--acc)">${st.cat === 'gone' ? st.miss : (st.known ? st.cnt + '/' + st.known : '—')}</b><span class="xs mut">${st.cat === 'gone' ? tr('пропуска подряд', 'missed in a row') : tr('из последних', 'of recent')}</span></div><div class="stat"><b>${st.total}</b><span class="xs mut">${tr('всего раз', 'visits total')}</span></div><div class="stat"><span style="font-size:14px;font-weight:700;line-height:1.25">${CAT()[st.cat]}</span><span class="xs mut">${tr('статус', 'status')}</span></div></div>
-      <div style="display:flex;flex-direction:column;gap:6px"><div class="sec">${tr('ПОСЛЕДНИЕ 8 ВОСКРЕСЕНИЙ', 'LAST 8 SUNDAYS')}</div><div class="hist">${hist.map((c, i) => `<button class="${c === '1' ? 'h1x' : c === '0' ? 'h0' : 'hn'} ${o.hi === i ? 'sel' : ''}" data-a="hist" data-x="${i}" data-hover="${i}" title="${esc(tipOf(i))}" aria-label="${esc(tipOf(i))}"></button>`).join('')}</div><div class="tip" id="histtip">${hi != null ? esc(tipOf(hi)) : ''}</div></div>
+      <div style="display:flex;flex-direction:column;gap:6px"><div class="sec">${tr('ПОСЛЕДНИЕ 8 ВСТРЕЧ', 'LAST 8 MEETINGS')}</div><div class="hist">${hist.map((c, i) => `<button class="${c === '1' ? 'h1x' : c === '0' ? 'h0' : 'hn'} ${o.hi === i ? 'sel' : ''}" data-a="hist" data-x="${i}" data-hover="${i}" title="${esc(tipOf(i))}" aria-label="${esc(tipOf(i))}"></button>`).join('')}</div><div class="tip" id="histtip">${hi != null ? esc(tipOf(hi)) : ''}</div></div>
       ${canEdit ? `<div style="display:flex;flex-direction:column;gap:14px"><div class="sec">${tr('ПОДРОСТОК', 'TEEN')}</div>${fld('ov.f.first', tr('Имя', 'First name'), F.first)}${fld('ov.f.last', tr('Фамилия', 'Last name'), F.last)}${fld('ov.f.phone', tr('Телефон', 'Phone'), F.phone, 'tel')}${fld('ov.f.birth', tr('Дата рождения', 'Date of birth'), F.birth, 'date')}${fld('ov.f.addr', tr('Адрес', 'Address'), F.addr, 'text', tr('Улица, дом, город', 'Street, number, city'))}</div>` : ''}
       ${myRole() === 'admin' || myRole() === 'leader' ? `<div style="display:flex;flex-direction:column;gap:8px"><div style="display:flex;justify-content:space-between;align-items:baseline"><div class="sec">${tr('ГРУППЫ', 'GROUPS')}</div><div class="xs mut">${tr('Можно выбрать несколько', 'You can pick several')}</div></div>${D.groups.length ? ddGroups('', o.groups, o.gOpen, 'profG', 'profPick', { empty: tr('Без группы', 'No group') }) : `<div class="xs mut">${tr('Групп пока нет', 'No groups yet')}</div>`}</div>` : ''}
       ${t.canEditParent ? `<div style="display:flex;flex-direction:column;gap:14px"><div class="sec">${tr('РОДИТЕЛЬ', 'PARENT')}</div>${fld('ov.f.pFirst', tr('Имя родителя', 'Parent first name'), F.pFirst)}${fld('ov.f.pLast', tr('Фамилия родителя', 'Parent last name'), F.pLast)}${fld('ov.f.pPhone', tr('Телефон родителя', 'Parent phone'), F.pPhone, 'tel')}${fld('ov.f.pAddr', tr('Адрес родителя', 'Parent address'), F.pAddr)}</div>` : ''}

@@ -25,7 +25,7 @@ const COLS = {
   '_Коды': [['email','Email'],['code','Код'],['expires','Истекает']]
 };
 
-const DEFAULT_SETTINGS = { win: '8', reg: '6', gone: '3', serviceTime: '12:00', before: '60', after: '240', qrAlways: '0' };
+const DEFAULT_SETTINGS = { win: '8', reg: '6', gone: '3', serviceTime: '15:00', wedTime: '18:00', friTime: '19:00', before: '60', after: '240', qrAlways: '0' };
 
 // ---------------- доступ к таблице ----------------
 function ss_() {
@@ -62,6 +62,19 @@ function today_() { return Utilities.formatDate(new Date(), TZ, 'yyyy-MM-dd'); }
 function nowIso_() { return Utilities.formatDate(new Date(), TZ, "yyyy-MM-dd HH:mm"); }
 function digits_(x) { return String(x || '').replace(/\D/g, '').slice(-10); }
 function lock_(fn) { const l = LockService.getScriptLock(); l.waitLock(20000); try { return fn(); } finally { l.releaseLock(); } }
+// Общие встречи для всех подростков (не малые группы): день недели и ключ времени в «Настройках»
+const SERVICES = [
+  { id: 'sunday', day: 0, key: 'serviceTime', name: 'Sunday Service' },
+  { id: 'wed', day: 3, key: 'wedTime', name: 'Wednesday Youth' },
+  { id: 'fri', day: 5, key: 'friTime', name: 'Friday Youth' }
+];
+// Разовая настройка расписания: вс 15:00, ср 18:00, пт 19:00
+function updateSchedule() {
+  const want = { serviceTime: '15:00', wedTime: '18:00', friTime: '19:00' };
+  const rows = rows_('Настройки');
+  Object.keys(want).forEach(k => { const r = rows.find(x => x.key === k); if (r) update_('Настройки', r, { value: want[k] }); else append_('Настройки', { key: k, value: want[k] }); });
+  Logger.log('Расписание: ' + JSON.stringify(settings_()));
+}
 function settings_() {
   const o = Object.assign({}, DEFAULT_SETTINGS);
   rows_('Настройки').forEach(r => { if (r.key) o[r.key] = r.value; });
@@ -444,10 +457,11 @@ function currentMeeting_() {
   const inWin = hhmm => { const p = String(hhmm || '12:00').split(':'); const t = (+p[0]) * 60 + (+p[1] || 0); return mins >= t - (+st.before) && mins <= t + (+st.after); };
   const ev = rows_('События').find(e => e.date === today);
   if (ev) return { kind: 'event', meetId: ev.id, label: ev.name, date: today };
+  const sv = SERVICES.find(x => x.day === day && inWin(st[x.key]));
+  if (sv) return { kind: 'service', meetId: sv.id, label: sv.name, date: today };
   const g = rows_('Группы').find(x => x.active !== '0' && +x.day === day && inWin(x.time));
   if (g) return { kind: 'group', meetId: g.id, label: g.name, date: today };
-  if (day === 0 && inWin(st.serviceTime)) return { kind: 'service', meetId: 'sunday', label: 'Sunday Service', date: today };
-  if (st.qrAlways === '1') return { kind: 'service', meetId: 'sunday', label: 'Sunday Service', date: today, test: true };
+  if (st.qrAlways === '1') { const t = SERVICES.find(x => x.day === day) || SERVICES[0]; return { kind: 'service', meetId: t.id, label: t.name, date: today, test: true }; }
   return null;
 }
 function joinInfo() { return out_(() => ({ meet: currentMeeting_() })); }
