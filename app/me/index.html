@@ -145,12 +145,25 @@ function viewLogin() {
     <div style="display:flex;justify-content:center"><img src="../icons/icon-192.png" alt="" width="96" height="96" style="border-radius:24px"></div>
     <h1 class="h1" style="text-align:center;font-size:28px">SOL Teens</h1>
     <div class="mu" style="text-align:center;line-height:1.5;font-size:16px">Баллы, ачивки, серии и задания недели. Вход — через наш Telegram-бот.</div>
-    ${waiting ? `<div class="card acc" style="align-items:center;text-align:center"><div class="spin"></div><div style="font-weight:700">Ждём Telegram</div><div class="sm mu" style="line-height:1.5">В боте нажми «Start», потом «Поделиться номером» — тем, что ты указывал на встрече. После этого вернись сюда.</div><a class="btnS" href="${esc(S.link)}" target="_blank" rel="noopener">Открыть бота ещё раз</a></div>
+    ${waiting ? `<div class="card acc" style="align-items:center;text-align:center"><div class="spin"></div><div style="font-weight:700">Ждём Telegram</div><div class="sm mu" style="line-height:1.5">В боте нажми «Start», потом «Поделиться номером» — тем, что ты указывал на встрече. После этого вернись сюда.</div><a class="btnS" href="${esc(S.link)}">Открыть бота ещё раз</a></div>
       <button class="btn2" data-a="cancelLogin">Отмена</button>`
-    : `<button class="btn" data-a="login">${svg(I.tg, '#0E0F12', 20, 2.4)} Войти через Telegram</button>`}
+    : pre ? `<a class="btn" href="${esc(pre.link)}" data-go="login">${svg(I.tg, '#0E0F12', 20, 2.4)} Войти через Telegram</a>`
+      : `<button class="btn" data-a="prefetch" style="opacity:.6">${S.err ? 'Повторить' : '<div class="spin" style="width:20px;height:20px;border-width:2px"></div>'}</button>`}
     ${S.err ? `<div class="sm" style="color:var(--acc);text-align:center">${esc(S.err)}</div>` : ''}
   </div>`;
 }
+let pre = null, preP = null;
+function prefetch() {
+  if (S.token || S.nonce || preP || (pre && Date.now() - pre.at < 20 * 60000)) return;
+  pre = null;
+  preP = call('tgStart').then(r => { pre = { nonce: r.nonce, link: r.link, at: Date.now() }; S.err = ''; }).catch(e => { S.err = errT(e); }).finally(() => { preP = null; if (!S.token) render(); });
+}
+function goLogin() {
+  if (!pre) return;
+  S.nonce = pre.nonce; S.link = pre.link; LS.set('sol_teen_nonce', pre.nonce); LS.set('sol_teen_link', pre.link); pre = null;
+  setTimeout(() => { render(); startPoll(); }, 50);
+}
+document.addEventListener('click', e => { if (e.target.closest('[data-go="login"]')) goLogin(); });
 function startPoll() {
   clearTimeout(pollT); if (!S.nonce) return;
   pollT = setTimeout(async () => {
@@ -254,7 +267,7 @@ function viewOverlay() {
   return '';
 }
 function render() {
-  if (!S.token) { $.innerHTML = viewLogin(); if (S.nonce) startPoll(); return; }
+  if (!S.token) { if (!S.nonce) prefetch(); $.innerHTML = viewLogin(); if (S.nonce) startPoll(); return; }
   if (!D) { $.innerHTML = `<div class="login" style="align-items:center"><div class="spin"></div></div>`; return; }
   const m = document.querySelector('.main'); const sc = m ? m.scrollTop : 0; const same = S.lastTab === S.tab; S.lastTab = S.tab;
   const body = { home: viewHome, badges: viewBadges, rank: viewRank, profile: viewProfile }[S.tab]();
@@ -265,7 +278,7 @@ function render() {
 
 const H = {
   reload() { load(); },
-  async login() { S.err = ''; const w = window.open('', '_blank'); try { const r = await call('tgStart'); S.nonce = r.nonce; S.link = r.link; LS.set('sol_teen_nonce', r.nonce); LS.set('sol_teen_link', r.link); render(); if (w) w.location.href = r.link; else window.location.href = r.link; } catch (e) { if (w) w.close(); S.err = errT(e); render(); } },
+  prefetch() { S.err = ''; pre = null; prefetch(); render(); },
   cancelLogin() { clearNonce(); render(); },
   tab(x) { S.tab = x; S.ov = null; render(); const m = document.querySelector('.main'); if (m) m.scrollTop = 0; },
   scope(x) { S.scope = x; render(); },

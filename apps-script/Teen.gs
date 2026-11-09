@@ -55,7 +55,7 @@ function setupTeens() {
 }
 
 // ---------------- Telegram ----------------
-function tgToken_() { const t = PropertiesService.getScriptProperties().getProperty('TG_TOKEN'); if (!t) throw new Error('no_bot'); return t; }
+function tgToken_() { const P = PropertiesService.getScriptProperties(); const t = P.getProperty('TG_TOKEN') || P.getProperty('TG_Token'); if (!t) throw new Error('no_bot'); return String(t).trim(); }
 function tg_(method, payload) {
   const r = UrlFetchApp.fetch('https://api.telegram.org/bot' + tgToken_() + '/' + method, { method: 'post', contentType: 'application/json', payload: JSON.stringify(payload || {}), muteHttpExceptions: true });
   const j = JSON.parse(r.getContentText());
@@ -70,9 +70,27 @@ const contactKb_ = () => ({ keyboard: [[{ text: 'Поделиться номер
 const appKb_ = () => ({ inline_keyboard: [[{ text: 'Открыть SOL Teens', url: APP_URL + 'me/' }]] });
 function say_(chatId, text, kb) { try { tg_('sendMessage', { chat_id: chatId, text, reply_markup: kb }); } catch (e) { Logger.log(e); } }
 
-function tgPump() { lock_(() => pump_()); } // по триггеру раз в минуту
+// Мгновенные ответы: Telegram сам присылает сообщения на сервер (вебхук). Запустить один раз из редактора.
+const API_EXEC = 'https://script.google.com/macros/s/AKfycbw1J4PnxNLtZ8H8dCWhJpTiAeA2V-X5RWmJdB6VQPr_IFzemiKS-y_SW50PvR0dAnL6Cg/exec';
+function tgSecret_() { return Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, 'sol:' + tgToken_()).map(b => ('0' + (b & 255).toString(16)).slice(-2)).join('').slice(0, 32); }
+function setupWebhook() {
+  tg_('setWebhook', { url: API_EXEC + '?tg=' + tgSecret_(), allowed_updates: ['message', 'my_chat_member'], max_connections: 5 });
+  setSetting_('tgMode', 'webhook');
+  Logger.log(JSON.stringify(tg_('getWebhookInfo')));
+}
+function tgWebhook_(e) {
+  if (!e.parameter || e.parameter.tg !== tgSecret_()) return false;
+  const u = JSON.parse(e.postData.contents);
+  const cache = CacheService.getScriptCache(), key = 'tgu' + u.update_id;
+  if (cache.get(key)) return true; // Telegram прислал повторно — уже обработано
+  cache.put(key, '1', 21600);
+  lock_(() => { try { handle_(u); } catch (err) { Logger.log('update ' + u.update_id + ': ' + err); } });
+  return true;
+}
+function tgPump() { lock_(() => pump_()); } // по триггеру раз в минуту (запасной путь)
 function pump_() {
   const st = settings_();
+  if (st.tgMode === 'webhook') return;
   const ups = tg_('getUpdates', { offset: (+st.tgOffset || 0) + 1, timeout: 0, allowed_updates: ['message', 'my_chat_member'] });
   if (!ups.length) return;
   ups.forEach(u => { try { handle_(u); } catch (e) { Logger.log('update ' + u.update_id + ': ' + e); } });
@@ -109,7 +127,7 @@ function handle_(u) {
     return say_(chatId, 'Привет! Это бот SOL Teens.\nЧтобы войти в приложение, поделись номером телефона — тем, что ты указывал на встрече.', contactKb_());
   }
   if (teen) return say_(chatId, 'Открой приложение SOL Teens:', appKb_());
-  return say_(chatId, 'Чтобы войти, поделись номером телефона кнопкой ниже.', contactKb_());
+  return say_(chatId, 'Нажми кнопку «Поделиться номером» внизу экрана — вводить номер вручную не нужно.', contactKb_());
 }
 
 // ---------------- вход подростка ----------------
