@@ -181,7 +181,7 @@ function doGet(e) {
 
 // JSON-API для приложения на GitHub Pages: POST {fn, args} -> {ok, data|error}
 function doPost(e) {
-  if (e && e.parameter && e.parameter.tg) { try { tgWebhook_(e); } catch (err) { Logger.log(err); } return ContentService.createTextOutput('ok'); }
+  if (e && e.parameter && e.parameter.tg) { try { tgWebhook_(e); } catch (err) { Logger.log(err); } return HtmlService.createHtmlOutput('ok'); }
   const FNS = { requestCode, verifyCode, joinByCode, logout, api, joinInfo, joinKnown, joinNew, joinFriends, tgStart, tgPoll, teenApi };
   let r;
   try {
