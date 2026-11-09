@@ -11,7 +11,7 @@ const COLS = {
   'Подростки': [['id','ID'],['first','Имя'],['last','Фамилия'],['phone','Телефон'],['birth','Дата рождения'],['addr','Адрес'],
     ['pFirst','Имя родителя'],['pLast','Фамилия родителя'],['pPhone','Телефон родителя'],['pAddr','Адрес родителя'],
     ['groups','Группы (ID)'],['createdAt','Добавлен'],['source','Источник'],['invitedBy','Пригласил (ID)'],['review','Проверить'],
-    ['ig','Instagram'],['tgId','Telegram ID'],['archived','Скрыт']],
+    ['ig','Instagram'],['tgId','Telegram ID'],['archived','Скрыт'],['igStatus','Instagram: статус'],['tgChat','В Telegram-чате']],
   'Посещения': [['id','ID'],['date','Дата'],['kind','Тип'],['meetId','Встреча (ID)'],['teenId','Подросток (ID)'],['teenName','Подросток'],['by','Отметил'],['method','Способ'],['ts','Время отметки']],
   'Группы': [['id','ID'],['name','Название'],['leader','Лидер'],['day','День (0=вс)'],['time','Время'],['active','Активна']],
   'События': [['id','ID'],['name','Название'],['date','Дата']],
@@ -21,7 +21,9 @@ const COLS = {
   'Напоминания': [['taskId','Задание (ID)'],['teenId','Подросток (ID)'],['date','Дата'],['by','Кто']],
   'Ачивки': [['id','ID'],['badge','Ачивка'],['teenId','Подросток (ID)'],['date','Дата'],['by','Засчитал']],
   'Настройки': [['key','Ключ'],['value','Значение']],
+  'Входы': [['teenId','Подросток (ID)'],['date','Дата']],
   '_Сессии': [['token','Токен'],['email','Email'],['expires','Истекает']],
+  '_ТГ': [['nonce','Код входа'],['chatId','Telegram чат'],['teenId','Подросток (ID)'],['status','Статус'],['created','Создан']],
   '_Коды': [['email','Email'],['code','Код'],['expires','Истекает']]
 };
 
@@ -179,7 +181,7 @@ function doGet(e) {
 
 // JSON-API для приложения на GitHub Pages: POST {fn, args} -> {ok, data|error}
 function doPost(e) {
-  const FNS = { requestCode, verifyCode, joinByCode, logout, api, joinInfo, joinKnown, joinNew, joinFriends };
+  const FNS = { requestCode, verifyCode, joinByCode, logout, api, joinInfo, joinKnown, joinNew, joinFriends, tgStart, tgPoll, teenApi };
   let r;
   try {
     const b = JSON.parse(e.postData.contents);
@@ -264,7 +266,7 @@ const CAN = {
   mark: ['admin', 'leader', 'mod'], addTeen: ['admin', 'leader', 'mod'], updateTeen: ['admin', 'leader', 'mod'], reviewTeen: ['admin', 'leader', 'mod'],
   addEvent: ['admin', 'leader'], saveGroup: ['admin'], saveSettings: ['admin'],
   invite: ['admin'], updateLeader: ['admin'], removeLeader: ['admin'],
-  addTask: ['admin', 'leader'], taskDone: ['admin', 'leader'], remind: ['admin', 'leader'], award: ['admin', 'leader']
+  addTask: ['admin', 'leader'], taskDone: ['admin', 'leader'], remind: ['admin', 'leader'], award: ['admin', 'leader'], igReview: ['admin', 'leader']
 };
 function api(token, action, payload) {
   return out_(() => {
@@ -276,7 +278,7 @@ function api(token, action, payload) {
 }
 
 const PARENT_KEYS = ['pFirst', 'pLast', 'pPhone', 'pAddr'];
-const CONTACT_KEYS = ['phone', 'birth', 'addr', 'ig'];
+const CONTACT_KEYS = ['phone', 'birth', 'addr', 'ig', 'igStatus', 'tgChat'];
 
 const A_ = {
   bootstrap(me) {
@@ -290,6 +292,7 @@ const A_ = {
       o.canEditParent = own;
       return o;
     });
+    if (me.role !== 'viewer') { const P = allPoints_(); visTeens.forEach(o => o.pts = P[o.id] || 0); }
     const att = rows_('Посещения').map(a => [a.date, a.kind, a.meetId, a.teenId]);
     const st = settings_();
     const res = {
@@ -436,6 +439,12 @@ const A_ = {
   award(me, p) {
     if (!p.badge || !(p.teenIds || []).length) throw new Error('bad_award');
     appendMany_('Ачивки', p.teenIds.map(id => ({ id: uid_('W'), badge: p.badge, teenId: id, date: today_(), by: me.email })));
+    return true;
+  },
+
+  igReview(me, p) {
+    const t = rows_('Подростки').find(x => x.id === p.id); if (!t) throw new Error('not_found');
+    update_('Подростки', t, { igStatus: p.ok ? 'ok' : '' });
     return true;
   }
 };

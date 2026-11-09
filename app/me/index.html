@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SOL Teens</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0E0F12">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SOL Teens">
+<link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="../icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Unbounded:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0E0F12;--card:#15171B;--card2:#17191E;--line:#1F2127;--line2:#2A2D35;--line3:#3A3D46;--tx:#F4F4F5;--tx2:#D4D4D8;--mu:#A1A1AA;--mu2:#8B8B94;--acc:#FF8A3D;--acc2:#FFB27A;--accbg:#1C140F;--accbg2:#2A1A10;--green:#4ADE80}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--tx);font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;color:inherit;cursor:pointer;border:none;background:none;padding:0}
+input{font-family:inherit}
+input::placeholder{color:var(--mu2)}
+a{color:inherit}
+#app{height:100%}
+.app{height:100%;display:flex;flex-direction:column}
+.main{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.wrap{max-width:520px;margin:0 auto;padding:calc(18px + env(safe-area-inset-top)) 16px 120px;display:flex;flex-direction:column;gap:14px}
+.h1{font-family:Unbounded,Inter,sans-serif;font-weight:700;font-size:24px;line-height:1.2;margin:0}
+.h2{font-family:Unbounded,Inter,sans-serif;font-weight:700;font-size:19px;line-height:1.25;margin:0}
+.sec{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--mu)}
+.mu{color:var(--mu)} .sm{font-size:13px} .xs{font-size:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.card.acc{background:var(--accbg);border-color:#3A2414}
+.btn{height:54px;border-radius:16px;background:var(--acc);color:#0E0F12;font-size:16px;font-weight:700;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
+.btn2{height:50px;border-radius:14px;border:1px solid var(--line3);background:transparent;color:var(--tx);font-size:15px;font-weight:700;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
+.btnS{height:44px;padding:0 16px;border-radius:12px;background:var(--acc);color:#0E0F12;font-size:14px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;white-space:nowrap}
+.btnS.ghost{background:transparent;border:1px solid var(--acc);color:var(--acc)}
+.inp{width:100%;height:50px;border-radius:14px;border:1px solid var(--line2);background:var(--card2);color:var(--tx);padding:0 14px;font-size:16px;outline:none;color-scheme:dark}
+.inp:focus{border-color:var(--acc)}
+.bar{height:8px;border-radius:999px;background:#22252C;overflow:hidden}.bar i{display:block;height:100%;border-radius:999px;background:var(--acc)}
+.row{display:flex;align-items:center;gap:12px}
+.pill{font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;background:var(--accbg2);color:var(--acc2)}
+.ok{color:var(--green);font-weight:700}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:4px}
+.stat b{font-family:Unbounded,Inter,sans-serif;font-size:24px;color:var(--acc)}
+.days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}
+.days div{display:flex;flex-direction:column;align-items:center;gap:6px}
+.dot{width:30px;height:30px;border-radius:999px;border:2px dashed var(--line3);display:flex;align-items:center;justify-content:center}
+.dot.on{background:var(--acc);border:none}.dot.frz{border:2px solid #6FA8FF}.dot.today{box-shadow:0 0 0 3px #3A2414}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.tile{display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 6px 12px;border-radius:18px;border:1px solid var(--line);background:var(--card);text-align:center}
+.tile.got{border-color:#3A2414;background:var(--accbg)}
+.circ{width:56px;height:56px;border-radius:999px;background:#22252C;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.got .circ,.circ.got{background:var(--acc)}
+.tile .n{font-size:12px;font-weight:700;line-height:1.25}
+.tile .p{font-size:11px;font-weight:600;color:var(--mu2)}.tile.got .p{color:var(--acc2)}
+.nav{position:fixed;left:0;right:0;bottom:0;background:#121318;border-top:1px solid #22252C;padding:6px 6px calc(10px + env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(5,1fr);align-items:end;z-index:5}
+.nav button{min-height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11px;font-weight:600;color:var(--mu2)}
+.nav button.on{color:var(--acc)}
+.nav .c .ring{width:56px;height:56px;border-radius:999px;background:var(--acc);display:flex;align-items:center;justify-content:center;margin-top:-26px;box-shadow:0 0 0 6px #121318}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:4px}
+.seg button{height:42px;border-radius:11px;font-size:14px;font-weight:700;color:var(--mu)}.seg button.on{background:var(--acc);color:#0E0F12}
+.pod{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;align-items:end}
+.pod>div{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}
+.av{width:44px;height:44px;border-radius:999px;background:#2A2D35;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0}
+.av.me{background:var(--acc);color:#0E0F12}
+.blk{width:100%;border-radius:14px 14px 4px 4px;background:var(--card);border:1px solid var(--line2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.blk.first{background:var(--accbg2);border-color:var(--acc)}
+.rr{display:flex;align-items:center;gap:12px;min-height:54px;padding:6px 14px;border-radius:14px;background:var(--card);border:1px solid var(--line)}
+.rr.me{background:var(--accbg);border-color:var(--acc)}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;justify-content:center;z-index:10}
+.sheet{width:100%;max-width:520px;background:#16181D;border-radius:24px 24px 0 0;padding:22px 20px calc(24px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:14px;align-items:center;text-align:center;max-height:90vh;overflow-y:auto}
+.ellip{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.busy{position:fixed;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--acc),transparent);background-size:200% 100%;animation:b 1s linear infinite;z-index:20}
+@keyframes b{from{background-position:200% 0}to{background-position:-200% 0}}
+.toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#F4F4F5;color:#0E0F12;font-weight:600;font-size:14px;padding:12px 18px;border-radius:14px;z-index:30;max-width:90vw;text-align:center}
+.login{max-width:440px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;justify-content:center;gap:18px;padding:32px 22px calc(28px + env(safe-area-inset-bottom))}
+.spin{width:22px;height:22px;border-radius:999px;border:3px solid #3A2414;border-top-color:var(--acc);animation:s 1s linear infinite}
+@keyframes s{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const API = 'https://script.google.com/macros/s/AKfycbw1J4PnxNLtZ8H8dCWhJpTiAeA2V-X5RWmJdB6VQPr_IFzemiKS-y_SW50PvR0dAnL6Cg/exec';
+const LS = { get: k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} }, del: k => { try { localStorage.removeItem(k); } catch (e) {} } };
+let S = { token: LS.get('sol_teen_tok') || '', nonce: LS.get('sol_teen_nonce') || '', link: LS.get('sol_teen_link') || '', tab: 'home', scope: 'month', ov: null, busy: 0, toast: '', ig: '', err: '' };
+let D = null;
+const $ = document.getElementById('app');
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const svg = (d, c, w, sw) => `<svg width="${w || 20}" height="${w || 20}" viewBox="0 0 24 24" fill="none" stroke="${c || 'currentColor'}" stroke-width="${sw || 2}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"></path></svg>`;
+const plural = (n, a, b, c) => (n % 10 === 1 && n % 100 !== 11) ? a : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? b : c;
+const MON = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+const MON1 = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+const DAYS = ['Воскресенье','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'];
+const DSH = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+const parse = s => { const p = String(s).split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); };
+const human = s => { if (!s) return ''; const d = parse(s); return d.getDate() + ' ' + MON[d.getMonth()]; };
+const word = s => { const t = parse(D.today), d = parse(s); const n = Math.round((d - t) / 86400000); return n === 0 ? 'сегодня' : n === -1 ? 'вчера' : n === 1 ? 'завтра' : human(s); };
+
+const I = {
+  home: 'M3 11l9-8 9 8v10H3zM9 21v-6h6v6', medal: 'M12 15a6 6 0 1 1 0-12a6 6 0 1 1 0 12M8.2 13.9L7 22l5-3 5 3-1.2-8.1',
+  scan: 'M3 7V3h4M17 3h4v4M21 17v4h-4M7 21H3v-4M7 12h10', trophy: 'M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3',
+  user: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 3a4 4 0 1 1 0 8a4 4 0 1 1 0-8', star: 'M12 2l3 7h7l-5.5 4 2 7-6.5-4.5L5.5 20l2-7L2 9h7z',
+  flame: 'M12 2c1 4 5 5 5 10a5 5 0 0 1-10 0c0-3 2-4 2-7 1 1 2 2 3 2 0-2-1-3 0-5z', book: 'M4 19.5A2.5 2.5 0 0 1 6.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z',
+  users: 'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 3a4 4 0 1 1 0 8a4 4 0 1 1 0-8M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75',
+  plus: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 3a4 4 0 1 1 0 8a4 4 0 1 1 0-8M20 8v6M23 11h-6', heart: 'M12 21s-7-4.5-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 6c-2.5 4.5-9.5 9-9.5 9z',
+  cal: 'M3 5h18v16H3zM3 10h18M8 3v4M16 3v4', moon: 'M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z', back: 'M3 12a9 9 0 1 0 3-6.7M3 4v5h5',
+  phone: 'M7 2h10a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zM11 18h2', hand: 'M18 11V6a2 2 0 0 0-4 0v5M14 10V4a2 2 0 0 0-4 0v6M10 10.5V6a2 2 0 0 0-4 0v8a8 8 0 0 0 16 0v-3a2 2 0 0 0-4 0',
+  cake: 'M4 21h16v-8H4zM4 16c2 1 4 1 6 0s4-1 6 0 4 1 4 0M12 13V9M12 6a1.5 1.5 0 0 1 0-3', map: 'M9 4L3 6v14l6-2 6 2 6-2V4l-6 2zM9 4v14M15 6v14',
+  crown: 'M3 18h18M4 18l-1-10 5 4 4-7 4 7 5-4-1 10', tent: 'M3 21L12 4l9 17zM12 4v17M8 21l4-7 4 7', tg: 'M22 2L11 13M22 2l-7 20-4-9-9-4z',
+  ig: 'M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zM12 8a4 4 0 1 1 0 8a4 4 0 1 1 0-8M17.5 6.5h.01',
+  chat: 'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z', check: 'M5 12l5 5L19 7', right: 'M9 18l6-6-6-6', x: 'M6 6l12 12M18 6L6 18'
+};
+const BI = { first: I.star, m5: I.cal, m10: I.cal, m25: I.cal, m50: I.trophy, m100: I.crown, w4: I.flame, w8: I.flame, w12: I.flame, w20: I.flame, team: I.users,
+  d3: I.phone, d7: I.phone, d14: I.phone, d30: I.cal, d100: I.crown, b1: I.book, book: I.book, verse: I.heart, tgchat: I.tg, igsub: I.ig, allin: I.chat,
+  friend: I.plus, friend3: I.plus, party: I.cal, groups: I.map, night: I.moon, camp: I.tent, help: I.hand, back: I.back, bday: I.cake, thanks: I.star, legend: I.crown };
+const CATS = [['meet', 'ВСТРЕЧИ'], ['streak', 'СЕРИИ НА ВСТРЕЧАХ'], ['app', 'ПРИЛОЖЕНИЕ КАЖДЫЙ ДЕНЬ'], ['bible', 'БИБЛИЯ'], ['social', 'СОЦСЕТИ'], ['friends', 'ДРУЗЬЯ И СОБЫТИЯ'], ['special', 'ОСОБЫЕ']];
+const RULES = [['Пришёл на встречу или малую группу', '+10'], ['Событие', '+15'], ['Задание', '+10…30'], ['Зашёл в приложение (раз в день)', '+2'], ['Вступил в Telegram-чат', '+15'], ['Подписался на Instagram', '+15'], ['Ачивка', '+5…200']];
+const ERR = { network: 'Нет связи. Проверь интернет.', no_meeting: 'Сейчас нет встречи — отметиться можно во время встречи.', no_bot: 'Вход через Telegram ещё настраивается. Попробуй чуть позже.', no_chat: 'Бот ещё не добавлен в чат — скажи лидеру.', no_tg: 'Войди через Telegram ещё раз.', need_nick: 'Напиши свой ник в Instagram' };
+const errT = e => ERR[e && e.message] || 'Что-то пошло не так. Попробуй ещё раз.';
+
+function call(fn, ...args) {
+  S.busy++; paintBusy();
+  return fetch(API, { method: 'POST', body: JSON.stringify({ fn, args }) })
+    .then(r => r.json(), () => { throw new Error('network'); })
+    .then(j => { if (!j.ok) throw new Error(j.error); return j.data; })
+    .finally(() => { S.busy--; paintBusy(); });
+}
+function api(action, p) {
+  return call('teenApi', S.token, action, p || {}).catch(e => { if (e.message === 'auth') { S.token = ''; LS.del('sol_teen_tok'); D = null; render(); } throw e; });
+}
+function paintBusy() { let b = document.querySelector('.busy'); if (S.busy > 0 && !b) { b = document.createElement('div'); b.className = 'busy'; document.body.appendChild(b); } if (S.busy <= 0 && b) b.remove(); }
+let tt; function toast(m) { S.toast = m; let t = document.querySelector('.toast'); if (!t) { t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); } t.textContent = m; clearTimeout(tt); tt = setTimeout(() => t.remove(), 2600); }
+
+async function load() { try { D = await api('me'); render(); } catch (e) { if (S.token) { $.innerHTML = `<div class="login"><div class="h2">Не удалось загрузить</div><div class="mu">${esc(errT(e))}</div><button class="btn" data-a="reload">Повторить</button></div>`; } } }
+
+// ---------- вход ----------
+let pollT = null;
+function viewLogin() {
+  const waiting = !!S.nonce;
+  return `<div class="login">
+    <div style="display:flex;justify-content:center"><img src="../icons/icon-192.png" alt="" width="96" height="96" style="border-radius:24px"></div>
+    <h1 class="h1" style="text-align:center;font-size:28px">SOL Teens</h1>
+    <div class="mu" style="text-align:center;line-height:1.5;font-size:16px">Баллы, ачивки, серии и задания недели. Вход — через наш Telegram-бот.</div>
+    ${waiting ? `<div class="card acc" style="align-items:center;text-align:center"><div class="spin"></div><div style="font-weight:700">Ждём Telegram</div><div class="sm mu" style="line-height:1.5">В боте нажми «Start», потом «Поделиться номером» — тем, что ты указывал на встрече. После этого вернись сюда.</div><a class="btnS" href="${esc(S.link)}" target="_blank" rel="noopener">Открыть бота ещё раз</a></div>
+      <button class="btn2" data-a="cancelLogin">Отмена</button>`
+    : `<button class="btn" data-a="login">${svg(I.tg, '#0E0F12', 20, 2.4)} Войти через Telegram</button>`}
+    ${S.err ? `<div class="sm" style="color:var(--acc);text-align:center">${esc(S.err)}</div>` : ''}
+  </div>`;
+}
+function startPoll() {
+  clearTimeout(pollT); if (!S.nonce) return;
+  pollT = setTimeout(async () => {
+    try {
+      const r = await call('tgPoll', S.nonce);
+      if (r.status === 'ok') { S.token = r.token; LS.set('sol_teen_tok', r.token); clearNonce(); render(); load(); return; }
+      if (r.status === 'expired') { clearNonce(); S.err = 'Время вышло — нажми «Войти» ещё раз.'; render(); return; }
+    } catch (e) { if (e.message === 'bad_nonce') { clearNonce(); render(); return; } }
+    startPoll();
+  }, 2500);
+}
+function clearNonce() { S.nonce = ''; S.link = ''; LS.del('sol_teen_nonce'); LS.del('sol_teen_link'); clearTimeout(pollT); }
+document.addEventListener('visibilitychange', () => { if (!document.hidden && S.nonce) { clearTimeout(pollT); startPoll(); } if (!document.hidden && D && S.token) load(); });
+
+// ---------- главная ----------
+function level() {
+  const L = D.levels; let i = 0; L.forEach((l, k) => { if (D.pts >= l[0]) i = k; });
+  const nx = L[i + 1];
+  return { num: i + 1, name: L[i][1], pct: nx ? Math.round((D.pts - L[i][0]) / (nx[0] - L[i][0]) * 100) : 100, left: nx ? 'До уровня «' + nx[1] + '» — ' + (nx[0] - D.pts) + ' ' + plural(nx[0] - D.pts, 'балл', 'балла', 'баллов') : 'Максимальный уровень' };
+}
+function taskCard(k) {
+  const btn = { read: 'Я прочитал', verse: 'Я выучил', act: 'Я сделал' }[k.kind] || 'Выполнил';
+  return `<div class="card"><div class="row" style="justify-content:space-between;align-items:flex-start"><span class="sec">ЗАДАНИЕ</span><span class="pill">+${k.pts}</span></div>
+    <div style="font-size:17px;font-weight:700;line-height:1.35">${esc(k.title)}</div>
+    <div class="sm mu">До ${esc(word(k.due))}${k.doneCount ? ' · уже сделали ' + k.doneCount + ' ' + plural(k.doneCount, 'человек', 'человека', 'человек') : ''}</div>
+    ${k.done ? `<div class="row" style="justify-content:space-between"><span class="ok">${svg(I.check, 'var(--green)', 18, 3)} Выполнено · +${k.pts}</span><button class="sm mu" data-a="undo" data-x="${k.id}">отменить</button></div>` : `<button class="btn" data-a="done" data-x="${k.id}">${btn}</button>`}</div>`;
+}
+function socialCards() {
+  const tg = D.tg, ig = D.ig;
+  const tgC = `<div class="card"><div class="row"><div class="circ ${tg.ok ? 'got' : ''}" style="width:44px;height:44px">${svg(I.tg, tg.ok ? '#0E0F12' : '#A1A1AA', 20)}</div><div style="flex:1;min-width:0"><div style="font-weight:700">Telegram-чат SOL Teens</div><div class="sm mu">Новости, фото, обсуждения</div></div><span class="pill">+15</span></div>
+    ${tg.ok ? `<span class="ok">${svg(I.check, 'var(--green)', 18, 3)} Ты в чате · ачивка «В чате»</span>` : `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><a class="btnS" href="${esc(tg.link)}" target="_blank" rel="noopener">Вступить</a><button class="btnS ghost" data-a="tgVerify">Проверить</button></div><div class="xs mu" style="line-height:1.4">Вступил? Нажми «Проверить» — бот посмотрит, что ты в чате, и начислит баллы.</div>`}</div>`;
+  const igC = `<div class="card"><div class="row"><div class="circ ${ig.status === 'ok' ? 'got' : ''}" style="width:44px;height:44px">${svg(I.ig, ig.status === 'ok' ? '#0E0F12' : '#A1A1AA', 20)}</div><div style="flex:1;min-width:0"><div style="font-weight:700">Instagram @sol316teens</div><div class="sm mu">Анонсы встреч и сторис</div></div><span class="pill">+15</span></div>
+    ${ig.status === 'ok' ? `<span class="ok">${svg(I.check, 'var(--green)', 18, 3)} Подписан · ачивка «Подписчик»</span>`
+      : ig.status === 'pending' ? `<div class="sm mu">Лидер проверит @${esc(ig.nick)} и начислит баллы.</div>`
+      : `<a class="btnS" href="${esc(ig.link)}" target="_blank" rel="noopener">Подписаться</a><div class="row"><input class="inp" style="height:46px" data-b="ig" value="${esc(S.ig)}" placeholder="твой ник в Instagram" autocapitalize="off" autocomplete="off"><button class="btnS" data-a="igSend">Отправить</button></div><div class="xs mu">Чтобы лидер нашёл тебя в подписчиках.</div>`}</div>`;
+  return (tg.ok && ig.status === 'ok') ? '' : `<div class="sec" style="padding:6px 4px 0">БУДЬ НА СВЯЗИ</div>${tgC}${igC}`;
+}
+function badgeTile(b) {
+  const got = b.have >= b.need;
+  return `<button class="tile ${got ? 'got' : ''}" data-a="badge" data-x="${b.id}"><div class="circ">${svg(BI[b.id] || I.star, got ? '#0E0F12' : '#5F626B', 26)}</div><div class="n">${esc(b.name)}</div><div class="p">${got ? 'получено' : b.have + '/' + b.need}</div></button>`;
+}
+function viewHome() {
+  const lv = level(); const t = parse(D.today);
+  const nb = D.badges.filter(b => b.have < b.need && b.have > 0).sort((a, b) => b.have / b.need - a.have / a.need).slice(0, 3);
+  const tasks = D.tasks;
+  const days = D.last7.map((v, i) => { const d = new Date(t); d.setDate(t.getDate() - 6 + i); return `<div><span class="xs" style="font-weight:${i === 6 ? 700 : 500};color:${i === 6 ? 'var(--acc)' : 'var(--mu2)'}">${DSH[d.getDay()]}</span><span class="dot ${v === 1 ? 'on' : v === 2 ? 'frz' : ''} ${i === 6 ? 'today' : ''}">${v === 1 ? svg(I.check, '#0E0F12', 14, 3.5) : ''}</span></div>`; }).join('');
+  const ms = [3, 7, 14, 30, 100].find(m => m > D.appStreak);
+  return `<div><div class="sm mu">${DAYS[t.getDay()]}, ${t.getDate()} ${MON[t.getMonth()]}</div><h1 class="h1">Привет, ${esc(D.me.first)}!</h1></div>
+  ${D.meet ? `<div class="card acc"><div class="row"><div class="circ got" style="width:44px;height:44px">${svg(I.scan, '#0E0F12', 22, 2.4)}</div><div style="flex:1"><div style="font-weight:700">Сейчас: ${esc(D.meet.label)}</div><div class="sm mu">Ты на месте? Отметься и получи +10</div></div></div><button class="btn" data-a="checkin">Я на встрече</button></div>` : ''}
+  <div class="card acc"><div class="row" style="justify-content:space-between"><div><div class="sec" style="color:var(--acc2)">УРОВЕНЬ ${lv.num}</div><div class="h2" style="margin-top:4px">${esc(lv.name)}</div></div><div style="text-align:right"><div style="font-family:Unbounded,Inter,sans-serif;font-size:30px;font-weight:700;color:var(--acc)">${D.pts}</div><div class="xs mu">${plural(D.pts, 'балл', 'балла', 'баллов')}</div></div></div><div class="bar"><i style="width:${lv.pct}%"></i></div><div class="sm mu">${esc(lv.left)}</div></div>
+  <button class="card" data-a="daily" style="text-align:left;width:100%"><div class="row" style="justify-content:space-between"><div class="row"><div class="circ got" style="width:44px;height:44px">${svg(I.flame, '#0E0F12', 22)}</div><div><div style="font-weight:700;font-size:17px">${D.appStreak} ${plural(D.appStreak, 'день', 'дня', 'дней')} подряд</div><div class="xs mu">в приложении · рекорд ${D.appBest}</div></div></div><span class="pill">+2/день</span></div><div class="days">${days}</div>${ms ? `<div class="xs mu">До ачивки за ${ms} ${plural(ms, 'день', 'дня', 'дней')} — ещё ${ms - D.appStreak}</div>` : ''}</button>
+  <div class="stats"><div class="stat"><b>${D.weekStreak}</b><span class="xs mu">${plural(D.weekStreak, 'неделя', 'недели', 'недель')} подряд на встречах</span></div><button class="stat" data-a="tab" data-x="rank" style="text-align:left"><b>${D.rank.myMonth ? '#' + D.rank.myMonth : '—'}</b><span class="xs mu">в рейтинге месяца</span></button></div>
+  ${tasks.map(taskCard).join('')}
+  ${socialCards()}
+  ${nb.length ? `<div class="row" style="justify-content:space-between;padding:6px 4px 0"><span class="sec">БЛИЖАЙШИЕ АЧИВКИ</span><button class="sm" style="color:var(--acc);font-weight:700" data-a="tab" data-x="badges">Все ›</button></div><div class="grid">${nb.map(badgeTile).join('')}</div>` : ''}`;
+}
+function viewBadges() {
+  const got = D.badges.filter(b => b.have >= b.need).length;
+  return `<div><h1 class="h1">Ачивки</h1><div class="sm mu" style="margin-top:4px">${got} из ${D.badges.length}</div></div>
+  ${CATS.map(([k, t]) => { const it = D.badges.filter(b => b.cat === k); return `<div class="row" style="justify-content:space-between;padding:6px 4px 0"><span class="sec">${t}</span><span class="xs mu">${it.filter(b => b.have >= b.need).length} из ${it.length}</span></div><div class="grid">${it.map(badgeTile).join('')}</div>`; }).join('')}`;
+}
+function viewRank() {
+  const list = S.scope === 'month' ? D.rank.month : D.rank.all;
+  const ini = n => (n || '?').charAt(0);
+  const p = [list[1], list[0], list[2]];
+  return `<div><h1 class="h1">Рейтинг</h1></div>
+  <div class="seg"><button class="${S.scope === 'month' ? 'on' : ''}" data-a="scope" data-x="month">${MON1[parse(D.today).getMonth()]}</button><button class="${S.scope === 'all' ? 'on' : ''}" data-a="scope" data-x="all">За всё время</button></div>
+  ${list.length ? `<div class="pod">${p.map((x, i) => x ? `<div><div class="av ${x.me ? 'me' : ''}" style="${i === 1 ? 'width:56px;height:56px' : ''}">${esc(ini(x.name))}</div><div class="sm ellip" style="font-weight:700;max-width:100%">${esc(x.name)}</div><div class="blk ${i === 1 ? 'first' : ''}" style="height:${[74, 100, 60][i]}px"><span style="font-family:Unbounded,Inter,sans-serif;font-weight:700;font-size:20px">${x.place}</span><span class="xs mu">${x.pts}</span></div></div>` : '<div></div>').join('')}</div>
+  <div style="display:flex;flex-direction:column;gap:6px">${list.slice(3).map(x => `<div class="rr ${x.me ? 'me' : ''}"><span style="width:22px;font-weight:700;color:var(--mu)">${x.place}</span><div class="av ${x.me ? 'me' : ''}" style="width:36px;height:36px">${esc(ini(x.name))}</div><span style="flex:1;font-weight:600" class="ellip">${esc(x.name)}</span><span style="font-weight:700;color:var(--acc)">${x.pts}</span></div>`).join('')}</div>` : `<div class="card mu" style="text-align:center">Пока пусто — приходи на встречи и набирай баллы!</div>`}
+  ${(S.scope === 'month' ? D.rank.myMonth : D.rank.myAll) > 20 ? `<div class="sm mu" style="text-align:center">Твоё место: ${S.scope === 'month' ? D.rank.myMonth : D.rank.myAll}</div>` : ''}
+  <div class="xs mu" style="line-height:1.45;text-align:center">В рейтинге видны только имена. Баллы за месяц обнуляются 1-го числа, общий счёт остаётся.</div>`;
+}
+function viewProfile() {
+  const got = D.badges.filter(b => b.have >= b.need).length;
+  const nm = (D.me.first + ' ' + D.me.last).trim();
+  return `<div class="row"><div class="av me" style="width:64px;height:64px;font-size:22px">${esc(nm.split(/\s+/).map(x => x[0] || '').join('').slice(0, 2).toUpperCase())}</div><div style="min-width:0"><div class="h2">${esc(nm)}</div><div class="sm mu">${esc(D.me.groups.join(', ') || 'SOL Teens')}${D.me.since ? ' · с ' + esc(human(D.me.since.slice(0, 10))) : ''}</div></div></div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px"><div class="stat"><b>${D.visits}</b><span class="xs mu">${plural(D.visits, 'встреча', 'встречи', 'встреч')}</span></div><div class="stat"><b>${got}</b><span class="xs mu">ачивок</span></div><div class="stat"><b>${D.pts}</b><span class="xs mu">баллов</span></div></div>
+  <div class="sec" style="padding:6px 4px 0">КАК ПОЛУЧАТЬ БАЛЛЫ</div>
+  <div class="card" style="gap:0;padding:4px 16px">${RULES.map(([a, b]) => `<div class="row" style="justify-content:space-between;min-height:44px;border-bottom:1px solid var(--line)"><span class="sm">${a}</span><span style="font-weight:700;color:var(--acc)">${b}</span></div>`).join('')}</div>
+  ${D.log.length ? `<div class="sec" style="padding:6px 4px 0">ПОСЛЕДНИЕ БАЛЛЫ</div><div class="card" style="gap:0;padding:4px 16px">${D.log.map(l => `<div class="row" style="justify-content:space-between;min-height:50px;border-bottom:1px solid var(--line)"><div style="min-width:0"><div class="sm ellip" style="font-weight:600">${esc(l.what)}</div><div class="xs mu">${esc(word(l.date))}</div></div><span style="font-weight:700;color:var(--acc)">+${l.pts}</span></div>`).join('')}</div>` : ''}
+  <button class="btn2" data-a="logout">Выйти</button>`;
+}
+function viewOverlay() {
+  const o = S.ov; if (!o) return '';
+  if (o.type === 'badge') {
+    const b = D.badges.find(x => x.id === o.id); if (!b) return ''; const got = b.have >= b.need;
+    return `<div class="ov" data-a="close"><div class="sheet" data-stop="1"><div class="circ ${got ? 'got' : ''}" style="width:96px;height:96px">${svg(BI[b.id] || I.star, got ? '#0E0F12' : '#5F626B', 44)}</div><div class="h2">${esc(b.name)}</div><div class="mu" style="line-height:1.5">${esc(b.desc)}</div><div style="font-weight:700;color:${got ? 'var(--acc)' : 'var(--mu)'}">${got ? 'Получено' : 'Прогресс: ' + b.have + '/' + b.need}</div>${b.bonus ? `<span class="pill">+${b.bonus} баллов</span>` : ''}<button class="btn" data-a="close">Понятно</button></div></div>`;
+  }
+  if (o.type === 'daily') {
+    const ms = [3, 7, 14, 30, 100];
+    return `<div class="ov" data-a="close"><div class="sheet" data-stop="1" style="text-align:left;align-items:stretch"><div class="h2">Серия дней</div><div class="mu" style="line-height:1.5">Заходи в приложение каждый день — открой его, посмотри задание или рейтинг. Каждый день даёт +2 балла, а на 3, 7, 14, 30 и 100 днях открываются ачивки.</div>
+      ${ms.map(m => `<div class="row" style="justify-content:space-between;min-height:40px"><div class="row"><span class="dot ${D.appBest >= m ? 'on' : ''}" style="width:14px;height:14px;border-width:2px;border-style:solid"></span><span>${m} ${plural(m, 'день', 'дня', 'дней')} подряд</span></div><span class="sm" style="font-weight:700;color:${D.appBest >= m ? 'var(--acc)' : 'var(--mu2)'}">${D.appBest >= m ? 'получено' : Math.min(D.appStreak, m) + '/' + m}</span></div>`).join('')}
+      <div class="sm mu" style="line-height:1.5">Пропустил день — серия начнётся заново. Но раз в неделю серию спасает «заморозка»: если забыл зайти, она сработает сама (синий кружок).</div><button class="btn" data-a="close">Понятно</button></div></div>`;
+  }
+  if (o.type === 'scan') {
+    const sch = (D.schedule || []).map(s => DAYS[s.day].toLowerCase() + ' ' + s.time).join(', ');
+    return `<div class="ov" data-a="close"><div class="sheet" data-stop="1">${D.meet ? `<div class="circ got" style="width:96px;height:96px">${svg(I.scan, '#0E0F12', 44, 2.2)}</div><div class="h2">${esc(D.meet.label)}</div><div class="mu">Ты на встрече? Отметься — и получи +10 баллов.</div><button class="btn" data-a="checkin">Я на встрече</button>`
+      : `<div class="circ" style="width:96px;height:96px">${svg(I.scan, '#8B8B94', 44, 2.2)}</div><div class="h2">Сейчас нет встречи</div><div class="mu" style="line-height:1.5">Отметиться можно во время встречи: ${esc(sch)}.</div>`}<button class="btn2" data-a="close">Закрыть</button></div></div>`;
+  }
+  if (o.type === 'done') return `<div class="ov" data-a="close"><div class="sheet" data-stop="1"><div class="circ got" style="width:104px;height:104px">${svg(I.check, '#0E0F12', 52, 3)}</div><div class="h2">Ты на месте!</div><div class="mu">${esc(o.label)} · ${o.already ? 'уже отмечен' : '+10 баллов'}</div><button class="btn" data-a="close">Готово</button></div></div>`;
+  return '';
+}
+function render() {
+  if (!S.token) { $.innerHTML = viewLogin(); if (S.nonce) startPoll(); return; }
+  if (!D) { $.innerHTML = `<div class="login" style="align-items:center"><div class="spin"></div></div>`; return; }
+  const m = document.querySelector('.main'); const sc = m ? m.scrollTop : 0; const same = S.lastTab === S.tab; S.lastTab = S.tab;
+  const body = { home: viewHome, badges: viewBadges, rank: viewRank, profile: viewProfile }[S.tab]();
+  const tabs = [['home', 'Главная', I.home], ['badges', 'Ачивки', I.medal], ['scan', 'Отметиться', I.scan], ['rank', 'Рейтинг', I.trophy], ['profile', 'Профиль', I.user]];
+  $.innerHTML = `<div class="app"><main class="main"><div class="wrap">${body}</div></main><nav class="nav">${tabs.map(([k, l, d]) => k === 'scan' ? `<button class="c" data-a="scan"><div class="ring">${svg(d, '#0E0F12', 26, 2.5)}</div><span>${l}</span></button>` : `<button class="${S.tab === k ? 'on' : ''}" data-a="tab" data-x="${k}">${svg(d, S.tab === k ? '#FF8A3D' : '#8B8B94', 24)}<span>${l}</span></button>`).join('')}</nav></div>${viewOverlay()}`;
+  if (same) { const m2 = document.querySelector('.main'); if (m2) m2.scrollTop = sc; }
+}
+
+const H = {
+  reload() { load(); },
+  async login() { S.err = ''; const w = window.open('', '_blank'); try { const r = await call('tgStart'); S.nonce = r.nonce; S.link = r.link; LS.set('sol_teen_nonce', r.nonce); LS.set('sol_teen_link', r.link); render(); if (w) w.location.href = r.link; else window.location.href = r.link; } catch (e) { if (w) w.close(); S.err = errT(e); render(); } },
+  cancelLogin() { clearNonce(); render(); },
+  tab(x) { S.tab = x; S.ov = null; render(); const m = document.querySelector('.main'); if (m) m.scrollTop = 0; },
+  scope(x) { S.scope = x; render(); },
+  badge(x) { S.ov = { type: 'badge', id: x }; render(); },
+  daily() { S.ov = { type: 'daily' }; render(); },
+  scan() { S.ov = { type: 'scan' }; render(); },
+  close() { S.ov = null; render(); },
+  async done(id) { try { await api('taskDone', { taskId: id, on: true }); toast('Засчитано! Так держать'); D = await api('me'); render(); } catch (e) { toast(errT(e)); } },
+  async undo(id) { try { await api('taskDone', { taskId: id, on: false }); D = await api('me'); render(); } catch (e) { toast(errT(e)); } },
+  async tgVerify() { try { const r = await api('tgVerify'); if (r.ok) { toast('Ты в чате! +15 и ачивка «В чате»'); D = await api('me'); render(); } else toast('Пока не видим тебя в чате. Вступи и нажми «Проверить» ещё раз.'); } catch (e) { toast(errT(e)); } },
+  async igSend() { try { await api('igSubmit', { nick: S.ig }); toast('Отправлено лидеру на проверку'); D = await api('me'); render(); } catch (e) { toast(errT(e)); } },
+  async checkin() { try { const r = await api('checkin'); S.ov = { type: 'done', label: r.meet.label, already: r.already }; D = await api('me'); render(); } catch (e) { toast(errT(e)); } },
+  async logout() { try { await call('logout', S.token); } catch (e) {} S.token = ''; LS.del('sol_teen_tok'); D = null; render(); }
+};
+document.addEventListener('click', e => {
+  const a = e.target.closest('[data-a]'); if (!a) return;
+  if (a.getAttribute('data-a') === 'close' && e.target.closest('[data-stop]') && !e.target.closest('button[data-a="close"]')) return;
+  const fn = H[a.getAttribute('data-a')]; if (fn) { e.preventDefault(); fn(a.getAttribute('data-x'), a); }
+});
+document.addEventListener('input', e => { const b = e.target.getAttribute && e.target.getAttribute('data-b'); if (b) S[b] = e.target.value; });
+
+render();
+if (S.token) load();
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+</script>
+</body>
+</html>

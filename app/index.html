@@ -27,8 +27,9 @@ a{color:var(--acc)}
 .h2{font-family:Unbounded,Inter,sans-serif;font-weight:700;font-size:18px;margin:0}
 .sec{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--mu)}
 .mut{color:var(--mu)} .sm{font-size:13px} .xs{font-size:12px}
+#app{height:100%}
 .app{height:100%;display:flex;flex-direction:column}
-.main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.main{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .wrap{max-width:760px;margin:0 auto;padding:20px 16px 130px;display:flex;flex-direction:column;gap:8px}
 .inp{width:100%;height:52px;border-radius:14px;border:1px solid var(--line2);background:var(--card2);color:var(--tx);padding:0 14px;font-size:16px;color-scheme:dark;outline:none}
 .inp:focus{border-color:var(--acc)}
@@ -120,11 +121,12 @@ a{color:var(--acc)}
 /* ПК */
 @media (min-width:900px){
   .app{flex-direction:row}
-  .nav{position:static;width:240px;flex-shrink:0;display:flex;flex-direction:column;align-items:stretch;gap:4px;padding:24px 14px;border-top:none;border-right:1px solid #22252C}
+  .nav{order:-1;position:static;width:240px;flex-shrink:0;display:flex;flex-direction:column;align-items:stretch;gap:4px;padding:24px 14px;border-top:none;border-right:1px solid #22252C}
   .nav button{flex-direction:row;justify-content:flex-start;gap:12px;padding:0 14px;min-height:48px;border-radius:12px;font-size:15px}
   .nav button.on{background:var(--accbg)}
   .nav .c .ring{width:auto;height:auto;margin:0;border:none;background:none}
   .nav .c .ring svg{stroke:var(--acc)}
+  .nav .c:not(.on){color:var(--mu2)}.nav .c:not(.on) .ring svg{stroke:#8B8B94}
   .brand{display:block;font-family:Unbounded,sans-serif;font-weight:700;font-size:18px;padding:4px 14px 20px;color:var(--tx)}
   .brand span{color:var(--acc)}
   .wrap{padding:32px 32px 60px;max-width:820px}
@@ -438,11 +440,19 @@ const MANUAL = () => [
   ['back', tr('С возвращением', 'Welcome back'), tr('Вернулся после долгого перерыва', 'Came back after a long break'), 20, 'M3 12a9 9 0 1 0 3-6.7M3 4v5h5'],
   ['thanks', tr('Особая благодарность', 'Special thanks'), tr('За поступок, который хочется отметить', 'For something worth celebrating'), 50, 'M12 2l3 7h7l-5.5 4 2 7-6.5-4.5L5.5 20l2-7L2 9h7z']
 ];
+function igPendingHtml() {
+  const pend = D.teens.filter(t => t.igStatus === 'pending' && t.ig);
+  if (!pend.length) return '';
+  return `<div class="card" style="border-color:var(--acc);background:var(--accbg);display:flex;flex-direction:column;gap:10px"><div class="sec" style="color:var(--acc2)">${tr('ПРОВЕРИТЬ ПОДПИСКУ НА INSTAGRAM', 'CHECK INSTAGRAM FOLLOW')} · ${pend.length}</div>
+  <div class="xs mut" style="line-height:1.4">${tr('Найдите ник в подписчиках @sol316teens и подтвердите — подросток получит +15 и ачивку.', 'Find the handle among @sol316teens followers and confirm — the teen gets +15 and a badge.')}</div>
+  ${pend.map(t => `<div class="row" style="cursor:default;background:var(--bg)"><div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:600">${esc(tname(t))}</span><a class="sm" style="color:var(--acc)" href="https://www.instagram.com/${encodeURIComponent(t.ig)}/" target="_blank" rel="noopener">@${esc(t.ig)}</a></div><button class="icb" style="width:42px;height:42px;background:var(--acc)" data-a="igOk" data-x="${t.id}" aria-label="${tr('Подтвердить', 'Confirm')}">${svg(IC.check, '#0E0F12', 18, 3)}</button><button class="icb" style="width:42px;height:42px;border:1px solid var(--line2);background:transparent" data-a="igNo" data-x="${t.id}" aria-label="${tr('Отклонить', 'Reject')}">${svg(IC.x, '#8B8B94', 16, 2.5)}</button></div>`).join('')}</div>`;
+}
 function viewTasks() {
   const list = D.tasks.slice().sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
   const recent = D.awards.slice(-40).reverse();
   const grouped = []; recent.forEach(a => { const g = grouped.find(x => x.badge === a.badge && x.date === a.date); if (g) g.who.push(a.teenId); else grouped.push({ badge: a.badge, date: a.date, who: [a.teenId] }); });
   return `<div style="display:flex;align-items:center;justify-content:space-between"><h1 class="h1">${tr('Задания', 'Tasks')}</h1><button class="plus" data-a="openPlus" aria-label="${tr('Добавить', 'Add')}">${svg(IC.plus, '#0E0F12', 20, 2.5)}</button></div>
+  ${igPendingHtml()}
   ${list.length ? list.map(k => { const mem = audMembers(k.aud); const dm = doneMap(k.id); const n = mem.filter(t => dm[t.id]).length;
     return `<button class="card" data-a="openTask" data-x="${k.id}" style="display:flex;flex-direction:column;gap:10px;text-align:left;width:100%"><div style="display:flex;justify-content:space-between;gap:10px;width:100%"><span style="font-size:15px;font-weight:700;line-height:1.3">${esc(k.title)}</span><span class="sm" style="color:var(--acc);font-weight:700;flex-shrink:0">+${k.pts}</span></div><span class="xs mut">${KINDS()[k.kind] || ''} · ${tr('до ', 'due ')}${esc(human(k.due))} · ${esc(audLabel(k.aud))}</span><div class="prog" style="width:100%"><i style="width:${mem.length ? Math.round(n / mem.length * 100) : 0}%"></i></div><span class="xs" style="color:var(--tx2)">${tr('Выполнили ', 'Done by ')}${n}${tr(' из ', ' of ')}${mem.length}</span></button>`; }).join('')
     : `<div class="empty">${tr('Заданий пока нет. Нажмите «+», чтобы создать первое.', 'No tasks yet. Tap “+” to create one.')}</div>`}
@@ -460,6 +470,7 @@ function viewMore() {
   return `<h1 class="h1">${tr('Ещё', 'More')}</h1>
   <div class="row" style="cursor:default"><span style="flex:1;font-size:15px;font-weight:600">${tr('Язык', 'Language')}</span><div class="seg" style="grid-template-columns:1fr 1fr;width:120px"><button class="${!L() ? 'on' : ''}" data-a="lang" data-x="ru">RU</button><button class="${L() ? 'on' : ''}" data-a="lang" data-x="en">EN</button></div></div>
   ${r === 'admin' || r === 'leader' ? moreRow('goQR', tr('QR для отметки', 'Check-in QR'), tr('распечатать', 'print'), true) : ''}
+  ${moreRow('copyTeen', tr('Приложение для подростков', 'Teen app'), tr('скопировать ссылку', 'copy link'))}
   ${r === 'admin' ? moreRow('goGroups', tr('Группы и встречи', 'Groups & meetings'), D.groups.length + tr(' групп', ' groups')) : ''}
   ${r === 'admin' ? moreRow('goRules', tr('Правила списков', 'List rules'), R().reg + tr(' из ', ' of ') + R().win + ' · ' + R().gone + tr(' подряд', ' in a row')) : ''}
   ${r === 'admin' ? moreRow('goAccess', tr('Лидеры и доступ', 'Leaders & access'), (D.leaders || []).length + tr(' в команде', ' in team')) : ''}
@@ -588,6 +599,7 @@ function viewOverlay() {
       ${canEdit ? `<div style="display:flex;flex-direction:column;gap:14px"><div class="sec">${tr('ПОДРОСТОК', 'TEEN')}</div>${fld('ov.f.first', tr('Имя', 'First name'), F.first)}${fld('ov.f.last', tr('Фамилия', 'Last name'), F.last)}${fld('ov.f.phone', tr('Телефон', 'Phone'), F.phone, 'tel')}${fld('ov.f.birth', tr('Дата рождения', 'Date of birth'), F.birth, 'date')}${fld('ov.f.addr', tr('Адрес', 'Address'), F.addr, 'text', tr('Улица, дом, город', 'Street, number, city'))}</div>` : ''}
       ${myRole() === 'admin' || myRole() === 'leader' ? `<div style="display:flex;flex-direction:column;gap:8px"><div style="display:flex;justify-content:space-between;align-items:baseline"><div class="sec">${tr('ГРУППЫ', 'GROUPS')}</div><div class="xs mut">${tr('Можно выбрать несколько', 'You can pick several')}</div></div>${D.groups.length ? ddGroups('', o.groups, o.gOpen, 'profG', 'profPick', { empty: tr('Без группы', 'No group') }) : `<div class="xs mut">${tr('Групп пока нет', 'No groups yet')}</div>`}</div>` : ''}
       ${t.canEditParent ? `<div style="display:flex;flex-direction:column;gap:14px"><div class="sec">${tr('РОДИТЕЛЬ', 'PARENT')}</div>${fld('ov.f.pFirst', tr('Имя родителя', 'Parent first name'), F.pFirst)}${fld('ov.f.pLast', tr('Фамилия родителя', 'Parent last name'), F.pLast)}${fld('ov.f.pPhone', tr('Телефон родителя', 'Parent phone'), F.pPhone, 'tel')}${fld('ov.f.pAddr', tr('Адрес родителя', 'Parent address'), F.pAddr)}</div>` : ''}
+      ${t.pts != null ? `<div class="sm mut">${tr('Баллы в приложении: ', 'App points: ')}<b style="color:var(--acc)">${t.pts}</b> · Telegram ${t.tgChat === '1' ? '✓' : '—'} · Instagram ${t.igStatus === 'ok' ? '✓' : t.igStatus === 'pending' ? tr('на проверке', 'pending') : '—'}</div>` : ''}
       ${t.invitedBy && IDX.teen[t.invitedBy] ? `<div class="sm mut">${tr('Пригласил: ', 'Invited by: ')}${esc(tname(IDX.teen[t.invitedBy]))}</div>` : ''}`,
       canEdit ? `<button class="btn" data-a="saveProf">${tr('Сохранить', 'Save')}</button>` : '');
   }
@@ -746,6 +758,8 @@ const H = {
   },
   // дашборд
   dash(x) { S.dash = x; rerender(); },
+  async igOk(id) { const t = IDX.teen[id]; t.igStatus = 'ok'; rerender(); try { await api('igReview', { id, ok: true }); toast(tr('Подтверждено: ', 'Confirmed: ') + t.first); } catch (e) { t.igStatus = 'pending'; rerender(); toast(errText(e)); } },
+  async igNo(id) { const t = IDX.teen[id]; t.igStatus = ''; rerender(); try { await api('igReview', { id, ok: false }); } catch (e) { t.igStatus = 'pending'; rerender(); toast(errText(e)); } },
   // задания
   openPlus() { S.ov = { type: 'plus' }; rerender(); },
   newTask() { const t = todayD(); const x = new Date(t); x.setDate(t.getDate() + ((7 - t.getDay()) % 7 || 7)); S.ov = { type: 'newTask', f: { kind: 'read', pts: '20', aud: [], due: iso(x) } }; rerender(); },
@@ -784,6 +798,7 @@ const H = {
   async removeLeader() { if (!S.ov.confirmRm) { S.ov.confirmRm = true; S.ov.err = tr('Нажмите «Убрать доступ» ещё раз, чтобы подтвердить', 'Tap “Remove access” again to confirm'); return rerender(); }
     try { await api('removeLeader', { id: S.ov.id }); S.ov = null; await load(); toast(tr('Доступ убран', 'Access removed')); } catch (e) { S.ov.err = errText(e); rerender(); } },
   copyJoin() { copy(joinUrl()); },
+  copyTeen() { copy(APP + 'me/'); },
   print() { window.print(); }
 };
 function copy(t) { const done = () => toast(tr('Скопировано', 'Copied')); if (navigator.clipboard) navigator.clipboard.writeText(t).then(done, () => fallbackCopy(t, done)); else fallbackCopy(t, done); }
