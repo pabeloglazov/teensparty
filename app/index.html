@@ -270,6 +270,7 @@ const SVCA = () => {
   const on = list.filter(x => !x.off);
   return list.map(x => Object.assign(x, { pl: on.filter(y => y.day === x.day).length > 1 ? x.name : DPL()[x.day] }));
 };
+const evCount = id => { const u = {}; D.att.forEach(a => { if (a[1] === 'event' && a[2] === id) u[a[3]] = 1; }); return Object.keys(u).length; };
 const SVCS = () => SVCA().filter(x => !x.off);
 const svcOf = id => SVCA().find(s => s.id === id) || SVCS()[0] || { id: id, name: tr('Встреча', 'Meeting'), day: 0, time: '' };
 async function saveSvcs(list) { const v = JSON.stringify(list.map(x => ({ id: x.id, name: x.name, day: +x.day, time: x.time, off: x.off ? 1 : 0 }))); const old = D.settings.meetings; D.settings.meetings = v; rerender(); try { await api('saveSettings', { meetings: v }); toast(tr('Сохранено', 'Saved')); } catch (e) { D.settings.meetings = old; rerender(); toast(errText(e)); } }
@@ -402,8 +403,9 @@ function bDate(t) { const v = String(t.birth || '').trim(); let m;
   if ((m = v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/))) return new Date(+m[3], m[1] - 1, +m[2]);
   if ((m = v.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/))) return new Date(+m[3], m[2] - 1, +m[1]);
   return null; }
+function approxAge(t) { const a = +t.age; if (!a || !/^\d{4}-\d{2}-\d{2}$/.test(t.ageAt || '')) return null; const v = a + Math.floor((todayD() - parse(t.ageAt)) / (365.25 * 864e5)); return v >= 5 && v <= 30 ? v : null; }
 const bIso = t => { const b = bDate(t); return b ? b.getFullYear() + '-' + String(b.getMonth() + 1).padStart(2, '0') + '-' + String(b.getDate()).padStart(2, '0') : ''; };
-function ageOf(t) { const b = bDate(t); if (!b || isNaN(b)) return null; const td = todayD(); let a = td.getFullYear() - b.getFullYear(); if (td.getMonth() < b.getMonth() || (td.getMonth() === b.getMonth() && td.getDate() < b.getDate())) a--; return a >= 5 && a <= 30 ? a : null; }
+function ageOf(t) { const b = bDate(t); if (!b || isNaN(b)) return approxAge(t); const td = todayD(); let a = td.getFullYear() - b.getFullYear(); if (td.getMonth() < b.getMonth() || (td.getMonth() === b.getMonth() && td.getDate() < b.getDate())) a--; return a >= 5 && a <= 30 ? a : null; }
 function nextBday(t) { if (ageOf(t) == null) return null; const b = bDate(t), td = todayD(); let n = new Date(td.getFullYear(), b.getMonth(), b.getDate()); if (n < td) n = new Date(td.getFullYear() + 1, b.getMonth(), b.getDate()); return { days: Math.round((n - td) / 864e5), turns: n.getFullYear() - b.getFullYear(), date: n }; }
 const yrs = a => L() ? (a === 1 ? 'year' : 'years') : plural(a, 'год', 'года', 'лет');
 function ageCard() {
@@ -527,7 +529,8 @@ function viewGroups() {
   ${D.groups.map(g => `<button class="row" data-a="editGroup" data-x="${g.id}"><div style="flex:1;display:flex;flex-direction:column;gap:3px"><span style="font-size:15px;font-weight:600">${esc(g.name)}</span><span class="xs mut">${tr('Лидер: ', 'Leader: ')}${esc(g.leader || '—')} · ${DLONG()[g.day]} ${esc(g.time)}</span></div><span class="sm" style="color:var(--acc);font-weight:600">${members(g.id).length}${tr(' чел.', ' people')}</span></button>`).join('') || `<div class="xs mut" style="padding:0 4px">${tr('Пока нет групп', 'No groups yet')}</div>`}
   <button class="btn2" style="border:2px dashed var(--line3);color:var(--acc)" data-a="editGroup" data-x="">+ ${tr('Новая группа', 'New group')}</button>
   <div class="sec" style="padding:12px 4px 0">${tr('СОБЫТИЯ', 'EVENTS')}</div>
-  ${D.events.slice().sort((a, b) => b.date.localeCompare(a.date)).slice(0, 12).map(e => `<div class="row" style="cursor:default"><span style="flex:1;font-size:15px;font-weight:600">${esc(e.name)}</span><span class="sm mut">${esc(human(e.date))}</span></div>`).join('') || `<div class="xs mut" style="padding:0 4px">${tr('События создаются на экране отметки: «Встреча ▾» → «+ Новое событие».', 'Create events from Check-in: meeting ▾ → + New event.')}</div>`}`;
+  ${D.events.slice().sort((a, b) => b.date.localeCompare(a.date)).map(e => { const n = evCount(e.id); return `<div class="row" style="cursor:default;gap:8px"><button style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;text-align:left;background:none;border:0;color:inherit;padding:0;font:inherit;cursor:pointer" data-a="evPeople" data-x="${e.id}"><span style="font-size:15px;font-weight:600">${esc(e.name)}</span><span class="xs mut">${esc(human(e.date))} ${e.date.slice(0, 4)}${e.reg ? ' · ' + tr('регистраций ', 'registered ') + e.reg : ''}</span></button><span class="sm" style="color:var(--acc);font-weight:600;white-space:nowrap">${n}${tr(' пришли', ' came')}</span><button class="icb" data-a="editEv" data-x="${e.id}" aria-label="${tr('Изменить', 'Edit')}">${svg(IC.pen, '#F4F4F5', 18, 2.2)}</button><button class="icb" data-a="delEv" data-x="${e.id}" aria-label="${tr('Удалить', 'Delete')}">${svg(IC.trash, '#F87171', 18, 2.2)}</button></div>`; }).join('') || `<div class="xs mut" style="padding:0 4px">${tr('Пока нет событий', 'No events yet')}</div>`}
+  <button class="btn2" style="border:2px dashed var(--line3);color:var(--acc)" data-a="editEv" data-x="">+ ${tr('Новое событие', 'New event')}</button>`;
 }
 function viewRules() {
   const r = R();
@@ -630,6 +633,7 @@ function viewOverlay() {
     const tipOf = i => sess[i] ? human(sess[i]) + ' · ' + svcOf(sid[i]).name + ' — ' + (hist[i] === '1' ? tr('был', 'attended') : hist[i] === '0' ? tr('не был', 'missed') : tr('нет данных', 'no data')) : tr('нет данных', 'no data');
     const hi = o.hov != null ? o.hov : o.hi;
     let age = '';
+    if (!F.birth && approxAge(F) != null) { const a = approxAge(F); age = '~' + a + (L() ? ' y.o.' : ' ' + plural(a, 'год', 'года', 'лет')) + tr(' (со слов)', ' (self-reported)'); }
     if (F.birth) { const b = parse(F.birth); const td = todayD(); let a = td.getFullYear() - b.getFullYear(); if (td.getMonth() < b.getMonth() || (td.getMonth() === b.getMonth() && td.getDate() < b.getDate())) a--; age = a + (L() ? ' y.o.' : ' ' + plural(a, 'год', 'года', 'лет')) + ' · ' + human(F.birth); }
     const nm = ((F.first || '') + ' ' + (F.last || '')).trim() || tname(t);
     const canEdit = myRole() !== 'viewer';
@@ -683,6 +687,27 @@ function viewOverlay() {
       <input class="inp" style="height:48px;background:var(--bg)" data-b="ov.f.q" data-live="award" value="${esc(F.q || '')}" placeholder="${tr('Поиск по имени', 'Search by name')}" aria-label="${tr('Поиск', 'Search')}">
       <div class="dd" id="awlist" style="background:var(--bg)">${awardPeople()}</div></div>
       ${o.err ? `<div class="err">${esc(o.err)}</div>` : ''}`, `<button class="btn" data-a="saveAward">${tr('Засчитать', 'Award')}${who.length ? ' (' + who.length + ')' : ''}</button>`);
+  }
+  if (o.type === 'ev') {
+    return sheet(o.id ? tr('Событие', 'Event') : tr('Новое событие', 'New event'), `
+      ${fld('ov.f.name', tr('Название', 'Name'), F.name, 'text', tr('Например, TEENS PARTY', 'e.g. TEENS PARTY'))}
+      ${fld('ov.f.date', tr('Дата', 'Date'), F.date, 'date')}
+      ${o.id && evCount(o.id) ? `<div class="xs mut" style="line-height:1.45">${tr('Если поменять дату, отметки пришедших переедут на новую дату.', 'Changing the date moves the attendance to the new date.')}</div>` : ''}
+      ${o.err ? `<div class="err">${esc(o.err)}</div>` : ''}`, `<button class="btn" data-a="saveEv">${o.id ? tr('Сохранить', 'Save') : tr('Добавить событие', 'Add event')}</button>`);
+  }
+  if (o.type === 'evDel') {
+    const e = D.events.find(x => x.id === o.id) || {}; const n = evCount(o.id);
+    return sheet(tr('Удалить событие?', 'Delete event?'), `
+      <div style="font-size:15px;line-height:1.5">«${esc(e.name)}» · ${esc(human(e.date))}</div>
+      <div class="sm mut" style="line-height:1.45">${n ? tr('Вместе с ним удалятся отметки ' + n + ' ' + plural(n, 'человека', 'человек', 'человек') + ' и баллы за это событие. Сами подростки останутся в базе.', 'Attendance of ' + n + ' people and points for it will be removed too. Teens stay in the database.') : tr('Отметок на этом событии нет.', 'No attendance for this event.')}</div>`,
+      `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn2" data-a="close">${tr('Отмена', 'Cancel')}</button><button class="btn" style="background:#EF4444;color:#fff" data-a="delEvOk">${tr('Удалить', 'Delete')}</button></div>`);
+  }
+  if (o.type === 'evPeople') {
+    const e = D.events.find(x => x.id === o.id) || {}; const ids = {}; D.att.forEach(a => { if (a[1] === 'event' && a[2] === o.id) ids[a[3]] = 1; });
+    const list = Object.keys(ids).map(id => IDX.teen[id]).filter(Boolean).sort((a, b) => tname(a).localeCompare(tname(b)));
+    return sheet(esc(e.name) + ' · ' + list.length + tr(' пришли', ' came'), `
+      <div class="xs mut">${esc(human(e.date))} ${String(e.date || '').slice(0, 4)}${e.reg ? ' · ' + tr('регистраций ', 'registered ') + e.reg : ''}</div>
+      <div style="display:flex;flex-direction:column;gap:6px">${list.map(t => `<button class="row" data-a="openProf" data-x="${t.id}" style="min-height:52px"><div class="av" style="width:34px;height:34px;font-size:12px">${esc(ini(tname(t)))}</div><span style="flex:1;font-size:15px;font-weight:500">${esc(tname(t))}</span><span class="xs mut">${ageOf(t) != null ? (t.birth ? '' : '~') + ageOf(t) + ' ' + yrs(ageOf(t)) : ''}</span>${svg(IC.right, '#5F626B', 16, 2.5)}</button>`).join('') || `<div class="empty">${tr('Пока никто не отмечен', 'No one marked yet')}</div>`}</div>`);
   }
   if (o.type === 'ages') {
     const list = D.teens.filter(t => o.age === 'none' ? ageOf(t) == null : ageOf(t) === +o.age).sort((a, b) => o.age === 'none' ? tname(a).localeCompare(tname(b)) : bIso(a).localeCompare(bIso(b)));
@@ -862,6 +887,13 @@ const H = {
   async viewAs(id) { S.as = { as: id }; S.ov = null; S.tab = ''; S.more = 'root'; D = null; render(); await load(); },
   async viewAsRole(r) { S.as = { asRole: r }; S.ov = null; S.tab = ''; S.more = 'root'; D = null; render(); await load(); },
   async exitAs() { S.as = null; S.ov = null; S.tab = 'more'; S.more = 'access'; D = null; render(); await load(); },
+  evPeople(id) { S.ov = { type: 'evPeople', id }; rerender(); },
+  editEv(id) { const e = D.events.find(x => x.id === id); S.ov = { type: 'ev', id: id || '', f: e ? { name: e.name, date: e.date } : { name: '', date: D.today } }; rerender(); },
+  delEv(id) { S.ov = { type: 'evDel', id }; rerender(); },
+  async saveEv() { const F = S.ov.f, id = S.ov.id; const name = (F.name || '').trim(); if (!name) { S.ov.err = tr('Введите название', 'Enter a name'); return rerender(); }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(F.date || '')) { S.ov.err = tr('Укажите дату', 'Set a date'); return rerender(); }
+    try { if (id) await api('editEvent', { id, name, date: F.date }); else await api('addEvent', { name, date: F.date }); S.ov = null; await load(); toast(tr('Сохранено', 'Saved')); } catch (e) { S.ov.err = errText(e); rerender(); } },
+  async delEvOk() { const id = S.ov.id; try { await api('delEvent', { id }); S.ov = null; await load(); toast(tr('Удалено', 'Deleted')); } catch (e) { toast(errText(e)); } },
   ageList(x) { S.ov = { type: 'ages', age: x }; rerender(); },
   editLeader(id) { const l = (D.leaders || []).find(x => x.id === id); if (!l || l.me) return; S.ov = { type: 'leader', id, f: { name: l.name, email: l.email, role: l.role, groups: l.groups.slice() } }; rerender(); },
   leadG(g) { const a = S.ov.f.groups; const i = a.indexOf(g); i >= 0 ? a.splice(i, 1) : a.push(g); rerender(); },

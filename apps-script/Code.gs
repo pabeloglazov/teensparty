@@ -11,10 +11,10 @@ const COLS = {
   'Подростки': [['id','ID'],['first','Имя'],['last','Фамилия'],['phone','Телефон'],['birth','Дата рождения'],['addr','Адрес'],
     ['pFirst','Имя родителя'],['pLast','Фамилия родителя'],['pPhone','Телефон родителя'],['pAddr','Адрес родителя'],
     ['groups','Группы (ID)'],['createdAt','Добавлен'],['source','Источник'],['invitedBy','Пригласил (ID)'],['review','Проверить'],
-    ['ig','Instagram'],['tgId','Telegram ID'],['archived','Скрыт'],['igStatus','Instagram: статус'],['tgChat','В Telegram-чате']],
+    ['ig','Instagram'],['tgId','Telegram ID'],['archived','Скрыт'],['igStatus','Instagram: статус'],['tgChat','В Telegram-чате'],['age','Возраст (со слов)'],['ageAt','Возраст указан (дата)']],
   'Посещения': [['id','ID'],['date','Дата'],['kind','Тип'],['meetId','Встреча (ID)'],['teenId','Подросток (ID)'],['teenName','Подросток'],['by','Отметил'],['method','Способ'],['ts','Время отметки']],
   'Группы': [['id','ID'],['name','Название'],['leader','Лидер'],['day','День (0=вс)'],['time','Время'],['active','Активна']],
-  'События': [['id','ID'],['name','Название'],['date','Дата']],
+  'События': [['id','ID'],['name','Название'],['date','Дата'],['reg','Регистраций']],
   'Лидеры': [['id','ID'],['email','Email'],['name','Имя'],['role','Роль'],['groups','Группы (ID)'],['status','Статус'],['code','Код приглашения'],['invitedAt','Приглашён']],
   'Задания': [['id','ID'],['title','Задание'],['kind','Тип'],['due','Срок'],['pts','Баллы'],['aud','Для групп (ID)'],['createdBy','Создал'],['createdAt','Создано']],
   'Выполнения': [['taskId','Задание (ID)'],['teenId','Подросток (ID)'],['date','Дата'],['by','Засчитал']],
@@ -274,7 +274,7 @@ function logout(token) {
 // ---------------- API для админки ----------------
 const CAN = {
   mark: ['admin', 'leader', 'mod'], addTeen: ['admin', 'leader', 'mod'], updateTeen: ['admin', 'leader', 'mod'], reviewTeen: ['admin', 'leader', 'mod'],
-  addEvent: ['admin', 'leader'], saveGroup: ['admin'], saveSettings: ['admin'],
+  addEvent: ['admin', 'leader'], editEvent: ['admin'], delEvent: ['admin'], saveGroup: ['admin'], saveSettings: ['admin'],
   invite: ['admin'], updateLeader: ['admin'], removeLeader: ['admin'],
   addTask: ['admin', 'leader'], taskDone: ['admin', 'leader'], remind: ['admin', 'leader'], award: ['admin', 'leader'], igReview: ['admin', 'leader']
 };
@@ -300,7 +300,7 @@ function asMe_(me, p) {
   return { id: '', email: '', name: '', role: p.asRole, groups: [], preview: true };
 }
 const PARENT_KEYS = ['pFirst', 'pLast', 'pPhone', 'pAddr'];
-const CONTACT_KEYS = ['phone', 'birth', 'addr', 'ig', 'igStatus', 'tgChat'];
+const CONTACT_KEYS = ['phone', 'birth', 'addr', 'ig', 'igStatus', 'tgChat', 'age', 'ageAt'];
 
 const A_ = {
   bootstrap(me) {
@@ -321,7 +321,7 @@ const A_ = {
       me, today: today_(), execUrl: execUrl_(), settings: st,
       teens: visTeens, att,
       groups: rows_('Группы').filter(g => g.active !== '0').map(g => ({ id: g.id, name: g.name, leader: g.leader, day: +g.day, time: g.time })),
-      events: rows_('События').map(e => ({ id: e.id, name: e.name, date: e.date })),
+      events: rows_('События').map(e => ({ id: e.id, name: e.name, date: e.date, reg: +e.reg || 0 })),
       tasks: rows_('Задания').map(t => ({ id: t.id, title: t.title, kind: t.kind, due: t.due, pts: +t.pts || 0, aud: t.aud ? t.aud.split(',').filter(Boolean) : [], createdAt: t.createdAt })),
       done: rows_('Выполнения').map(d => [d.taskId, d.teenId, d.date]),
       reminders: rows_('Напоминания').map(d => [d.taskId, d.teenId]),
@@ -382,6 +382,20 @@ const A_ = {
     const name = String(p.name || '').trim(); if (!name) throw new Error('need_name');
     const e = { id: uid_('E'), name, date: p.date || today_() };
     append_('События', e); return e;
+  },
+  editEvent(me, p) {
+    const e = rows_('События').find(x => x.id === p.id); if (!e) throw new Error('not_found');
+    const name = String(p.name || '').trim(); if (!name) throw new Error('need_name');
+    const date = /^\d{4}-\d{2}-\d{2}$/.test(p.date || '') ? p.date : e.date;
+    update_('События', e, { name, date });
+    if (date !== e.date) rows_('Посещения').filter(a => a.kind === 'event' && a.meetId === e.id).forEach(a => update_('Посещения', a, { date }));
+    return true;
+  },
+  delEvent(me, p) {
+    const e = rows_('События').find(x => x.id === p.id); if (!e) throw new Error('not_found');
+    delete_('Посещения', rows_('Посещения').filter(a => a.kind === 'event' && a.meetId === e.id).map(a => a._row));
+    delete_('События', [e._row]);
+    return true;
   },
 
   saveGroup(me, p) {
@@ -544,4 +558,73 @@ function joinFriends(q) {
     return rows_('Подростки').filter(t => t.archived !== '1' && (t.first + ' ' + t.last).toLowerCase().indexOf(q) >= 0).slice(0, 5)
       .map(t => ({ id: t.id, name: t.first + ' ' + String(t.last || '').charAt(0) + '.' }));
   });
+}
+
+
+// ---------------- импорт TEENS PARTY (31.10.2026) ----------------
+// Запуск из редактора: importTeensPartyDry() — только показать план; importTeensParty() — записать.
+const PARTY_SHEET_ID = '150N4AgcxRO5kA5C8CFp8h01koFmrYqUUGEMxiie7pZo';
+const PARTY_DATE = '2026-10-31';
+function importTeensPartyDry() { return importTeensParty(true); }
+function importTeensParty(dry) {
+  setup(); // добавит новые колонки (возраст, регистраций), ничего не стирает
+  const cap = w => String(w || '').trim().split(/\s+/).filter(Boolean).map(x => x.charAt(0).toUpperCase() + x.slice(1)).join(' ');
+  const norm = w => String(w || '').toLowerCase().replace(/ё/g, 'е').replace(/\s+/g, ' ').trim();
+  const v = SpreadsheetApp.openById(PARTY_SHEET_ID).getSheetByName('Registrations').getDataRange().getDisplayValues();
+  const H = v[0].map(h => String(h).trim().toLowerCase());
+  const col = n => H.indexOf(n);
+  const regs = [], skipped = [];
+  v.slice(1).forEach(r => {
+    const name = cap(r[col('name')]); const age = +r[col('age')] || 0;
+    if (!name) return;
+    if (age < 10 || age > 19 || name.split(' ')[0].length < 2) { skipped.push(name + ' (' + age + ')'); return; }
+    regs.push({ name, phone: digits_(r[col('phone')]), age, parent: cap(r[col('parent name')]), pPhone: digits_(r[col('parent phone')]), came: !!String(r[col('checked in')] || '').trim(), ts: r[col('timestamp')] });
+  });
+  // склеиваем повторные регистрации одного человека (по имени или телефону)
+  const uniq = [];
+  regs.forEach(x => {
+    const d = uniq.find(u => norm(u.name) === norm(x.name) || (x.phone && u.phone === x.phone && norm(u.name).split(' ')[0] === norm(x.name).split(' ')[0]));
+    if (d) { d.came = d.came || x.came; ['phone', 'parent', 'pPhone'].forEach(k => { if (x[k]) d[k] = x[k]; }); d.age = x.age; }
+    else uniq.push(Object.assign({}, x));
+  });
+  const teens = rows_('Подростки');
+  const byPhone = {}, byName = {};
+  teens.forEach(t => { const ph = digits_(t.phone); if (ph) byPhone[ph] = t; byName[norm(t.first + ' ' + t.last)] = t; });
+  const plan = { matched: [], created: [], came: 0, registered: uniq.length, skipped };
+  const newRows = [], att = [];
+  let ev = rows_('События').find(e => e.date === PARTY_DATE && /teens\s*party/i.test(e.name));
+  const evId = ev ? ev.id : uid_('E');
+  const haveAtt = {}; rows_('Посещения').forEach(a => { if (a.kind === 'event' && a.meetId === evId) haveAtt[a.teenId] = 1; });
+  uniq.forEach(x => {
+    let t = (x.phone && byPhone[x.phone]) || byName[norm(x.name)];
+    const parts = x.name.split(' '), pp = x.parent.split(' ');
+    if (t) {
+      const patch = {};
+      if (!t.phone && x.phone) patch.phone = x.phone;
+      if (!t.pFirst && x.parent) { patch.pFirst = pp[0]; patch.pLast = pp.slice(1).join(' '); }
+      if (!t.pPhone && x.pPhone && x.pPhone !== x.phone) patch.pPhone = x.pPhone;
+      if (!t.birth) { patch.age = String(x.age); patch.ageAt = PARTY_DATE; }
+      plan.matched.push(x.name + ' → ' + t.first + ' ' + t.last + (Object.keys(patch).length ? ' (+' + Object.keys(patch).join(',') + ')' : ''));
+      if (!dry && Object.keys(patch).length) update_('Подростки', t, patch);
+    } else {
+      t = { id: uid_('T'), first: parts[0], last: parts.slice(1).join(' '), phone: x.phone, pFirst: pp[0] || '', pLast: pp.slice(1).join(' '), pPhone: x.pPhone !== x.phone ? x.pPhone : '', age: String(x.age), ageAt: PARTY_DATE,
+        groups: '', createdAt: PARTY_DATE, source: 'teensparty', review: '', archived: '' };
+      newRows.push(t); byName[norm(x.name)] = t; if (x.phone) byPhone[x.phone] = t;
+      plan.created.push(x.name + ', ' + x.age + (x.came ? ' ✓' : ''));
+    }
+    if (x.came) { plan.came++; if (!haveAtt[t.id]) att.push({ id: uid_('A'), date: PARTY_DATE, kind: 'event', meetId: evId, teenId: t.id, teenName: (t.first + ' ' + t.last).trim(), by: 'import', method: 'teensparty', ts: '' }); }
+  });
+  if (!dry) {
+    if (!ev) append_('События', { id: evId, name: 'TEENS PARTY', date: PARTY_DATE, reg: plan.registered });
+    else update_('События', ev, { reg: plan.registered });
+    appendMany_('Подростки', newRows);
+    appendMany_('Посещения', att);
+  }
+  const rep = (dry ? 'ПЛАН (ничего не записано)\n' : 'ИМПОРТ ВЫПОЛНЕН\n') +
+    'Регистраций (уникальных подростков): ' + plan.registered + '\nПришли: ' + plan.came +
+    '\nУже были в базе: ' + plan.matched.length + '\n  ' + plan.matched.join('\n  ') +
+    '\nНовые в базе: ' + plan.created.length + '\n  ' + plan.created.join('\n  ') +
+    '\nПропущены (взрослые/тестовые): ' + skipped.join(', ');
+  Logger.log(rep);
+  return rep;
 }
