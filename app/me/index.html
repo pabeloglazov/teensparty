@@ -22,8 +22,8 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:none;background:n
 input{font-family:inherit}
 input::placeholder{color:var(--mu2)}
 a{color:inherit}
-#app{height:calc(100% + var(--vfix,0px))}
-.app{height:calc(100% + var(--vfix,0px));display:flex;flex-direction:column}
+#app{height:100%}
+.app{position:fixed;top:0;left:0;right:0;bottom:calc(0px - var(--vfix,0px));display:flex;flex-direction:column}
 .main{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .wrap{max-width:520px;margin:0 auto;padding:calc(18px + env(safe-area-inset-top)) 16px 120px;display:flex;flex-direction:column;gap:14px}
 .h1{font-family:Unbounded,Inter,sans-serif;font-weight:700;font-size:24px;line-height:1.2;margin:0}
@@ -82,7 +82,7 @@ a{color:inherit}
 </style>
 </head>
 <body>
-<script>(function(){function f(){var d=document.documentElement,v=0;try{if(matchMedia('(display-mode: standalone)').matches||navigator.standalone){var t=document.createElement('div');t.style.cssText='position:fixed;top:0;visibility:hidden;padding-top:env(safe-area-inset-top)';document.body.appendChild(t);var sat=parseFloat(getComputedStyle(t).paddingTop)||0;t.remove();var gap=Math.max(screen.height,screen.width)-innerHeight;if(innerHeight>innerWidth&&sat>0&&Math.abs(gap-sat)<=2)v=gap;}}catch(e){}d.style.setProperty('--vfix',v+'px');}f();addEventListener('resize',f);addEventListener('orientationchange',function(){setTimeout(f,300)});})();</script>
+<script>(function(){var last=-1;function f(){var d=document.documentElement,v=0;try{if((matchMedia('(display-mode: standalone)').matches||navigator.standalone)&&innerHeight>innerWidth){var t=document.createElement('div');t.style.cssText='position:fixed;top:0;visibility:hidden;padding-top:env(safe-area-inset-top)';document.body.appendChild(t);var sat=parseFloat(getComputedStyle(t).paddingTop)||0;t.remove();var gap=screen.height-innerHeight;if(sat>0&&Math.abs(gap-sat)<=2)v=gap;}}catch(e){}if(v!==last){last=v;d.style.setProperty('--vfix',v+'px');}}f();['resize','orientationchange','pageshow','focus'].forEach(function(e){addEventListener(e,function(){setTimeout(f,60)})});document.addEventListener('visibilitychange',f);if(window.visualViewport)visualViewport.addEventListener('resize',f);setInterval(f,1000);})();</script>
 <div id="app"></div>
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbw1J4PnxNLtZ8H8dCWhJpTiAeA2V-X5RWmJdB6VQPr_IFzemiKS-y_SW50PvR0dAnL6Cg/exec';
