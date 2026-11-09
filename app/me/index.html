@@ -204,7 +204,8 @@ function socialCards() {
     ${ig.status === 'ok' ? `<span class="ok">${svg(I.check, 'var(--green)', 18, 3)} Подписан · ачивка «Подписчик»</span>`
       : ig.status === 'pending' ? `<div class="sm mu">Лидер проверит @${esc(ig.nick)} и начислит баллы.</div>`
       : `<a class="btnS" href="${esc(ig.link)}" target="_blank" rel="noopener">Подписаться</a><div class="row"><input class="inp" style="height:46px" data-b="ig" value="${esc(S.ig)}" placeholder="твой ник в Instagram" autocapitalize="off" autocomplete="off"><button class="btnS" data-a="igSend">Отправить</button></div><div class="xs mu">Чтобы лидер нашёл тебя в подписчиках.</div>`}</div>`;
-  return (tg.ok && ig.status === 'ok') ? '' : `<div class="sec" style="padding:6px 4px 0">БУДЬ НА СВЯЗИ</div>${tgC}${igC}`;
+  const left = (tg.ok ? '' : tgC) + (ig.status === 'ok' ? '' : igC);
+  return left ? `<div class="sec" style="padding:6px 4px 0">БУДЬ НА СВЯЗИ</div>${left}` : '';
 }
 function badgeTile(b) {
   const got = b.have >= b.need;
@@ -246,6 +247,10 @@ function viewProfile() {
   const nm = (D.me.first + ' ' + D.me.last).trim();
   return `<div class="row"><div class="av me" style="width:64px;height:64px;font-size:22px">${esc(nm.split(/\s+/).map(x => x[0] || '').join('').slice(0, 2).toUpperCase())}</div><div style="min-width:0"><div class="h2">${esc(nm)}</div><div class="sm mu">${esc(D.me.groups.join(', ') || 'SOL Teens')}${D.me.since ? ' · с ' + esc(human(D.me.since.slice(0, 10))) : ''}</div></div></div>
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px"><div class="stat"><b>${D.visits}</b><span class="xs mu">${plural(D.visits, 'встреча', 'встречи', 'встреч')}</span></div><div class="stat"><b>${got}</b><span class="xs mu">ачивок</span></div><div class="stat"><b>${D.pts}</b><span class="xs mu">баллов</span></div></div>
+  ${D.tg.ok || D.ig.status === 'ok' ? `<div class="sec" style="padding:6px 4px 0">МЫ НА СВЯЗИ</div><div class="card" style="gap:0;padding:4px 16px">
+    ${D.tg.ok ? `<a href="${esc(D.tg.link)}" target="_blank" rel="noopener" class="row" style="min-height:48px;gap:10px;color:inherit;text-decoration:none;border-bottom:${D.ig.status === 'ok' ? '1px solid var(--line)' : '0'}">${svg(I.tg, 'var(--acc)', 20)}<span style="flex:1">Telegram-чат SOL Teens</span>${svg(I.check, 'var(--acc)', 18, 3)}</a>` : ''}
+    ${D.ig.status === 'ok' ? `<a href="${esc(D.ig.link)}" target="_blank" rel="noopener" class="row" style="min-height:48px;gap:10px;color:inherit;text-decoration:none">${svg(I.ig, 'var(--acc)', 20)}<span style="flex:1">Instagram${D.ig.nick ? ' · @' + esc(String(D.ig.nick).replace(/^@/, '')) : ''}</span>${svg(I.check, 'var(--acc)', 18, 3)}</a>` : ''}
+  </div>` : ''}
   <div class="sec" style="padding:6px 4px 0">КАК ПОЛУЧАТЬ БАЛЛЫ</div>
   <div class="card" style="gap:0;padding:4px 16px">${RULES.map(([a, b]) => `<div class="row" style="justify-content:space-between;min-height:44px;border-bottom:1px solid var(--line)"><span class="sm">${a}</span><span style="font-weight:700;color:var(--acc)">${b}</span></div>`).join('')}</div>
   ${D.log.length ? `<div class="sec" style="padding:6px 4px 0">ПОСЛЕДНИЕ БАЛЛЫ</div><div class="card" style="gap:0;padding:4px 16px">${D.log.map(l => `<div class="row" style="justify-content:space-between;min-height:50px;border-bottom:1px solid var(--line)"><div style="min-width:0"><div class="sm ellip" style="font-weight:600">${esc(l.what)}</div><div class="xs mu">${esc(word(l.date))}</div></div><span style="font-weight:700;color:var(--acc)">+${l.pts}</span></div>`).join('')}</div>` : ''}

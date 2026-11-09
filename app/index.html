@@ -74,7 +74,7 @@ a{color:var(--acc)}
 .stat.acc b{color:var(--acc)}
 .chip{flex-shrink:0;min-height:40px;padding:0 14px;border-radius:999px;font-size:13px;font-weight:600;white-space:nowrap;border:1px solid var(--line2);background:var(--card);color:var(--tx2)}
 .asbar{position:sticky;top:0;z-index:4;display:flex;align-items:center;gap:10px;margin:-6px 0 4px;padding:10px 12px;border-radius:14px;background:#2A2113;border:1px solid var(--acc);font-size:13px;color:var(--tx)}.asbar b{color:var(--acc)}.asbar button{margin-left:auto;flex-shrink:0;height:34px;padding:0 14px;border-radius:999px;background:var(--acc);color:#0E0F12;font-weight:700;font-size:13px}
-.agebar{appearance:none;-webkit-appearance:none;background:transparent;border:0;padding:3px 0;margin:0;color:var(--tx);font:inherit;cursor:pointer;display:grid;grid-template-columns:62px 1fr 28px;align-items:center;gap:10px;min-height:30px;width:100%;text-align:left;font-size:13px}.agebar i{display:block;height:12px;border-radius:6px;background:var(--acc)}.agebar .tr{background:var(--line2);border-radius:6px;height:12px;overflow:hidden}
+/*age*/.agebar{appearance:none;-webkit-appearance:none;background:transparent;border:0;padding:3px 0;margin:0;color:var(--tx);font:inherit;cursor:pointer;display:grid;grid-template-columns:70px 1fr 32px;align-items:center;gap:12px;min-height:38px;width:100%;text-align:left;font-size:15px}.agebar i{display:block;height:16px;border-radius:8px;background:var(--acc)}.agebar .tr{background:var(--line2);border-radius:8px;height:16px;overflow:hidden}
 .chip.on{background:var(--acc);border-color:var(--acc);color:#0E0F12}
 .seg{display:grid;gap:4px;background:var(--bg);border-radius:14px;padding:4px}
 .seg button{height:44px;border-radius:11px;border:none;background:transparent;color:var(--mu);font-size:14px;font-weight:700}
@@ -89,10 +89,13 @@ a{color:var(--acc)}
 .rd{width:20px;height:20px;border-radius:999px;flex-shrink:0;border:2px solid var(--line3)}
 .rd.on{border:6px solid var(--acc)}
 .rot180{transform:rotate(180deg)}
-.bars{display:flex;align-items:flex-end;gap:6px;height:130px}
-.bars>div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;height:100%}
-.bars i{display:block;width:100%;border-radius:6px;background:var(--line3)}
-.bars i.last{background:var(--acc)}
+.dashgrid{display:flex;flex-direction:column;gap:12px}
+.dashgrid>.card{padding:18px}
+.bars{display:flex;align-items:flex-end;gap:8px;height:210px}
+.bars>button{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:5px;height:100%;background:none;border:0;padding:0;color:inherit;font:inherit;cursor:pointer}
+.bars>button>b{font-size:13px;font-weight:700}.bars>button>em{font-style:normal;font-size:10px;color:var(--mu);white-space:nowrap}
+.bars>button.sel i{background:var(--acc)}.bars>button.sel>b{color:var(--acc)}
+.bars i{display:block;width:100%;border-radius:8px;background:var(--line3)}
 .prog{height:6px;border-radius:999px;background:#22252C;overflow:hidden}
 .prog i{display:block;height:100%;border-radius:999px;background:var(--acc)}
 .hist{display:flex;gap:6px}
@@ -147,7 +150,6 @@ a{color:var(--acc)}
   .full{left:auto;width:560px;border-left:1px solid var(--line2);box-shadow:-24px 0 60px rgba(0,0,0,.5)}
   .toast{bottom:32px}
   .teens2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-  .dashgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}
 }
 @media print{.nav,.noprint{display:none!important}.qrbox{border:none}}
 </style>
@@ -448,6 +450,13 @@ function series(f) {
   });
   return Object.keys(by).sort().map(d => ({ d, v: by[d].size }));
 }
+// что было в выбранный день: названия встреч / групп / событий и сколько пришло
+function dayItems(d, f) {
+  const by = {};
+  D.att.forEach(([dd, k, m, t]) => { if (dd !== d) return; const ok = f === 'all' || (k === 'service' && m === f) || (f === 'events' && k === 'event') || (k === 'group' && m === f); if (!ok) return; (by[k + '|' + m] = by[k + '|' + m] || new Set()).add(t); });
+  return Object.keys(by).map(key => { const [k, m] = key.split('|'); const ev = k === 'event' ? D.events.find(e => e.id === m) : null;
+    return { name: k === 'event' ? (ev ? ev.name : tr('Событие', 'Event')) : k === 'group' ? ((IDX.group[m] || {}).name || tr('Малая группа', 'Small group')) : svcOf(m).name, n: by[key].size }; }).sort((a, b) => b.n - a.n);
+}
 // ---------- возраст ----------
 function bDate(t) { const v = String(t.birth || '').trim(); let m;
   if ((m = v.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/))) return new Date(+m[1], m[2] - 1, +m[3]);
@@ -480,6 +489,7 @@ function viewDash() {
   if (!fk.find(x => x[0] === S.dash)) S.dash = 'all';
   const ser = series(S.dash).slice(-10);
   const vals = ser.map(x => x.v);
+  const selD = ser.length ? (ser.find(x => x.d === S.bar) || ser[ser.length - 1]).d : '';
   const mx = Math.max(1, ...vals);
   const last = vals.length ? vals[vals.length - 1] : 0;
   const avg = vals.length ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length) : 0;
@@ -497,7 +507,9 @@ function viewDash() {
   <div class="stats3"><div class="stat acc"><b>${last}</b><span class="xs mut">${tr('последняя', 'latest')}</span></div><div class="stat"><b>${avg}</b><span class="xs mut">${tr('в среднем', 'average')}</span></div><div class="stat"><b>${S.dash === 'all' ? rec : Math.max(0, ...vals)}</b><span class="xs mut">${tr('рекорд', 'record')}</span></div></div>
   <div class="dashgrid">
   <div class="card" style="display:flex;flex-direction:column;gap:12px"><div style="font-size:14px;font-weight:600">${tr('Посещаемость · ', 'Attendance · ')}${esc(label)}${tr(' · последние встречи', ' · recent meetings')}</div>
-  ${ser.length ? `<div class="bars">${ser.map((x, i) => `<div title="${esc(human(x.d))}: ${x.v}"><span class="xs mut" style="font-size:10px">${x.v}</span><i class="${i === ser.length - 1 ? 'last' : ''}" style="height:${Math.round(x.v / mx * 100)}px"></i></div>`).join('')}</div><div class="xs mut">${S.dash === 'all' ? tr('До цели 50 не хватает ', 'Short of the 50 goal by ') + Math.max(0, 50 - last) : esc(human(ser[0].d)) + ' — ' + esc(human(ser[ser.length - 1].d))}</div>` : `<div class="empty">${tr('Пока нет данных', 'No data yet')}</div>`}</div>
+  ${ser.length ? `<div class="bars">${ser.map(x => `<button class="${x.d === selD ? 'sel' : ''}" data-a="bar" data-x="${x.d}" aria-label="${esc(human(x.d))}: ${x.v}"><b>${x.v}</b><i style="height:${Math.max(4, Math.round(x.v / mx * 150))}px"></i><em>${+x.d.slice(8)}.${x.d.slice(5, 7)}</em></button>`).join('')}</div>
+  <div style="border-top:1px solid var(--line2);padding-top:12px;display:flex;flex-direction:column;gap:6px"><div style="font-size:15px;font-weight:700">${esc(human(selD))} ${selD.slice(0, 4)}</div>${dayItems(selD, S.dash).map(x => `<div style="display:flex;justify-content:space-between;gap:10px;font-size:15px"><span>${esc(x.name)}</span><b style="color:var(--acc)">${x.n}</b></div>`).join('')}</div>
+  ${S.dash === 'all' ? `<div class="xs mut">${tr('До цели 50 не хватает ', 'Short of the 50 goal by ') + Math.max(0, 50 - last)}</div>` : ''}` : `<div class="empty">${tr('Пока нет данных', 'No data yet')}</div>`}</div>
   <div class="card" style="display:flex;flex-direction:column;gap:10px"><div style="font-size:14px;font-weight:600">${tr('Группы', 'Groups')}</div>
   ${gs.length ? gs.map(x => `<div style="display:flex;justify-content:space-between;align-items:center;font-size:14px;min-height:28px"><span>${esc(x.g.name)}</span><span style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--tx2)">${x.txt}${x.arrow}</span></div>`).join('') : `<div class="xs mut">${tr('Групп пока нет. Добавьте их в «Ещё → Группы».', 'No groups yet. Add them in More → Groups.')}</div>`}</div>
   ${ageCard()}
@@ -801,7 +813,7 @@ function viewOverlay() {
       ${o.code ? `<div class="card" style="border-color:var(--acc);background:var(--accbg);display:flex;flex-direction:column;align-items:center;gap:8px"><div class="sm" style="color:var(--acc2)">${tr('Код для входа', 'Sign-in code')}</div><div style="font-family:Unbounded,sans-serif;font-size:30px;font-weight:700;letter-spacing:.08em">${esc(o.code)}</div><div class="xs mut" style="text-align:center;line-height:1.4">${tr('Передайте лидеру вместе со ссылкой на приложение. Одноразовый, действует 7 дней.', 'Give it to the leader with the app link. Single use, valid for 7 days.')}</div><button class="btnA" data-a="copyCode">${tr('Скопировать текст приглашения', 'Copy invite text')}</button></div>` : ''}
       ${o.err ? `<div class="err">${esc(o.err)}</div>` : ''}`,
       isNew ? (o.code ? `<button class="btn" data-a="close">${tr('Готово', 'Done')}</button>` : `<button class="btn" data-a="sendInvite">${F.mode === 'code' ? tr('Создать код', 'Create code') : tr('Отправить приглашение', 'Send invite')}</button>`)
-        : `<div style="display:flex;flex-direction:column;gap:10px"><button class="btn" data-a="saveLeader">${tr('Сохранить', 'Save')}</button><button class="btn2" style="display:flex;align-items:center;justify-content:center;gap:8px" data-a="viewAs" data-x="${o.id}">${svg(IC.eye, '#F4F4F5', 18, 2.2)} ${tr('Посмотреть его глазами', 'View as this person')}</button><button class="btn2" data-a="removeLeader">${tr('Убрать доступ', 'Remove access')}</button></div>`);
+        : `<div style="display:flex;flex-direction:column;gap:10px"><button class="btn" data-a="saveLeader">${tr('Сохранить', 'Save')}</button><button class="btn2" style="display:flex;align-items:center;justify-content:center;gap:8px" data-a="viewAs" data-x="${o.id}">${svg(IC.eye, '#F4F4F5', 18, 2.2)} ${tr('Посмотреть его глазами', 'View as this person')}</button>${o.confirmRm ? `<button class="btn" style="background:#EF4444;color:#fff" data-a="removeLeader">${tr('Подтвердить — убрать доступ', 'Confirm — remove access')}</button>` : `<button class="btn2" data-a="removeLeader">${tr('Убрать доступ', 'Remove access')}</button>`}</div>`);
   }
   return '';
 }
@@ -930,7 +942,8 @@ const H = {
     catch (e) { toast(errText(e)); }
   },
   // дашборд
-  dash(x) { S.dash = x; rerender(); },
+  dash(x) { S.dash = x; S.bar = null; rerender(); },
+  bar(x) { S.bar = x; rerender(); },
   async igOk(id) { const t = IDX.teen[id]; t.igStatus = 'ok'; rerender(); try { await api('igReview', { id, ok: true }); toast(tr('Подтверждено: ', 'Confirmed: ') + t.first); } catch (e) { t.igStatus = 'pending'; rerender(); toast(errText(e)); } },
   async igNo(id) { const t = IDX.teen[id]; t.igStatus = ''; rerender(); try { await api('igReview', { id, ok: false }); } catch (e) { t.igStatus = 'pending'; rerender(); toast(errText(e)); } },
   // задания
@@ -989,7 +1002,7 @@ const H = {
     catch (e) { S.ov.err = errText(e); rerender(); } },
   copyCode() { const t = tr('Привет! Вот вход в SOL Teens: ', 'Hi! Here is your SOL Teens access: ') + APP + tr(' — нажми «У меня есть код приглашения» и введи ', ' — tap “I have an invite code” and enter ') + S.ov.code; copy(t); },
   async saveLeader() { const F = S.ov.f; try { await api('updateLeader', { id: S.ov.id, role: F.role, groups: F.groups }); S.ov = null; await load(); toast(tr('Сохранено', 'Saved')); } catch (e) { S.ov.err = errText(e); rerender(); } },
-  async removeLeader() { if (!S.ov.confirmRm) { S.ov.confirmRm = true; S.ov.err = tr('Нажмите «Убрать доступ» ещё раз, чтобы подтвердить', 'Tap “Remove access” again to confirm'); return rerender(); }
+  async removeLeader() { if (!S.ov.confirmRm) { S.ov.confirmRm = true; S.ov.err = ''; return rerender(); }
     try { await api('removeLeader', { id: S.ov.id }); S.ov = null; await load(); toast(tr('Доступ убран', 'Access removed')); } catch (e) { S.ov.err = errText(e); rerender(); } },
   copyJoin() { copy(joinUrl()); },
   copyTeen() { copy(APP + 'me/'); },
