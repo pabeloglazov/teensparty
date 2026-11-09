@@ -809,5 +809,6 @@ render();
 if (S.token) load();
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 </script>
+<script id="dbg">(function(){if(!(matchMedia('(display-mode: standalone)').matches||navigator.standalone))return;function m(){var n=document.querySelector('.nav');var r=n?n.getBoundingClientRect():{top:0,bottom:0};var b=document.getElementById('dbgbox')||document.createElement('div');b.id='dbgbox';b.style.cssText='position:fixed;left:8px;right:8px;top:45%;z-index:99;background:#ff0;color:#000;font:13px monospace;padding:6px;border-radius:6px;pointer-events:none';b.textContent='iH '+innerHeight+' sH '+screen.height+' vfix '+getComputedStyle(document.documentElement).getPropertyValue('--vfix')+' nav '+Math.round(r.top)+'-'+Math.round(r.bottom)+' pb '+(n?getComputedStyle(n).paddingBottom:'')+' body '+document.body.getBoundingClientRect().height;document.body.appendChild(b);}setInterval(m,1500);})();</script>
 </body>
 </html>
