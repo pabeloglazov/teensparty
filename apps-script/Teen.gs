@@ -252,7 +252,7 @@ const TA_ = {
       tg: { link: TG_CHAT_LINK, ok: me.tgChat === '1', canCheck: !!st.tgChatId },
       ig: { link: IG_LINK, status: me.igStatus || '', nick: me.ig || '' },
       meet: currentMeeting_(),
-      schedule: SERVICES.map(x => ({ name: x.name, day: x.day, time: st[x.key] || '' }))
+      schedule: services_(st).map(x => ({ name: x.name, day: x.day, time: x.time }))
     };
   },
   taskDone(t, p) {

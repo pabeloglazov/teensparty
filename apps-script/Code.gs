@@ -70,6 +70,15 @@ const SERVICES = [
   { id: 'wed', day: 3, key: 'wedTime', name: 'Wednesday Youth' },
   { id: 'fri', day: 5, key: 'friTime', name: 'Friday Youth' }
 ];
+// Актуальный список общих встреч: из настройки meetings (JSON), иначе — стандартные три. all=true — вместе с удалёнными (для истории)
+function services_(st, all) {
+  st = st || settings_();
+  let list = null;
+  try { const j = JSON.parse(st.meetings || ''); if (Array.isArray(j) && j.length) list = j; } catch (e) {}
+  if (!list) list = SERVICES.map(x => ({ id: x.id, name: x.name, day: x.day, time: st[x.key] || '' }));
+  list = list.map(x => ({ id: String(x.id), name: String(x.name || ''), day: +x.day, time: String(x.time || ''), off: x.off ? 1 : 0 }));
+  return all ? list : list.filter(x => !x.off);
+}
 // Разовая настройка расписания: вс 15:00, ср 18:00, пт 19:00
 function updateSchedule() {
   const want = { serviceTime: '15:00', wedTime: '18:00', friTime: '19:00' };
@@ -467,11 +476,12 @@ function currentMeeting_() {
   const inWin = hhmm => { const p = String(hhmm || '12:00').split(':'); const t = (+p[0]) * 60 + (+p[1] || 0); return mins >= t - (+st.before) && mins <= t + (+st.after); };
   const ev = rows_('События').find(e => e.date === today);
   if (ev) return { kind: 'event', meetId: ev.id, label: ev.name, date: today };
-  const sv = SERVICES.find(x => x.day === day && inWin(st[x.key]));
+  const SV = services_(st);
+  const sv = SV.find(x => x.day === day && inWin(x.time));
   if (sv) return { kind: 'service', meetId: sv.id, label: sv.name, date: today };
   const g = rows_('Группы').find(x => x.active !== '0' && +x.day === day && inWin(x.time));
   if (g) return { kind: 'group', meetId: g.id, label: g.name, date: today };
-  if (st.qrAlways === '1') { const t = SERVICES.find(x => x.day === day) || SERVICES[0]; return { kind: 'service', meetId: t.id, label: t.name, date: today, test: true }; }
+  if (st.qrAlways === '1') { const t = SV.find(x => x.day === day) || SV[0]; if (!t) return null; return { kind: 'service', meetId: t.id, label: t.name, date: today, test: true }; }
   return null;
 }
 function joinInfo() { return out_(() => ({ meet: currentMeeting_() })); }
