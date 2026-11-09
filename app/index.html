@@ -256,6 +256,7 @@ const CAT = () => ({ reg: tr('обычно приходит', 'regular'), some: 
 
 // ---------- встреча ----------
 // общие встречи для всех подростков
+const EVERY = () => L() ? ['every Sunday','every Monday','every Tuesday','every Wednesday','every Thursday','every Friday','every Saturday'] : ['каждое воскресенье','каждый понедельник','каждый вторник','каждую среду','каждый четверг','каждую пятницу','каждую субботу'];
 const DPL = () => L() ? ['Sundays','Mondays','Tuesdays','Wednesdays','Thursdays','Fridays','Saturdays'] : ['Воскресенья','Понедельники','Вторники','Среды','Четверги','Пятницы','Субботы'];
 // все общие встречи, включая удалённые (нужны для подписей в истории)
 const SVCA = () => {
@@ -489,7 +490,7 @@ const subHead = (title, back) => `<div style="display:flex;align-items:center;ga
 function viewGroups() {
   return `${subHead(tr('Группы и встречи', 'Groups & meetings'))}
   <div class="sec" style="padding:8px 4px 0">${tr('ОБЩИЕ ВСТРЕЧИ ДЛЯ ВСЕХ', 'MEETINGS FOR EVERYONE')}</div>
-  ${SVCS().map(s => `<div class="row" style="cursor:default;gap:8px"><div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px"><span style="font-size:15px;font-weight:600">${esc(s.name)}</span><span class="xs mut">${tr('каждый(ую) ', 'every ')}${DLONG()[s.day]} · ${esc(s.time || '—')}</span></div><button class="icb" data-a="editSvc" data-x="${s.id}" aria-label="${tr('Изменить', 'Edit')}">${svg(IC.pen, '#F4F4F5', 18, 2.2)}</button><button class="icb" data-a="delSvc" data-x="${s.id}" aria-label="${tr('Удалить', 'Delete')}">${svg(IC.trash, '#F87171', 18, 2.2)}</button></div>`).join('') || `<div class="xs mut" style="padding:0 4px">${tr('Нет общих встреч', 'No meetings')}</div>`}
+  ${SVCS().map(s => `<div class="row" style="cursor:default;gap:8px"><div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px"><span style="font-size:15px;font-weight:600">${esc(s.name)}</span><span class="xs mut">${EVERY()[s.day]} · ${esc(s.time || '—')}</span></div><button class="icb" data-a="editSvc" data-x="${s.id}" aria-label="${tr('Изменить', 'Edit')}">${svg(IC.pen, '#F4F4F5', 18, 2.2)}</button><button class="icb" data-a="delSvc" data-x="${s.id}" aria-label="${tr('Удалить', 'Delete')}">${svg(IC.trash, '#F87171', 18, 2.2)}</button></div>`).join('') || `<div class="xs mut" style="padding:0 4px">${tr('Нет общих встреч', 'No meetings')}</div>`}
   <button class="btn2" style="border:2px dashed var(--line3);color:var(--acc)" data-a="editSvc" data-x="">+ ${tr('Новая общая встреча', 'New meeting')}</button>
   <div class="sec" style="padding:12px 4px 0">${tr('МАЛЫЕ ГРУППЫ', 'SMALL GROUPS')}</div>
   ${D.groups.map(g => `<button class="row" data-a="editGroup" data-x="${g.id}"><div style="flex:1;display:flex;flex-direction:column;gap:3px"><span style="font-size:15px;font-weight:600">${esc(g.name)}</span><span class="xs mut">${tr('Лидер: ', 'Leader: ')}${esc(g.leader || '—')} · ${DLONG()[g.day]} ${esc(g.time)}</span></div><span class="sm" style="color:var(--acc);font-weight:600">${members(g.id).length}${tr(' чел.', ' people')}</span></button>`).join('') || `<div class="xs mut" style="padding:0 4px">${tr('Пока нет групп', 'No groups yet')}</div>`}
