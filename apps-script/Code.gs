@@ -283,10 +283,22 @@ function api(token, action, payload) {
     const me = auth_(token);
     if (action !== 'bootstrap' && (!CAN[action] || CAN[action].indexOf(me.role) < 0)) throw new Error('forbidden');
     const fn = A_[action]; if (!fn) throw new Error('unknown_action');
-    return action === 'bootstrap' ? fn(me, payload || {}) : lock_(() => fn(me, payload || {}));
+    if (action === 'bootstrap') return fn(asMe_(me, payload || {}), payload || {});
+    return lock_(() => fn(me, payload || {}));
   });
 }
 
+// Админ смотрит админку глазами другого: as = id лидера или asRole = роль без человека. Только чтение.
+function asMe_(me, p) {
+  if (me.role !== 'admin' || (!p.as && !p.asRole)) return me;
+  if (p.as) {
+    const l = rows_('Лидеры').find(x => x.id === p.as && x.status !== 'removed');
+    if (!l) throw new Error('not_found');
+    return { id: l.id, email: l.email, name: l.name, role: l.role, groups: l.groups ? l.groups.split(',').filter(Boolean) : [], preview: true };
+  }
+  if (['leader', 'mod', 'viewer'].indexOf(p.asRole) < 0) throw new Error('bad_role');
+  return { id: '', email: '', name: '', role: p.asRole, groups: [], preview: true };
+}
 const PARENT_KEYS = ['pFirst', 'pLast', 'pPhone', 'pAddr'];
 const CONTACT_KEYS = ['phone', 'birth', 'addr', 'ig', 'igStatus', 'tgChat'];
 
