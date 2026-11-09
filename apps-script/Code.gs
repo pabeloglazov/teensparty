@@ -273,7 +273,7 @@ function logout(token) {
 
 // ---------------- API для админки ----------------
 const CAN = {
-  mark: ['admin', 'leader', 'mod'], addTeen: ['admin', 'leader', 'mod'], updateTeen: ['admin', 'leader', 'mod'], reviewTeen: ['admin', 'leader', 'mod'],
+  mark: ['admin', 'leader', 'mod'], attNow: ['admin', 'leader', 'mod', 'viewer'], addTeen: ['admin', 'leader', 'mod'], updateTeen: ['admin', 'leader', 'mod'], reviewTeen: ['admin', 'leader', 'mod'],
   addEvent: ['admin', 'leader'], editEvent: ['admin'], delEvent: ['admin'], saveGroup: ['admin'], saveSettings: ['admin'],
   invite: ['admin'], updateLeader: ['admin'], removeLeader: ['admin'],
   addTask: ['admin', 'leader'], taskDone: ['admin', 'leader'], remind: ['admin', 'leader'], award: ['admin', 'leader'], igReview: ['admin', 'leader']
@@ -298,6 +298,14 @@ function asMe_(me, p) {
   }
   if (['leader', 'mod', 'viewer'].indexOf(p.asRole) < 0) throw new Error('bad_role');
   return { id: '', email: '', name: '', role: p.asRole, groups: [], preview: true };
+}
+let LEAD_NAMES_ = null;
+function markerName_(a) {
+  if (a.method === 'qr') return 'QR';
+  if (a.method === 'app') return 'сам в приложении';
+  if (a.method === 'import' || a.method === 'teensparty') return 'импорт';
+  if (!LEAD_NAMES_) { LEAD_NAMES_ = {}; rows_('Лидеры').forEach(l => LEAD_NAMES_[String(l.email).toLowerCase()] = l.name || l.email); }
+  return LEAD_NAMES_[String(a.by || '').toLowerCase()] || String(a.by || '');
 }
 const PARENT_KEYS = ['pFirst', 'pLast', 'pPhone', 'pAddr'];
 const CONTACT_KEYS = ['phone', 'birth', 'addr', 'ig', 'igStatus', 'tgChat', 'age', 'ageAt'];
@@ -335,12 +343,19 @@ const A_ = {
   mark(me, p) {
     const all = rows_('Посещения');
     const hit = all.filter(a => a.date === p.date && a.kind === p.kind && a.meetId === p.meetId && a.teenId === p.teenId);
-    if (p.on && !hit.length) {
+    if (p.on && hit.length) return { already: true, by: markerName_(hit[0]), mine: hit[0].by === me.email };
+    if (p.on) {
       const t = rows_('Подростки').find(x => x.id === p.teenId);
       append_('Посещения', { id: uid_('A'), date: p.date, kind: p.kind, meetId: p.meetId, teenId: p.teenId, teenName: t ? (t.first + ' ' + t.last).trim() : '', by: me.email, method: 'leader', ts: nowIso_() });
+      return { on: true };
     }
-    if (!p.on && hit.length) delete_('Посещения', hit.map(h => h._row));
-    return true;
+    if (hit.length) delete_('Посещения', hit.map(h => h._row));
+    return { on: false };
+  },
+  // кто уже отмечен на встрече — для живой синхронизации между лидерами
+  attNow(me, p) {
+    return rows_('Посещения').filter(a => a.date === p.date && a.kind === p.kind && a.meetId === p.meetId)
+      .map(a => [a.teenId, markerName_(a), String(a.ts || '').slice(11, 16), a.by === me.email ? 1 : 0]);
   },
 
   addTeen(me, p) {

@@ -195,7 +195,7 @@ function call(fn, ...args) {
     .finally(() => { S.busy--; paintBusy(); });
 }
 function api(action, p) {
-  if (S.as && action !== 'bootstrap') { toast(tr('Это просмотр глазами другого — изменения отключены', 'Preview mode — changes are disabled')); return Promise.reject(new Error('preview')); }
+  if (S.as && action !== 'bootstrap' && action !== 'attNow') { toast(tr('Это просмотр глазами другого — изменения отключены', 'Preview mode — changes are disabled')); return Promise.reject(new Error('preview')); }
   return call('api', S.token, action, p || {}).catch(e => {
     if (e.message === 'auth') { S.token = ''; LS.del('sol_tok'); D = null; render(); }
     if (e.message === 'forbidden') toast(tr('Нет доступа', 'No access'));
@@ -210,7 +210,7 @@ const ERR = () => ({ network: tr('Нет связи с сервером. Про�
 const errText = e => ERR()[e && e.message] || tr('Что-то пошло не так: ', 'Something went wrong: ') + (e && e.message || e);
 
 async function load() {
-  try { D = await api('bootstrap', S.as || {}); buildIdx(); if (!S.tab) S.tab = tabs()[0] === 'dash' && tabs().indexOf('mark') >= 0 ? 'mark' : (tabs().indexOf('mark') >= 0 ? 'mark' : tabs()[0]); render(); }
+  try { D = await api('bootstrap', S.as || {}); buildIdx(); if (!S.tab) S.tab = tabs()[0] === 'dash' && tabs().indexOf('mark') >= 0 ? 'mark' : (tabs().indexOf('mark') >= 0 ? 'mark' : tabs()[0]); render(); syncMarks(); }
   catch (e) { if (S.token) { $app.innerHTML = `<div class="login"><div class="h2">${tr('Не удалось загрузить', 'Could not load')}</div><div class="mut">${esc(errText(e))}</div><button class="btn" data-a="reload">${tr('Повторить', 'Retry')}</button></div>`; } }
 }
 
@@ -368,7 +368,9 @@ function markSections() {
 function rowHtml(x) {
   const n = tname(x.t);
   const tag = x.st.cat === 'new' ? (x.t.source === 'qr' ? tr('отметился сам', 'self check-in') : tr('новый', 'new')) : x.st.label;
-  return `<button class="row ${x.on ? 'on' : ''}" data-a="toggle" data-x="${x.t.id}"><div class="av">${esc(ini(n))}</div><div class="nm">${esc(n)}</div><div class="tag ${x.st.cat === 'gone' ? 'blue' : ''}">${esc(tag)}</div><div class="dot"></div></button>`;
+  const mb = x.on ? markedBy(x.t.id) : null;
+  const lbl = mb ? (mb.mine ? tr('вы', 'you') : mb.n) + (mb.t ? ' · ' + mb.t : '') : tag;
+  return `<button class="row ${x.on ? 'on' : ''}" data-a="toggle" data-x="${x.t.id}"><div class="av">${esc(ini(n))}</div><div class="nm">${esc(n)}</div><div class="tag ${!mb && x.st.cat === 'gone' ? 'blue' : ''}" ${mb && !mb.mine ? 'style="color:var(--acc2)"' : ''}>${esc(lbl)}</div><div class="dot"></div></button>`;
 }
 function listHtml() {
   const secs = markSections();
@@ -788,6 +790,29 @@ document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.cl
 
 function attAdd(m, id) { D.att.push([m.date, m.kind, m.meetId, id]); buildIdx(); }
 function attDel(m, id) { D.att = D.att.filter(a => !(a[0] === m.date && a[1] === m.kind && a[2] === m.meetId && a[3] === id)); buildIdx(); }
+// ---------- живая синхронизация отметок между лидерами ----------
+const mkKey = m => m.date + '|' + m.kind + '|' + m.meetId;
+let MK = { key: '', by: {} }, syncBusy = false, syncDirty = false, pendUn = null, pendT;
+async function syncMarks() {
+  if (!S.token || !D || S.tab !== 'mark' || document.hidden || syncBusy) return;
+  const m = meet(); const key = mkKey(m); syncBusy = true;
+  try {
+    const r = await fetch(API, { method: 'POST', body: JSON.stringify({ fn: 'api', args: [S.token, 'attNow', Object.assign({ kind: m.kind, meetId: m.meetId, date: m.date }, S.as || {})] }) }).then(x => x.json());
+    if (!r.ok || mkKey(meet()) !== key) return;
+    const by = {}; r.data.forEach(a => by[a[0]] = { n: a[1], t: a[2], mine: !!a[3] });
+    const before = D.att.filter(a => a[0] === m.date && a[1] === m.kind && a[2] === m.meetId).map(a => a[3]).sort().join();
+    const after = Object.keys(by).sort().join();
+    const labels = JSON.stringify(MK.by) !== JSON.stringify(by);
+    MK = { key, by };
+    if (before !== after) { D.att = D.att.filter(a => !(a[0] === m.date && a[1] === m.kind && a[2] === m.meetId)).concat(Object.keys(by).map(id => [m.date, m.kind, m.meetId, id])); buildIdx(); }
+    if (before !== after || labels) softRender();
+  } catch (e) {} finally { syncBusy = false; }
+}
+function softRender() { const a = document.activeElement; if (S.ov || (a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA'))) { syncDirty = true; return; } syncDirty = false; rerender(); }
+document.addEventListener('focusout', () => setTimeout(() => { if (syncDirty) softRender(); }, 200));
+setInterval(syncMarks, 7000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) syncMarks(); });
+const markedBy = id => { const m = meet(); if (MK.key !== mkKey(m)) return null; return MK.by[id] || null; };
 function teenFromForm(F) { return { first: F.first || '', last: F.last || '', phone: F.phone || '', birth: F.birth || '', addr: F.addr || '', pFirst: F.pFirst || '', pLast: F.pLast || '', pPhone: F.pPhone || '', pAddr: F.pAddr || '' }; }
 
 const H = {
@@ -802,7 +827,7 @@ const H = {
   async joinInvite() { const l = S.login; l.err = ''; try { const r = await call('joinByCode', l.inv, l.name, l.email); S.token = r.token; LS.set('sol_tok', r.token); S.login = { step: 'email' }; render(); load(); } catch (e) { l.err = errText(e); render(); } },
   async logout() { if (S.as) return H.exitAs(); try { await call('logout', S.token); } catch (e) {} S.token = ''; LS.del('sol_tok'); D = null; S.tab = null; render(); },
   // навигация
-  tab(x) { S.tab = x; S.more = 'root'; S.ov = null; render(); },
+  tab(x) { S.tab = x; S.more = 'root'; S.ov = null; render(); if (x === 'mark') syncMarks(); },
   moreRoot() { S.more = 'root'; render(); }, goGroups() { S.more = 'groups'; render(); }, goRules() { S.more = 'rules'; render(); }, goAccess() { S.more = 'access'; render(); }, goQR() { S.more = 'qr'; render(); },
   close() { S.ov = null; rerender(); },
   ovToggle(x) { S.ov[x] = !S.ov[x]; rerender(); },
@@ -812,12 +837,21 @@ const H = {
   sec(x) { const open = !document.querySelector(`[data-a="sec"][data-x="${x}"]`).classList.contains('closed'); S.closed[x] = open; document.getElementById('list').innerHTML = listHtml(); },
   async toggle(id) {
     const m = meet(); const on = !has(m.date, m.kind, m.meetId, id);
-    on ? attAdd(m, id) : attDel(m, id); rerender();
-    try { await api('mark', { kind: m.kind, meetId: m.meetId, date: m.date, teenId: id, on }); }
+    const mb = markedBy(id); const nm = IDX.teen[id] ? IDX.teen[id].first : '';
+    // снять чужую отметку — только вторым нажатием
+    if (!on && mb && !mb.mine && pendUn !== id) { pendUn = id; clearTimeout(pendT); pendT = setTimeout(() => { pendUn = null; }, 4000); toast(tr(nm + ' отметил(а) ' + mb.n + '. Нажмите ещё раз, чтобы снять', mb.n + ' checked in ' + nm + '. Tap again to remove')); return; }
+    pendUn = null;
+    on ? attAdd(m, id) : attDel(m, id);
+    if (MK.key === mkKey(m)) { if (on) MK.by[id] = { n: D.me.name, t: '', mine: true }; else delete MK.by[id]; }
+    rerender();
+    try {
+      const r = await api('mark', { kind: m.kind, meetId: m.meetId, date: m.date, teenId: id, on });
+      if (r && r.already && !r.mine) { if (MK.key === mkKey(m)) MK.by[id] = { n: r.by, t: '', mine: false }; rerender(); toast(tr(nm + ' уже отметил(а) ' + r.by, r.by + ' already checked in ' + nm)); }
+    }
     catch (e) { on ? attDel(m, id) : attAdd(m, id); rerender(); toast(errText(e)); }
   },
   openMeet() { S.ov = { type: 'meet', f: {} }; rerender(); },
-  pickMeet(x) { S.meet = JSON.parse(x); S.ov = null; S.closed = {}; render(); },
+  pickMeet(x) { S.meet = JSON.parse(x); S.ov = null; S.closed = {}; render(); syncMarks(); },
   async saveEvent() { const F = S.ov.f; if (!(F.name || '').trim()) return toast(tr('Введите название', 'Enter a name'));
     try { const ev = await api('addEvent', { name: F.name, date: F.date || D.today }); D.events.push(ev); S.meet = { kind: 'event', meetId: ev.id, label: ev.name, date: ev.date }; S.ov = null; render(); } catch (e) { toast(errText(e)); } },
   newTeen() { const p = S.q.trim().split(/\s+/); S.ov = { type: 'teenForm', f: S.q.trim() ? { first: p[0], last: p.slice(1).join(' ') } : {} }; rerender(); },
