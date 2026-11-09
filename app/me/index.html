@@ -130,12 +130,17 @@ function call(fn, ...args) {
     .finally(() => { S.busy--; paintBusy(); });
 }
 function api(action, p) {
-  return call('teenApi', S.token, action, p || {}).catch(e => { if (e.message === 'auth') { S.token = ''; LS.del('sol_teen_tok'); D = null; render(); } throw e; });
+  return call('teenApi', S.token, action, p || {}).catch(e => { if (e.message === 'auth') { S.token = ''; LS.del('sol_teen_tok'); LS.del('sol_teen_me'); D = null; try { history.replaceState(null, '', location.pathname); } catch (e) {} render(); } throw e; });
 }
 function paintBusy() { let b = document.querySelector('.busy'); if (S.busy > 0 && !b) { b = document.createElement('div'); b.className = 'busy'; document.body.appendChild(b); } if (S.busy <= 0 && b) b.remove(); }
 let tt; function toast(m) { S.toast = m; let t = document.querySelector('.toast'); if (!t) { t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); } t.textContent = m; clearTimeout(tt); tt = setTimeout(() => t.remove(), 2600); }
 
-async function load() { try { D = await api('me'); render(); } catch (e) { if (S.token) { $.innerHTML = `<div class="login"><div class="h2">Не удалось загрузить</div><div class="mu">${esc(errT(e))}</div><button class="btn" data-a="reload">Повторить</button></div>`; } } }
+const MEC = 'sol_teen_me', TABS = ['home', 'badges', 'rank', 'profile'], TTL = { home: 'Главная', badges: 'Ачивки', rank: 'Рейтинг', profile: 'Профиль' };
+const laToday = () => { try { return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Los_Angeles' }).format(new Date()); } catch (e) { return ''; } };
+function applyRoute() { const t = (location.hash || '').replace(/^#\/?/, '').split('/')[0]; if (TABS.indexOf(t) >= 0) S.tab = t; }
+function syncUrl() { if (!S.token || !D) return; const r = '#/' + S.tab; document.title = TTL[S.tab] + ' · SOL Teens'; if (location.hash === r) return; try { if (!location.hash || location.hash === '#') history.replaceState(null, '', r); else history.pushState(null, '', r); } catch (e) {} }
+window.addEventListener('popstate', () => { if (!D) return; applyRoute(); S.ov = null; render(); });
+async function load() { try { D = await api('me'); LS.set(MEC, JSON.stringify({ day: laToday(), d: D })); render(); } catch (e) { if (D && S.token) { if (e.message !== 'auth') toast(errT(e)); return; } if (S.token) { $.innerHTML = `<div class="login"><div class="h2">Не удалось загрузить</div><div class="mu">${esc(errT(e))}</div><button class="btn" data-a="reload">Повторить</button></div>`; } } }
 
 // ---------- вход ----------
 let pollT = null;
@@ -274,6 +279,7 @@ function render() {
   const tabs = [['home', 'Главная', I.home], ['badges', 'Ачивки', I.medal], ['scan', 'Отметиться', I.scan], ['rank', 'Рейтинг', I.trophy], ['profile', 'Профиль', I.user]];
   $.innerHTML = `<div class="app"><main class="main"><div class="wrap">${body}</div></main><nav class="nav">${tabs.map(([k, l, d]) => k === 'scan' ? `<button class="c" data-a="scan"><div class="ring">${svg(d, '#0E0F12', 26, 2.5)}</div><span>${l}</span></button>` : `<button class="${S.tab === k ? 'on' : ''}" data-a="tab" data-x="${k}">${svg(d, S.tab === k ? '#FF8A3D' : '#8B8B94', 24)}<span>${l}</span></button>`).join('')}</nav></div>${viewOverlay()}`;
   if (same) { const m2 = document.querySelector('.main'); if (m2) m2.scrollTop = sc; }
+  syncUrl();
 }
 
 const H = {
@@ -291,7 +297,7 @@ const H = {
   async tgVerify() { try { const r = await api('tgVerify'); if (r.ok) { toast('Ты в чате! +15 и ачивка «В чате»'); D = await api('me'); render(); } else toast('Пока не видим тебя в чате. Вступи и нажми «Проверить» ещё раз.'); } catch (e) { toast(errT(e)); } },
   async igSend() { try { await api('igSubmit', { nick: S.ig }); toast('Отправлено лидеру на проверку'); D = await api('me'); render(); } catch (e) { toast(errT(e)); } },
   async checkin() { try { const r = await api('checkin'); S.ov = { type: 'done', label: r.meet.label, already: r.already }; D = await api('me'); render(); } catch (e) { toast(errT(e)); } },
-  async logout() { try { await call('logout', S.token); } catch (e) {} S.token = ''; LS.del('sol_teen_tok'); D = null; render(); }
+  async logout() { try { await call('logout', S.token); } catch (e) {} S.token = ''; LS.del('sol_teen_tok'); LS.del('sol_teen_me'); D = null; try { history.replaceState(null, '', location.pathname); } catch (e) {} render(); }
 };
 document.addEventListener('click', e => {
   const a = e.target.closest('[data-a]'); if (!a) return;
@@ -300,8 +306,11 @@ document.addEventListener('click', e => {
 });
 document.addEventListener('input', e => { const b = e.target.getAttribute && e.target.getAttribute('data-b'); if (b) S[b] = e.target.value; });
 
+applyRoute();
+if (S.token) { try { const c = JSON.parse(LS.get(MEC) || 'null'); if (c && c.day === laToday() && c.d) D = c.d; } catch (e) {} }
 render();
 if (S.token) load();
+setInterval(() => { if (!S.token && !S.nonce) prefetch(); }, 60000);
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 </script>
 </body>

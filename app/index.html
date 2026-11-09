@@ -33,6 +33,9 @@ a{color:var(--acc)}
 .wrap{max-width:760px;margin:0 auto;padding:calc(20px + env(safe-area-inset-top)) 16px 40px;display:flex;flex-direction:column;gap:8px}
 .inp{width:100%;height:52px;border-radius:14px;border:1px solid var(--line2);background:var(--card2);color:var(--tx);padding:0 14px;font-size:16px;color-scheme:dark;outline:none}
 .inp:focus{border-color:var(--acc)}
+.inp[type=date],.inp[type=time]{-webkit-appearance:none;appearance:none;display:block;min-width:0;max-width:100%;box-sizing:border-box;text-align:left;line-height:50px}
+.inp[type=date]::-webkit-date-and-time-value,.inp[type=time]::-webkit-date-and-time-value{text-align:left;margin:0}
+.field{min-width:0}
 .lbl{font-size:13px;font-weight:600;color:var(--mu)}
 .field{display:flex;flex-direction:column;gap:8px}
 .btn{height:54px;border-radius:16px;border:none;background:var(--acc);color:#0E0F12;font-size:16px;font-weight:700;width:100%}
@@ -202,7 +205,7 @@ function call(fn, ...args) {
 function api(action, p) {
   if (S.as && action !== 'bootstrap' && action !== 'attNow') { toast(tr('Это просмотр глазами другого — изменения отключены', 'Preview mode — changes are disabled')); return Promise.reject(new Error('preview')); }
   return call('api', S.token, action, p || {}).catch(e => {
-    if (e.message === 'auth') { S.token = ''; LS.del('sol_tok'); D = null; render(); }
+    if (e.message === 'auth') { S.token = ''; LS.del('sol_tok'); LS.del(BOOT); D = null; render(); }
     if (e.message === 'forbidden') toast(tr('Нет доступа', 'No access'));
     throw e;
   });
@@ -214,9 +217,46 @@ function paintToast() { let t = document.querySelector('.toast'); if (S.toast) {
 const ERR = () => ({ network: tr('Нет связи с сервером. Проверьте интернет.', 'No connection. Check your internet.'), bad_email: tr('Проверьте email', 'Check the email'), not_invited: tr('Этой почты нет в команде. Попросите админа пригласить вас.', 'This email isn’t on the team. Ask an admin to invite you.'), bad_code: tr('Неверный или устаревший код', 'Wrong or expired code'), bad_invite: tr('Код приглашения не найден', 'Invite code not found'), invite_expired: tr('Код приглашения устарел', 'Invite code expired'), email_taken: tr('Эта почта уже в команде', 'This email is already on the team'), need_name: tr('Введите имя', 'Enter a name'), need_title: tr('Напишите, что нужно сделать', 'Describe the task'), preview: tr('Это просмотр глазами другого — изменения отключены', 'Preview mode — changes are disabled') });
 const errText = e => ERR()[e && e.message] || tr('Что-то пошло не так: ', 'Something went wrong: ') + (e && e.message || e);
 
+const BOOT = 'sol_boot';
+const laToday = () => { try { return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Los_Angeles' }).format(new Date()); } catch (e) { return ''; } };
+function pickTab() { if (!S.tab || tabs().indexOf(S.tab) < 0) S.tab = tabs().indexOf('mark') >= 0 ? 'mark' : tabs()[0]; if (S.tab === 'more' && S.more !== 'root' && MORE_OK().indexOf(S.more) < 0) S.more = 'root'; }
+// мгновенный старт: показываем последнюю сохранённую копию, пока грузятся свежие данные
+function bootFromCache() { try { const c = JSON.parse(LS.get(BOOT) || 'null'); if (c && c.me && c.today === laToday()) { D = c; buildIdx(); applyRoute(); pickTab(); return true; } } catch (e) {} return false; }
+// ---------- адреса экранов (URL) ----------
+const MORE_OK = () => { const r = myRole(); return r === 'admin' ? ['groups', 'rules', 'access', 'qr'] : r === 'leader' ? ['qr'] : []; };
+function routeOf() {
+  if (!S.token || !D || !S.tab) return '';
+  let r = '#/' + S.tab; if (S.tab === 'more' && S.more !== 'root') r += '/' + S.more;
+  if (S.ov && S.ov.type === 'prof' && S.ov.id) r += '/teen/' + S.ov.id;
+  return r;
+}
+function applyRoute() {
+  if (!D) return;
+  const p = (location.hash || '').replace(/^#\/?/, '').split('/').filter(Boolean); if (!p.length) return;
+  if (tabs().indexOf(p[0]) >= 0) { S.tab = p[0]; S.more = p[0] === 'more' && MORE_OK().indexOf(p[1]) >= 0 ? p[1] : 'root'; }
+  const i = p.indexOf('teen'); const t = i >= 0 ? IDX.teen[p[i + 1]] : null;
+  if (t) { if (!(S.ov && S.ov.type === 'prof' && S.ov.id === t.id)) S.ov = { type: 'prof', id: t.id, f: Object.assign({}, t), groups: t.groups.slice(), gOpen: false, hi: null, hov: null }; }
+  else if (S.ov && S.ov.type === 'prof') S.ov = null;
+}
+function setHash(h) { try { history.replaceState(null, '', h || location.pathname); } catch (e) {} }
+function syncUrl() {
+  const r = routeOf(); if (!r) return;
+  const sub = { groups: tr('Группы и встречи', 'Groups & meetings'), rules: tr('Правила', 'Rules'), access: tr('Лидеры и доступ', 'Leaders & access'), qr: 'QR' }[S.tab === 'more' ? S.more : ''];
+  document.title = (S.ov && S.ov.type === 'prof' ? tname(IDX.teen[S.ov.id] || {}) : sub || TABL()[S.tab]) + ' · SOL Teens';
+  if (location.hash === r) return;
+  try { if (!location.hash || location.hash === '#') history.replaceState(null, '', r); else history.pushState(null, '', r); } catch (e) {}
+}
+window.addEventListener('popstate', () => { if (!D) return; applyRoute(); pickTab(); render(); if (S.tab === 'mark') syncMarks(); });
 async function load() {
-  try { D = await api('bootstrap', S.as || {}); buildIdx(); if (!S.tab) S.tab = tabs()[0] === 'dash' && tabs().indexOf('mark') >= 0 ? 'mark' : (tabs().indexOf('mark') >= 0 ? 'mark' : tabs()[0]); render(); syncMarks(); }
-  catch (e) { if (S.token) { $app.innerHTML = `<div class="login"><div class="h2">${tr('Не удалось загрузить', 'Could not load')}</div><div class="mut">${esc(errText(e))}</div><button class="btn" data-a="reload">${tr('Повторить', 'Retry')}</button></div>`; } }
+  try {
+    const had = !!D; const fresh = await api('bootstrap', S.as || {});
+    if (markPend > 0 && had) return; // не затираем отметки, которые ещё сохраняются
+    D = fresh; buildIdx();
+    if (!S.as) LS.set(BOOT, JSON.stringify(D));
+    if (!had) applyRoute();
+    pickTab(); had ? rerender() : render(); syncMarks();
+  }
+  catch (e) { if (D && S.token) { if (e.message !== 'auth') toast(errText(e)); return; } if (S.token) { $app.innerHTML = `<div class="login"><div class="h2">${tr('Не удалось загрузить', 'Could not load')}</div><div class="mut">${esc(errText(e))}</div><button class="btn" data-a="reload">${tr('Повторить', 'Retry')}</button></div>`; } }
 }
 
 // ---------- индексы ----------
@@ -313,10 +353,12 @@ function render() {
   const nav = `<nav class="nav" aria-label="${tr('Меню', 'Menu')}" style="grid-template-columns:repeat(${t.length},minmax(0,1fr))"><div class="brand">SOL <span>Teens</span></div>${t.map(k => k === 'mark'
     ? `<button class="c ${S.tab === k ? 'on' : ''}" data-a="tab" data-x="${k}" aria-label="${TABL()[k]}"><div class="ring">${svg(IC.mark, '#0E0F12', 26, 2.5)}</div><span>${TABL()[k]}</span></button>`
     : `<button class="${S.tab === k ? 'on' : ''}" data-a="tab" data-x="${k}" aria-label="${TABL()[k]}">${svg(IC[k], S.tab === k ? ACC : '#8B8B94', 24)}<span>${TABL()[k]}</span></button>`).join('')}</nav>`;
-  const body = { mark: viewMark, dash: viewDash, teens: viewTeens, tasks: viewTasks, more: viewMore }[S.tab]();
+  let body; try { body = { mark: viewMark, dash: viewDash, teens: viewTeens, tasks: viewTasks, more: viewMore }[S.tab](); }
+  catch (e) { console.error(e); body = `<h1 class="h1">${TABL()[S.tab]}</h1><div class="card"><div style="font-weight:600">${tr('Этот экран не открылся', 'This screen failed to open')}</div><div class="sm mut" style="margin-top:6px">${esc(String(e && e.message || e))}</div></div>`; }
   const asb = S.as ? `<div class="asbar" role="status">${svg(IC.eye, ACC, 18, 2.2)}<span>${tr('Вы смотрите глазами ', 'Viewing as ')}<b>${esc(D.me.name || ROLES().find(r => r[0] === D.me.role)[1])}</b> · ${ROLES().find(r => r[0] === D.me.role)[1]}</span><button data-a="exitAs">${tr('Выйти', 'Exit')}</button></div>` : '';
   $app.innerHTML = `<div class="app"><main class="main"><div class="wrap">${asb}${body}</div></main>${nav}</div>${viewOverlay()}`;
   const m = document.querySelector('.main'); if (m && S.keepScroll) m.scrollTop = scroll; S.keepScroll = false;
+  syncUrl();
   if (S.ov && S.ov.type === 'qr') drawQR();
 }
 function rerender() { S.keepScroll = true; render(); }
@@ -415,7 +457,7 @@ function bDate(t) { const v = String(t.birth || '').trim(); let m;
 function approxAge(t) { const a = +t.age; if (!a || !/^\d{4}-\d{2}-\d{2}$/.test(t.ageAt || '')) return null; const v = a + Math.floor((todayD() - parse(t.ageAt)) / (365.25 * 864e5)); return v >= 5 && v <= 30 ? v : null; }
 const bIso = t => { const b = bDate(t); return b ? b.getFullYear() + '-' + String(b.getMonth() + 1).padStart(2, '0') + '-' + String(b.getDate()).padStart(2, '0') : ''; };
 function ageOf(t) { const b = bDate(t); if (!b || isNaN(b)) return approxAge(t); const td = todayD(); let a = td.getFullYear() - b.getFullYear(); if (td.getMonth() < b.getMonth() || (td.getMonth() === b.getMonth() && td.getDate() < b.getDate())) a--; return a >= 5 && a <= 30 ? a : null; }
-function nextBday(t) { if (ageOf(t) == null) return null; const b = bDate(t), td = todayD(); let n = new Date(td.getFullYear(), b.getMonth(), b.getDate()); if (n < td) n = new Date(td.getFullYear() + 1, b.getMonth(), b.getDate()); return { days: Math.round((n - td) / 864e5), turns: n.getFullYear() - b.getFullYear(), date: n }; }
+function nextBday(t) { const b = bDate(t), td = todayD(); if (!b || isNaN(b) || ageOf(t) == null) return null; let n = new Date(td.getFullYear(), b.getMonth(), b.getDate()); if (n < td) n = new Date(td.getFullYear() + 1, b.getMonth(), b.getDate()); return { days: Math.round((n - td) / 864e5), turns: n.getFullYear() - b.getFullYear(), date: n }; }
 const yrs = a => L() ? (a === 1 ? 'year' : 'years') : plural(a, 'год', 'года', 'лет');
 function ageCard() {
   if (!D.teens.some(t => 'birth' in t)) return '';
@@ -423,7 +465,7 @@ function ageCard() {
   const by = {}; known.forEach(t => { const a = ageOf(t); by[a] = (by[a] || 0) + 1; });
   const ages = Object.keys(by).map(Number).sort((a, b) => a - b), mx = Math.max(1, ...Object.values(by));
   const avg = known.length ? (known.reduce((x, t) => x + ageOf(t), 0) / known.length) : 0;
-  const soon = known.map(t => ({ t, n: nextBday(t) })).filter(x => x.n.days <= 30).sort((a, b) => a.n.days - b.n.days).slice(0, 6);
+  const soon = known.map(t => ({ t, n: nextBday(t) })).filter(x => x.n && x.n.days <= 30).sort((a, b) => a.n.days - b.n.days).slice(0, 6);
   const when = d => d === 0 ? tr('сегодня', 'today') : d === 1 ? tr('завтра', 'tomorrow') : tr('через ', 'in ') + d + (L() ? ' days' : ' ' + plural(d, 'день', 'дня', 'дней'));
   return `<div class="card" style="display:flex;flex-direction:column;gap:12px">
     <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><div style="font-size:14px;font-weight:600">${tr('Возраст', 'Ages')}</div>${known.length ? `<div class="xs mut">${tr('средний ', 'average ')}<b style="color:var(--tx);font-size:14px">${avg.toFixed(1).replace('.', L() ? '.' : ',')}</b></div>` : ''}</div>
@@ -798,13 +840,14 @@ function attAdd(m, id) { D.att.push([m.date, m.kind, m.meetId, id]); buildIdx();
 function attDel(m, id) { D.att = D.att.filter(a => !(a[0] === m.date && a[1] === m.kind && a[2] === m.meetId && a[3] === id)); buildIdx(); }
 // ---------- живая синхронизация отметок между лидерами ----------
 const mkKey = m => m.date + '|' + m.kind + '|' + m.meetId;
+let markPend = 0;
 let MK = { key: '', by: {} }, syncBusy = false, syncDirty = false, pendUn = null, pendT;
 async function syncMarks() {
-  if (!S.token || !D || S.tab !== 'mark' || document.hidden || syncBusy) return;
+  if (!S.token || !D || S.tab !== 'mark' || document.hidden || syncBusy || markPend > 0) return;
   const m = meet(); const key = mkKey(m); syncBusy = true;
   try {
     const r = await fetch(API, { method: 'POST', body: JSON.stringify({ fn: 'api', args: [S.token, 'attNow', Object.assign({ kind: m.kind, meetId: m.meetId, date: m.date }, S.as || {})] }) }).then(x => x.json());
-    if (!r.ok || mkKey(meet()) !== key) return;
+    if (!r.ok || mkKey(meet()) !== key || markPend > 0) return;
     const by = {}; r.data.forEach(a => by[a[0]] = { n: a[1], t: a[2], mine: !!a[3] });
     const before = D.att.filter(a => a[0] === m.date && a[1] === m.kind && a[2] === m.meetId).map(a => a[3]).sort().join();
     const after = Object.keys(by).sort().join();
@@ -831,7 +874,7 @@ const H = {
   toInvite() { S.login.step = 'invite'; S.login.err = ''; render(); },
   loginBack() { S.login.step = 'email'; S.login.err = ''; render(); },
   async joinInvite() { const l = S.login; l.err = ''; try { const r = await call('joinByCode', l.inv, l.name, l.email); S.token = r.token; LS.set('sol_tok', r.token); S.login = { step: 'email' }; render(); load(); } catch (e) { l.err = errText(e); render(); } },
-  async logout() { if (S.as) return H.exitAs(); try { await call('logout', S.token); } catch (e) {} S.token = ''; LS.del('sol_tok'); D = null; S.tab = null; render(); },
+  async logout() { if (S.as) return H.exitAs(); try { await call('logout', S.token); } catch (e) {} S.token = ''; LS.del('sol_tok'); LS.del(BOOT); D = null; S.tab = null; try { history.replaceState(null, '', location.pathname); } catch (e) {} document.title = 'SOL Teens'; render(); },
   // навигация
   tab(x) { S.tab = x; S.more = 'root'; S.ov = null; render(); if (x === 'mark') syncMarks(); },
   moreRoot() { S.more = 'root'; render(); }, goGroups() { S.more = 'groups'; render(); }, goRules() { S.more = 'rules'; render(); }, goAccess() { S.more = 'access'; render(); }, goQR() { S.more = 'qr'; render(); },
@@ -850,9 +893,11 @@ const H = {
     on ? attAdd(m, id) : attDel(m, id);
     if (MK.key === mkKey(m)) { if (on) MK.by[id] = { n: D.me.name, t: '', mine: true }; else delete MK.by[id]; }
     if (on) SAV.add(id);
+    markPend++;
     rerender();
     try {
-      const r = await api('mark', { kind: m.kind, meetId: m.meetId, date: m.date, teenId: id, on }).finally(() => { if (on && MK.key === mkKey(m) && MK.by[id] && MK.by[id].mine && !MK.by[id].t) MK.by[id].t = new Date().toTimeString().slice(0, 5); if (SAV.delete(id)) rerender(); });
+      const r = await api('mark', { kind: m.kind, meetId: m.meetId, date: m.date, teenId: id, on })
+        .finally(() => { markPend--; if (on && MK.key === mkKey(m) && MK.by[id] && MK.by[id].mine && !MK.by[id].t) MK.by[id].t = new Date().toTimeString().slice(0, 5); if (SAV.delete(id)) rerender(); });
       if (r && r.already && !r.mine) { if (MK.key === mkKey(m)) MK.by[id] = { n: r.by, t: '', mine: false }; rerender(); toast(tr(nm + ' уже отметил(а) ' + r.by, r.by + ' already checked in ' + nm)); }
     }
     catch (e) { on ? attDel(m, id) : attAdd(m, id); rerender(); toast(errText(e)); }
@@ -926,9 +971,9 @@ const H = {
   async qrAlways() { const v = D.settings.qrAlways === '1' ? '0' : '1'; D.settings.qrAlways = v; rerender(); try { await api('saveSettings', { qrAlways: v }); } catch (e) { toast(errText(e)); } },
   // доступ
   openInvite() { S.ov = { type: 'invite', f: { mode: 'email', role: 'leader', groups: [] } }; rerender(); },
-  async viewAs(id) { S.as = { as: id }; S.ov = null; S.tab = ''; S.more = 'root'; D = null; render(); await load(); },
-  async viewAsRole(r) { S.as = { asRole: r }; S.ov = null; S.tab = ''; S.more = 'root'; D = null; render(); await load(); },
-  async exitAs() { S.as = null; S.ov = null; S.tab = 'more'; S.more = 'access'; D = null; render(); await load(); },
+  async viewAs(id) { setHash(''); S.as = { as: id }; S.ov = null; S.tab = ''; S.more = 'root'; D = null; render(); await load(); },
+  async viewAsRole(r) { setHash(''); S.as = { asRole: r }; S.ov = null; S.tab = ''; S.more = 'root'; D = null; render(); await load(); },
+  async exitAs() { setHash('#/more/access'); S.as = null; S.ov = null; S.tab = 'more'; S.more = 'access'; D = null; render(); await load(); },
   evPeople(id) { S.ov = { type: 'evPeople', id }; rerender(); },
   editEv(id) { const e = D.events.find(x => x.id === id); S.ov = { type: 'ev', id: id || '', f: e ? { name: e.name, date: e.date } : { name: '', date: D.today } }; rerender(); },
   delEv(id) { S.ov = { type: 'evDel', id }; rerender(); },
@@ -953,8 +998,9 @@ const H = {
 function copy(t) { const done = () => toast(tr('Скопировано', 'Copied')); if (navigator.clipboard) navigator.clipboard.writeText(t).then(done, () => fallbackCopy(t, done)); else fallbackCopy(t, done); }
 function fallbackCopy(t, done) { const a = document.createElement('textarea'); a.value = t; document.body.appendChild(a); a.select(); try { document.execCommand('copy'); done(); } catch (e) {} a.remove(); }
 
+if (S.token) bootFromCache();
 render();
-if (S.token) load();
+if (S.token) { if (D) syncMarks(); load(); }
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 </script>
 </body>
