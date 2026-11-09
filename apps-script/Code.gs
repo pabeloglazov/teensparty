@@ -588,28 +588,30 @@ function importTeensParty(dry) {
     else uniq.push(Object.assign({}, x));
   });
   const teens = rows_('Подростки');
-  const byPhone = {}, byName = {};
-  teens.forEach(t => { const ph = digits_(t.phone); if (ph) byPhone[ph] = t; byName[norm(t.first + ' ' + t.last)] = t; });
-  const plan = { matched: [], created: [], came: 0, registered: uniq.length, skipped };
+  const pool = teens.slice();
+  const plan = { matched: [], fuzzy: [], created: [], came: 0, registered: uniq.length, skipped, unsure: [] };
   const newRows = [], att = [];
   let ev = rows_('События').find(e => e.date === PARTY_DATE && /teens\s*party/i.test(e.name));
   const evId = ev ? ev.id : uid_('E');
   const haveAtt = {}; rows_('Посещения').forEach(a => { if (a.kind === 'event' && a.meetId === evId) haveAtt[a.teenId] = 1; });
   uniq.forEach(x => {
-    let t = (x.phone && byPhone[x.phone]) || byName[norm(x.name)];
     const parts = x.name.split(' '), pp = x.parent.split(' ');
+    const m = matchTeen_(parts[0], parts.slice(1).join(' '), x.phone, pool);
+    let t = m.t;
+    if (m.unsure) plan.unsure.push(x.name + ' ~ ' + m.unsure);
     if (t) {
       const patch = {};
       if (!t.phone && x.phone) patch.phone = x.phone;
       if (!t.pFirst && x.parent) { patch.pFirst = pp[0]; patch.pLast = pp.slice(1).join(' '); }
       if (!t.pPhone && x.pPhone && x.pPhone !== x.phone) patch.pPhone = x.pPhone;
       if (!t.birth) { patch.age = String(x.age); patch.ageAt = PARTY_DATE; }
-      plan.matched.push(x.name + ' → ' + t.first + ' ' + t.last + (Object.keys(patch).length ? ' (+' + Object.keys(patch).join(',') + ')' : ''));
-      if (!dry && Object.keys(patch).length) update_('Подростки', t, patch);
+      (m.how === 'fuzzy' ? plan.fuzzy : plan.matched).push(x.name + ' → ' + t.first + ' ' + t.last + (Object.keys(patch).length ? ' (+' + Object.keys(patch).join(',') + ')' : ''));
+      if (!dry && Object.keys(patch).length && t._row) Object.assign(t, update_('Подростки', t, patch));
+      else Object.assign(t, patch);
     } else {
       t = { id: uid_('T'), first: parts[0], last: parts.slice(1).join(' '), phone: x.phone, pFirst: pp[0] || '', pLast: pp.slice(1).join(' '), pPhone: x.pPhone !== x.phone ? x.pPhone : '', age: String(x.age), ageAt: PARTY_DATE,
         groups: '', createdAt: PARTY_DATE, source: 'teensparty', review: '', archived: '' };
-      newRows.push(t); byName[norm(x.name)] = t; if (x.phone) byPhone[x.phone] = t;
+      newRows.push(t); pool.push(t);
       plan.created.push(x.name + ', ' + x.age + (x.came ? ' ✓' : ''));
     }
     if (x.came) { plan.came++; if (!haveAtt[t.id]) att.push({ id: uid_('A'), date: PARTY_DATE, kind: 'event', meetId: evId, teenId: t.id, teenName: (t.first + ' ' + t.last).trim(), by: 'import', method: 'teensparty', ts: '' }); }
@@ -622,9 +624,48 @@ function importTeensParty(dry) {
   }
   const rep = (dry ? 'ПЛАН (ничего не записано)\n' : 'ИМПОРТ ВЫПОЛНЕН\n') +
     'Регистраций (уникальных подростков): ' + plan.registered + '\nПришли: ' + plan.came +
-    '\nУже были в базе: ' + plan.matched.length + '\n  ' + plan.matched.join('\n  ') +
+    '\nУже были в базе (точно): ' + plan.matched.length + '\n  ' + plan.matched.join('\n  ') +
+    '\nУже были в базе (по похожему имени — проверь): ' + plan.fuzzy.length + '\n  ' + plan.fuzzy.join('\n  ') +
+    '\nНе уверен, создан новый: ' + plan.unsure.length + '\n  ' + plan.unsure.join('\n  ') +
     '\nНовые в базе: ' + plan.created.length + '\n  ' + plan.created.join('\n  ') +
     '\nПропущены (взрослые/тестовые): ' + skipped.join(', ');
   Logger.log(rep);
   return rep;
+}
+
+// --- сопоставление имён: транслит, уменьшительные, опечатки ---
+const NICK_ = [['aleksei','alexei','aleksey','alexey','alex','alek','lesha','lesa','alesha','sasha','sasa','aleksandr','alexander','aleksandra','alexandra','sanya','oleksii','oleksandr'],
+  ['mikhail','mihail','misha','misa','michael','mykhailo'],['anna','ana','anya','ania','anka','annie','hanna'],['sofiya','sofia','sofa','sonya','sonia','sophia'],
+  ['ivan','vanya','vania','ivanko'],['dmitrii','dmitry','dima','dmytro'],['maksim','maxim','maksym','max','maks'],['ekaterina','katya','katia','kate','katerina','kateryna'],
+  ['anastasiia','anastasia','nastya','nastia'],['elena','lena','olena','helen'],['timofei','timofey','tima','tymofii','tim'],['daniil','daniel','danya','dania','danylo','dan'],
+  ['mariia','maria','masha','mary'],['elizaveta','liza'],['nikolai','kolya'],['pavel','pasha','pavlo','paul'],['vasilina','vasylyna'],['iliia','ilia','ilya','illia'],['artem','artemii','tema'],
+  ['yuliia','yulia','julia'],['olga','olia','olya'],['viktoriia','viktoria','vika'],['khrystyna','kristina','christina'],['mark','marko'],['kamila','camila'],['nelli','nelly']];
+function lat_(w) {
+  const T = { а:'a',б:'b',в:'v',г:'g',д:'d',е:'e',ё:'e',ж:'zh',з:'z',и:'i',й:'i',к:'k',л:'l',м:'m',н:'n',о:'o',п:'p',р:'r',с:'s',т:'t',у:'u',ф:'f',х:'h',ц:'ts',ч:'ch',ш:'sh',щ:'sch',ъ:'',ы:'i',ь:'',э:'e',ю:'iu',я:'ia',і:'i',ї:'i',є:'e',ґ:'g' };
+  return String(w || '').toLowerCase().split('').map(c => T[c] != null ? T[c] : c).join('')
+    .replace(/kh/g, 'h').replace(/[yj]/g, 'i').replace(/x/g, 'ks').replace(/w/g, 'v').replace(/[^a-z]/g, '').replace(/(.)\1+/g, '$1');
+}
+function lev_(a, b) { const m = a.length, n = b.length; if (!m) return n; if (!n) return m; let p = Array.from({ length: n + 1 }, (_, j) => j);
+  for (let i = 1; i <= m; i++) { const c = [i]; for (let j = 1; j <= n; j++) c[j] = Math.min(p[j] + 1, c[j - 1] + 1, p[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); p = c; } return p[n]; }
+function nickOf_(f) { const l = lat_(f); for (let i = 0; i < NICK_.length; i++) if (NICK_[i].map(lat_).indexOf(l) >= 0) return i; return -1; }
+function sameFirst_(a, b) { const x = lat_(a), y = lat_(b); if (!x || !y) return false; if (x === y) return true; const n1 = nickOf_(a), n2 = nickOf_(b); if (n1 >= 0 && n1 === n2) return true;
+  return lev_(x, y) <= 1 || (x.length >= 3 && y.length >= 3 && (x.indexOf(y) === 0 || y.indexOf(x) === 0)); }
+function sameLast_(a, b) { const x = lat_(a), y = lat_(b); if (!x || !y) return false; const strip = z => z.replace(/(a|aia|ova|eva|ina|aia|skaia|ska)$/, ''); return x === y || lev_(x, y) <= 2 && Math.min(x.length, y.length) >= 4 || (strip(x).length >= 4 && strip(x) === strip(y)); }
+function matchTeen_(first, last, phone, pool) {
+  const ok = t => sameFirst_(first, t.first) && sameLast_(last, t.last);
+  const okRev = t => sameFirst_(last, t.first) && sameLast_(first, t.last);
+  const exact = t => lat_(first) === lat_(t.first) && lat_(last) === lat_(t.last);
+  // 1) телефон + совпадает имя (у братьев/сестёр бывает один телефон)
+  const byPh = phone ? pool.filter(t => digits_(t.phone) === phone) : [];
+  let c = byPh.filter(t => sameFirst_(first, t.first) || okRev(t));
+  if (c.length === 1) return { t: c[0], how: 'phone' };
+  // 2) точное имя (с транслитом)
+  c = pool.filter(exact); if (c.length === 1) return { t: c[0], how: 'name' };
+  if (!last) return byPh.length === 1 && !byPh[0].last ? { t: byPh[0], how: 'phone' } : { t: null, unsure: byPh.length ? byPh.map(t => t.first + ' ' + t.last).join(', ') + ' (тот же телефон)' : '' };
+  // 3) похожее имя: уменьшительные, транслит, опечатки
+  c = pool.filter(t => t.last && (ok(t) || okRev(t)));
+  if (c.length === 1) return { t: c[0], how: 'fuzzy' };
+  if (c.length > 1) return { t: null, unsure: c.map(t => t.first + ' ' + t.last).join(' / ') };
+  const sameLastOnly = pool.filter(t => t.last && sameLast_(last, t.last));
+  return { t: null, unsure: sameLastOnly.length && sameLastOnly.length <= 3 ? sameLastOnly.map(t => t.first + ' ' + t.last).join(', ') + ' (та же фамилия)' : '' };
 }
