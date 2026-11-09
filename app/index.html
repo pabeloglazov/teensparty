@@ -808,5 +808,6 @@ render();
 if (S.token) load();
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 </script>
+<script id="dbg">(function(){if(!(matchMedia('(display-mode: standalone)').matches||navigator.standalone))return;function m(){var t=document.createElement('div');t.style.cssText='position:fixed;left:0;top:0;width:1px;visibility:hidden;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)';document.body.appendChild(t);var cs=getComputedStyle(t);var h=function(u){t.style.height=u;return t.offsetHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom)};var r='iH '+innerHeight+' sH '+screen.height+' cH '+document.documentElement.clientHeight+' vv '+(window.visualViewport?Math.round(visualViewport.height):'-')+' vh '+h('100vh')+' dvh '+h('100dvh')+' lvh '+h('100lvh')+' sat '+cs.paddingTop+' sab '+cs.paddingBottom;t.remove();var b=document.getElementById('dbgbox')||document.createElement('div');b.id='dbgbox';b.style.cssText='position:fixed;left:8px;right:8px;top:45%;z-index:99;background:#ff0;color:#000;font:13px monospace;padding:6px;border-radius:6px';b.textContent=r;document.body.appendChild(b);}setTimeout(m,1500);addEventListener('resize',m);})();</script>
 </body>
 </html>
