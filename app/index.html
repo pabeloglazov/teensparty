@@ -713,11 +713,10 @@ function viewAccess() {
 function joinUrl() { return APP + 'join/'; }
 function viewQR() {
   return `<div class="noprint">${subHead(tr('QR для отметки', 'Check-in QR'))}</div>
-  <div class="sm mut noprint" style="line-height:1.45">${tr('Распечатайте и повесьте у входа. Подросток сканирует камерой телефона — без приложения. Новенькие заполняют короткую анкету и сразу попадают в базу.', 'Print and put it at the entrance. Teens scan with the phone camera — no app needed. Newcomers fill a short form and land in the database.')}</div>
-  <div style="text-align:center;font-family:Unbounded,sans-serif;font-size:22px;font-weight:700;padding-top:8px">${tr('Отметься в SOL 3:16 Teens', 'Check in to SOL 3:16 Teens')}</div>
-  <div class="qrbox"><div id="qr"></div></div>
-  <div class="xs mut" style="text-align:center;word-break:break-all">${esc(joinUrl())}</div>
-  <div class="noprint" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btnA" data-a="copyJoin">${tr('Скопировать ссылку', 'Copy link')}</button><button class="btnA" data-a="print">${tr('Печать', 'Print')}</button></div>
+  <div class="sm mut" style="line-height:1.45">${tr('Скачайте картинку и повесьте у входа или отправьте в чат. Подросток сканирует камерой телефона — без приложения. Новенькие заполняют короткую анкету и сразу попадают в базу.', 'Download the image and put it at the entrance or send it to a chat. Teens scan with the phone camera — no app needed. Newcomers fill a short form and land in the database.')}</div>
+  <div style="background:#fff;border-radius:20px;padding:20px 16px;display:flex;flex-direction:column;align-items:center;gap:10px;color:#0E0F12"><div style="font-family:Unbounded,sans-serif;font-size:18px;font-weight:700;text-align:center">${tr('Отметься в SOL 3:16 Teens', 'Check in to SOL 3:16 Teens')}</div><div id="qr" style="line-height:0"></div><div style="font-size:12px;color:#5B6070">${tr('Наведи камеру телефона', 'Point your phone camera')}</div></div>
+  <button class="btn" data-a="qrDown" style="display:flex;align-items:center;justify-content:center;gap:8px">${svg('M12 3v12M7 10l5 5 5-5M5 21h14', '#0E0F12', 18, 2.4)}${tr('Скачать QR', 'Download QR')}</button>
+  <button class="btn" data-a="copyJoin" style="display:flex;align-items:center;justify-content:center;gap:8px;background:var(--accbg);color:var(--acc);border:1px solid var(--acc)">${svg('M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1', ACC, 18, 2.2)}${tr('Скопировать ссылку', 'Copy link')}</button>
   ${isAdmin() ? `<div class="noprint" style="display:flex;flex-direction:column;gap:8px;padding-top:8px">
   <div class="sec">${tr('КОГДА РАБОТАЕТ QR', 'WHEN THE QR WORKS')}</div>
   <div class="sm mut" style="line-height:1.45">${tr('Только во время встречи: от «за … мин до начала» до «… мин после». Время общих встреч и групп задаётся в «Группы и встречи».', 'Only during a meeting: from “… min before start” to “… min after”. Meeting and group times are set in Groups & meetings.')}</div>
@@ -726,7 +725,7 @@ function viewQR() {
 }
 function drawQR() {
   const el = document.getElementById('qr'); if (!el || !window.QRCode) return;
-  el.innerHTML = ''; new QRCode(el, { text: joinUrl(), width: 260, height: 260, colorDark: '#0E0F12', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
+  el.innerHTML = ''; new QRCode(el, { text: joinUrl(), width: 220, height: 220, colorDark: '#0E0F12', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
 }
 
 // =================== СЛОИ ===================
@@ -1128,7 +1127,19 @@ const H = {
     try { await api('removeLeader', { id: S.ov.id }); S.ov = null; await load(); toast(tr('Доступ убран', 'Access removed')); } catch (e) { S.ov.err = errText(e); rerender(); } },
   copyJoin() { copy(joinUrl()); },
   copyTeen() { copy(APP + 'me/'); },
-  print() { window.print(); }
+  async qrDown() {
+    const src = document.querySelector('#qr canvas'); if (!src) return toast(tr('QR ещё не готов', 'QR is not ready yet'));
+    try { await document.fonts.load('700 64px Unbounded'); } catch (e) {}
+    const W = 1080, H = 1350, c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d');
+    x.fillStyle = '#fff'; x.fillRect(0, 0, W, H); x.fillStyle = '#0E0F12'; x.textAlign = 'center';
+    x.font = '700 64px Unbounded, Inter, sans-serif'; const t = tr('Отметься в', 'Check in to'); x.fillText(t, W / 2, 170); x.fillText('SOL 3:16 Teens', W / 2, 260);
+    const big = document.createElement('div'); new QRCode(big, { text: joinUrl(), width: 760, height: 760, colorDark: '#0E0F12', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
+    x.imageSmoothingEnabled = false; x.drawImage(big.querySelector('canvas'), (W - 760) / 2, 350, 760, 760);
+    x.fillStyle = '#5B6070'; x.font = '500 40px Inter, sans-serif'; x.fillText(tr('Наведи камеру телефона', 'Point your phone camera'), W / 2, 1210);
+    c.toBlob(async blob => { const file = new File([blob], 'sol316-qr.png', { type: 'image/png' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) { try { await navigator.share({ files: [file] }); } catch (e) {} return; }
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'sol316-qr.png'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 5000); }, 'image/png');
+  }
 };
 function copy(t) { const done = () => toast(tr('Скопировано', 'Copied')); if (navigator.clipboard) navigator.clipboard.writeText(t).then(done, () => fallbackCopy(t, done)); else fallbackCopy(t, done); }
 function fallbackCopy(t, done) { const a = document.createElement('textarea'); a.value = t; document.body.appendChild(a); a.select(); try { document.execCommand('copy'); done(); } catch (e) {} a.remove(); }
