@@ -30,6 +30,7 @@ const BADGES = [
   ['tgchat', 'social', 'В чате', 'Вступить в Telegram-чат SOL Teens. Проверяет бот.', 1, 15],
   ['igsub', 'social', 'Подписчик', 'Подписаться на @sol316teens в Instagram. Подтверждает лидер.', 1, 15],
   ['allin', 'social', 'На связи', 'Быть и в Telegram-чате, и в Instagram.', 2, 10],
+  ['profile', 'social', 'Всё о себе', 'Заполнить профиль полностью: день рождения, адрес и контакт родителя.', 1, 30],
   ['friend', 'friends', 'Позвал друга', 'Друг пришёл по твоему приглашению и отметился.', 1, 30],
   ['friend3', 'friends', 'Три друга', 'Привести трёх друзей.', 3, 90],
   ['party', 'friends', 'Душа компании', 'Побывать на 3 событиях: TEENS PARTY, выезды, ночёвки.', 3, 30],
@@ -205,6 +206,7 @@ function score_(t, C, full) {
     d3: dBest, d7: dBest, d14: dBest, d30: dBest, d100: dBest,
     b1: cntKind('read'), book: cntKind('read'), verse: cntKind('verse'),
     tgchat: t.tgChat === '1' ? 1 : 0, igsub: t.igStatus === 'ok' ? 1 : 0, allin: (t.tgChat === '1' ? 1 : 0) + (t.igStatus === 'ok' ? 1 : 0),
+    profile: profileLeft_(t).length ? 0 : 1,
     friend: friends, friend3: friends, party: att.filter(a => a.kind === 'event').length,
     groups: C.groups.length >= 2 && C.groups.every(g => visitedGroups.has(g.id)) ? 1 : 0,
     night: manual('night'), camp: manual('camp'), help: manual('help'), back: manual('back'), bday: manual('bday'), thanks: manual('thanks')
@@ -224,6 +226,9 @@ function teenApi(token, action, p) {
     return action === 'me' ? fn(t, p || {}) : lock_(() => fn(t, p || {}));
   });
 }
+// что подростку осталось заполнить в профиле
+const PROFILE_PARTS = [['name', ['first', 'last']], ['phone', ['phone']], ['birth', ['birth']], ['addr', ['addr']], ['parent', ['pFirst', 'pPhone']]];
+function profileLeft_(t) { return PROFILE_PARTS.filter(p => !p[1].every(k => String(t[k] || '').trim())).map(p => p[0]); }
 const shortName_ = t => (t.first + ' ' + (t.last ? t.last.charAt(0) + '.' : '')).trim();
 const TA_ = {
   me(t) {
@@ -250,10 +255,26 @@ const TA_ = {
       badges: sc.badges, log: sc.log.filter(x => x.date).slice(0, 12), tasks,
       rank: { month: month.slice(0, 20), all: allTime.slice(0, 20), myMonth: (month.find(x => x.me) || {}).place || 0, myAll: (allTime.find(x => x.me) || {}).place || 0 },
       tg: { link: TG_CHAT_LINK, ok: me.tgChat === '1', canCheck: !!st.tgChatId },
+      profile: { first: me.first, last: me.last, phone: me.phone, birth: me.birth, addr: me.addr, pFirst: me.pFirst, pLast: me.pLast, pPhone: me.pPhone, left: profileLeft_(me), total: PROFILE_PARTS.length },
       ig: { link: IG_LINK, status: me.igStatus || '', nick: me.ig || '' },
       meet: currentMeeting_(),
       schedule: services_(st).map(x => ({ name: x.name, day: x.day, time: x.time }))
     };
+  },
+  saveProfile(t, p) {
+    const row = rows_('Подростки').find(x => x.id === t.id); if (!row) throw new Error('not_found');
+    const f = p.fields || {}, patch = {};
+    const txt = k => String(f[k] == null ? '' : f[k]).replace(/\s+/g, ' ').trim().slice(0, 120);
+    ['first', 'last', 'addr', 'pFirst', 'pLast'].forEach(k => { if (k in f) patch[k] = txt(k); });
+    if ('first' in patch && !patch.first) throw new Error('need_name');
+    if ('birth' in f) {
+      const b = txt('birth');
+      if (b) { if (!/^\d{4}-\d{2}-\d{2}$/.test(b)) throw new Error('bad_birth'); const age = (dnum_(today_()) - dnum_(b)) / 365.25; if (!(age >= 8 && age <= 25)) throw new Error('bad_birth'); }
+      patch.birth = b;
+    }
+    if ('pPhone' in f) { const d = digits_(f.pPhone); if (txt('pPhone') && d.length < 10) throw new Error('bad_phone'); patch.pPhone = d; }
+    if (Object.keys(patch).length) update_('Подростки', row, patch);
+    return true;
   },
   taskDone(t, p) {
     const hit = rows_('Выполнения').filter(d => d.taskId === p.taskId && d.teenId === t.id);

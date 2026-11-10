@@ -72,6 +72,18 @@ a{color:inherit}
 .rr.me{background:var(--accbg);border-color:var(--acc)}
 .ov{position:fixed;top:0;left:0;right:0;height:var(--apph,100%);background:rgba(0,0,0,.6);display:flex;align-items:flex-end;justify-content:center;z-index:10}
 .sheet{width:100%;max-width:520px;background:#16181D;border-radius:24px 24px 0 0;padding:22px 20px calc(24px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:14px;align-items:center;text-align:center;max-height:90vh;overflow-y:auto}
+.inp[type=date]{-webkit-appearance:none;appearance:none;display:block;min-width:0;max-width:100%;text-align:left;line-height:48px}
+.inp[type=date]::-webkit-date-and-time-value{text-align:left;margin:0}
+.pfbar{height:10px;border-radius:5px;background:#3A2414;overflow:hidden}.pfbar i{display:block;height:100%;border-radius:5px;background:var(--acc);transition:width .4s}
+.pr{display:flex;align-items:center;gap:12px;min-height:54px;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);color:inherit;font:inherit;padding:0}
+.pr:last-child{border-bottom:0}
+.go{flex-shrink:0;font-size:13px;font-weight:700;color:var(--acc);border:1px solid var(--acc);border-radius:999px;padding:5px 12px;white-space:nowrap}
+.pc{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:12px 14px;color:inherit;font:inherit;text-decoration:none}
+.pc.done{opacity:.55}
+.pc .circ{width:42px;height:42px}
+.pts{flex-shrink:0;font-family:Unbounded,Inter,sans-serif;font-size:15px;font-weight:700;color:var(--acc);white-space:nowrap}
+.sub{font-size:13px;font-weight:700;color:var(--tx);padding:8px 4px 0}
+.lbl{font-size:13px;color:var(--mu);font-weight:600}
 .ellip{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .busy{position:fixed;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--acc),transparent);background-size:200% 100%;animation:b 1s linear infinite;z-index:20}
 @keyframes b{from{background-position:200% 0}to{background-position:-200% 0}}
@@ -117,9 +129,10 @@ const I = {
 const BI = { first: I.star, m5: I.cal, m10: I.cal, m25: I.cal, m50: I.trophy, m100: I.crown, w4: I.flame, w8: I.flame, w12: I.flame, w20: I.flame, team: I.users,
   d3: I.phone, d7: I.phone, d14: I.phone, d30: I.cal, d100: I.crown, b1: I.book, book: I.book, verse: I.heart, tgchat: I.tg, igsub: I.ig, allin: I.chat,
   friend: I.plus, friend3: I.plus, party: I.cal, groups: I.map, night: I.moon, camp: I.tent, help: I.hand, back: I.back, bday: I.cake, thanks: I.star, legend: I.crown };
+BI.profile = I.user;
 const CATS = [['meet', 'ВСТРЕЧИ'], ['streak', 'СЕРИИ НА ВСТРЕЧАХ'], ['app', 'ПРИЛОЖЕНИЕ КАЖДЫЙ ДЕНЬ'], ['bible', 'БИБЛИЯ'], ['social', 'СОЦСЕТИ'], ['friends', 'ДРУЗЬЯ И СОБЫТИЯ'], ['special', 'ОСОБЫЕ']];
-const RULES = [['Пришёл на встречу или малую группу', '+10'], ['Событие', '+15'], ['Задание', '+10…30'], ['Зашёл в приложение (раз в день)', '+2'], ['Вступил в Telegram-чат', '+15'], ['Подписался на Instagram', '+15'], ['Ачивка', '+5…200']];
-const ERR = { network: 'Нет связи. Проверь интернет.', no_meeting: 'Сейчас нет встречи.', no_bot: 'Вход через Telegram ещё настраивается. Попробуй чуть позже.', no_chat: 'Бот ещё не добавлен в чат — скажи лидеру.', no_tg: 'Войди через Telegram ещё раз.', need_nick: 'Напиши свой ник в Instagram' };
+const RULES_OLD = [['Пришёл на встречу или малую группу', '+10'], ['Событие', '+15'], ['Задание', '+10…30'], ['Зашёл в приложение (раз в день)', '+2'], ['Вступил в Telegram-чат', '+15'], ['Подписался на Instagram', '+15'], ['Ачивка', '+5…200']];
+const ERR = { network: 'Нет связи. Проверь интернет.', no_meeting: 'Сейчас нет встречи.', bad_birth: 'Проверь дату рождения.', bad_phone: 'В телефоне должно быть 10 цифр.', need_name: 'Напиши своё имя.', no_bot: 'Вход через Telegram ещё настраивается. Попробуй чуть позже.', no_chat: 'Бот ещё не добавлен в чат — скажи лидеру.', no_tg: 'Войди через Telegram ещё раз.', need_nick: 'Напиши свой ник в Instagram' };
 const errT = e => ERR[e && e.message] || 'Что-то пошло не так. Попробуй ещё раз.';
 
 function call(fn, ...args) {
@@ -140,7 +153,7 @@ const laToday = () => { try { return new Intl.DateTimeFormat('en-CA', { timeZone
 function applyRoute() { const t = (location.hash || '').replace(/^#\/?/, '').split('/')[0]; if (TABS.indexOf(t) >= 0) S.tab = t; }
 function syncUrl() { if (!S.token || !D) return; const r = '#/' + S.tab; document.title = TTL[S.tab] + ' · SOL Teens'; if (location.hash === r) return; try { if (!location.hash || location.hash === '#') history.replaceState(null, '', r); else history.pushState(null, '', r); } catch (e) {} }
 window.addEventListener('popstate', () => { if (!D) return; applyRoute(); S.ov = null; render(); });
-async function load() { try { D = await api('me'); LS.set(MEC, JSON.stringify({ day: laToday(), d: D })); render(); } catch (e) { if (D && S.token) { if (e.message !== 'auth') toast(errT(e)); return; } if (S.token) { $.innerHTML = `<div class="login"><div class="h2">Не удалось загрузить</div><div class="mu">${esc(errT(e))}</div><button class="btn" data-a="reload">Повторить</button></div>`; } } }
+async function load() { try { const keep = S.ov && S.ov.type === 'pf'; const fresh = await api('me'); if (keep && S.ov && S.ov.type === 'pf') return; D = fresh; LS.set(MEC, JSON.stringify({ day: laToday(), d: D })); render(); } catch (e) { if (D && S.token) { if (e.message !== 'auth') toast(errT(e)); return; } if (S.token) { $.innerHTML = `<div class="login"><div class="h2">Не удалось загрузить</div><div class="mu">${esc(errT(e))}</div><button class="btn" data-a="reload">Повторить</button></div>`; } } }
 
 // ---------- вход ----------
 let pollT = null;
@@ -224,6 +237,7 @@ function viewHome() {
   <div class="stats"><div class="stat"><b>${D.weekStreak}</b><span class="xs mu">${plural(D.weekStreak, 'неделя', 'недели', 'недель')} подряд на встречах</span></div><button class="stat" data-a="tab" data-x="rank" style="text-align:left"><b>${D.rank.myMonth ? '#' + D.rank.myMonth : '—'}</b><span class="xs mu">в рейтинге месяца</span></button></div>
   ${tasks.map(taskCard).join('')}
   ${socialCards()}
+  ${pfNudge()}
   ${nb.length ? `<div class="row" style="justify-content:space-between;padding:6px 4px 0"><span class="sec">БЛИЖАЙШИЕ АЧИВКИ</span><button class="sm" style="color:var(--acc);font-weight:700" data-a="tab" data-x="badges">Все ›</button></div><div class="grid">${nb.map(badgeTile).join('')}</div>` : ''}`;
 }
 function viewBadges() {
@@ -242,22 +256,69 @@ function viewRank() {
   ${(S.scope === 'month' ? D.rank.myMonth : D.rank.myAll) > 20 ? `<div class="sm mu" style="text-align:center">Твоё место: ${S.scope === 'month' ? D.rank.myMonth : D.rank.myAll}</div>` : ''}
   <div class="xs mu" style="line-height:1.45;text-align:center">В рейтинге видны только имена. Баллы за месяц обнуляются 1-го числа, общий счёт остаётся.</div>`;
 }
+// ---------- профиль: данные о себе ----------
+const PF = () => D.profile || { left: [], total: 5 };
+const PARTS = [['name', 'Имя и фамилия'], ['phone', 'Телефон'], ['birth', 'День рождения'], ['addr', 'Адрес'], ['parent', 'Родитель и его телефон']];
+const PNAME = { name: 'Как тебя зовут', birth: 'Когда у тебя день рождения', addr: 'Где ты живёшь', parent: 'Контакт родителя' };
+function pfVal(k) {
+  const p = PF();
+  if (k === 'name') return ((p.first || '') + ' ' + (p.last || '')).trim();
+  if (k === 'phone') { const d = String(p.phone || '').replace(/\D/g, '').slice(-10); return d.length === 10 ? '(' + d.slice(0, 3) + ') ···' + d.slice(6) : ''; }
+  if (k === 'birth') return /^\d{4}-\d{2}-\d{2}$/.test(p.birth || '') ? human(p.birth) + ' ' + p.birth.slice(0, 4) : (p.birth || '');
+  if (k === 'addr') return p.addr || '';
+  return [((p.pFirst || '') + ' ' + (p.pLast || '')).trim(), p.pPhone ? '···' + String(p.pPhone).slice(-4) : ''].filter(Boolean).join(' · ');
+}
+const pfLeft = () => PF().left.filter(k => k !== 'phone');
+function profileCards() {
+  const p = PF(), left = p.left, pct = Math.round((p.total - left.length) / p.total * 100), todo = pfLeft();
+  return `${todo.length ? `<div class="card acc"><div class="row" style="justify-content:space-between"><span style="font-weight:700;font-size:16px">Профиль заполнен на ${pct}%</span><span class="pts">+30</span></div><div class="pfbar"><i style="width:${pct}%"></i></div><div class="sm mu" style="line-height:1.45">Заполни всё — получишь 30 баллов и ачивку «Всё о себе».</div><button class="btn" data-a="pf" data-x="${todo[0]}">Заполнить</button></div>` : ''}
+  <div class="sec" style="padding:6px 4px 0">О ТЕБЕ</div>
+  <div class="card" style="gap:0;padding:2px 16px">${PARTS.map(([k, l]) => { const ok = left.indexOf(k) < 0, v = pfVal(k);
+    return `<button class="pr" ${k === 'phone' ? 'style="cursor:default"' : `data-a="pf" data-x="${k}"`}>${ok ? svg(I.check, 'var(--acc)', 20, 3) : `<span style="width:20px;height:20px;border-radius:999px;border:2px solid var(--line3);flex-shrink:0"></span>`}<span style="flex:1;min-width:0"><span style="display:block;font-weight:600">${l}</span>${v ? `<span class="xs mu ellip" style="display:block">${esc(v)}</span>` : ''}</span>${ok ? (k === 'phone' ? '' : `<span class="xs mu">изменить</span>`) : (k === 'phone' ? '' : `<span class="go">Добавить</span>`)}</button>`; }).join('')}</div>`;
+}
+function pfNudge() { const n = pfLeft().length; return n ? `<button class="pc" data-a="tab" data-x="profile" style="border-color:#3A2414;background:var(--accbg)"><div class="circ got">${svg(I.user, '#0E0F12', 20)}</div><span style="flex:1;min-width:0"><span style="display:block;font-weight:700">Заполни профиль</span><span class="xs mu">${n === 1 ? 'осталось 1 поле' : 'осталось ' + n + ' ' + plural(n, 'поле', 'поля', 'полей')}</span></span><span class="go">+30 ›</span></button>` : ''; }
+// ---------- как получать баллы ----------
+function pointsCards() {
+  const c = (icon, title, sub, right, o) => { o = o || {}; const tag = o.a ? 'button' : 'div';
+    return `<${tag} class="pc ${o.done ? 'done' : ''}" ${o.a ? `data-a="${o.a}" ${o.x ? `data-x="${o.x}"` : ''}` : ''}><div class="circ ${o.dim ? '' : 'got'}">${svg(o.done ? I.check : icon, o.dim ? '#A1A1AA' : '#0E0F12', 20, o.done ? 3 : 2)}</div><span style="flex:1;min-width:0"><span style="display:block;font-weight:700">${title}</span>${sub ? `<span class="xs mu" style="display:block;line-height:1.35">${esc(sub)}</span>` : ''}</span>${o.done ? `<span class="xs mu">получено</span>` : o.go ? `<span class="go">${right} ›</span>` : `<span class="pts">${right}</span>`}</${tag}>`; };
+  const open = D.tasks.find(k => !k.done), got = D.badges.filter(b => b.have >= b.need).length, n = pfLeft().length, ig = D.ig.status;
+  return `<div class="sec" style="padding:6px 4px 0">КАК ПОЛУЧАТЬ БАЛЛЫ</div>
+  <div class="sub">Каждую неделю</div>
+  ${c(I.users, 'Приди на встречу', D.meet ? 'сейчас идёт: ' + D.meet.label + ' — отметься' : 'общая встреча или малая группа', '+10', D.meet ? { a: 'scan' } : {})}
+  ${c(I.book, 'Выполни задание', open ? 'сейчас: ' + open.title : D.tasks.length ? 'все задания выполнены' : 'лидер скоро даст задание', open ? '+' + open.pts : 'до +30', open ? { a: 'tab', x: 'home' } : {})}
+  ${c(I.flame, 'Заходи каждый день', 'серия: ' + D.appStreak + ' ' + plural(D.appStreak, 'день', 'дня', 'дней') + ' подряд', '+2')}
+  <div class="sub">Один раз</div>
+  ${n ? c(I.user, 'Заполни профиль', n === 1 ? 'осталось 1 поле' : 'осталось ' + n + ' ' + plural(n, 'поле', 'поля', 'полей'), '+30', { a: 'pf', x: pfLeft()[0], go: 1, dim: 1 }) : c(I.user, 'Заполнил профиль', '', '', { done: 1 })}
+  ${D.tg.ok ? c(I.tg, 'Вступил в Telegram-чат', '', '', { done: 1 }) : c(I.tg, 'Вступи в Telegram-чат', 'новости, фото, обсуждения', '+15', { a: 'tab', x: 'home', go: 1, dim: 1 })}
+  ${ig === 'ok' ? c(I.ig, 'Подписался на Instagram', '', '', { done: 1 }) : ig === 'pending' ? c(I.ig, 'Подписка на Instagram', 'лидер проверяет твой ник', '+15', { dim: 1 }) : c(I.ig, 'Подпишись на Instagram', '@sol316teens', '+15', { a: 'tab', x: 'home', go: 1, dim: 1 })}
+  <div class="sub">Особое</div>
+  ${c(I.star, 'Приди на событие', 'праздники, выезды, лагерь', '+15')}
+  ${c(I.medal, 'Собирай ачивки', got + ' из ' + D.badges.length + ' получено · бонус за каждую', 'до +200', { a: 'tab', x: 'badges' })}`;
+}
 function viewProfile() {
   const got = D.badges.filter(b => b.have >= b.need).length;
   const nm = (D.me.first + ' ' + D.me.last).trim();
   return `<div class="row"><div class="av me" style="width:64px;height:64px;font-size:22px">${esc(nm.split(/\s+/).map(x => x[0] || '').join('').slice(0, 2).toUpperCase())}</div><div style="min-width:0"><div class="h2">${esc(nm)}</div><div class="sm mu">${esc(D.me.groups.join(', ') || 'SOL Teens')}${D.me.since ? ' · с ' + esc(human(D.me.since.slice(0, 10))) : ''}</div></div></div>
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px"><div class="stat"><b>${D.visits}</b><span class="xs mu">${plural(D.visits, 'встреча', 'встречи', 'встреч')}</span></div><div class="stat"><b>${got}</b><span class="xs mu">ачивок</span></div><div class="stat"><b>${D.pts}</b><span class="xs mu">баллов</span></div></div>
+  ${profileCards()}
   ${D.tg.ok || D.ig.status === 'ok' ? `<div class="sec" style="padding:6px 4px 0">МЫ НА СВЯЗИ</div><div class="card" style="gap:0;padding:4px 16px">
     ${D.tg.ok ? `<a href="${esc(D.tg.link)}" target="_blank" rel="noopener" class="row" style="min-height:48px;gap:10px;color:inherit;text-decoration:none;border-bottom:${D.ig.status === 'ok' ? '1px solid var(--line)' : '0'}">${svg(I.tg, 'var(--acc)', 20)}<span style="flex:1">Telegram-чат SOL Teens</span>${svg(I.check, 'var(--acc)', 18, 3)}</a>` : ''}
     ${D.ig.status === 'ok' ? `<a href="${esc(D.ig.link)}" target="_blank" rel="noopener" class="row" style="min-height:48px;gap:10px;color:inherit;text-decoration:none">${svg(I.ig, 'var(--acc)', 20)}<span style="flex:1">Instagram${D.ig.nick ? ' · @' + esc(String(D.ig.nick).replace(/^@/, '')) : ''}</span>${svg(I.check, 'var(--acc)', 18, 3)}</a>` : ''}
   </div>` : ''}
-  <div class="sec" style="padding:6px 4px 0">КАК ПОЛУЧАТЬ БАЛЛЫ</div>
-  <div class="card" style="gap:0;padding:4px 16px">${RULES.map(([a, b]) => `<div class="row" style="justify-content:space-between;min-height:44px;border-bottom:1px solid var(--line)"><span class="sm">${a}</span><span style="font-weight:700;color:var(--acc)">${b}</span></div>`).join('')}</div>
+  ${pointsCards()}
   ${D.log.length ? `<div class="sec" style="padding:6px 4px 0">ПОСЛЕДНИЕ БАЛЛЫ</div><div class="card" style="gap:0;padding:4px 16px">${D.log.map(l => `<div class="row" style="justify-content:space-between;min-height:50px;border-bottom:1px solid var(--line)"><div style="min-width:0"><div class="sm ellip" style="font-weight:600">${esc(l.what)}</div><div class="xs mu">${esc(word(l.date))}</div></div><span style="font-weight:700;color:var(--acc)">+${l.pts}</span></div>`).join('')}</div>` : ''}
   <button class="btn2" data-a="logout">Выйти</button>`;
 }
 function viewOverlay() {
   const o = S.ov; if (!o) return '';
+  if (o.type === 'pf') {
+    const p = PF(), k = o.part; const inp = (id, label, val, type, ph, extra) => `<label class="lbl" for="pf_${id}">${label}</label><input class="inp" id="pf_${id}" type="${type || 'text'}" value="${esc(val || '')}" placeholder="${esc(ph || '')}" ${extra || ''}>`;
+    const body = k === 'name' ? inp('first', 'Имя', p.first, 'text', '', 'autocomplete="given-name"') + inp('last', 'Фамилия', p.last, 'text', '', 'autocomplete="family-name"')
+      : k === 'birth' ? inp('birth', 'Дата рождения', /^\d{4}-/.test(p.birth || '') ? p.birth : '', 'date', '', 'max="' + D.today + '"') + `<div class="xs mu" style="line-height:1.4">Поздравим тебя в день рождения. Год видят только лидеры.</div>`
+      : k === 'addr' ? inp('addr', 'Адрес', p.addr, 'text', 'Улица, дом, город', 'autocomplete="street-address"') + `<div class="xs mu" style="line-height:1.4">Нужен лидерам, чтобы подвезти или навестить. Другие подростки его не видят.</div>`
+      : inp('pFirst', 'Имя родителя', p.pFirst, 'text', 'Мама или папа') + inp('pLast', 'Фамилия родителя', p.pLast) + inp('pPhone', 'Телефон родителя', p.pPhone, 'tel', '(916) 123-4567', 'inputmode="tel" autocomplete="off"') + `<div class="xs mu" style="line-height:1.4">Чтобы лидер мог связаться с родителями, если что-то срочное.</div>`;
+    return `<div class="ov" data-a="close"><div class="sheet" data-stop="1" style="text-align:left;align-items:stretch;gap:10px"><div class="h2">${PNAME[k]}</div>${body}${o.err ? `<div class="sm" style="color:var(--acc)">${esc(o.err)}</div>` : ''}<button class="btn" data-a="savePf" style="margin-top:6px">Сохранить</button><button class="btn2" data-a="close">Отмена</button></div></div>`;
+  }
   if (o.type === 'badge') {
     const b = D.badges.find(x => x.id === o.id); if (!b) return ''; const got = b.have >= b.need;
     return `<div class="ov" data-a="close"><div class="sheet" data-stop="1"><div class="circ ${got ? 'got' : ''}" style="width:96px;height:96px">${svg(BI[b.id] || I.star, got ? '#0E0F12' : '#5F626B', 44)}</div><div class="h2">${esc(b.name)}</div><div class="mu" style="line-height:1.5">${esc(b.desc)}</div><div style="font-weight:700;color:${got ? 'var(--acc)' : 'var(--mu)'}">${got ? 'Получено' : 'Прогресс: ' + b.have + '/' + b.need}</div>${b.bonus ? `<span class="pill">+${b.bonus} баллов</span>` : ''}<button class="btn" data-a="close">Понятно</button></div></div>`;
@@ -293,6 +354,17 @@ const H = {
   tab(x) { S.tab = x; S.ov = null; render(); const m = document.querySelector('.main'); if (m) m.scrollTop = 0; },
   scope(x) { S.scope = x; render(); },
   badge(x) { S.ov = { type: 'badge', id: x }; render(); },
+  pf(k) { if (!k || k === 'phone') return; S.ov = { type: 'pf', part: k, err: '' }; render(); const f = document.querySelector('.sheet .inp'); if (f && !f.value) f.focus(); },
+  async savePf() {
+    const o = S.ov, f = {}; document.querySelectorAll('.sheet .inp').forEach(i => f[i.id.slice(3)] = i.value.trim());
+    const need = { name: ['first', 'last'], birth: ['birth'], addr: ['addr'], parent: ['pFirst', 'pPhone'] }[o.part];
+    if (need.some(k => !f[k])) { Object.assign(PF(), f); o.err = 'Заполни ' + (need.length > 1 ? 'оба поля' : 'поле') + ', чтобы сохранить.'; return render(); }
+    const was = pfLeft().length;
+    try { await api('saveProfile', { fields: f }); D = await api('me'); LS.set(MEC, JSON.stringify({ day: laToday(), d: D })); const left = pfLeft();
+      if (was && !left.length) { S.ov = null; toast('Профиль заполнен! +30 и ачивка «Всё о себе»'); } else if (left.length && was) { S.ov = { type: 'pf', part: left[0], err: '' }; toast('Сохранено. Ещё чуть-чуть'); } else { S.ov = null; toast('Сохранено'); }
+      render(); }
+    catch (e) { Object.assign(PF(), f); o.err = errT(e); render(); }
+  },
   daily() { S.ov = { type: 'daily' }; render(); },
   scan() { S.ov = { type: 'scan' }; render(); },
   close() { S.ov = null; render(); },
