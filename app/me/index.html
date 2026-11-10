@@ -79,6 +79,10 @@ a{color:inherit}
 .pr{display:flex;align-items:center;gap:12px;min-height:54px;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);color:inherit;font:inherit;padding:0}
 .pr:last-child{border-bottom:0}
 .go{flex-shrink:0;font-size:13px;font-weight:700;color:var(--acc);border:1px solid var(--acc);border-radius:999px;padding:5px 12px;white-space:nowrap}
+.gl{display:grid;grid-template-columns:20px 1fr;gap:10px;align-items:center;font-size:14px;color:var(--tx)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.g2 .btnS{width:100%;height:46px}
+.btnS.line{background:transparent;border:1px solid var(--line3);color:var(--tx)}
 .ist{display:grid;grid-template-columns:30px 1fr 26px;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 14px;min-height:64px;font-size:15px;line-height:1.35}
 .ist .n{width:30px;height:30px;border-radius:999px;background:var(--acc);color:#0E0F12;display:flex;align-items:center;justify-content:center;font-weight:700}
 .ist b{color:var(--acc2);font-weight:700}
@@ -137,7 +141,7 @@ const BI = { first: I.star, m5: I.cal, m10: I.cal, m25: I.cal, m50: I.trophy, m1
   d3: I.phone, d7: I.phone, d14: I.phone, d30: I.cal, d100: I.crown, b1: I.book, book: I.book, verse: I.heart, tgchat: I.tg, igsub: I.ig, allin: I.chat,
   friend: I.plus, friend3: I.plus, party: I.cal, groups: I.map, night: I.moon, camp: I.tent, help: I.hand, back: I.back, bday: I.cake, thanks: I.star, legend: I.crown };
 BI.profile = I.user;
-BI.friend5 = I.plus;
+BI.friend5 = I.plus; BI.mygroup = I.users;
 const CATS = [['meet', 'ВСТРЕЧИ'], ['streak', 'СЕРИИ НА ВСТРЕЧАХ'], ['app', 'ПРИЛОЖЕНИЕ КАЖДЫЙ ДЕНЬ'], ['bible', 'БИБЛИЯ'], ['social', 'СОЦСЕТИ'], ['friends', 'ДРУЗЬЯ И СОБЫТИЯ'], ['special', 'ОСОБЫЕ']];
 const RULES_OLD = [['Пришёл на встречу или малую группу', '+10'], ['Событие', '+15'], ['Задание', '+10…30'], ['Зашёл в приложение (раз в день)', '+2'], ['Вступил в Telegram-чат', '+15'], ['Подписался на Instagram', '+15'], ['Ачивка', '+5…200']];
 const ERR = { network: 'Нет связи. Проверь интернет.', no_meeting: 'Сейчас нет встречи.', bad_birth: 'Проверь дату рождения.', bad_phone: 'В телефоне должно быть 10 цифр.', need_name: 'Напиши своё имя.', no_bot: 'Вход через Telegram ещё настраивается. Попробуй чуть позже.', no_chat: 'Бот ещё не добавлен в чат — скажи лидеру.', no_tg: 'Войди через Telegram ещё раз.', need_nick: 'Напиши свой ник в Instagram' };
@@ -236,6 +240,29 @@ function weekCards() {
   <div class="card"><div class="row"><div class="circ" style="width:44px;height:44px">${svg(I.plus, '#A1A1AA', 20)}</div><div style="flex:1;min-width:0"><div style="font-weight:700">Приведи друга</div><div class="sm mu" style="line-height:1.4">Отправь другу свою ссылку. Баллы придут, когда он первый раз отметится на встрече.</div></div><span class="pill">+30</span></div><button class="btnS" data-a="invite">Пригласить друга</button></div>
   ${serve ? weekTaskCard(serve) : ''}`;
 }
+// ---------- малые группы ----------
+const t12 = v => { const m = /^(\d{1,2}):(\d{2})$/.exec(String(v || '')); if (!m) return String(v || ''); const h = +m[1]; return ((h % 12) || 12) + ':' + m[2] + ' ' + (h < 12 ? 'AM' : 'PM'); };
+const GI = { clock: 'M12 2a10 10 0 1 0 0 20a10 10 0 0 0 0-20M12 6v6l4 2', pin: 'M12 22s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12zM12 7.5a2.5 2.5 0 1 0 0 5a2.5 2.5 0 0 0 0-5', nav: 'M3 11l18-8-8 18-2-8z' };
+function contacts(c) { c = String(c || '').trim(); const m = c.match(/(?:t\.me\/|@)([A-Za-z0-9_]{3,})/); const d = c.replace(/(?:t\.me\/|@)[A-Za-z0-9_]+/g, '').replace(/\D/g, ''); const ph = d.length >= 10 ? '+' + (d.length === 10 ? '1' : '') + d : '';
+  return { msg: m ? 'https://t.me/' + m[1] : ph ? 'sms:' + ph : '', call: ph ? 'tel:' + ph : '' }; }
+const GI2 = { mail: 'M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zM3 7l9 6 9-6', call: 'M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2' };
+function sgBody(g, pick) {
+  const ct = contacts(g.contact);
+  const ib = (href, ic, label, blank) => href ? `<a class="btnS line" style="width:48px;height:46px;padding:0" href="${esc(href)}" ${blank ? 'target="_blank" rel="noopener"' : ''} aria-label="${label}">${svg(GI2[ic], 'var(--acc)', 20)}</a>` : '';
+  const icons = ib(ct.msg, 'mail', 'Написать лидеру', /^https/.test(ct.msg)) + ib(ct.call, 'call', 'Позвонить лидеру', false);
+  return `<div class="row"><div class="circ got" style="width:44px;height:44px">${svg(I.users, '#0E0F12', 20)}</div><div style="flex:1;min-width:0"><div style="font-weight:700">${esc(g.name)}</div>${g.leader ? `<div class="sm mu">Лидер: ${esc(g.leader)}</div>` : ''}</div>${pick ? '' : `<div style="display:flex;gap:8px">${icons}</div>`}</div>
+    <div class="gl">${svg(GI.clock, '#8B8B94', 18)}<span>${DAYS[g.day]} · ${esc(t12(g.time))}</span></div>
+    ${g.addr ? `<div class="gl" style="grid-template-columns:20px 1fr auto">${svg(GI.pin, '#8B8B94', 18)}<span>${esc(g.addr)}</span><button class="btnS line" style="height:36px;padding:0 12px;font-size:13px" data-a="route" data-x="${esc(g.addr)}">${svg(GI.nav, 'var(--acc)', 14)} Маршрут</button></div>` : ''}
+    ${pick ? `<div style="display:flex;gap:8px"><button class="btnS" style="flex:1;height:46px" data-a="sgPick" data-x="${g.id}">Хочу сюда</button>${icons}</div>` : ''}`;
+}
+function sgCards() {
+  const g = D.sg; if (!g) return '';
+  if (g.mine.length) return `<div class="sec" style="padding:6px 4px 0">ТВОЯ МАЛАЯ ГРУППА</div>${g.mine.map(x => `<div class="card">${sgBody(x, false)}</div>`).join('')}`;
+  if (!g.all.length) return '';
+  const rq = g.req && g.req.status === 'pending' ? g.all.find(x => x.id === g.req.groupId) : null;
+  if (rq) return `<div class="card acc"><div class="row"><div class="circ got" style="width:44px;height:44px">${svg(I.users, '#0E0F12', 20)}</div><div style="flex:1;min-width:0"><div style="font-weight:700">Заявка в ${esc(rq.name)}</div><div class="sm" style="color:#F2C14E;font-weight:600">Ждёт подтверждения</div></div></div><button class="btnS line" data-a="sg">Выбрать другую группу</button></div>`;
+  return `<div class="card acc"><div class="row"><div class="circ got" style="width:44px;height:44px">${svg(I.users, '#0E0F12', 20)}</div><div style="flex:1;min-width:0"><div style="font-weight:700">Найди свою малую группу</div><div class="sm mu" style="line-height:1.4">Общение, глава недели и молитва в своём кругу.</div></div></div><div class="row" style="justify-content:space-between"><span class="sm mu">За вступление</span><span class="pts">+20 и ачивка</span></div><button class="btn" data-a="sg">Выбрать группу</button></div>`;
+}
 // ---------- установка на экран ----------
 const II = { share: 'M12 3v12M8 7l4-4 4 4M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7', add: 'M4 4h16v16H4zM12 8v8M8 12h8', dots: 'M12 5h.01M12 12h.01M12 19h.01', ext: 'M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5', apps: 'M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z', safari: 'M12 2a10 10 0 1 0 0 20a10 10 0 0 0 0-20M15.5 8.5l-2 5-5 2 2-5z', chrome: 'M12 2a10 10 0 1 0 0 20a10 10 0 0 0 0-20M12 8a4 4 0 1 0 0 8a4 4 0 0 0 0-8', right: 'M9 18l6-6-6-6' };
 const isStandalone = () => { try { return window.matchMedia('(display-mode: standalone)').matches || !!navigator.standalone; } catch (e) { return false; } };
@@ -280,6 +307,7 @@ function viewHome() {
   <div class="card acc"><div class="row" style="justify-content:space-between"><div><div class="sec" style="color:var(--acc2)">УРОВЕНЬ ${lv.num}</div><div class="h2" style="margin-top:4px">${esc(lv.name)}</div></div><div style="text-align:right"><div style="font-family:Unbounded,Inter,sans-serif;font-size:30px;font-weight:700;color:var(--acc)">${D.pts}</div><div class="xs mu">${plural(D.pts, 'балл', 'балла', 'баллов')}</div></div></div><div class="bar"><i style="width:${lv.pct}%"></i></div><div class="sm mu">${esc(lv.left)}</div></div>
   <button class="card" data-a="daily" style="text-align:left;width:100%"><div class="row" style="justify-content:space-between"><div class="row"><div class="circ got" style="width:44px;height:44px">${svg(I.flame, '#0E0F12', 22)}</div><div><div style="font-weight:700;font-size:17px">${D.appStreak} ${plural(D.appStreak, 'день', 'дня', 'дней')} подряд</div><div class="xs mu">в приложении · рекорд ${D.appBest}</div></div></div><span class="pill">+2/день</span></div><div class="days">${days}</div>${ms ? `<div class="xs mu">До ачивки за ${ms} ${plural(ms, 'день', 'дня', 'дней')} — ещё ${ms - D.appStreak}</div>` : ''}</button>
   <div class="stats"><div class="stat"><b>${D.weekStreak}</b><span class="xs mu">${plural(D.weekStreak, 'неделя', 'недели', 'недель')} подряд на встречах</span></div><button class="stat" data-a="tab" data-x="rank" style="text-align:left"><b>${D.rank.myMonth ? '#' + D.rank.myMonth : '—'}</b><span class="xs mu">в рейтинге месяца</span></button></div>
+  ${sgCards()}
   ${weekCards()}
   ${tasks.map(taskCard).join('')}
   ${socialCards()}
@@ -332,7 +360,7 @@ function pointsCards() {
   return `<div class="sec" style="padding:6px 4px 0">КАК ПОЛУЧАТЬ БАЛЛЫ</div>
   <div class="sub">Каждую неделю</div>
   ${c(I.users, 'Приди на встречу', D.meet ? 'сейчас идёт: ' + D.meet.label + ' — отметься' : 'общая встреча или малая группа', '+10', D.meet ? { a: 'scan' } : {})}
-  ${D.week ? c(I.book, 'Выполни задания недели', 'глава недели: ' + D.week.ref + ' · засчитывает лидер', 'до +25', { a: 'tab', x: 'home' }) : ''}
+  ${D.week ? c(I.book, 'Выполни задания недели', 'глава недели: ' + D.week.ref + ' · засчитывает лидер', '+' + D.week.tasks.filter(k => k.kind !== 'serve').reduce((a, k) => a + k.pts, 0), { a: 'tab', x: 'home' }) : ''}
   ${c(I.plus, 'Приведи друга', D.invite && D.invite.came ? 'уже привёл: ' + D.invite.came : 'отправь другу свою ссылку', '+30', { a: 'invite' })}
   ${open ? c(I.star, 'Задание от лидера', 'сейчас: ' + open.title, '+' + open.pts, { a: 'tab', x: 'home' }) : ''}
   ${c(I.flame, 'Заходи каждый день', 'серия: ' + D.appStreak + ' ' + plural(D.appStreak, 'день', 'дня', 'дней') + ' подряд', '+2')}
@@ -340,6 +368,7 @@ function pointsCards() {
   ${n ? c(I.user, 'Заполни профиль', n === 1 ? 'осталось 1 поле' : 'осталось ' + n + ' ' + plural(n, 'поле', 'поля', 'полей'), '+30', { a: 'pf', x: pfLeft()[0], go: 1, dim: 1 }) : c(I.user, 'Заполнил профиль', '', '', { done: 1 })}
   ${D.tg.ok ? c(I.tg, 'Вступил в Telegram-чат', '', '', { done: 1 }) : c(I.tg, 'Вступи в Telegram-чат', 'новости, фото, обсуждения', '+15', { a: 'tab', x: 'home', go: 1, dim: 1 })}
   ${ig === 'ok' ? c(I.ig, 'Подписался на Instagram', '', '', { done: 1 }) : ig === 'pending' ? c(I.ig, 'Подписка на Instagram', 'лидер проверяет твой ник', '+15', { dim: 1 }) : c(I.ig, 'Подпишись на Instagram', '@sol316teens', '+15', { a: 'tab', x: 'home', go: 1, dim: 1 })}
+  ${D.sg && D.sg.mine.length ? c(I.users, 'В малой группе', '', '', { done: 1 }) : D.sg && D.sg.all.length ? c(I.users, 'Вступи в малую группу', D.sg.req && D.sg.req.status === 'pending' ? 'заявка ждёт подтверждения' : 'выбери удобный день и адрес', '+20', { a: 'sg', dim: 1 }) : ''}
   <div class="sub">Особое</div>
   ${c(I.star, 'Приди на событие', 'праздники, выезды, лагерь', '+15')}
   ${c(I.medal, 'Собирай ачивки', got + ' из ' + D.badges.length + ' получено · бонус за каждую', 'до +200', { a: 'tab', x: 'badges' })}`;
@@ -360,6 +389,9 @@ function viewProfile() {
 }
 function viewOverlay() {
   const o = S.ov; if (!o) return '';
+  if (o.type === 'route') { const q = encodeURIComponent(o.addr + ', CA');
+    return `<div class="ov" data-a="close"><div class="sheet" data-stop="1" style="text-align:left;align-items:stretch;gap:10px"><div class="h2">Проложить маршрут</div><div class="sm mu">${esc(o.addr)}</div><a class="btn ibtn" href="https://maps.apple.com/?daddr=${q}" target="_blank" rel="noopener" data-go="route">Apple Maps</a><a class="btn2 ibtn" href="https://www.google.com/maps/dir/?api=1&destination=${q}" target="_blank" rel="noopener" data-go="route">Google Maps</a><button class="btn2 ibtn" data-a="close">Отмена</button></div></div>`; }
+  if (o.type === 'sg') return `<div class="ov" data-a="close"><div class="sheet" data-stop="1" style="text-align:left;align-items:stretch;gap:12px"><div class="h2">Малые группы</div><div class="sm mu" style="line-height:1.45">Выбери, куда удобнее по дню, времени и адресу.</div>${(D.sg.all || []).map(g => `<div class="card" ${D.sg.req && D.sg.req.status === 'pending' && D.sg.req.groupId === g.id ? 'style="border-color:var(--acc)"' : ''}>${sgBody(g, true)}</div>`).join('')}<button class="btn2 ibtn" data-a="close">Закрыть</button></div></div>`;
   if (o.type === 'inst') return `<div class="ov" data-a="close"><div class="sheet" data-stop="1" style="text-align:left;align-items:stretch;gap:10px">${instView(o.v)}</div></div>`;
   if (o.type === 'invite') {
     const v = D.invite || { link: '', list: [], came: 0 }; const nx = [1, 3, 5].find(n => v.came < n);
@@ -416,6 +448,9 @@ const H = {
   tab(x) { S.tab = x; S.ov = null; render(); const m = document.querySelector('.main'); if (m) m.scrollTop = 0; },
   scope(x) { S.scope = x; render(); },
   badge(x) { S.ov = { type: 'badge', id: x }; render(); },
+  sg() { S.ov = { type: 'sg' }; render(); },
+  route(x) { S.ov = { type: 'route', addr: x, back: S.ov }; render(); },
+  async sgPick(id) { try { await api('groupReq', { groupId: id }); D.sg.req = { groupId: id, status: 'pending' }; S.ov = null; render(); toast('Заявка отправлена лидерам'); } catch (e) { toast(e.message === 'has_group' ? 'Ты уже в группе' : errT(e)); } },
   inst() { S.ov = { type: 'inst', v: 'pick' }; render(); },
   instGo(x) { S.ov = { type: 'inst', v: x }; render(); },
   instDone() { LS.set('sol_teen_inst', '1'); S.ov = null; render(); toast('Отлично! Открывай приложение с иконки'); },
@@ -438,7 +473,7 @@ const H = {
   },
   daily() { S.ov = { type: 'daily' }; render(); },
   scan() { S.ov = { type: 'scan' }; render(); },
-  close() { S.ov = null; render(); },
+  close() { S.ov = S.ov && S.ov.back ? S.ov.back : null; render(); },
   async done(id) { try { await api('taskDone', { taskId: id, on: true }); toast('Засчитано! Так держать'); D = await api('me'); render(); } catch (e) { toast(errT(e)); } },
   async undo(id) { try { await api('taskDone', { taskId: id, on: false }); D = await api('me'); render(); } catch (e) { toast(errT(e)); } },
   async tgVerify() { try { const r = await api('tgVerify'); if (r.ok) { toast('Ты в чате! +15 и ачивка «В чате»'); D = await api('me'); render(); } else toast('Пока не видим тебя в чате. Вступи и нажми «Проверить» ещё раз.'); } catch (e) { toast(errT(e)); } },

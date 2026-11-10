@@ -33,6 +33,7 @@ const BADGES = [
   ['profile', 'social', 'Всё о себе', 'Заполнить профиль полностью: день рождения, адрес и контакт родителя.', 1, 30],
   ['friend', 'friends', 'Позвал друга', 'Друг пришёл по твоему приглашению и отметился.', 1, 30],
   ['friend3', 'friends', 'Три друга', 'Привести трёх друзей.', 3, 90],
+  ['mygroup', 'friends', 'Своя команда', 'Вступить в малую группу.', 1, 20],
   ['friend5', 'friends', 'Пять друзей', 'Привести пятерых друзей.', 5, 100],
   ['party', 'friends', 'Душа компании', 'Побывать на 3 событиях: TEENS PARTY, выезды, ночёвки.', 3, 30],
   ['groups', 'friends', 'Везде свой', 'Побывать на каждой малой группе хотя бы раз.', 1, 30],
@@ -232,7 +233,7 @@ function score_(t, C, full) {
     b1: cntKind('read'), book: cntKind('read'), verse: cntKind('verse'),
     tgchat: t.tgChat === '1' ? 1 : 0, igsub: t.igStatus === 'ok' ? 1 : 0, allin: (t.tgChat === '1' ? 1 : 0) + (t.igStatus === 'ok' ? 1 : 0),
     profile: profileLeft_(t).length ? 0 : 1,
-    friend: friends, friend3: friends, friend5: friends, party: att.filter(a => a.kind === 'event').length,
+    friend: friends, friend3: friends, friend5: friends, mygroup: String(t.groups || '').split(',').filter(Boolean).length ? 1 : 0, party: att.filter(a => a.kind === 'event').length,
     groups: C.groups.length >= 2 && C.groups.every(g => visitedGroups.has(g.id)) ? 1 : 0,
     night: manual('night'), camp: manual('camp'), help: manual('help'), back: manual('back'), bday: manual('bday'), thanks: manual('thanks')
   };
@@ -254,6 +255,7 @@ function teenApi(token, action, p) {
 // что подростку осталось заполнить в профиле
 const PROFILE_PARTS = [['name', ['first', 'last']], ['phone', ['phone']], ['birth', ['birth']], ['addr', ['addr']], ['parent', ['pFirst', 'pPhone']]];
 function profileLeft_(t) { return PROFILE_PARTS.filter(p => !p[1].every(k => String(t[k] || '').trim())).map(p => p[0]); }
+const sgOut_ = g => ({ id: g.id, name: g.name, leader: g.leader || '', day: +g.day, time: g.time, addr: g.addr || '', contact: g.contact || '' });
 const shortName_ = t => (t.first + ' ' + (t.last ? t.last.charAt(0) + '.' : '')).trim();
 const TA_ = {
   me(t) {
@@ -283,6 +285,8 @@ const TA_ = {
       profile: { first: me.first, last: me.last, phone: me.phone, birth: me.birth, addr: me.addr, pFirst: me.pFirst, pLast: me.pLast, pPhone: me.pPhone, left: profileLeft_(me), total: PROFILE_PARTS.length },
       week: (() => { const w = weekInfo_(C.today); const mine = {}; (C.done[t.id] || []).forEach(d => mine[d.taskId] = d);
         return Object.assign(w, { tasks: weekTasks_(w).map(k => { const r = mine[k.id]; return Object.assign(k, { status: r ? (r.status || 'ok') : '', by: r && counted_(r) ? markerName_({ by: r.by }) : '' }); }) }); })(),
+      sg: { mine: C.groups.filter(g => groups.indexOf(g.id) >= 0).map(sgOut_), all: groups.length ? [] : C.groups.map(sgOut_),
+        req: (() => { const r = greqs_().filter(x => x.teenId === t.id).pop(); return r && r.status !== 'ok' ? { groupId: r.groupId, status: r.status } : null; })() },
       invite: { link: APP_URL + 'join/?by=' + me.id, came: (C.invited[t.id] || []).filter(f => (C.att[f.id] || []).length).length,
         list: invites_().filter(x => x.by === t.id).map(x => ({ name: (x.first + ' ' + String(x.last || '').charAt(0) + '.').trim(), status: x.status, date: x.date })).reverse().slice(0, 30) },
       ig: { link: IG_LINK, status: me.igStatus || '', nick: me.ig || '' },
@@ -303,6 +307,14 @@ const TA_ = {
     }
     if ('pPhone' in f) { const d = digits_(f.pPhone); if (txt('pPhone') && d.length < 10) throw new Error('bad_phone'); patch.pPhone = d; }
     if (Object.keys(patch).length) update_('Подростки', row, patch);
+    return true;
+  },
+  groupReq(t, p) {
+    ensure_('Заявки');
+    const g = rows_('Группы').find(x => x.id === p.groupId && x.active !== '0'); if (!g) throw new Error('bad_group');
+    const me = rows_('Подростки').find(x => x.id === t.id); if (me && String(me.groups || '').split(',').filter(Boolean).length) throw new Error('has_group');
+    const r = rows_('Заявки').find(x => x.teenId === t.id && x.status === 'pending');
+    if (r) update_('Заявки', r, { groupId: g.id, date: today_() }); else append_('Заявки', { id: uid_('Q'), teenId: t.id, groupId: g.id, date: today_(), status: 'pending', by: '' });
     return true;
   },
   weekDone(t, p) {

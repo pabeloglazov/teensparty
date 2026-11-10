@@ -13,7 +13,7 @@ const COLS = {
     ['groups','Группы (ID)'],['createdAt','Добавлен'],['source','Источник'],['invitedBy','Пригласил (ID)'],['review','Проверить'],
     ['ig','Instagram'],['tgId','Telegram ID'],['archived','Скрыт'],['igStatus','Instagram: статус'],['tgChat','В Telegram-чате'],['age','Возраст (со слов)'],['ageAt','Возраст указан (дата)']],
   'Посещения': [['id','ID'],['date','Дата'],['kind','Тип'],['meetId','Встреча (ID)'],['teenId','Подросток (ID)'],['teenName','Подросток'],['by','Отметил'],['method','Способ'],['ts','Время отметки']],
-  'Группы': [['id','ID'],['name','Название'],['leader','Лидер'],['day','День (0=вс)'],['time','Время'],['active','Активна']],
+  'Группы': [['id','ID'],['name','Название'],['leader','Лидер'],['day','День (0=вс)'],['time','Время'],['active','Активна'],['addr','Адрес'],['contact','Контакт лидера']],
   'События': [['id','ID'],['name','Название'],['date','Дата'],['reg','Регистраций']],
   'Лидеры': [['id','ID'],['email','Email'],['name','Имя'],['role','Роль'],['groups','Группы (ID)'],['status','Статус'],['code','Код приглашения'],['invitedAt','Приглашён']],
   'Задания': [['id','ID'],['title','Задание'],['kind','Тип'],['due','Срок'],['pts','Баллы'],['aud','Для групп (ID)'],['createdBy','Создал'],['createdAt','Создано']],
@@ -22,6 +22,7 @@ const COLS = {
   'Ачивки': [['id','ID'],['badge','Ачивка'],['teenId','Подросток (ID)'],['date','Дата'],['by','Засчитал']],
   'Настройки': [['key','Ключ'],['value','Значение']],
   'Входы': [['teenId','Подросток (ID)'],['date','Дата']],
+  'Заявки': [['id','ID'],['teenId','Подросток (ID)'],['groupId','Группа (ID)'],['date','Дата'],['status','Статус'],['by','Решил']],
   'Приглашения': [['id','ID'],['by','Пригласил (ID)'],['first','Имя'],['last','Фамилия'],['phone','Телефон'],['date','Дата'],['status','Статус'],['teenId','Подросток (ID)']],
   '_Сессии': [['token','Токен'],['email','Email'],['expires','Истекает']],
   '_ТГ': [['nonce','Код входа'],['chatId','Telegram чат'],['teenId','Подросток (ID)'],['status','Статус'],['created','Создан']],
@@ -277,7 +278,7 @@ const CAN = {
   mark: ['admin', 'leader', 'mod'], attNow: ['admin', 'leader', 'mod', 'viewer'], addTeen: ['admin', 'leader', 'mod'], updateTeen: ['admin', 'leader', 'mod'], reviewTeen: ['admin', 'leader', 'mod'],
   addEvent: ['admin', 'leader'], editEvent: ['admin'], delEvent: ['admin'], saveGroup: ['admin'], saveSettings: ['admin'],
   invite: ['admin'], updateLeader: ['admin'], removeLeader: ['admin'],
-  confirmTask: ['admin', 'leader'], addTask: ['admin', 'leader'], taskDone: ['admin', 'leader'], remind: ['admin', 'leader'], award: ['admin', 'leader'], igReview: ['admin', 'leader']
+  groupReq: ['admin'], confirmTask: ['admin', 'leader'], addTask: ['admin', 'leader'], taskDone: ['admin', 'leader'], remind: ['admin', 'leader'], award: ['admin', 'leader'], igReview: ['admin', 'leader']
 };
 function api(token, action, payload) {
   return out_(() => {
@@ -329,7 +330,7 @@ const A_ = {
     const res = {
       me, today: today_(), execUrl: execUrl_(), settings: st,
       teens: visTeens, att,
-      groups: rows_('Группы').filter(g => g.active !== '0').map(g => ({ id: g.id, name: g.name, leader: g.leader, day: +g.day, time: g.time })),
+      groups: rows_('Группы').filter(g => g.active !== '0').map(g => ({ id: g.id, name: g.name, leader: g.leader, day: +g.day, time: g.time, addr: g.addr || '', contact: g.contact || '' })),
       events: rows_('События').map(e => ({ id: e.id, name: e.name, date: e.date, reg: +e.reg || 0 })),
       tasks: rows_('Задания').map(t => ({ id: t.id, title: t.title, kind: t.kind, due: t.due, pts: +t.pts || 0, aud: t.aud ? t.aud.split(',').filter(Boolean) : [], createdAt: t.createdAt })),
       done: rows_('Выполнения').filter(counted_).map(d => [d.taskId, d.teenId, d.date]),
@@ -343,6 +344,7 @@ const A_ = {
       res.plan = [0, 1, 2, 3].map(i => { const x = weekInfo_(dstr_(dnum_(w.mon) + 7 * i)); return { n: x.n, mon: x.mon, ref: x.ref, title: x.title, verse: x.verse }; });
       res.planDone = Object.keys(okNow).length;
     }
+    if (me.role === 'admin') res.greqs = greqs_().filter(x => x.status === 'pending').map(x => ({ id: x.id, teenId: x.teenId, groupId: x.groupId, date: x.date }));
     if (me.role === 'admin') res.ssUrl = ss_().getUrl();
     if (me.role === 'admin') res.leaders = rows_('Лидеры').filter(l => l.status !== 'removed').map(l => ({ id: l.id, email: l.email, name: l.name, role: l.role, groups: l.groups ? l.groups.split(',').filter(Boolean) : [], status: l.status, code: l.code, me: l.email.toLowerCase() === me.email.toLowerCase() }));
     return res;
@@ -401,6 +403,13 @@ const A_ = {
     const t = rows_('Подростки').find(x => x.id === p.id); if (t) update_('Подростки', t, { review: '' }); return true;
   },
 
+  groupReq(me, p) {
+    const r = greqs_().find(x => x.id === p.id && x.status === 'pending'); if (!r) return { gone: true };
+    if (p.ok) { const t = rows_('Подростки').find(x => x.id === r.teenId);
+      if (t) { const gs = t.groups ? t.groups.split(',').filter(Boolean) : []; if (gs.indexOf(r.groupId) < 0) gs.push(r.groupId); update_('Подростки', t, { groups: gs.join(',') }); } }
+    update_('Заявки', r, { status: p.ok ? 'ok' : 'no', by: me.email });
+    return { ok: !!p.ok };
+  },
   confirmTask(me, p) {
     const r = rows_('Выполнения').find(d => d.taskId === p.taskId && d.teenId === p.teenId && d.status === 'pending');
     if (!r) return { gone: true };
@@ -431,10 +440,10 @@ const A_ = {
     const name = String(p.name || '').trim(); if (!name) throw new Error('need_name');
     if (p.id) {
       const g = rows_('Группы').find(x => x.id === p.id); if (!g) throw new Error('not_found');
-      update_('Группы', g, { name, leader: p.leader || '', day: String(p.day), time: p.time || '19:00', active: p.active === false ? '0' : '1' });
+      update_('Группы', g, { name, leader: p.leader || '', day: String(p.day), time: p.time || '19:00', active: p.active === false ? '0' : '1', addr: 'addr' in p ? String(p.addr || '').trim() : g.addr, contact: 'contact' in p ? String(p.contact || '').trim() : g.contact });
       return { id: g.id };
     }
-    const g = { id: uid_('G'), name, leader: p.leader || '', day: String(p.day), time: p.time || '19:00', active: '1' };
+    const g = { id: uid_('G'), name, leader: p.leader || '', day: String(p.day), time: p.time || '19:00', active: '1', addr: String(p.addr || '').trim(), contact: String(p.contact || '').trim() };
     append_('Группы', g); return { id: g.id };
   },
 
@@ -722,7 +731,16 @@ function knownPerson_(f, teens) {
   return !!m.t;
 }
 const DAYS_RU_ = ['воскресенье', 'понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота'];
-function nextMeet_() { const sv = services_()[0]; return sv ? DAYS_RU_[sv.day] + ', ' + sv.time : ''; }
+function t12_(hhmm) { const m = /^(\d{1,2}):(\d{2})$/.exec(String(hhmm || '')); if (!m) return String(hhmm || ''); const h = +m[1]; return ((h % 12) || 12) + ':' + m[2] + ' ' + (h < 12 ? 'AM' : 'PM'); }
+function greqs_() { return ss_().getSheetByName('Заявки') ? rows_('Заявки') : []; }
+function nextMeet_() { const sv = services_()[0]; return sv ? DAYS_RU_[sv.day] + ', ' + t12_(sv.time) : ''; }
+// разовая настройка: новые колонки и адрес группы Тимы
+function patchGroups1() {
+  setup(); ensure_('Заявки'); ensure_('Приглашения');
+  const g = rows_('Группы').find(x => /^tima/i.test(x.name)); if (g) update_('Группы', g, { addr: g.addr || '7457 Walnut Road', contact: g.contact || '(916) 559-5882' });
+  const g2 = rows_('Группы').find(x => /^pasha/i.test(x.name)); if (g2 && !g2.contact) update_('Группы', g2, { contact: 't.me/pabeloglazov 2797592990' });
+  Logger.log('Группы: ' + JSON.stringify(rows_('Группы').map(x => [x.name, x.addr, x.contact])));
+}
 function inviteInfo(by) {
   return out_(() => { const t = rows_('Подростки').find(x => x.id === by && x.archived !== '1'); if (!t) throw new Error('bad_invite'); return { first: t.first, when: nextMeet_() }; });
 }
