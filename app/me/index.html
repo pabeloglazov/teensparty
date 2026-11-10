@@ -87,7 +87,10 @@ a{color:inherit}
 .vid video{flex:1;min-height:0;width:100%;object-fit:contain;background:#000}
 .vid .vb{padding:12px 16px calc(16px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:8px;background:#0E0F12}
 .vid .vx{position:absolute;top:calc(10px + env(safe-area-inset-top));left:12px;width:44px;height:44px;border-radius:12px;background:rgba(14,15,18,.7);display:flex;align-items:center;justify-content:center;z-index:2}
-.pth{position:fixed;inset:0;z-index:25;background:var(--bg);display:flex;flex-direction:column}
+.pth{position:fixed;inset:0;z-index:25;background:var(--bg);display:flex;flex-direction:column;animation:pthin .22s ease-out}
+#pthroot.out .pth{animation:pthout .18s ease-in forwards}
+@keyframes pthin{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes pthout{to{opacity:0;transform:translateY(14px)}}
 .pth .hd{flex-shrink:0;display:flex;align-items:center;gap:12px;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;border-bottom:1px solid var(--line)}
 .pth .sc{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 .pth .map{position:relative;max-width:520px;margin:0 auto;aspect-ratio:826/5265;background:#2A2D35}
@@ -98,6 +101,8 @@ a{color:inherit}
 @supports ((-webkit-backdrop-filter:grayscale(1)) or (backdrop-filter:grayscale(1))){.pst.off{background:rgba(58,62,78,.22)}}
 .pst.cur{box-shadow:0 0 0 .7cqw rgba(255,255,255,.9),0 0 5cqw 1.2cqw rgba(255,196,80,.9)}
 .ptip{position:absolute;z-index:3;width:62%;transform:translate(-50%,0);background:#fff;color:#16181D;border-radius:18px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.ptip{animation:ptin .18s ease-out}
+@keyframes ptin{from{opacity:0;margin-top:6px}to{opacity:1;margin-top:0}}
 .ptip b{font-size:15px}.ptip span{font-size:13px;color:#5B6070;line-height:1.35}
 .ptip .pb{height:10px;border-radius:999px;background:#ECEDF1;overflow:hidden}.ptip .pb i{display:block;height:100%;border-radius:999px;background:var(--acc)}
 .ptip::before{content:'';position:absolute;left:50%;top:-7px;width:14px;height:14px;background:#fff;transform:translateX(-50%) rotate(45deg);border-radius:3px}
@@ -202,7 +207,7 @@ const laToday = () => { try { return new Intl.DateTimeFormat('en-CA', { timeZone
 function applyRoute() { const t = (location.hash || '').replace(/^#\/?/, '').split('/')[0]; if (TABS.indexOf(t) >= 0) S.tab = t; }
 function syncUrl() { if (!S.token || !D) return; const r = '#/' + S.tab; document.title = TTL[S.tab] + ' · SOL 3:16 Teens'; if (location.hash === r) return; try { if (!location.hash || location.hash === '#') history.replaceState(null, '', r); else history.pushState(null, '', r); } catch (e) {} }
 window.addEventListener('popstate', () => { if (!D) return; applyRoute(); S.ov = null; render(); });
-async function load() { try { const keep = S.ov && S.ov.type === 'pf'; const fresh = await api('me'); if (keep && S.ov && S.ov.type === 'pf') return; if (S.ov && S.ov.type === 'path') { D = fresh; return; } D = fresh; S.vfull = null; LS.set(MEC, JSON.stringify({ day: laToday(), d: D })); render(); mercyCheck(); } catch (e) { if (D && S.token) { if (e.message !== 'auth') toast(errT(e)); return; } if (S.token) { $.innerHTML = `<div class="login"><div class="h2">Не удалось загрузить</div><div class="mu">${esc(errT(e))}</div><button class="btn" data-a="reload">Повторить</button></div>`; } } }
+async function load() { try { const keep = S.ov && S.ov.type === 'pf'; const fresh = await api('me'); if (keep && S.ov && S.ov.type === 'pf') return; if (S.pathOpen) { D = fresh; S.pathDirty = true; LS.set(MEC, JSON.stringify({ day: laToday(), d: D })); return; } D = fresh; S.vfull = null; LS.set(MEC, JSON.stringify({ day: laToday(), d: D })); render(); mercyCheck(); } catch (e) { if (D && S.token) { if (e.message !== 'auth') toast(errT(e)); return; } if (S.token) { $.innerHTML = `<div class="login"><div class="h2">Не удалось загрузить</div><div class="mu">${esc(errT(e))}</div><button class="btn" data-a="reload">Повторить</button></div>`; } } }
 
 // ---------- вход ----------
 let pollT = null;
@@ -315,16 +320,15 @@ function openVideo(mon) {
 }
 const PSTOPS = [[1,39.71,94.226],[3,56.3,91.814],[5,38.98,89.345],[7,56.9,87.009],[10,39.35,84.881],[15,57.14,82.887],[20,38.14,80.893],[30,54.12,78.898],[40,38.74,76.942],[50,56.05,75.347],[55,39.95,70.864],[60,56.66,68.395],[65,38.98,65.869],[70,58.11,63.647],[75,39.35,61.462],[80,57.26,59.468],[85,37.77,57.474],[90,54.12,55.48],[95,38.5,53.523],[100,56.3,51.928],[105,39.59,47.445],[110,55.08,44.919],[115,36.92,42.545],[120,55.93,40.19],[125,36.92,37.949],[130,55.45,35.67],[135,39.47,33.39],[140,55.21,31.168],[145,37.29,29.117],[150,53.39,27.445],[155,38.38,23.362],[160,55.21,20.285],[165,39.95,17.379],[170,59.81,15.043],[175,42.13,12.574],[180,60.17,10.351],[185,39.95,8.452],[190,60.77,6.553],[195,40.56,4.748],[200,60.53,3.096]];
 const PWORLD = ['Берег', 'Холмы', 'Горы', 'Небесный город'];
-const PNOTE = { 1: 'Первый шаг сделан. Он рад, что ты здесь.', 3: 'Три дня подряд — открывается ачивка «3 дня».', 7: 'Целая неделя вместе. Ачивка «Неделя в деле».', 30: 'Месяц без пропусков — ачивка и +60 баллов.', 50: 'Берег пройден. Дальше начинаются холмы.', 100: 'Сто дней. Ачивка «100 дней» и +200 баллов.', 150: 'Горы позади. Впереди небесный город. Ачивка «150 дней».', 200: 'Небесные ворота. Весь путь пройден — ачивка «Весь путь» и +400 баллов.' };
-const PWNOTE = ['Начало пути: учимся быть рядом с Ним каждый день.', 'Привычка крепнет. Не сбавляй шаг.', 'Тут уже нужен характер. Он идёт рядом.', 'Финишная прямая — ворота уже видно.'];
+const PNOTE = ["Первый шаг сделан. Иисус рад, что ты пришёл.", "Три дня рядом с Ним — так начинается дружба. Ачивка «3 дня».", "Он звал учеников у этого берега. Сегодня зовёт тебя.", "Неделя с Иисусом. Ачивка «Неделя в деле» — иди дальше.", "Десять дней. Бог видит каждый твой шаг, даже маленький.", "Привычка быть с Богом растёт, как зерно в доброй земле.", "Двадцать дней. Не сила держит на пути, а Тот, кто идёт рядом.", "Месяц с Ним. Ачивка «Месяц без пропусков». Он верен — и ты учишься.", "Сорок дней — столько Иисус был в пустыне. Ты тоже не сдался.", "Берег пройден. Он говорит: «Иди за Мной» — впереди холмы.", "Холмы начинаются. С Богом подъём — это не страшно.", "Шестьдесят дней. Он — Пастырь, и Он знает дорогу.", "Иди не спеша, но не останавливайся. Иисус идёт твоим темпом.", "Семьдесят дней. Бог начал в тебе доброе дело и доведёт его до конца.", "Колодец у дороги: кто пьёт Его воду, тот не жаждет.", "Восемьдесят дней. Ты — ветвь, Он — лоза. Держись за Него.", "Виноградник даёт плод не за день. Продолжай идти.", "Девяносто дней. Вера растёт там, где её поливают каждый день.", "Почти сто. Не оглядывайся назад — Иисус впереди.", "Сто дней с Богом. Ачивка «100 дней». Он гордится тобой.", "Горы. Здесь труднее, но ближе к небу.", "С Богом и гора — дорога. Шаг за шагом.", "Устал? Он обещал дать покой тем, кто приходит к Нему.", "Сто двадцать дней. Твоя вера уже двигает горы — начни с этой.", "Мост над пропастью держит. Он тоже держит тебя.", "Водопад шумит, а Его голос тихий. Прислушайся сегодня.", "Высоко. Не смотри вниз — смотри на Иисуса.", "Сто сорок дней. Кто надеется на Господа, тот поднимается как на крыльях.", "Вершина рядом. Он не оставит и не покинет тебя.", "Горы позади. Ачивка «150 дней». Впереди небесный город.", "Ты выше облаков. Здесь видно, как далеко Он тебя провёл.", "Сто шестьдесят дней. Сокровище твоё там, где твоё сердце.", "Он готовит место для тебя. Иди, осталось немного.", "Сто семьдесят дней. Свет впереди — это не солнце, это Он.", "Ты бежишь хорошо. Не сходи с дистанции.", "Сто восемьдесят дней. Радость в Господе — твоя сила.", "Ворота уже видно. Иисус сказал: «Я есть дверь».", "Сто девяносто дней. Верный в малом будет верен и в большом.", "Последние шаги. Он шёл рядом с первого дня.", "Небесные ворота. Весь путь пройден — ачивка «Весь путь». «Хорошо, добрый и верный»."];
+function ptipHtml(i) { const d = D.appStreak, q = PSTOPS[i], done = d >= q[0], up = q[2] > 55;
+  return `<div class="ptip ${up ? 'up' : ''}" style="left:${Math.min(66, Math.max(34, q[1]))}%;${up ? 'bottom:calc(' + (100 - q[2]) + '% + 8cqw)' : 'top:calc(' + q[2] + '% + 8cqw)'}"><b>${q[0]} ${plural(q[0], 'день', 'дня', 'дней')} подряд · ${PWORLD[Math.floor(i / 10)]}</b><span>${PNOTE[i]}</span><div class="pb"><i style="width:${Math.min(100, Math.round(d / q[0] * 100))}%"></i></div><span>${done ? 'Пройдено' : d + ' из ' + q[0] + ' · ещё ' + (q[0] - d)}</span></div>`; }
 function pathOverlay() {
-  const d = D.appStreak, R = D.restore || { max: 3, left: 3 }, o = S.ov; let cur = -1; PSTOPS.forEach((q, i) => { if (d >= q[0]) cur = i; });
+  const d = D.appStreak, R = D.restore || { max: 3, left: 3 }; let cur = -1; PSTOPS.forEach((q, i) => { if (d >= q[0]) cur = i; });
   const nx = PSTOPS[cur + 1]; const pos = cur >= 0 ? PSTOPS[cur] : [0, 42, 98.6];
   const world = PWORLD[Math.max(0, Math.floor(cur / 10))];
-  let tip = '';
-  if (o.tip != null) { const q = PSTOPS[o.tip], done = d >= q[0], up = q[2] > 55;
-    tip = `<div class="ptip ${up ? 'up' : ''}" style="left:${Math.min(66, Math.max(34, q[1]))}%;${up ? 'bottom:calc(' + (100 - q[2]) + '% + 8cqw)' : 'top:calc(' + q[2] + '% + 8cqw)'}"><b>${q[0]} ${plural(q[0], 'день', 'дня', 'дней')} подряд · ${PWORLD[Math.floor(o.tip / 10)]}</b><span>${PNOTE[q[0]] || PWNOTE[Math.floor(o.tip / 10)]}</span><div class="pb"><i style="width:${Math.min(100, Math.round(d / q[0] * 100))}%"></i></div><span>${done ? 'Пройдено' : d + ' из ' + q[0] + ' · ещё ' + (q[0] - d)}</span></div>`; }
-  return `<div class="pth" role="dialog" aria-label="Путь"><div class="hd"><button data-a="close" class="circ" style="width:44px;height:44px;border-radius:12px" aria-label="Назад">${svg('M15 6l-6 6 6 6', '#F4F4F5', 20, 2.5)}</button><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:17px">${d} ${plural(d, 'день', 'дня', 'дней')} подряд · ${world}</div><div class="xs mu">${nx ? 'до остановки «' + nx[0] + '» — ещё ' + (nx[0] - d) : 'Путь пройден'}</div></div><div style="text-align:right"><div style="font-weight:700;color:var(--acc)">${R.left}/${R.max}</div><div class="xs mu">прощений</div></div></div>
+  const tip = '';
+  return `<div class="pth" role="dialog" aria-label="Путь"><div class="hd"><button data-a="pClose" class="circ" style="width:44px;height:44px;border-radius:12px" aria-label="Назад">${svg('M15 6l-6 6 6 6', '#F4F4F5', 20, 2.5)}</button><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:17px">${d} ${plural(d, 'день', 'дня', 'дней')} подряд · ${world}</div><div class="xs mu">${nx ? 'до остановки «' + nx[0] + '» — ещё ' + (nx[0] - d) : 'Путь пройден'}</div></div><div style="text-align:right"><div style="font-weight:700;color:var(--acc)">${R.left}/${R.max}</div><div class="xs mu">прощений</div></div></div>
     <div class="sc" id="pthsc"><div class="map" data-a="pTip" data-x="">${[[0.0, 24.9953], [24.9953, 24.9953], [49.9905, 24.9953], [74.9858, 25.0142]].map((q, k) => `<img class="t" alt="" src="../media/path/path-${k + 1}.webp?v=2" style="top:${q[0]}%;height:calc(${q[1]}% + 1px)">`).join('')}
       ${PSTOPS.map((q, i) => `<button class="pst ${i > cur ? 'off' : ''} ${i === cur ? 'cur' : ''}" data-a="pTip" data-x="${i}" style="left:${q[1]}%;top:${q[2]}%" aria-label="${q[0]} ${plural(q[0], 'день', 'дня', 'дней')}"></button>`).join('')}
       <div class="pj" id="pj" style="left:${pos[1]}%;top:${pos[2]}%"><img alt="" src="../media/path/jesus-a.webp"></div>${tip}</div></div></div>`;
@@ -505,7 +509,6 @@ function viewOverlay() {
       ${L.map((l, i) => { const done = i < cur, now = i === cur, nx = L[i + 1];
         return `<div class="row" style="min-height:64px;padding:8px 14px;border-radius:16px;border:1px solid ${now ? 'var(--acc)' : 'var(--line)'};background:${now ? 'var(--accbg2)' : 'var(--card)'}"><div class="circ ${done || now ? 'got' : ''}" style="width:40px;height:40px;font-weight:700;color:${done || now ? '#0E0F12' : 'var(--mu)'}">${done ? svg(I.check, '#0E0F12', 18, 3) : i + 1}</div><div style="flex:1;min-width:0"><div style="font-weight:700">${esc(l[1])}</div><div class="xs mu">${nx ? l[0] + '–' + (nx[0] - 1) + ' баллов' : 'от ' + l[0] + ' баллов'}</div></div><span class="xs" style="font-weight:700;white-space:nowrap;color:${now ? 'var(--acc)' : 'var(--mu)'}">${now ? 'ты здесь' : done ? 'пройден' : 'ещё ' + (l[0] - D.pts)}</span></div>`; }).join('')}
       <div class="xs mu" style="line-height:1.45;padding-top:4px">Баллы дают встречи, задания недели, видео, комментарии к стиху дня, ачивки и приглашённые друзья.</div></div></div>`; }
-  if (o.type === 'path') return pathOverlay();
   if (o.type === 'mercy' || o.type === 'lost') { const R = D.restore, m = o.type === 'mercy';
     return `<div class="ov" data-a="close"><div class="sheet" data-stop="1" style="gap:12px"><img alt="" src="../media/path/jesus-${m ? 'b' : 'a'}.webp" style="width:130px;height:auto">
       <div class="h2">${m ? 'Он простил пропуск' : 'Начинаем путь заново'}</div>
@@ -611,8 +614,13 @@ const H = {
     catch (e) { Object.assign(PF(), f); o.err = errT(e); render(); }
   },
   daily() { H.path(); },
-  pTip(i) { const o = S.ov; if (!o || o.type !== 'path') return; const sc = document.getElementById('pthsc'), y = sc ? sc.scrollTop : 0; o.tip = i === '' || +i === o.tip ? null : +i; render(); const s2 = document.getElementById('pthsc'); if (s2) s2.scrollTop = y; },
-  path() { S.ov = { type: 'path' }; render(); pathScroll(); const im = document.querySelector('.pth img.t'); if (im) im.addEventListener('load', pathScroll, { once: true }); },
+  pTip(i) { const m = document.querySelector('.pth .map'); if (!m) return;
+    S.ptip = i === '' || +i === S.ptip ? null : +i; const old = m.querySelector('.ptip'); if (old) old.remove();
+    if (S.ptip != null) m.insertAdjacentHTML('beforeend', ptipHtml(S.ptip)); },
+  pClose() { const el = document.getElementById('pthroot'); S.pathOpen = false; S.ptip = null; if (!el) return; el.classList.add('out'); setTimeout(() => { el.remove(); if (S.pathDirty) { S.pathDirty = false; render(); } }, 180); },
+  path() { if (S.ov) { S.ov = null; render(); } const old = document.getElementById('pthroot'); if (old) old.remove();
+    const el = document.createElement('div'); el.id = 'pthroot'; el.innerHTML = pathOverlay(); document.body.appendChild(el); S.pathOpen = true; S.ptip = null;
+    pathScroll(); el.querySelectorAll('img.t').forEach(im => im.addEventListener('load', pathScroll, { once: true })); },
   scan() { S.ov = { type: 'scan' }; render(); },
   close() { S.ov = S.ov && S.ov.back ? S.ov.back : null; render(); },
   async done(id) { try { await api('taskDone', { taskId: id, on: true }); toast('Засчитано! Так держать'); D = await api('me'); render(); } catch (e) { toast(errT(e)); } },
