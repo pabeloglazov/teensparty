@@ -1,5 +1,5 @@
 /**
- * SOL Teens — учёт подростков. Сервер (Google Apps Script).
+ * SOL 3:16 Teens — учёт подростков. Сервер (Google Apps Script).
  * Все данные лежат в этой Google Таблице.
  */
 
@@ -182,9 +182,9 @@ function doGet(e) {
   const url = APP_URL + (p === 'join' ? 'join/' : '');
   return HtmlService.createHtmlOutput('<base target="_top"><meta name="viewport" content="width=device-width,initial-scale=1">'
     + '<div style="font-family:system-ui,sans-serif;background:#0E0F12;color:#F4F4F5;min-height:100vh;display:flex;align-items:center;justify-content:center;margin:-8px">'
-    + '<a href="' + url + '" style="background:#FF8A3D;color:#0E0F12;font-weight:700;padding:16px 28px;border-radius:16px;text-decoration:none;font-size:17px">Открыть SOL Teens</a></div>'
+    + '<a href="' + url + '" style="background:#FF8A3D;color:#0E0F12;font-weight:700;padding:16px 28px;border-radius:16px;text-decoration:none;font-size:17px">Открыть SOL 3:16 Teens</a></div>'
     + '<script>try{window.top.location.replace(' + JSON.stringify(url) + ')}catch(e){}</script>')
-    .setTitle('SOL Teens')
+    .setTitle('SOL 3:16 Teens')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
@@ -222,8 +222,8 @@ function requestCode(email) {
       delete_('_Коды', old);
       append_('_Коды', { email, code, expires: String(Date.now() + 15 * 60000) });
     });
-    MailApp.sendEmail({ to: email, subject: 'SOL Teens — код входа: ' + code,
-      htmlBody: '<p>Твой код для входа в SOL Teens:</p><p style="font-size:28px;font-weight:bold;letter-spacing:4px">' + code + '</p><p>Код действует 15 минут.</p>' });
+    MailApp.sendEmail({ to: email, subject: 'SOL 3:16 Teens — код входа: ' + code,
+      htmlBody: '<p>Твой код для входа в SOL 3:16 Teens:</p><p style="font-size:28px;font-weight:bold;letter-spacing:4px">' + code + '</p><p>Код действует 15 минут.</p>' });
     return true;
   });
 }
@@ -443,8 +443,8 @@ const A_ = {
       if (leaderByEmail_(email)) throw new Error('email_taken');
       append_('Лидеры', { id: uid_('L'), email, name, role, groups, status: 'pending', code: '', invitedAt: nowIso_() });
       const url = execUrl_();
-      MailApp.sendEmail({ to: email, subject: 'Приглашение в SOL Teens',
-        htmlBody: '<p>' + name + ', тебя пригласили в приложение SOL Teens.</p><p><a href="' + url + '">Открыть SOL Teens</a> и войти по этой почте — придёт код.</p>' });
+      MailApp.sendEmail({ to: email, subject: 'Приглашение в SOL 3:16 Teens',
+        htmlBody: '<p>' + name + ', тебя пригласили в приложение SOL 3:16 Teens.</p><p><a href="' + url + '">Открыть SOL 3:16 Teens</a> и войти по этой почте — придёт код.</p>' });
       return { ok: true };
     }
     let code; const used = rows_('Лидеры').map(l => l.code);

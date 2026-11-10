@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>SOL Teens</title>
+<title>SOL 3:16 Teens</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#0E0F12">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
-<meta name="apple-mobile-web-app-title" content="SOL Teens">
+<meta name="apple-mobile-web-app-title" content="3:16 Teens">
 <link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="../icons/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -151,7 +151,7 @@ let tt; function toast(m) { S.toast = m; let t = document.querySelector('.toast'
 const MEC = 'sol_teen_me', TABS = ['home', 'badges', 'rank', 'profile'], TTL = { home: 'Главная', badges: 'Ачивки', rank: 'Рейтинг', profile: 'Профиль' };
 const laToday = () => { try { return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Los_Angeles' }).format(new Date()); } catch (e) { return ''; } };
 function applyRoute() { const t = (location.hash || '').replace(/^#\/?/, '').split('/')[0]; if (TABS.indexOf(t) >= 0) S.tab = t; }
-function syncUrl() { if (!S.token || !D) return; const r = '#/' + S.tab; document.title = TTL[S.tab] + ' · SOL Teens'; if (location.hash === r) return; try { if (!location.hash || location.hash === '#') history.replaceState(null, '', r); else history.pushState(null, '', r); } catch (e) {} }
+function syncUrl() { if (!S.token || !D) return; const r = '#/' + S.tab; document.title = TTL[S.tab] + ' · SOL 3:16 Teens'; if (location.hash === r) return; try { if (!location.hash || location.hash === '#') history.replaceState(null, '', r); else history.pushState(null, '', r); } catch (e) {} }
 window.addEventListener('popstate', () => { if (!D) return; applyRoute(); S.ov = null; render(); });
 async function load() { try { const keep = S.ov && S.ov.type === 'pf'; const fresh = await api('me'); if (keep && S.ov && S.ov.type === 'pf') return; D = fresh; LS.set(MEC, JSON.stringify({ day: laToday(), d: D })); render(); } catch (e) { if (D && S.token) { if (e.message !== 'auth') toast(errT(e)); return; } if (S.token) { $.innerHTML = `<div class="login"><div class="h2">Не удалось загрузить</div><div class="mu">${esc(errT(e))}</div><button class="btn" data-a="reload">Повторить</button></div>`; } } }
 
@@ -161,7 +161,7 @@ function viewLogin() {
   const waiting = !!S.nonce;
   return `<div class="login">
     <div style="display:flex;justify-content:center"><img src="../icons/icon-192.png" alt="" width="96" height="96" style="border-radius:24px"></div>
-    <h1 class="h1" style="text-align:center;font-size:28px">SOL Teens</h1>
+    <h1 class="h1" style="text-align:center;font-size:28px">SOL 3:16 Teens</h1>
     <div class="mu" style="text-align:center;line-height:1.5;font-size:16px">Баллы, ачивки, серии и задания недели. Вход — через наш Telegram-бот.</div>
     ${waiting ? `<div class="card acc" style="align-items:center;text-align:center"><div class="spin"></div><div style="font-weight:700">Ждём Telegram</div><div class="sm mu" style="line-height:1.5">В боте нажми «Start», потом «Поделиться номером» — тем, что ты указывал на встрече. После этого вернись сюда.</div><a class="btnS" href="${esc(S.link)}">Открыть бота ещё раз</a></div>
       <button class="btn2" data-a="cancelLogin">Отмена</button>`
@@ -211,7 +211,7 @@ function taskCard(k) {
 }
 function socialCards() {
   const tg = D.tg, ig = D.ig;
-  const tgC = `<div class="card"><div class="row"><div class="circ ${tg.ok ? 'got' : ''}" style="width:44px;height:44px">${svg(I.tg, tg.ok ? '#0E0F12' : '#A1A1AA', 20)}</div><div style="flex:1;min-width:0"><div style="font-weight:700">Telegram-чат SOL Teens</div><div class="sm mu">Новости, фото, обсуждения</div></div><span class="pill">+15</span></div>
+  const tgC = `<div class="card"><div class="row"><div class="circ ${tg.ok ? 'got' : ''}" style="width:44px;height:44px">${svg(I.tg, tg.ok ? '#0E0F12' : '#A1A1AA', 20)}</div><div style="flex:1;min-width:0"><div style="font-weight:700">Telegram-чат SOL 3:16 Teens</div><div class="sm mu">Новости, фото, обсуждения</div></div><span class="pill">+15</span></div>
     ${tg.ok ? `<span class="ok">${svg(I.check, 'var(--green)', 18, 3)} Ты в чате · ачивка «В чате»</span>` : `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><a class="btnS" href="${esc(tg.link)}" target="_blank" rel="noopener">Вступить</a><button class="btnS ghost" data-a="tgVerify">Проверить</button></div><div class="xs mu" style="line-height:1.4">Вступил? Нажми «Проверить» — бот посмотрит, что ты в чате, и начислит баллы.</div>`}</div>`;
   const igC = `<div class="card"><div class="row"><div class="circ ${ig.status === 'ok' ? 'got' : ''}" style="width:44px;height:44px">${svg(I.ig, ig.status === 'ok' ? '#0E0F12' : '#A1A1AA', 20)}</div><div style="flex:1;min-width:0"><div style="font-weight:700">Instagram @sol316teens</div><div class="sm mu">Анонсы встреч и сторис</div></div><span class="pill">+15</span></div>
     ${ig.status === 'ok' ? `<span class="ok">${svg(I.check, 'var(--green)', 18, 3)} Подписан · ачивка «Подписчик»</span>`
@@ -298,11 +298,11 @@ function pointsCards() {
 function viewProfile() {
   const got = D.badges.filter(b => b.have >= b.need).length;
   const nm = (D.me.first + ' ' + D.me.last).trim();
-  return `<div class="row"><div class="av me" style="width:64px;height:64px;font-size:22px">${esc(nm.split(/\s+/).map(x => x[0] || '').join('').slice(0, 2).toUpperCase())}</div><div style="min-width:0"><div class="h2">${esc(nm)}</div><div class="sm mu">${esc(D.me.groups.join(', ') || 'SOL Teens')}${D.me.since ? ' · с ' + esc(human(D.me.since.slice(0, 10))) : ''}</div></div></div>
+  return `<div class="row"><div class="av me" style="width:64px;height:64px;font-size:22px">${esc(nm.split(/\s+/).map(x => x[0] || '').join('').slice(0, 2).toUpperCase())}</div><div style="min-width:0"><div class="h2">${esc(nm)}</div><div class="sm mu">${esc(D.me.groups.join(', ') || 'SOL 3:16 Teens')}${D.me.since ? ' · с ' + esc(human(D.me.since.slice(0, 10))) : ''}</div></div></div>
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px"><div class="stat"><b>${D.visits}</b><span class="xs mu">${plural(D.visits, 'встреча', 'встречи', 'встреч')}</span></div><div class="stat"><b>${got}</b><span class="xs mu">ачивок</span></div><div class="stat"><b>${D.pts}</b><span class="xs mu">баллов</span></div></div>
   ${profileCards()}
   ${D.tg.ok || D.ig.status === 'ok' ? `<div class="sec" style="padding:6px 4px 0">МЫ НА СВЯЗИ</div><div class="card" style="gap:0;padding:4px 16px">
-    ${D.tg.ok ? `<a href="${esc(D.tg.link)}" target="_blank" rel="noopener" class="row" style="min-height:48px;gap:10px;color:inherit;text-decoration:none;border-bottom:${D.ig.status === 'ok' ? '1px solid var(--line)' : '0'}">${svg(I.tg, 'var(--acc)', 20)}<span style="flex:1">Telegram-чат SOL Teens</span>${svg(I.check, 'var(--acc)', 18, 3)}</a>` : ''}
+    ${D.tg.ok ? `<a href="${esc(D.tg.link)}" target="_blank" rel="noopener" class="row" style="min-height:48px;gap:10px;color:inherit;text-decoration:none;border-bottom:${D.ig.status === 'ok' ? '1px solid var(--line)' : '0'}">${svg(I.tg, 'var(--acc)', 20)}<span style="flex:1">Telegram-чат SOL 3:16 Teens</span>${svg(I.check, 'var(--acc)', 18, 3)}</a>` : ''}
     ${D.ig.status === 'ok' ? `<a href="${esc(D.ig.link)}" target="_blank" rel="noopener" class="row" style="min-height:48px;gap:10px;color:inherit;text-decoration:none">${svg(I.ig, 'var(--acc)', 20)}<span style="flex:1">Instagram${D.ig.nick ? ' · @' + esc(String(D.ig.nick).replace(/^@/, '')) : ''}</span>${svg(I.check, 'var(--acc)', 18, 3)}</a>` : ''}
   </div>` : ''}
   ${pointsCards()}

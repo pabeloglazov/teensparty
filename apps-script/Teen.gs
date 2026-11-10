@@ -1,5 +1,5 @@
 /**
- * SOL Teens — приложение подростка: вход через Telegram-бота, баллы, уровни, ачивки, серии.
+ * SOL 3:16 Teens — приложение подростка: вход через Telegram-бота, баллы, уровни, ачивки, серии.
  * Токен бота хранится только в свойствах скрипта (Project Settings → Script Properties → TG_TOKEN).
  */
 const TG_CHAT_LINK = 'https://t.me/+Q9dPL22CL5owNTUy';
@@ -8,7 +8,7 @@ const MANUAL_PTS = { help: 40, night: 20, camp: 30, bday: 20, back: 20, thanks: 
 const LEVELS = [[0, 'Новичок'], [100, 'Свой'], [300, 'Опора'], [600, 'Лидер-стажёр'], [1000, 'Легенда']];
 // [id, категория, название, описание, сколько нужно, бонус баллов]
 const BADGES = [
-  ['first', 'meet', 'Первый шаг', 'Прийти на первую встречу SOL Teens.', 1, 10],
+  ['first', 'meet', 'Первый шаг', 'Прийти на первую встречу SOL 3:16 Teens.', 1, 10],
   ['m5', 'meet', '5 встреч', 'Побывать на 5 встречах.', 5, 10],
   ['m10', 'meet', '10 встреч', 'Побывать на 10 встречах.', 10, 20],
   ['m25', 'meet', '25 встреч', 'Побывать на 25 встречах.', 25, 40],
@@ -27,7 +27,7 @@ const BADGES = [
   ['b1', 'bible', 'Первая глава', 'Выполнить первое задание по чтению.', 1, 10],
   ['book', 'bible', 'Книжный червь', 'Выполнить 7 заданий по чтению Библии.', 7, 40],
   ['verse', 'bible', 'Стих наизусть', 'Выучить 5 стихов из заданий.', 5, 30],
-  ['tgchat', 'social', 'В чате', 'Вступить в Telegram-чат SOL Teens. Проверяет бот.', 1, 15],
+  ['tgchat', 'social', 'В чате', 'Вступить в Telegram-чат SOL 3:16 Teens. Проверяет бот.', 1, 15],
   ['igsub', 'social', 'Подписчик', 'Подписаться на @sol316teens в Instagram. Подтверждает лидер.', 1, 15],
   ['allin', 'social', 'На связи', 'Быть и в Telegram-чате, и в Instagram.', 2, 10],
   ['profile', 'social', 'Всё о себе', 'Заполнить профиль полностью: день рождения, адрес и контакт родителя.', 1, 30],
@@ -52,7 +52,7 @@ function setupTeens() {
   try { tg_('deleteWebhook', {}); } catch (e) {}
   ScriptApp.getProjectTriggers().filter(t => t.getHandlerFunction() === 'tgPump').forEach(t => ScriptApp.deleteTrigger(t));
   ScriptApp.newTrigger('tgPump').timeBased().everyMinutes(1).create();
-  Logger.log('Бот подключён: @' + me.username + '. Добавьте его в Telegram-чат SOL Teens, чтобы он мог проверять участников.');
+  Logger.log('Бот подключён: @' + me.username + '. Добавьте его в Telegram-чат SOL 3:16 Teens, чтобы он мог проверять участников.');
 }
 
 // ---------------- Telegram ----------------
@@ -68,7 +68,7 @@ function setSetting_(k, v) {
   if (r) update_('Настройки', r, { value: String(v) }); else append_('Настройки', { key: k, value: String(v) });
 }
 const contactKb_ = () => ({ keyboard: [[{ text: 'Поделиться номером', request_contact: true }]], resize_keyboard: true, one_time_keyboard: true });
-const appKb_ = () => ({ inline_keyboard: [[{ text: 'Открыть SOL Teens', url: APP_URL + 'me/' }]] });
+const appKb_ = () => ({ inline_keyboard: [[{ text: 'Открыть SOL 3:16 Teens', url: APP_URL + 'me/' }]] });
 function say_(chatId, text, kb) { try { tg_('sendMessage', { chat_id: chatId, text, reply_markup: kb }); } catch (e) { Logger.log(e); } }
 
 // Мгновенные ответы: Telegram сам присылает сообщения на сервер (вебхук). Запустить один раз из редактора.
@@ -118,16 +118,16 @@ function handle_(u) {
     if (!t) return say_(chatId, 'Не нашли тебя по этому номеру. Отметься на встрече по QR (как новенький) или подойди к лидеру — и возвращайся сюда.', { remove_keyboard: true });
     update_('Подростки', t, { tgId: uid });
     finishNonces_(chatId, t.id);
-    return say_(chatId, 'Готово, ' + t.first + '! Возвращайся в приложение SOL Teens — вход уже выполнен.', appKb_());
+    return say_(chatId, 'Готово, ' + t.first + '! Возвращайся в приложение SOL 3:16 Teens — вход уже выполнен.', appKb_());
   }
   const txt = String(m.text || '');
   if (txt.indexOf('/start') === 0) {
     const nonce = txt.split(' ')[1] || '';
     if (nonce) { const n = rows_('_ТГ').find(x => x.nonce === nonce); if (n && n.status === 'new') update_('_ТГ', n, { chatId, status: 'wait' }); }
     if (teen) { finishNonces_(chatId, teen.id); return say_(chatId, 'Привет, ' + teen.first + '! Вход выполнен — возвращайся в приложение.', appKb_()); }
-    return say_(chatId, 'Привет! Это бот SOL Teens.\nЧтобы войти в приложение, поделись номером телефона — тем, что ты указывал на встрече.', contactKb_());
+    return say_(chatId, 'Привет! Это бот SOL 3:16 Teens.\nЧтобы войти в приложение, поделись номером телефона — тем, что ты указывал на встрече.', contactKb_());
   }
-  if (teen) return say_(chatId, 'Открой приложение SOL Teens:', appKb_());
+  if (teen) return say_(chatId, 'Открой приложение SOL 3:16 Teens:', appKb_());
   return say_(chatId, 'Нажми кнопку «Поделиться номером» внизу экрана — вводить номер вручную не нужно.', contactKb_());
 }
 

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>SOL Teens — отметься</title>
+<title>SOL 3:16 Teens — отметься</title>
 <meta name="theme-color" content="#0E0F12">
 <link rel="icon" type="image/png" sizes="192x192" href="../icons/icon-192.png">
 <link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
@@ -65,9 +65,9 @@ const fld = (k, label, type, ph) => `<div class="field"><label class="lbl" for="
 
 function render() {
   const m = S.meet;
-  if (S.step === 'load') { $.innerHTML = `<div class="w"><div class="k">SOL TEENS</div><div class="mu">Загрузка…</div></div>`; return; }
-  if (S.step === 'none') { $.innerHTML = `<div class="w"><div class="k">SOL TEENS</div><h1 class="h1">Сейчас нет встречи</h1><div class="mu" style="font-size:16px;line-height:1.5">Отметиться можно во время встречи — приходи! А пока заглядывай в наш Instagram <a href="https://www.instagram.com/sol316teens/" target="_blank" rel="noopener" style="color:var(--acc)">@sol316teens</a>.</div></div>`; return; }
-  if (S.step === 'start') { $.innerHTML = `<div class="w"><div class="k">SOL TEENS</div><h1 class="h1">Привет! Ты на ${esc(m.label)}</h1><div class="mu" style="font-size:16px;line-height:1.45">Отметься, чтобы мы знали, что ты пришёл.${m.test ? '<br><span style="color:var(--acc2)">Тестовый режим</span>' : ''}</div><div class="sp"></div><button class="btn" data-a="goNew">Я здесь впервые</button><button class="btn2" data-a="goKnown">Я уже был в SOL</button></div>`; return; }
+  if (S.step === 'load') { $.innerHTML = `<div class="w"><div class="k">SOL 3:16 TEENS</div><div class="mu">Загрузка…</div></div>`; return; }
+  if (S.step === 'none') { $.innerHTML = `<div class="w"><div class="k">SOL 3:16 TEENS</div><h1 class="h1">Сейчас нет встречи</h1><div class="mu" style="font-size:16px;line-height:1.5">Отметиться можно во время встречи — приходи! А пока заглядывай в наш Instagram <a href="https://www.instagram.com/sol316teens/" target="_blank" rel="noopener" style="color:var(--acc)">@sol316teens</a>.</div></div>`; return; }
+  if (S.step === 'start') { $.innerHTML = `<div class="w"><div class="k">SOL 3:16 TEENS</div><h1 class="h1">Привет! Ты на ${esc(m.label)}</h1><div class="mu" style="font-size:16px;line-height:1.45">Отметься, чтобы мы знали, что ты пришёл.${m.test ? '<br><span style="color:var(--acc2)">Тестовый режим</span>' : ''}</div><div class="sp"></div><button class="btn" data-a="goNew">Я здесь впервые</button><button class="btn2" data-a="goKnown">Я уже был в SOL</button></div>`; return; }
   if (S.step === 'known') { $.innerHTML = `<div class="w">${BACK}<h1 class="h2">Введи свой телефон</h1>${fld('phone', 'Телефон', 'tel', '(916) 123-4567').replace(/j_phone/g, 'kp')}
     ${S.notFound ? `<div class="card" style="display:flex;flex-direction:column;gap:10px"><div style="font-weight:600">Не нашли такой номер</div><div class="mu" style="font-size:14px;line-height:1.45">Возможно, тебя записали без телефона. Зарегистрируйся — если ты уже есть в базе, лидер объединит записи.</div><button class="btn2" style="height:48px;font-size:15px;border-color:var(--acc);color:var(--acc)" data-a="goNew">Зарегистрироваться</button></div>` : ''}
     ${S.err ? `<div class="err">${esc(S.err)}</div>` : ''}<div class="sp"></div><button class="btn" data-a="checkKnown">Отметиться</button></div>`; return; }
@@ -78,12 +78,12 @@ function render() {
       : `<input class="inp" id="j_inv" data-b="invQ" data-live="inv" value="${esc(S.f.invQ || '')}" placeholder="Начни вводить имя друга"><div id="hits" style="display:flex;flex-direction:column;gap:6px">${hitsHtml()}</div>`}</div>
     <div class="sec" style="padding-top:6px">РОДИТЕЛЬ</div>${fld('pFirst', 'Имя и фамилия родителя', 'text', 'Ольга Петрова')}${fld('pPhone', 'Телефон родителя', 'tel', '(916) 765-4321')}
     ${S.err ? `<div class="err">${esc(S.err)}</div>` : ''}<button class="btn" data-a="submit" style="margin-top:6px">Готово</button></div>`; return; }
-  if (S.step === 'dup') { $.innerHTML = `<div class="w" style="justify-content:center"><h1 class="h2">Кажется, мы уже знакомы</h1><div class="card" style="display:flex;align-items:center;gap:14px"><div style="width:52px;height:52px;border-radius:999px;background:#2A2D35;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:17px">${esc(S.dup.name.charAt(0))}</div><div style="display:flex;flex-direction:column;gap:3px"><div style="font-size:17px;font-weight:700">${esc(S.dup.name)}</div><div class="mu" style="font-size:13px">уже есть в SOL Teens</div></div></div><button class="btn" data-a="dupYes">Да, это я</button><button class="btn2" data-a="dupNo">Нет, я другой человек</button></div>`; return; }
+  if (S.step === 'dup') { $.innerHTML = `<div class="w" style="justify-content:center"><h1 class="h2">Кажется, мы уже знакомы</h1><div class="card" style="display:flex;align-items:center;gap:14px"><div style="width:52px;height:52px;border-radius:999px;background:#2A2D35;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:17px">${esc(S.dup.name.charAt(0))}</div><div style="display:flex;flex-direction:column;gap:3px"><div style="font-size:17px;font-weight:700">${esc(S.dup.name)}</div><div class="mu" style="font-size:13px">уже есть в SOL 3:16 Teens</div></div></div><button class="btn" data-a="dupYes">Да, это я</button><button class="btn2" data-a="dupNo">Нет, я другой человек</button></div>`; return; }
   if (S.step === 'done') { const r = S.res; $.innerHTML = `<div class="w" style="align-items:stretch;text-align:center;padding-top:56px"><div class="ok">${ico('M5 12l5 5L19 7', '#0E0F12', 52, 3)}</div>
     <h1 class="h1" style="font-size:26px">${r.already ? esc(r.first) + ', ты уже отмечен!' : r.isNew ? 'Добро пожаловать, ' + esc(r.first) + '!' : esc(r.first) + ', ты на месте!'}</h1>
     <div class="mu">${esc(r.meet.label)} · сегодня</div>
-    ${r.isNew ? `<div class="card" style="text-align:left;font-size:15px;line-height:1.5">Рады, что ты с нами! Лидер увидит твою анкету. Скоро здесь появится приложение SOL Teens — с заданиями, ачивками и рейтингом.</div>` : ''}
-    <a class="btn2" style="display:flex;align-items:center;justify-content:center;text-decoration:none;height:54px;font-size:15px" href="https://t.me/+Q9dPL22CL5owNTUy" target="_blank" rel="noopener">Вступить в Telegram-чат SOL Teens</a>
+    ${r.isNew ? `<div class="card" style="text-align:left;font-size:15px;line-height:1.5">Рады, что ты с нами! Лидер увидит твою анкету. Скоро здесь появится приложение SOL 3:16 Teens — с заданиями, ачивками и рейтингом.</div>` : ''}
+    <a class="btn2" style="display:flex;align-items:center;justify-content:center;text-decoration:none;height:54px;font-size:15px" href="https://t.me/+Q9dPL22CL5owNTUy" target="_blank" rel="noopener">Вступить в Telegram-чат SOL 3:16 Teens</a>
     <a class="btn2" style="display:flex;align-items:center;justify-content:center;text-decoration:none;height:54px;font-size:15px" href="https://www.instagram.com/sol316teens/" target="_blank" rel="noopener">Instagram @sol316teens</a>
     <button data-a="restart" style="background:none;border:none;color:var(--mu2);font-size:14px;min-height:44px">Отметить ещё одного человека</button></div>`; return; }
 }

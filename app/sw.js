@@ -1,6 +1,6 @@
 // SOL Teens service worker: сначала сеть (чтобы обновления с GitHub приходили сразу),
 // при отсутствии интернета — последняя сохранённая копия интерфейса.
-const CACHE = 'sol-teens-v1';
+const CACHE = 'sol-teens-v2';
 const SHELL = ['./', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png'];
 
 self.addEventListener('install', e => {

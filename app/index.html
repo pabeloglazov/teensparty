@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>SOL Teens</title>
+<title>SOL 3:16 Teens</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#0E0F12">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
-<meta name="apple-mobile-web-app-title" content="SOL Teens">
+<meta name="apple-mobile-web-app-title" content="3:16 Teens">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -244,7 +244,7 @@ function setHash(h) { try { history.replaceState(null, '', h || location.pathnam
 function syncUrl() {
   const r = routeOf(); if (!r) return;
   const sub = { groups: tr('Группы и встречи', 'Groups & meetings'), rules: tr('Правила', 'Rules'), access: tr('Лидеры и доступ', 'Leaders & access'), qr: 'QR' }[S.tab === 'more' ? S.more : ''];
-  document.title = (S.ov && S.ov.type === 'prof' ? tname(IDX.teen[S.ov.id] || {}) : sub || TABL()[S.tab]) + ' · SOL Teens';
+  document.title = (S.ov && S.ov.type === 'prof' ? tname(IDX.teen[S.ov.id] || {}) : sub || TABL()[S.tab]) + ' · SOL 3:16 Teens';
   if (location.hash === r) return;
   try { if (!location.hash || location.hash === '#') history.replaceState(null, '', r); else history.pushState(null, '', r); } catch (e) {}
 }
@@ -349,10 +349,10 @@ const TABL = () => ({ dash: tr('Дашборд', 'Dashboard'), teens: tr('Под
 function render() {
   document.documentElement.lang = S.lang;
   if (!S.token) { $app.innerHTML = viewLogin(); return; }
-  if (!D) { $app.innerHTML = `<div class="login"><div class="h2">SOL Teens</div><div class="mut">${tr('Загрузка…', 'Loading…')}</div></div>`; return; }
+  if (!D) { $app.innerHTML = `<div class="login"><div class="h2">SOL 3:16 Teens</div><div class="mut">${tr('Загрузка…', 'Loading…')}</div></div>`; return; }
   const scroll = document.querySelector('.main') ? document.querySelector('.main').scrollTop : 0;
   const t = tabs();
-  const nav = `<nav class="nav" aria-label="${tr('Меню', 'Menu')}" style="grid-template-columns:repeat(${t.length},minmax(0,1fr))"><div class="brand">SOL <span>Teens</span></div>${t.map(k => k === 'mark'
+  const nav = `<nav class="nav" aria-label="${tr('Меню', 'Menu')}" style="grid-template-columns:repeat(${t.length},minmax(0,1fr))"><div class="brand"><img src="icons/icon-192.png" alt="" width="34" height="34" style="border-radius:9px;vertical-align:middle;margin-right:10px">SOL <span>3:16</span></div>${t.map(k => k === 'mark'
     ? `<button class="c ${S.tab === k ? 'on' : ''}" data-a="tab" data-x="${k}" aria-label="${TABL()[k]}"><div class="ring">${svg(IC.mark, '#0E0F12', 26, 2.5)}</div><span>${TABL()[k]}</span></button>`
     : `<button class="${S.tab === k ? 'on' : ''}" data-a="tab" data-x="${k}" aria-label="${TABL()[k]}">${svg(IC[k], S.tab === k ? ACC : '#8B8B94', 24)}<span>${TABL()[k]}</span></button>`).join('')}</nav>`;
   let body; try { body = { mark: viewMark, dash: viewDash, teens: viewTeens, tasks: viewTasks, more: viewMore }[S.tab](); }
@@ -368,7 +368,7 @@ function rerender() { S.keepScroll = true; render(); }
 // ---------- вход ----------
 function viewLogin() {
   const l = S.login;
-  const head = `<div class="sec" style="color:var(--acc)">SOL TEENS</div><h1 class="h1" style="font-size:28px">${tr('Вход для лидеров', 'Leader sign-in')}</h1>`;
+  const head = `<img src="icons/icon-192.png" alt="" width="72" height="72" style="border-radius:18px"><div class="sec" style="color:var(--acc)">SOL 3:16 TEENS</div><h1 class="h1" style="font-size:28px">${tr('Вход для лидеров', 'Leader sign-in')}</h1>`;
   const lang = `<div class="seg" style="grid-template-columns:1fr 1fr;width:140px"><button class="${!L() ? 'on' : ''}" data-a="lang" data-x="ru">RU</button><button class="${L() ? 'on' : ''}" data-a="lang" data-x="en">EN</button></div>`;
   const err = l.err ? `<div class="err">${esc(l.err)}</div>` : '';
   if (l.step === 'code') return `<div class="login">${head}<div class="mut">${tr('Мы отправили код на ', 'We sent a code to ')}<b style="color:var(--tx)">${esc(l.email)}</b></div>
@@ -637,7 +637,7 @@ function joinUrl() { return APP + 'join/'; }
 function viewQR() {
   return `<div class="noprint">${subHead(tr('QR для отметки', 'Check-in QR'))}</div>
   <div class="sm mut noprint" style="line-height:1.45">${tr('Распечатайте и повесьте у входа. Подросток сканирует камерой телефона — без приложения. Новенькие заполняют короткую анкету и сразу попадают в базу.', 'Print and put it at the entrance. Teens scan with the phone camera — no app needed. Newcomers fill a short form and land in the database.')}</div>
-  <div style="text-align:center;font-family:Unbounded,sans-serif;font-size:22px;font-weight:700;padding-top:8px">${tr('Отметься в SOL Teens', 'Check in to SOL Teens')}</div>
+  <div style="text-align:center;font-family:Unbounded,sans-serif;font-size:22px;font-weight:700;padding-top:8px">${tr('Отметься в SOL 3:16 Teens', 'Check in to SOL 3:16 Teens')}</div>
   <div class="qrbox"><div id="qr"></div></div>
   <div class="xs mut" style="text-align:center;word-break:break-all">${esc(joinUrl())}</div>
   <div class="noprint" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btnA" data-a="copyJoin">${tr('Скопировать ссылку', 'Copy link')}</button><button class="btnA" data-a="print">${tr('Печать', 'Print')}</button></div>
@@ -899,7 +899,7 @@ const H = {
   toInvite() { S.login.step = 'invite'; S.login.err = ''; render(); },
   loginBack() { S.login.step = 'email'; S.login.err = ''; render(); },
   async joinInvite() { const l = S.login; l.err = ''; try { const r = await call('joinByCode', l.inv, l.name, l.email); S.token = r.token; LS.set('sol_tok', r.token); S.login = { step: 'email' }; render(); load(); } catch (e) { l.err = errText(e); render(); } },
-  async logout() { if (S.as) return H.exitAs(); try { await call('logout', S.token); } catch (e) {} S.token = ''; LS.del('sol_tok'); LS.del(BOOT); D = null; S.tab = null; try { history.replaceState(null, '', location.pathname); } catch (e) {} document.title = 'SOL Teens'; render(); },
+  async logout() { if (S.as) return H.exitAs(); try { await call('logout', S.token); } catch (e) {} S.token = ''; LS.del('sol_tok'); LS.del(BOOT); D = null; S.tab = null; try { history.replaceState(null, '', location.pathname); } catch (e) {} document.title = 'SOL 3:16 Teens'; render(); },
   // навигация
   tab(x) { S.tab = x; S.more = 'root'; S.ov = null; render(); if (x === 'mark') syncMarks(); },
   moreRoot() { S.more = 'root'; render(); }, goGroups() { S.more = 'groups'; render(); }, goRules() { S.more = 'rules'; render(); }, goAccess() { S.more = 'access'; render(); }, goQR() { S.more = 'qr'; render(); },
@@ -1013,7 +1013,7 @@ const H = {
   async sendInvite() { const F = S.ov.f; S.ov.err = '';
     try { const r = await api('invite', { mode: F.mode, name: F.name, email: F.email, role: F.role, groups: F.groups }); if (r.code) { S.ov.code = r.code; await load(); S.more = 'access'; rerender(); } else { S.ov = null; toast(tr('Приглашение отправлено', 'Invite sent')); await load(); } }
     catch (e) { S.ov.err = errText(e); rerender(); } },
-  copyCode() { const t = tr('Привет! Вот вход в SOL Teens: ', 'Hi! Here is your SOL Teens access: ') + APP + tr(' — нажми «У меня есть код приглашения» и введи ', ' — tap “I have an invite code” and enter ') + S.ov.code; copy(t); },
+  copyCode() { const t = tr('Привет! Вот вход в SOL 3:16 Teens: ', 'Hi! Here is your SOL 3:16 Teens access: ') + APP + tr(' — нажми «У меня есть код приглашения» и введи ', ' — tap “I have an invite code” and enter ') + S.ov.code; copy(t); },
   async saveLeader() { const F = S.ov.f; try { await api('updateLeader', { id: S.ov.id, role: F.role, groups: F.groups }); S.ov = null; await load(); toast(tr('Сохранено', 'Saved')); } catch (e) { S.ov.err = errText(e); rerender(); } },
   async removeLeader() { if (!S.ov.confirmRm) { S.ov.confirmRm = true; S.ov.err = ''; return rerender(); }
     try { await api('removeLeader', { id: S.ov.id }); S.ov = null; await load(); toast(tr('Доступ убран', 'Access removed')); } catch (e) { S.ov.err = errText(e); rerender(); } },
