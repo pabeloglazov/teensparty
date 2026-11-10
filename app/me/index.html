@@ -252,7 +252,7 @@ function verseCard() {
   const v = vNow(); if (!v) return '';
   return `<div class="vcard"><div><div class="xs" style="color:var(--acc2);font-weight:600">Стих дня</div><div style="font-weight:700">${esc(v.ref)}</div></div>
     <div class="vt">${esc(v.text)}</div>
-    <div class="vst"><span style="display:flex;align-items:center;gap:6px"><span class="vhc">${svg(I.heart, '#0E0F12', 12, 2.6)}</span>${v.likes}</span>${v.ncom ? `<button data-a="verse" data-x="${v.date}">${v.ncom} ${plural(v.ncom, 'комментарий', 'комментария', 'комментариев')}</button>` : ''}</div>
+    <div class="vst" style="justify-content:flex-start;gap:16px"><span style="display:flex;align-items:center;gap:6px"><span class="vhc">${svg(I.heart, '#0E0F12', 12, 2.6)}</span>${v.likes}</span><button data-a="verse" data-x="${v.date}" style="display:flex;align-items:center;gap:6px" aria-label="Комментарии"><span class="vhc">${svg(VI.chat, '#0E0F12', 12, 2.6)}</span>${v.ncom}</button></div>
     <div class="vact"><button class="${v.liked ? 'on' : ''}" data-a="vLike" data-x="${v.date}">${svg(I.heart, v.liked ? 'var(--acc)' : '#F4F4F5', 18, 2.2)}Нравится</button><button data-a="verse" data-x="${v.date}">${svg(VI.chat, '#F4F4F5', 18, 2.2)}Коммент</button><button data-a="vShare" data-x="${v.date}">${svg(VI.share, '#F4F4F5', 18, 2.2)}Поделиться</button></div></div>`;
 }
 function videoCard() {
