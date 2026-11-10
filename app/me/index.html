@@ -141,8 +141,8 @@ const BI = { first: I.star, m5: I.cal, m10: I.cal, m25: I.cal, m50: I.trophy, m1
   d3: I.phone, d7: I.phone, d14: I.phone, d30: I.cal, d100: I.crown, b1: I.book, book: I.book, verse: I.heart, tgchat: I.tg, igsub: I.ig, allin: I.chat,
   friend: I.plus, friend3: I.plus, party: I.cal, groups: I.map, night: I.moon, camp: I.tent, help: I.hand, back: I.back, bday: I.cake, thanks: I.star, legend: I.crown };
 BI.profile = I.user;
-BI.friend5 = I.plus; BI.mygroup = I.users;
-const CATS = [['meet', 'ВСТРЕЧИ'], ['streak', 'СЕРИИ НА ВСТРЕЧАХ'], ['app', 'ПРИЛОЖЕНИЕ КАЖДЫЙ ДЕНЬ'], ['bible', 'БИБЛИЯ'], ['social', 'СОЦСЕТИ'], ['friends', 'ДРУЗЬЯ И СОБЫТИЯ'], ['special', 'ОСОБЫЕ']];
+BI.friend5 = I.plus; BI.mygroup = I.users; BI.wkall = I.trophy; BI.wk3 = I.flame; BI.wk6 = I.flame;
+const CATS = [['meet', 'ВСТРЕЧИ'], ['streak', 'СЕРИИ НА ВСТРЕЧАХ'], ['app', 'ПРИЛОЖЕНИЕ КАЖДЫЙ ДЕНЬ'], ['bible', 'БИБЛИЯ'], ['tasks', 'ЗАДАНИЯ НЕДЕЛИ'], ['social', 'СОЦСЕТИ'], ['friends', 'ДРУЗЬЯ И СОБЫТИЯ'], ['special', 'ОСОБЫЕ']];
 const RULES_OLD = [['Пришёл на встречу или малую группу', '+10'], ['Событие', '+15'], ['Задание', '+10…30'], ['Зашёл в приложение (раз в день)', '+2'], ['Вступил в Telegram-чат', '+15'], ['Подписался на Instagram', '+15'], ['Ачивка', '+5…200']];
 const ERR = { network: 'Нет связи. Проверь интернет.', no_meeting: 'Сейчас нет встречи.', bad_birth: 'Проверь дату рождения.', bad_phone: 'В телефоне должно быть 10 цифр.', need_name: 'Напиши своё имя.', no_bot: 'Вход через Telegram ещё настраивается. Попробуй чуть позже.', no_chat: 'Бот ещё не добавлен в чат — скажи лидеру.', no_tg: 'Войди через Telegram ещё раз.', need_nick: 'Напиши свой ник в Instagram' };
 const errT = e => ERR[e && e.message] || 'Что-то пошло не так. Попробуй ещё раз.';

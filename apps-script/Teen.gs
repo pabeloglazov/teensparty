@@ -27,6 +27,9 @@ const BADGES = [
   ['b1', 'bible', 'Первая глава', 'Выполнить первое задание по чтению.', 1, 10],
   ['book', 'bible', 'Книжный червь', 'Выполнить 7 заданий по чтению Библии.', 7, 40],
   ['verse', 'bible', 'Стих наизусть', 'Выучить 5 стихов из заданий.', 5, 30],
+  ['wkall', 'tasks', 'Вся неделя', 'Выполнить все задания одной недели.', 1, 40],
+  ['wk3', 'tasks', 'Три недели в деле', 'Выполнять задания недели 3 недели подряд.', 3, 30],
+  ['wk6', 'tasks', 'Шесть недель в деле', 'Выполнять задания недели 6 недель подряд.', 6, 75],
   ['tgchat', 'social', 'В чате', 'Вступить в Telegram-чат SOL 3:16 Teens. Проверяет бот.', 1, 15],
   ['igsub', 'social', 'Подписчик', 'Подписаться на @sol316teens в Instagram. Подтверждает лидер.', 1, 15],
   ['allin', 'social', 'На связи', 'Быть и в Telegram-чате, и в Instagram.', 2, 10],
@@ -252,6 +255,9 @@ function score_(t, C, full) {
   const last7 = []; for (let d = tn - 6; d <= tn; d++) last7.push(set.has(d) ? 1 : (d === frz ? 2 : 0));
   // ачивки
   const cntKind = kind => done.filter(counted_).filter(d => { const k = C.tasks[d.taskId] || vtask_(d.taskId); return k && k.kind === kind; }).length;
+  const wkBy = {}; done.filter(counted_).forEach(d => { const m = /^W(\d{4}-\d{2}-\d{2}):(\w+)$/.exec(String(d.taskId || '')); if (m) (wkBy[m[1]] = wkBy[m[1]] || new Set()).add(m[2]); });
+  const wkMons = Object.keys(wkBy).map(dnum_).sort((a, b) => a - b); let wkBest = 0, wkRun = 0; wkMons.forEach((w, i) => { wkRun = i && w - wkMons[i - 1] === 7 ? wkRun + 1 : 1; wkBest = Math.max(wkBest, wkRun); });
+  const wkAll = Object.keys(wkBy).some(k => wkBy[k].size >= WEEK_TASKS.length) ? 1 : 0;
   const manual = id => aw.filter(a => a.badge === id).length;
   const friends = (C.invited[t.id] || []).filter(f => (C.att[f.id] || []).length).length + manual('friend');
   const visitedGroups = new Set(att.filter(a => a.kind === 'group').map(a => a.meetId));
@@ -261,7 +267,7 @@ function score_(t, C, full) {
     d3: dBest, d7: dBest, d14: dBest, d30: dBest, d100: dBest,
     b1: cntKind('read'), book: cntKind('read'), verse: cntKind('verse'),
     tgchat: t.tgChat === '1' ? 1 : 0, igsub: t.igStatus === 'ok' ? 1 : 0, allin: (t.tgChat === '1' ? 1 : 0) + (t.igStatus === 'ok' ? 1 : 0),
-    profile: profileLeft_(t).length ? 0 : 1,
+    profile: profileLeft_(t).length ? 0 : 1, wkall: wkAll, wk3: wkBest, wk6: wkBest,
     friend: friends, friend3: friends, friend5: friends, mygroup: String(t.groups || '').split(',').filter(Boolean).length ? 1 : 0, party: att.filter(a => a.kind === 'event').length,
     groups: C.groups.length >= 2 && C.groups.every(g => visitedGroups.has(g.id)) ? 1 : 0,
     night: manual('night'), camp: manual('camp'), help: manual('help'), back: manual('back'), bday: manual('bday'), thanks: manual('thanks')
