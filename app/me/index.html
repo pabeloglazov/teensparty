@@ -90,22 +90,24 @@ a{color:inherit}
 .pth{position:fixed;inset:0;z-index:25;background:var(--bg);display:flex;flex-direction:column}
 .pth .hd{flex-shrink:0;display:flex;align-items:center;gap:12px;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;border-bottom:1px solid var(--line)}
 .pth .sc{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
-.pth .map{position:relative;max-width:520px;margin:0 auto;aspect-ratio:826/5302;background:#2A2D35}
+.pth .map{position:relative;max-width:520px;margin:0 auto;aspect-ratio:826/5265;background:#2A2D35}
 .pth .map img.t{display:block;width:100%;position:absolute;left:0}
-.pw{position:absolute;left:0;right:0;height:40px;transform:translateY(-125%);display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(14,15,18,0),rgba(14,15,18,.82) 35%,rgba(14,15,18,.82) 65%,rgba(14,15,18,0))}
-.pw span{font-family:Unbounded,Inter,sans-serif;font-size:13px;font-weight:700;color:#fff;letter-spacing:.04em}
 .pth .map{container-type:inline-size}
-.pst{position:absolute;transform:translate(-50%,-50%) scaleY(.72);font-family:'Lilita One',Unbounded,Inter,sans-serif;font-size:26px;font-size:6.6cqw;line-height:1;letter-spacing:.01em;color:#8E6E48;text-shadow:0 .28cqw 0 rgba(255,244,220,.75),0 -.2cqw 0 rgba(70,45,20,.45);display:flex;align-items:center;justify-content:center;white-space:nowrap}
-.pst.on{color:#FFD766;-webkit-text-stroke:1.5cqw #7A3A0A;paint-order:stroke fill;text-shadow:0 .5cqw 0 #5A2A06,0 0 2.2cqw rgba(255,196,80,.9)}
-.pst.on::before{content:'';position:absolute;left:50%;top:50%;width:15cqw;height:9cqw;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(closest-side,rgba(255,200,90,.55),rgba(255,170,60,.25) 60%,rgba(255,170,60,0));z-index:-1}
-.pj{position:absolute;width:21%;transform:translate(-50%,-93%);pointer-events:none;animation:pjbob 2.6s ease-in-out infinite;filter:drop-shadow(0 6px 6px rgba(0,0,0,.35))}
-.pj img{display:block;width:100%}
-.pj img.b{position:absolute;left:0;top:0;opacity:0;animation:pjblink 4.2s infinite}
-.pj img.a{animation:pjblinka 4.2s infinite}
-@keyframes pjbob{0%,100%{margin-top:0}50%{margin-top:-1.2%}}
-@keyframes pjblink{0%,93%,100%{opacity:0}94%,98%{opacity:1}}
-@keyframes pjblinka{0%,93%,100%{opacity:1}94%,98%{opacity:0}}
-@media (prefers-reduced-motion:reduce){.pj,.pj img{animation:none}}
+.pst{position:absolute;width:19cqw;height:11.5cqw;transform:translate(-50%,-46%);border-radius:50%;-webkit-tap-highlight-color:transparent}
+.pst.off{background:rgba(58,62,78,.5);-webkit-backdrop-filter:grayscale(1) brightness(.82);backdrop-filter:grayscale(1) brightness(.82)}
+@supports ((-webkit-backdrop-filter:grayscale(1)) or (backdrop-filter:grayscale(1))){.pst.off{background:rgba(58,62,78,.22)}}
+.pst.cur{box-shadow:0 0 0 .7cqw rgba(255,255,255,.9),0 0 5cqw 1.2cqw rgba(255,196,80,.9)}
+.ptip{position:absolute;z-index:3;width:62%;transform:translate(-50%,0);background:#fff;color:#16181D;border-radius:18px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.ptip b{font-size:15px}.ptip span{font-size:13px;color:#5B6070;line-height:1.35}
+.ptip .pb{height:10px;border-radius:999px;background:#ECEDF1;overflow:hidden}.ptip .pb i{display:block;height:100%;border-radius:999px;background:var(--acc)}
+.ptip::before{content:'';position:absolute;left:50%;top:-7px;width:14px;height:14px;background:#fff;transform:translateX(-50%) rotate(45deg);border-radius:3px}
+.ptip.up::before{top:auto;bottom:-7px}
+.jcard{display:grid;grid-template-columns:84px 1fr;gap:12px;align-items:center}
+.jcard img{width:84px;height:auto;animation:pjfloat 3.2s ease-in-out infinite;filter:drop-shadow(0 6px 8px rgba(0,0,0,.4))}
+.pj{position:absolute;width:21%;transform:translate(-50%,-93%);pointer-events:none;filter:drop-shadow(0 6px 6px rgba(0,0,0,.35))}
+.pj img{display:block;width:100%;animation:pjfloat 3.2s ease-in-out infinite;will-change:transform}
+@keyframes pjfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6%)}}
+@media (prefers-reduced-motion:reduce){.pj img{animation:none}}
 .ov{position:fixed;top:0;left:0;right:0;height:var(--apph,100%);background:rgba(0,0,0,.6);display:flex;align-items:flex-end;justify-content:center;z-index:10}
 .sheet{width:100%;max-width:520px;background:#16181D;border-radius:24px 24px 0 0;padding:22px 20px calc(24px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:14px;align-items:center;text-align:center;max-height:90vh;overflow-y:auto}
 .inp[type=date]{-webkit-appearance:none;appearance:none;display:block;min-width:0;max-width:100%;text-align:left;line-height:48px}
@@ -311,17 +313,21 @@ function openVideo(mon) {
   vd.onerror = () => { el.querySelector('#vhint').textContent = 'Видео не загрузилось. Проверь интернет'; };
   vd.play().catch(() => { el.querySelector('#vhint').textContent = 'Нажми на видео, чтобы начать'; });
 }
-const PSTOPS = [[1,50.97,97.812],[3,41.89,94.606],[5,51.82,91.928],[7,35.11,88.57],[10,57.26,86.081],[15,39.95,83.572],[20,59.44,81.441],[30,38.98,79.234],[40,57.75,77.254],[50,36.32,75.556],[55,50.85,73.633],[60,41.89,70.426],[65,50.85,67.409],[70,35.35,64.391],[75,57.26,61.901],[80,39.95,59.393],[85,58.72,57.224],[90,38.98,55.055],[95,57.51,53.074],[100,36.32,51.377],[105,50.85,49.453],[110,41.89,46.247],[115,50.85,43.229],[120,35.35,40.211],[125,57.26,37.722],[130,39.95,35.213],[135,58.72,33.044],[140,38.98,30.875],[145,57.51,28.895],[150,36.56,27.197],[155,38.38,23.67],[160,55.33,20.181],[165,39.95,17.258],[170,59.81,14.9],[175,42.13,12.674],[180,60.17,10.468],[185,39.95,8.582],[190,60.77,6.696],[195,40.56,4.942],[200,60.53,3.301]];
+const PSTOPS = [[1,39.71,94.226],[3,56.3,91.814],[5,38.98,89.345],[7,56.9,87.009],[10,39.35,84.881],[15,57.14,82.887],[20,38.14,80.893],[30,54.12,78.898],[40,38.74,76.942],[50,56.05,75.347],[55,39.95,70.864],[60,56.66,68.395],[65,38.98,65.869],[70,58.11,63.647],[75,39.35,61.462],[80,57.26,59.468],[85,37.77,57.474],[90,54.12,55.48],[95,38.5,53.523],[100,56.3,51.928],[105,39.59,47.445],[110,55.08,44.919],[115,36.92,42.545],[120,55.93,40.19],[125,36.92,37.949],[130,55.45,35.67],[135,39.47,33.39],[140,55.21,31.168],[145,37.29,29.117],[150,53.39,27.445],[155,38.38,23.362],[160,55.21,20.285],[165,39.95,17.379],[170,59.81,15.043],[175,42.13,12.574],[180,60.17,10.351],[185,39.95,8.452],[190,60.77,6.553],[195,40.56,4.748],[200,60.53,3.096]];
 const PWORLD = ['Берег', 'Холмы', 'Горы', 'Небесный город'];
+const PNOTE = { 1: 'Первый шаг сделан. Он рад, что ты здесь.', 3: 'Три дня подряд — открывается ачивка «3 дня».', 7: 'Целая неделя вместе. Ачивка «Неделя в деле».', 30: 'Месяц без пропусков — ачивка и +60 баллов.', 50: 'Берег пройден. Дальше начинаются холмы.', 100: 'Сто дней. Ачивка «100 дней» и +200 баллов.', 150: 'Горы позади. Впереди небесный город. Ачивка «150 дней».', 200: 'Небесные ворота. Весь путь пройден — ачивка «Весь путь» и +400 баллов.' };
+const PWNOTE = ['Начало пути: учимся быть рядом с Ним каждый день.', 'Привычка крепнет. Не сбавляй шаг.', 'Тут уже нужен характер. Он идёт рядом.', 'Финишная прямая — ворота уже видно.'];
 function pathOverlay() {
-  const d = D.appStreak, R = D.restore || { max: 3, left: 3 }; let cur = -1; PSTOPS.forEach((q, i) => { if (d >= q[0]) cur = i; });
-  const nx = PSTOPS[cur + 1]; const pos = cur >= 0 ? PSTOPS[cur] : [0, 50, 99.2];
+  const d = D.appStreak, R = D.restore || { max: 3, left: 3 }, o = S.ov; let cur = -1; PSTOPS.forEach((q, i) => { if (d >= q[0]) cur = i; });
+  const nx = PSTOPS[cur + 1]; const pos = cur >= 0 ? PSTOPS[cur] : [0, 42, 98.6];
   const world = PWORLD[Math.max(0, Math.floor(cur / 10))];
+  let tip = '';
+  if (o.tip != null) { const q = PSTOPS[o.tip], done = d >= q[0], up = q[2] > 55;
+    tip = `<div class="ptip ${up ? 'up' : ''}" style="left:${Math.min(66, Math.max(34, q[1]))}%;${up ? 'bottom:calc(' + (100 - q[2]) + '% + 8cqw)' : 'top:calc(' + q[2] + '% + 8cqw)'}"><b>${q[0]} ${plural(q[0], 'день', 'дня', 'дней')} подряд · ${PWORLD[Math.floor(o.tip / 10)]}</b><span>${PNOTE[q[0]] || PWNOTE[Math.floor(o.tip / 10)]}</span><div class="pb"><i style="width:${Math.min(100, Math.round(d / q[0] * 100))}%"></i></div><span>${done ? 'Пройдено' : d + ' из ' + q[0] + ' · ещё ' + (q[0] - d)}</span></div>`; }
   return `<div class="pth" role="dialog" aria-label="Путь"><div class="hd"><button data-a="close" class="circ" style="width:44px;height:44px;border-radius:12px" aria-label="Назад">${svg('M15 6l-6 6 6 6', '#F4F4F5', 20, 2.5)}</button><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:17px">${d} ${plural(d, 'день', 'дня', 'дней')} подряд · ${world}</div><div class="xs mu">${nx ? 'до остановки «' + nx[0] + '» — ещё ' + (nx[0] - d) : 'Путь пройден'}</div></div><div style="text-align:right"><div style="font-weight:700;color:var(--acc)">${R.left}/${R.max}</div><div class="xs mu">прощений</div></div></div>
-    <div class="sc" id="pthsc"><div class="map">${[[0.0, 24.9906], [24.9906, 24.9906], [49.9811, 24.9906], [74.9717, 25.0283]].map((q, k) => `<img class="t" alt="" src="../media/path/path-${k + 1}.webp" style="top:${q[0]}%;height:calc(${q[1]}% + 1px)">`).join('')}
-      ${[75.292, 51.113, 26.933].map((y, i) => `<div class="pw" style="top:${y}%"><span>${PWORLD[i + 1]} · ${['55–100', '105–150', '155–200'][i]}</span></div>`).join('')}
-      ${PSTOPS.map((q, i) => `<span class="pst ${i <= cur ? 'on' : ''} ${i === cur ? 'cur' : ''}" style="left:${q[1]}%;top:${q[2]}%">${q[0]}</span>`).join('')}
-      <div class="pj" id="pj" style="left:${pos[1]}%;top:${pos[2]}%"><img class="a" alt="" src="../media/path/jesus-a.webp"><img class="b" alt="" src="../media/path/jesus-b.webp"></div></div></div></div>`;
+    <div class="sc" id="pthsc"><div class="map" data-a="pTip" data-x="">${[[0.0, 24.9953], [24.9953, 24.9953], [49.9905, 24.9953], [74.9858, 25.0142]].map((q, k) => `<img class="t" alt="" src="../media/path/path-${k + 1}.webp?v=2" style="top:${q[0]}%;height:calc(${q[1]}% + 1px)">`).join('')}
+      ${PSTOPS.map((q, i) => `<button class="pst ${i > cur ? 'off' : ''} ${i === cur ? 'cur' : ''}" data-a="pTip" data-x="${i}" style="left:${q[1]}%;top:${q[2]}%" aria-label="${q[0]} ${plural(q[0], 'день', 'дня', 'дней')}"></button>`).join('')}
+      <div class="pj" id="pj" style="left:${pos[1]}%;top:${pos[2]}%"><img alt="" src="../media/path/jesus-a.webp"></div>${tip}</div></div></div>`;
 }
 function pathScroll() { const sc = document.getElementById('pthsc'), j = document.getElementById('pj'); if (!sc || !j) return; const m = sc.querySelector('.map'); const y = parseFloat(j.style.top) / 100 * m.offsetHeight; sc.scrollTop = Math.max(0, y - sc.clientHeight * 0.62); }
 function mercyCheck() {
@@ -407,7 +413,8 @@ function viewHome() {
   <button class="card acc" data-a="levels" style="text-align:left;width:100%" aria-label="Все уровни"><div class="row" style="justify-content:space-between"><div><div class="sec" style="color:var(--acc2)">УРОВЕНЬ ${lv.num}</div><div class="h2" style="margin-top:4px;text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:5px;text-decoration-color:var(--acc)">${esc(lv.name)}</div></div><div style="text-align:right"><div style="font-family:Unbounded,Inter,sans-serif;font-size:30px;font-weight:700;color:var(--acc)">${D.pts}</div><div class="xs mu">${plural(D.pts, 'балл', 'балла', 'баллов')}</div></div></div><div class="bar"><i style="width:${lv.pct}%"></i></div><div class="sm mu">${esc(lv.left)}</div></button>
   ${verseCard()}
   ${videoCard()}
-  <button class="card" data-a="daily" style="text-align:left;width:100%"><div class="row" style="justify-content:space-between"><div class="row"><div class="circ got" style="width:44px;height:44px">${svg(I.flame, '#0E0F12', 22)}</div><div><div style="font-weight:700;font-size:17px">${D.appStreak} ${plural(D.appStreak, 'день', 'дня', 'дней')} подряд</div><div class="xs mu">в приложении · рекорд ${D.appBest}</div></div></div><span class="pill">+2/день</span></div><div class="days">${days}</div>${ms ? `<div class="xs mu">До ачивки за ${ms} ${plural(ms, 'день', 'дня', 'дней')} — ещё ${ms - D.appStreak}</div>` : ''}</button>
+  ${(() => { let c = -1; PSTOPS.forEach((q, i) => { if (D.appStreak >= q[0]) c = i; }); const nx = PSTOPS[c + 1];
+    return `<button class="card acc" data-a="daily" style="text-align:left;width:100%" aria-label="Открыть путь"><div class="jcard"><img alt="" src="../media/path/jesus-a.webp"><div style="display:flex;flex-direction:column;gap:6px;min-width:0"><div><div style="font-weight:700;font-size:18px">${D.appStreak} ${plural(D.appStreak, 'день', 'дня', 'дней')} подряд</div><div class="xs mu">${nx ? 'до остановки «' + nx[0] + '» — ещё ' + (nx[0] - D.appStreak) : 'Путь пройден'} · рекорд ${D.appBest}</div></div><span class="btnS" style="align-self:flex-start;height:38px">Открыть путь ›</span></div></div><div class="days">${days}</div></button>`; })()}
   <div class="stats"><div class="stat"><b>${D.weekStreak}</b><span class="xs mu">${plural(D.weekStreak, 'неделя', 'недели', 'недель')} подряд на встречах</span></div><button class="stat" data-a="tab" data-x="rank" style="text-align:left"><b>${D.rank.myMonth ? '#' + D.rank.myMonth : '—'}</b><span class="xs mu">в рейтинге месяца</span></button></div>
   ${sgCards()}
   ${weekCards()}
@@ -604,6 +611,7 @@ const H = {
     catch (e) { Object.assign(PF(), f); o.err = errT(e); render(); }
   },
   daily() { H.path(); },
+  pTip(i) { const o = S.ov; if (!o || o.type !== 'path') return; const sc = document.getElementById('pthsc'), y = sc ? sc.scrollTop : 0; o.tip = i === '' || +i === o.tip ? null : +i; render(); const s2 = document.getElementById('pthsc'); if (s2) s2.scrollTop = y; },
   path() { S.ov = { type: 'path' }; render(); pathScroll(); const im = document.querySelector('.pth img.t'); if (im) im.addEventListener('load', pathScroll, { once: true }); },
   scan() { S.ov = { type: 'scan' }; render(); },
   close() { S.ov = S.ov && S.ov.back ? S.ov.back : null; render(); },
