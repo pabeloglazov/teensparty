@@ -357,6 +357,8 @@ function render() {
   if (!S.token) { $app.innerHTML = viewLogin(); return; }
   if (!D) { $app.innerHTML = `<div class="login"><div class="h2">SOL 3:16 Teens</div><div class="mut">${tr('Загрузка…', 'Loading…')}</div></div>`; return; }
   const scroll = document.querySelector('.main') ? document.querySelector('.main').scrollTop : 0;
+  const ovq = '.full .sc, .sheet .sc', ovEl = document.querySelector(ovq), ovTop = ovEl ? ovEl.scrollTop : 0;
+  const ovSig = S.ov ? [S.ov.type, S.ov.id || '', S.ov.key || '', S.ov.i == null ? '' : S.ov.i, S.ov.edit || '', S.ov.who ? 1 : 0].join('|') : '';
   const t = tabs();
   const nav = `<nav class="nav" aria-label="${tr('Меню', 'Menu')}" style="grid-template-columns:repeat(${t.length},minmax(0,1fr))"><div class="brand"><img src="icons/icon-192.png" alt="" width="34" height="34" style="border-radius:9px;vertical-align:middle;margin-right:10px">SOL <span>3:16</span></div>${t.map(k => k === 'mark'
     ? `<button class="c ${S.tab === k ? 'on' : ''}" data-a="tab" data-x="${k}" aria-label="${TABL()[k]}"><div class="ring">${svg(IC.mark, '#0E0F12', 26, 2.5)}</div><span>${TABL()[k]}</span></button>`
@@ -366,6 +368,7 @@ function render() {
   const asb = S.as ? `<div class="asbar" role="status">${svg(IC.eye, ACC, 18, 2.2)}<span>${tr('Вы смотрите глазами ', 'Viewing as ')}<b>${esc(D.me.name || ROLES().find(r => r[0] === D.me.role)[1])}</b> · ${ROLES().find(r => r[0] === D.me.role)[1]}</span><button data-a="exitAs">${tr('Выйти', 'Exit')}</button></div>` : '';
   $app.innerHTML = `<div class="app"><main class="main"><div class="wrap">${asb}${body}</div></main>${nav}</div>${viewOverlay()}`;
   const m = document.querySelector('.main'); if (m && S.keepScroll) m.scrollTop = scroll; S.keepScroll = false;
+  const ov2 = document.querySelector(ovq); if (ov2 && ovSig && ovSig === S.ovSig) ov2.scrollTop = ovTop; S.ovSig = ovSig;
   syncUrl();
   if (S.ov && S.ov.type === 'qr') drawQR();
 }
