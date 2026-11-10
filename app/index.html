@@ -370,7 +370,7 @@ function render() {
   const m = document.querySelector('.main'); if (m && S.keepScroll) m.scrollTop = scroll; S.keepScroll = false;
   const ov2 = document.querySelector(ovq); if (ov2 && ovSig && ovSig === S.ovSig) ov2.scrollTop = ovTop; S.ovSig = ovSig;
   syncUrl();
-  if (S.ov && S.ov.type === 'qr') drawQR();
+  if (S.tab === 'more' && S.more === 'qr') drawQR();
 }
 function rerender() { S.keepScroll = true; render(); }
 
