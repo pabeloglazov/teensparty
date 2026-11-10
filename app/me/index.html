@@ -107,9 +107,8 @@ a{color:inherit}
 .ptip .pb{height:10px;border-radius:999px;background:#ECEDF1;overflow:hidden}.ptip .pb i{display:block;height:100%;border-radius:999px;background:var(--acc)}
 .ptip::before{content:'';position:absolute;left:50%;top:-7px;width:14px;height:14px;background:#fff;transform:translateX(-50%) rotate(45deg);border-radius:3px}
 .ptip.up::before{top:auto;bottom:-7px}
-.jcard{display:grid;grid-template-columns:84px 1fr;gap:12px;align-items:center}
-.jcard img{width:84px;height:auto;animation:pjfloat 3.2s ease-in-out infinite;filter:drop-shadow(0 6px 8px rgba(0,0,0,.4))}
-.pj{position:absolute;width:21%;transform:translate(-50%,-93%);pointer-events:none;filter:drop-shadow(0 6px 6px rgba(0,0,0,.35))}
+.jimg{width:58px;height:auto;flex-shrink:0;display:block;animation:pjfloat 3.2s ease-in-out infinite;filter:drop-shadow(0 6px 8px rgba(0,0,0,.4))}
+.pj{position:absolute;width:14.5%;transform:translate(-50%,-93%);pointer-events:none;filter:drop-shadow(0 6px 6px rgba(0,0,0,.35))}
 .pj img{display:block;width:100%;animation:pjfloat 3.2s ease-in-out infinite;will-change:transform}
 @keyframes pjfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6%)}}
 @media (prefers-reduced-motion:reduce){.pj img{animation:none}}
@@ -331,7 +330,7 @@ function pathOverlay() {
   return `<div class="pth" role="dialog" aria-label="Путь"><div class="hd"><button data-a="pClose" class="circ" style="width:44px;height:44px;border-radius:12px" aria-label="Назад">${svg('M15 6l-6 6 6 6', '#F4F4F5', 20, 2.5)}</button><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:17px">${d} ${plural(d, 'день', 'дня', 'дней')} подряд · ${world}</div><div class="xs mu">${nx ? 'до остановки «' + nx[0] + '» — ещё ' + (nx[0] - d) : 'Путь пройден'}</div></div><div style="text-align:right"><div style="font-weight:700;color:var(--acc)">${R.left}/${R.max}</div><div class="xs mu">прощений</div></div></div>
     <div class="sc" id="pthsc"><div class="map" data-a="pTip" data-x="">${[[0.0, 24.9953], [24.9953, 24.9953], [49.9905, 24.9953], [74.9858, 25.0142]].map((q, k) => `<img class="t" alt="" src="../media/path/path-${k + 1}.webp?v=2" style="top:${q[0]}%;height:calc(${q[1]}% + 1px)">`).join('')}
       ${PSTOPS.map((q, i) => `<button class="pst ${i > cur ? 'off' : ''} ${i === cur ? 'cur' : ''}" data-a="pTip" data-x="${i}" style="left:${q[1]}%;top:${q[2]}%" aria-label="${q[0]} ${plural(q[0], 'день', 'дня', 'дней')}"></button>`).join('')}
-      <div class="pj" id="pj" style="left:${pos[1]}%;top:${pos[2]}%"><img alt="" src="../media/path/jesus-a.webp"></div>${tip}</div></div></div>`;
+      <div class="pj" id="pj" style="left:${pos[1]}%;top:${pos[2]}%"><img alt="" src="../media/path/jesus-a.webp?v=2"></div>${tip}</div></div></div>`;
 }
 function pathScroll() { const sc = document.getElementById('pthsc'), j = document.getElementById('pj'); if (!sc || !j) return; const m = sc.querySelector('.map'); const y = parseFloat(j.style.top) / 100 * m.offsetHeight; sc.scrollTop = Math.max(0, y - sc.clientHeight * 0.62); }
 function mercyCheck() {
@@ -418,7 +417,7 @@ function viewHome() {
   ${verseCard()}
   ${videoCard()}
   ${(() => { let c = -1; PSTOPS.forEach((q, i) => { if (D.appStreak >= q[0]) c = i; }); const nx = PSTOPS[c + 1];
-    return `<button class="card" data-a="daily" style="flex-direction:row;align-items:center;gap:12px;text-align:left;width:100%;padding:10px 16px" aria-label="Открыть путь"><span style="font-family:Unbounded,Inter,sans-serif;font-size:26px;font-weight:700;color:var(--acc);min-width:34px">${D.appStreak}</span><span style="flex:1;min-width:0"><span style="display:block;font-weight:700">${plural(D.appStreak, 'день', 'дня', 'дней')} подряд</span><span class="xs mu">${nx ? 'ещё ' + (nx[0] - D.appStreak) + ' до остановки «' + nx[0] + '»' : 'Путь пройден'}</span></span><img alt="" src="../media/path/jesus-a.webp" style="width:40px;height:auto">${svg('M9 6l6 6-6 6', '#8B8B94', 20, 2.5)}</button>`; })()}
+    return `<button class="card" data-a="daily" style="flex-direction:row;align-items:center;gap:14px;text-align:left;width:100%;padding:12px 16px" aria-label="Открыть путь"><img class="jimg" alt="" src="../media/path/jesus-a.webp?v=2"><span style="font-family:Unbounded,Inter,sans-serif;font-size:30px;font-weight:700;color:var(--acc)">${D.appStreak}</span><span style="flex:1;min-width:0"><span style="display:block;font-weight:700;font-size:16px">${plural(D.appStreak, 'день', 'дня', 'дней')} подряд</span><span class="xs mu">${nx ? 'ещё ' + (nx[0] - D.appStreak) + ' до остановки «' + nx[0] + '»' : 'Путь пройден'}</span></span>${svg('M9 6l6 6-6 6', '#8B8B94', 20, 2.5)}</button>`; })()}
   <div class="stats"><div class="stat"><b>${D.weekStreak}</b><span class="xs mu">${plural(D.weekStreak, 'неделя', 'недели', 'недель')} подряд на встречах</span></div><button class="stat" data-a="tab" data-x="rank" style="text-align:left"><b>${D.rank.myMonth ? '#' + D.rank.myMonth : '—'}</b><span class="xs mu">в рейтинге месяца</span></button></div>
   ${sgCards()}
   ${weekCards()}
@@ -510,7 +509,7 @@ function viewOverlay() {
         return `<div class="row" style="min-height:64px;padding:8px 14px;border-radius:16px;border:1px solid ${now ? 'var(--acc)' : 'var(--line)'};background:${now ? 'var(--accbg2)' : 'var(--card)'}"><div class="circ ${done || now ? 'got' : ''}" style="width:40px;height:40px;font-weight:700;color:${done || now ? '#0E0F12' : 'var(--mu)'}">${done ? svg(I.check, '#0E0F12', 18, 3) : i + 1}</div><div style="flex:1;min-width:0"><div style="font-weight:700">${esc(l[1])}</div><div class="xs mu">${nx ? l[0] + '–' + (nx[0] - 1) + ' баллов' : 'от ' + l[0] + ' баллов'}</div></div><span class="xs" style="font-weight:700;white-space:nowrap;color:${now ? 'var(--acc)' : 'var(--mu)'}">${now ? 'ты здесь' : done ? 'пройден' : 'ещё ' + (l[0] - D.pts)}</span></div>`; }).join('')}
       <div class="xs mu" style="line-height:1.45;padding-top:4px">Баллы дают встречи, задания недели, видео, комментарии к стиху дня, ачивки и приглашённые друзья.</div></div></div>`; }
   if (o.type === 'mercy' || o.type === 'lost') { const R = D.restore, m = o.type === 'mercy';
-    return `<div class="ov" data-a="close"><div class="sheet" data-stop="1" style="gap:12px"><img alt="" src="../media/path/jesus-${m ? 'b' : 'a'}.webp" style="width:130px;height:auto">
+    return `<div class="ov" data-a="close"><div class="sheet" data-stop="1" style="gap:12px"><img alt="" src="../media/path/jesus-${m ? 'b' : 'a'}.webp" style="height:170px;width:auto">
       <div class="h2">${m ? 'Он простил пропуск' : 'Начинаем путь заново'}</div>
       <div class="mu" style="line-height:1.5">${m ? 'Ты пропустил день, но Иисус сжалился — серия сохранена, ты остаёшься на своём месте пути.' : 'Серия из ' + o.days + ' ' + plural(o.days, 'дня', 'дней', 'дней') + ' прервалась: пропусков оказалось больше, чем прощений в этом месяце. Он всё равно рядом — идём с начала.'}</div>
       <div class="pill" style="align-self:center">${m ? 'Осталось прощений в этом месяце: ' + R.left + ' из ' + R.max : 'В новом месяце снова будет ' + R.max + ' прощения'}</div>
