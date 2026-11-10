@@ -79,6 +79,12 @@ a{color:inherit}
 .pr{display:flex;align-items:center;gap:12px;min-height:54px;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);color:inherit;font:inherit;padding:0}
 .pr:last-child{border-bottom:0}
 .go{flex-shrink:0;font-size:13px;font-weight:700;color:var(--acc);border:1px solid var(--acc);border-radius:999px;padding:5px 12px;white-space:nowrap}
+.ist{display:grid;grid-template-columns:30px 1fr 26px;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 14px;min-height:64px;font-size:15px;line-height:1.35}
+.ist .n{width:30px;height:30px;border-radius:999px;background:var(--acc);color:#0E0F12;display:flex;align-items:center;justify-content:center;font-weight:700}
+.ist b{color:var(--acc2);font-weight:700}
+.iop{display:grid;grid-template-columns:44px 1fr 18px;align-items:center;gap:12px;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 14px;color:inherit;font:inherit}
+.iop.hl{border-color:var(--acc);background:var(--accbg)}
+.ibtn{height:52px!important;border-radius:16px!important;font-size:16px!important;width:100%}
 .pc{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:12px 14px;color:inherit;font:inherit;text-decoration:none}
 .pc.done{opacity:.55}
 .pc .circ{width:42px;height:42px}
@@ -230,6 +236,24 @@ function weekCards() {
   <div class="card"><div class="row"><div class="circ" style="width:44px;height:44px">${svg(I.plus, '#A1A1AA', 20)}</div><div style="flex:1;min-width:0"><div style="font-weight:700">Приведи друга</div><div class="sm mu" style="line-height:1.4">Отправь другу свою ссылку. Баллы придут, когда он первый раз отметится на встрече.</div></div><span class="pill">+30</span></div><button class="btnS" data-a="invite">Пригласить друга</button></div>
   ${serve ? weekTaskCard(serve) : ''}`;
 }
+// ---------- установка на экран ----------
+const II = { share: 'M12 3v12M8 7l4-4 4 4M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7', add: 'M4 4h16v16H4zM12 8v8M8 12h8', dots: 'M12 5h.01M12 12h.01M12 19h.01', ext: 'M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5', apps: 'M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z', safari: 'M12 2a10 10 0 1 0 0 20a10 10 0 0 0 0-20M15.5 8.5l-2 5-5 2 2-5z', chrome: 'M12 2a10 10 0 1 0 0 20a10 10 0 0 0 0-20M12 8a4 4 0 1 0 0 8a4 4 0 0 0 0-8', right: 'M9 18l6-6-6-6' };
+const isStandalone = () => { try { return window.matchMedia('(display-mode: standalone)').matches || !!navigator.standalone; } catch (e) { return false; } };
+const instHidden = () => isStandalone() || LS.get('sol_teen_inst') === '1';
+function guessBrowser() { const u = navigator.userAgent || ''; if (/Telegram|Instagram|FBAN|FBAV|Line\//i.test(u)) return 'tg'; if (/Android/i.test(u)) return 'android'; if (/CriOS/i.test(u)) return 'chromei'; if (/iPhone|iPad|iPod/i.test(u)) return 'safari'; return ''; }
+function instCard() { return instHidden() ? '' : `<button class="pc" data-a="inst"><div class="circ got">${svg(I.phone, '#0E0F12', 20)}</div><span style="flex:1;min-width:0"><span style="display:block;font-weight:700">Поставь приложение на экран</span><span class="xs mu">открывается одним нажатием, как обычное</span></span><span class="mu" style="font-size:18px">›</span></button>`; }
+function instView(v) {
+  const st = (n, t, ic, sw) => `<div class="ist"><div class="n">${n}</div><div>${t}</div>${svg(II[ic] || I.check, '#8B8B94', 22, sw || 2)}</div>`;
+  const g = guessBrowser();
+  const op = (k, ic, t, sub) => `<button class="iop ${g === k ? 'hl' : ''}" data-a="instGo" data-x="${k}"><div class="circ" style="width:44px;height:44px;border-radius:14px">${svg(ic, 'var(--acc)', 22)}</div><span><span style="display:block;font-weight:700">${t}${g === k ? ` <span class="xs" style="color:var(--acc);font-weight:600">· похоже, у тебя</span>` : ''}</span><span class="xs mu">${sub}</span></span>${svg(II.right, '#8B8B94', 18, 2.5)}</button>`;
+  const foot = `<button class="btn ibtn" data-a="instDone" style="margin-top:6px">Готово, поставил</button><button class="btn2 ibtn" data-a="instGo" data-x="pick">Другой браузер</button>`;
+  const last = st(4, 'Открой иконку <b>3:16 Teens</b> на экране', 'apps');
+  if (v === 'safari') return `<div class="h2">Safari на iPhone</div>${st(1, 'Нажми <b>Поделиться</b> внизу экрана', 'share')}${st(2, 'Пролистай вниз и выбери <b>На экран «Домой»</b>', 'add')}${st(3, 'Нажми <b>Добавить</b> справа вверху', 'check', 3)}${last}${foot}`;
+  if (v === 'chromei') return `<div class="h2">Chrome на iPhone</div>${st(1, 'Нажми <b>Поделиться</b> в адресной строке', 'share')}${st(2, 'Пролистай вниз и выбери <b>На экран «Домой»</b>', 'add')}${st(3, 'Нажми <b>Добавить</b>', 'check', 3)}${last}${foot}`;
+  if (v === 'android') return `<div class="h2">Chrome на Android</div>${st(1, 'Нажми <b>три точки</b> справа вверху', 'dots', 3.5)}${st(2, 'Выбери <b>Добавить на главный экран</b>', 'add')}${st(3, 'Нажми <b>Установить</b>', 'check', 3)}${last}${foot}`;
+  if (v === 'tg') return `<div class="h2">Сначала открой в браузере</div><div class="sm mu" style="line-height:1.45">Из Telegram и Instagram иконку поставить нельзя — нужна обычная страница.</div>${st(1, 'Нажми <b>три точки</b> справа вверху', 'dots', 3.5)}${st(2, 'Выбери <b>Открыть в Safari</b> или <b>в Chrome</b>', 'ext')}${st(3, 'Там снова нажми <b>Как установить</b>', 'apps')}<button class="btn ibtn" data-a="instGo" data-x="pick" style="margin-top:6px">Понятно</button><button class="btn2 ibtn" data-a="close">Закрыть</button>`;
+  return `<div class="h2">Поставь приложение на экран</div><div class="sm mu" style="line-height:1.45">Будет открываться одним нажатием, как обычное приложение. Чем ты открыл эту страницу?</div>${op('safari', II.safari, 'Safari', 'iPhone · синий компас')}${op('chromei', II.chrome, 'Chrome на iPhone', 'цветной круг')}${op('android', I.phone, 'Chrome на Android', 'Samsung, Pixel и другие')}${op('tg', I.tg, 'Внутри Telegram', 'или Instagram')}<button class="btn2 ibtn" data-a="close">Закрыть</button>`;
+}
 function socialCards() {
   const tg = D.tg, ig = D.ig;
   const tgC = `<div class="card"><div class="row"><div class="circ ${tg.ok ? 'got' : ''}" style="width:44px;height:44px">${svg(I.tg, tg.ok ? '#0E0F12' : '#A1A1AA', 20)}</div><div style="flex:1;min-width:0"><div style="font-weight:700">Telegram-чат SOL 3:16 Teens</div><div class="sm mu">Новости, фото, обсуждения</div></div><span class="pill">+15</span></div>
@@ -260,6 +284,7 @@ function viewHome() {
   ${tasks.map(taskCard).join('')}
   ${socialCards()}
   ${pfNudge()}
+  ${instCard()}
   ${nb.length ? `<div class="row" style="justify-content:space-between;padding:6px 4px 0"><span class="sec">БЛИЖАЙШИЕ АЧИВКИ</span><button class="sm" style="color:var(--acc);font-weight:700" data-a="tab" data-x="badges">Все ›</button></div><div class="grid">${nb.map(badgeTile).join('')}</div>` : ''}`;
 }
 function viewBadges() {
@@ -335,6 +360,7 @@ function viewProfile() {
 }
 function viewOverlay() {
   const o = S.ov; if (!o) return '';
+  if (o.type === 'inst') return `<div class="ov" data-a="close"><div class="sheet" data-stop="1" style="text-align:left;align-items:stretch;gap:10px">${instView(o.v)}</div></div>`;
   if (o.type === 'invite') {
     const v = D.invite || { link: '', list: [], came: 0 }; const nx = [1, 3, 5].find(n => v.came < n);
     const ST = { came: ['пришёл — засчитано', 'var(--acc)', '+30'], wait: ['записался, ждём на встрече', '#F2C14E', ''], known: ['уже был у нас — не засчитано', 'var(--mu)', ''] };
@@ -390,6 +416,9 @@ const H = {
   tab(x) { S.tab = x; S.ov = null; render(); const m = document.querySelector('.main'); if (m) m.scrollTop = 0; },
   scope(x) { S.scope = x; render(); },
   badge(x) { S.ov = { type: 'badge', id: x }; render(); },
+  inst() { S.ov = { type: 'inst', v: 'pick' }; render(); },
+  instGo(x) { S.ov = { type: 'inst', v: x }; render(); },
+  instDone() { LS.set('sol_teen_inst', '1'); S.ov = null; render(); toast('Отлично! Открывай приложение с иконки'); },
   invite() { S.ov = { type: 'invite' }; render(); },
   async invShare() { const url = D.invite.link, text = 'Приходи со мной на SOL 3:16 Teens! Запишись здесь:';
     if (navigator.share) { try { await navigator.share({ title: 'SOL 3:16 Teens', text, url }); } catch (e) {} } else H.invCopy(); },
