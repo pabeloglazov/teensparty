@@ -653,23 +653,28 @@ function viewTasks() {
 }
 
 // ---------- ЕЩЁ ----------
-function moreRow(a, label, hint, accent) { return `<button class="row" data-a="${a}" style="${accent ? 'border-color:var(--acc);background:var(--accbg)' : ''}"><span style="flex:1;font-size:15px;font-weight:600">${label}</span><span class="sm" style="color:${accent ? 'var(--acc2)' : 'var(--mu)'}">${hint || ''}</span>${svg(IC.right, '#5F626B', 18, 2.5)}</button>`; }
+const MIC = { qr: 'M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h3v3h-3zM20 17v3h-3', ph: 'M7 2h10a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zM11 18h2', gr: 'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 3a4 4 0 1 1 0 8a4 4 0 0 1 0-8M23 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8', ru: 'M4 6h16M4 12h16M4 18h10', ky: 'M21 2l-2 2m-7.6 7.6a5.5 5.5 0 1 1-7.8 7.8a5.5 5.5 0 0 1 7.8-7.8zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4', sh: 'M3 3h18v18H3zM3 9h18M9 21V9', gl: 'M12 2a10 10 0 1 0 0 20a10 10 0 0 0 0-20zM2 12h20M12 2a15 15 0 0 1 0 20a15 15 0 0 1 0-20', out: 'M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9', cp: 'M9 9h11v11H9zM5 15V4h11' };
+const moreSq = (i, c) => `<span style="width:44px;height:44px;border-radius:13px;background:var(--accbg);display:flex;align-items:center;justify-content:center;flex-shrink:0">${svg(MIC[i], c || ACC, 20, 2.1)}</span>`;
+function moreRow(a, icon, label, hint, accent) { return `<button class="row" data-a="${a}" style="gap:14px;min-height:68px;${accent ? 'border-color:var(--acc)' : ''}">${moreSq(icon)}<span style="flex:1;min-width:0;text-align:left;display:flex;flex-direction:column;gap:2px"><span style="font-size:16px;font-weight:600">${label}</span>${hint ? `<span class="xs mut">${hint}</span>` : ''}</span>${svg(IC.right, accent ? ACC : '#5F626B', 18, 2.5)}</button>`; }
 function viewMore() {
   if (S.more === 'groups') return viewGroups();
   if (S.more === 'rules') return viewRules();
   if (S.more === 'access') return viewAccess();
   if (S.more === 'qr') return viewQR();
-  const r = myRole();
+  const r = myRole(), me = D.me, nm = (me.name || '').trim() || String(me.email || '').split('@')[0] || ROLES().find(x => x[0] === r)[1];
+  const myG = (me.groups || []).map(id => (IDX.group[id] || {}).name).filter(Boolean);
+  const cell2 = r === 'admin' ? [tr('Команда', 'Team'), (D.leaders || []).length + ' ' + tr('чел.', 'people')] : myG.length ? [myG.length > 1 ? tr('Группы', 'Groups') : tr('Группа', 'Group'), myG.join(', ')] : [tr('Группа', 'Group'), tr('все', 'all')];
   return `<h1 class="h1">${tr('Ещё', 'More')}</h1>
-  <div class="row" style="cursor:default"><span style="flex:1;font-size:15px;font-weight:600">${tr('Язык', 'Language')}</span><div class="seg" style="grid-template-columns:1fr 1fr;width:120px"><button class="${!L() ? 'on' : ''}" data-a="lang" data-x="ru">RU</button><button class="${L() ? 'on' : ''}" data-a="lang" data-x="en">EN</button></div></div>
-  ${r === 'admin' || r === 'leader' ? moreRow('goQR', tr('QR для отметки', 'Check-in QR'), tr('распечатать', 'print'), true) : ''}
-  ${moreRow('copyTeen', tr('Приложение для подростков', 'Teen app'), tr('скопировать ссылку', 'copy link'))}
-  ${r === 'admin' ? moreRow('goGroups', tr('Группы и встречи', 'Groups & meetings'), D.groups.length + tr(' групп', ' groups')) : ''}
-  ${r === 'admin' ? moreRow('goRules', tr('Правила списков', 'List rules'), R().reg + tr(' из ', ' of ') + R().win + ' · ' + R().gone + tr(' подряд', ' in a row')) : ''}
-  ${r === 'admin' ? moreRow('goAccess', tr('Лидеры и доступ', 'Leaders & access'), (D.leaders || []).length + tr(' в команде', ' in team')) : ''}
-  ${D.ssUrl ? `<a class="row" href="${esc(D.ssUrl)}" target="_blank" rel="noopener" style="text-decoration:none;color:var(--tx)"><span style="flex:1;font-size:15px;font-weight:600">Google ${tr('Таблица', 'Sheet')}</span><span class="sm mut">${tr('открыть', 'open')}</span>${svg(IC.right, '#5F626B', 18, 2.5)}</a>` : ''}
-  <div class="xs mut" style="padding:12px 4px 0">${esc(D.me.name || '')} · ${esc(D.me.email)} · ${ROLES().find(x => x[0] === r)[1]}</div>
-  <button class="btn2" data-a="logout">${tr('Выйти', 'Sign out')}</button>`;
+  <div class="card" style="display:flex;align-items:center;gap:14px;padding:16px"><div class="av" style="width:56px;height:56px;font-size:18px;background:var(--accbg);color:var(--acc);flex-shrink:0">${esc(ini(nm))}</div><div style="flex:1;min-width:0"><div style="font-size:18px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(nm)}</div>${me.email ? `<button data-a="copyMail" class="sm mut" style="display:flex;align-items:center;gap:8px;max-width:100%;background:none;border:0;padding:0;min-height:24px" aria-label="${tr('Скопировать почту', 'Copy email')}"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(me.email)}</span>${svg(MIC.cp, '#8B8B94', 16, 2)}</button>` : ''}</div></div>
+  <div class="card" style="display:grid;grid-template-columns:1fr 1fr;padding:0;overflow:hidden"><div style="padding:14px 16px;display:flex;flex-direction:column;gap:2px;border-right:1px solid var(--line);min-width:0"><span class="xs mut">${tr('Доступ', 'Access')}</span><span style="font-size:15px;font-weight:700;color:var(--acc)">${ROLES().find(x => x[0] === r)[1]}</span></div><div style="padding:14px 16px;display:flex;flex-direction:column;gap:2px;min-width:0"><span class="xs mut">${cell2[0]}</span><span style="font-size:15px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(cell2[1])}</span></div></div>
+  ${r === 'admin' || r === 'leader' ? moreRow('goQR', 'qr', tr('QR для отметки', 'Check-in QR'), tr('скачать или скопировать ссылку', 'download or copy the link'), true) : ''}
+  ${moreRow('copyTeen', 'ph', tr('Приложение для подростков', 'Teen app'), tr('скопировать ссылку', 'copy link'))}
+  ${r === 'admin' ? moreRow('goGroups', 'gr', tr('Группы и встречи', 'Groups & meetings'), D.groups.length + tr(' групп', ' groups')) : ''}
+  ${r === 'admin' ? moreRow('goRules', 'ru', tr('Правила списков', 'List rules'), R().reg + tr(' из ', ' of ') + R().win + ' · ' + R().gone + tr(' подряд', ' in a row')) : ''}
+  ${r === 'admin' ? moreRow('goAccess', 'ky', tr('Лидеры и доступ', 'Leaders & access'), (D.leaders || []).length + tr(' в команде', ' in team')) : ''}
+  ${D.ssUrl ? `<a class="row" href="${esc(D.ssUrl)}" target="_blank" rel="noopener" style="text-decoration:none;color:var(--tx);gap:14px;min-height:68px">${moreSq('sh')}<span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span style="font-size:16px;font-weight:600">Google ${tr('Таблица', 'Sheet')}</span><span class="xs mut">${tr('открыть', 'open')}</span></span>${svg(IC.right, '#5F626B', 18, 2.5)}</a>` : ''}
+  <div class="row" style="cursor:default;gap:14px;min-height:68px">${moreSq('gl')}<span style="flex:1;font-size:16px;font-weight:600">${tr('Язык', 'Language')}</span><div class="seg" style="grid-template-columns:1fr 1fr;width:120px"><button class="${!L() ? 'on' : ''}" data-a="lang" data-x="ru">RU</button><button class="${L() ? 'on' : ''}" data-a="lang" data-x="en">EN</button></div></div>
+  <button class="row" data-a="logout" style="gap:14px;min-height:68px">${moreSq('out', '#F87171')}<span style="flex:1;text-align:left;font-size:16px;font-weight:600">${tr('Выйти', 'Sign out')}</span></button>`;
 }
 const subHead = (title, back) => `<div style="display:flex;align-items:center;gap:10px"><button class="icb" data-a="${back || 'moreRoot'}" aria-label="${tr('Назад', 'Back')}">${svg(IC.back, '#F4F4F5', 20, 2.5)}</button><h1 class="h2">${title}</h1></div>`;
 function viewGroups() {
@@ -1127,6 +1132,7 @@ const H = {
     try { await api('removeLeader', { id: S.ov.id }); S.ov = null; await load(); toast(tr('Доступ убран', 'Access removed')); } catch (e) { S.ov.err = errText(e); rerender(); } },
   copyJoin() { copy(joinUrl()); },
   copyTeen() { copy(APP + 'me/'); },
+  copyMail() { copy(D.me.email || ''); },
   async qrDown() {
     const src = document.querySelector('#qr canvas'); if (!src) return toast(tr('QR ещё не готов', 'QR is not ready yet'));
     try { await document.fonts.load('700 64px Unbounded'); } catch (e) {}
