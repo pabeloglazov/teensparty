@@ -22,6 +22,7 @@ const COLS = {
   'Ачивки': [['id','ID'],['badge','Ачивка'],['teenId','Подросток (ID)'],['date','Дата'],['by','Засчитал']],
   'Настройки': [['key','Ключ'],['value','Значение']],
   'Входы': [['teenId','Подросток (ID)'],['date','Дата']],
+  'Приглашения': [['id','ID'],['by','Пригласил (ID)'],['first','Имя'],['last','Фамилия'],['phone','Телефон'],['date','Дата'],['status','Статус'],['teenId','Подросток (ID)']],
   '_Сессии': [['token','Токен'],['email','Email'],['expires','Истекает']],
   '_ТГ': [['nonce','Код входа'],['chatId','Telegram чат'],['teenId','Подросток (ID)'],['status','Статус'],['created','Создан']],
   '_Коды': [['email','Email'],['code','Код'],['expires','Истекает']]
@@ -191,7 +192,7 @@ function doGet(e) {
 // JSON-API для приложения на GitHub Pages: POST {fn, args} -> {ok, data|error}
 function doPost(e) {
   if (e && e.parameter && e.parameter.tg) { try { tgWebhook_(e); } catch (err) { Logger.log(err); } return HtmlService.createHtmlOutput('ok'); }
-  const FNS = { requestCode, verifyCode, joinByCode, logout, api, joinInfo, joinKnown, joinNew, joinFriends, tgStart, tgPoll, teenApi };
+  const FNS = { requestCode, verifyCode, joinByCode, logout, api, joinInfo, joinKnown, joinNew, joinFriends, inviteInfo, inviteJoin, tgStart, tgPoll, teenApi };
   let r;
   try {
     const b = JSON.parse(e.postData.contents);
@@ -575,6 +576,12 @@ function joinNew(form, confirmDupId) {
     }
     const o = { id: uid_('T'), groups: '', createdAt: today_(), source: 'qr', review: '1', archived: '', invitedBy: f.invitedBy || '' };
     ['first', 'last', 'phone', 'birth', 'pFirst', 'pLast', 'pPhone'].forEach(k => o[k] = String(f[k] || '').trim());
+    // приглашение засчитывается только за совсем нового человека
+    const invs = invites_(), ph = digits_(o.phone), mineInv = invs.find(x => x.status === 'wait' && digits_(x.phone) === ph && x.by !== o.id);
+    if (knownPerson_(o, teens)) o.invitedBy = '';
+    else if (mineInv) o.invitedBy = mineInv.by;
+    if (o.invitedBy && !teens.some(x => x.id === o.invitedBy)) o.invitedBy = '';
+    if (mineInv) update_('Приглашения', mineInv, { status: o.invitedBy === mineInv.by ? 'came' : 'known', teenId: o.id });
     append_('Подростки', o);
     checkIn_(o.id, (o.first + ' ' + o.last).trim(), meet, 'qr');
     return { done: true, first: o.first, isNew: true, meet };
@@ -696,4 +703,42 @@ function matchTeen_(first, last, phone, pool) {
   if (c.length > 1) return { t: null, unsure: c.map(t => t.first + ' ' + t.last).join(' / ') };
   const sameLastOnly = pool.filter(t => t.last && sameLast_(last, t.last));
   return { t: null, unsure: sameLastOnly.length && sameLastOnly.length <= 3 ? sameLastOnly.map(t => t.first + ' ' + t.last).join(', ') + ' (та же фамилия)' : '' };
+}
+
+
+// ---------------- приглашения друзей ----------------
+function ensure_(name) {
+  const ss = ss_(); let sh = ss.getSheetByName(name);
+  if (!sh) { sh = ss.insertSheet(name); const heads = COLS[name].map(c => c[1]); sh.getRange(1, 1, 1, heads.length).setValues([heads]).setFontWeight('bold').setBackground('#FFE3CC'); sh.setFrozenRows(1); sh.getRange(1, 1, sh.getMaxRows(), heads.length).setNumberFormat('@'); }
+  return sh;
+}
+function invites_() { return ss_().getSheetByName('Приглашения') ? rows_('Приглашения') : []; }
+// человек уже есть в базе: совпал телефон (его или родителя) или похожие имя и фамилия
+function knownPerson_(f, teens) {
+  const ph = digits_(f.phone), pp = digits_(f.pPhone);
+  const hit = n => n && n.length >= 10 && teens.some(t => digits_(t.phone) === n || digits_(t.pPhone) === n);
+  if (hit(ph) || hit(pp)) return true;
+  const m = matchTeen_(String(f.first || '').trim(), String(f.last || '').trim(), ph, teens.filter(t => t.archived !== '1' || true));
+  return !!m.t;
+}
+const DAYS_RU_ = ['воскресенье', 'понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота'];
+function nextMeet_() { const sv = services_()[0]; return sv ? DAYS_RU_[sv.day] + ', ' + sv.time : ''; }
+function inviteInfo(by) {
+  return out_(() => { const t = rows_('Подростки').find(x => x.id === by && x.archived !== '1'); if (!t) throw new Error('bad_invite'); return { first: t.first, when: nextMeet_() }; });
+}
+function inviteJoin(by, form) {
+  return out_(() => lock_(() => {
+    ensure_('Приглашения');
+    const teens = rows_('Подростки'); const inviter = teens.find(x => x.id === by && x.archived !== '1'); if (!inviter) throw new Error('bad_invite');
+    const f = form || {}; const cl = v => String(v || '').replace(/\s+/g, ' ').trim().slice(0, 60);
+    const first = cl(f.first), last = cl(f.last), ph = digits_(f.phone);
+    if (!first || !last || ph.length < 10) throw new Error('need_fields');
+    const inv = rows_('Приглашения');
+    if (inv.filter(x => x.by === by && x.date === today_()).length >= 15) throw new Error('too_many');
+    const mine = inv.find(x => x.by === by && digits_(x.phone) === ph);
+    if (mine) return mine.status === 'known' ? { known: true, first } : { ok: true, first, when: nextMeet_(), inviter: inviter.first };
+    const known = knownPerson_({ first, last, phone: ph }, teens) || inv.some(x => digits_(x.phone) === ph && x.status !== 'known');
+    append_('Приглашения', { id: uid_('I'), by, first, last, phone: ph, date: today_(), status: known ? 'known' : 'wait', teenId: '' });
+    return known ? { known: true, first } : { ok: true, first, when: nextMeet_(), inviter: inviter.first };
+  }));
 }

@@ -63,7 +63,24 @@ const ERR = { no_meeting: 'Сейчас нет встречи — отметит
 const errT = e => ERR[e && e.message] || 'Что-то пошло не так. Попробуй ещё раз или подойди к лидеру.';
 const fld = (k, label, type, ph) => `<div class="field"><label class="lbl" for="j_${k}">${label}</label><input class="inp" id="j_${k}" type="${type || 'text'}" data-b="${k}" value="${esc(S.f[k] || '')}" placeholder="${esc(ph || '')}" ${type === 'date' ? 'data-picker="1"' : ''} ${type === 'tel' ? 'inputmode="tel" autocomplete="tel"' : ''}></div>`;
 
+const BY = new URLSearchParams(location.search).get('by') || '';
+function renderInvite() {
+  const v = S.inviter || {};
+  if (S.step === 'inv') { $.innerHTML = `<div class="w"><div class="k">SOL 3:16 TEENS</div><h1 class="h1">${esc(v.first || 'Друг')} зовёт тебя на встречу</h1><div class="mu" style="font-size:16px;line-height:1.5">${v.when ? 'Ближайшая: ' + esc(v.when) + '. ' : ''}Познакомимся, поиграем и поговорим о важном.</div>
+    ${fld('first', 'Имя', 'text', 'Дима')}${fld('last', 'Фамилия', 'text', 'Петров')}${fld('phone', 'Твой телефон', 'tel', '(916) 123-4567')}
+    ${S.err ? `<div class="err">${esc(S.err)}</div>` : ''}<button class="btn" data-a="invSend" style="margin-top:6px">Я приду</button>
+    <div class="mu" style="font-size:13px;line-height:1.45">Телефон нужен, чтобы отметить тебя на встрече. Никакой рекламы.</div></div>`; return true; }
+  if (S.step === 'invOk') { const r = S.res; $.innerHTML = `<div class="w" style="align-items:stretch;text-align:center;padding-top:56px"><div class="ok">${ico('M5 12l5 5L19 7', '#0E0F12', 52, 3)}</div>
+    <h1 class="h1" style="font-size:26px">Ждём тебя, ${esc(r.first)}!</h1>${r.when ? `<div class="mu">${esc(r.when)}</div>` : ''}
+    <div class="card" style="text-align:left;font-size:15px;line-height:1.5">Когда придёшь, отсканируй QR у входа и отметься с этим же телефоном — ${esc(r.inviter || 'твой друг')} получит баллы за приглашение.</div>
+    <a class="btn2" style="display:flex;align-items:center;justify-content:center;text-decoration:none;height:54px;font-size:15px" href="https://www.instagram.com/sol316teens/" target="_blank" rel="noopener">Instagram @sol316teens</a></div>`; return true; }
+  if (S.step === 'invKnown') { $.innerHTML = `<div class="w" style="align-items:stretch;padding-top:56px"><div class="k">SOL 3:16 TEENS</div><h1 class="h1" style="font-size:26px">Ты уже с нами${S.res && S.res.first ? ', ' + esc(S.res.first) : ''}</h1>
+    <div class="card" style="font-size:15px;line-height:1.5">Этот телефон или имя уже есть у нас, поэтому приглашение не считается. Но мы тебе рады — приходи!</div>
+    <a class="btn" style="display:flex;align-items:center;justify-content:center;text-decoration:none" href="../me/">Открыть приложение</a></div>`; return true; }
+  return false;
+}
 function render() {
+  if (renderInvite()) return;
   const m = S.meet;
   if (S.step === 'load') { $.innerHTML = `<div class="w"><div class="k">SOL 3:16 TEENS</div><div class="mu">Загрузка…</div></div>`; return; }
   if (S.step === 'none') { $.innerHTML = `<div class="w"><div class="k">SOL 3:16 TEENS</div><h1 class="h1">Сейчас нет встречи</h1><div class="mu" style="font-size:16px;line-height:1.5">Отметиться можно во время встречи — приходи! А пока заглядывай в наш Instagram <a href="https://www.instagram.com/sol316teens/" target="_blank" rel="noopener" style="color:var(--acc)">@sol316teens</a>.</div></div>`; return; }
@@ -120,9 +137,13 @@ const H = {
   },
   async dupYes() { try { const r = await call('joinNew', null, S.dup.id); S.res = r; S.step = 'done'; render(); } catch (e) { S.err = errT(e); S.step = 'form'; render(); } },
   dupNo() { H.submit(null, true); },
+  async invSend() {
+    try { const r = await call('inviteJoin', BY, { first: S.f.first, last: S.f.last, phone: S.f.phone }); S.res = r; S.step = r.known ? 'invKnown' : 'invOk'; S.err = ''; render(); }
+    catch (e) { S.err = e.message === 'too_many' ? 'Сегодня по этой ссылке записалось слишком много людей. Попробуй завтра.' : errT(e); render(); }
+  },
   restart() { S = Object.assign(S, { step: 'start', f: {}, err: '', hits: [], inv: null, dup: null, res: null, notFound: false }); render(); }
 };
-(async () => { render(); try { const r = await call('joinInfo'); S.meet = r.meet; S.step = r.meet ? 'start' : 'none'; } catch (e) { S.step = 'none'; } render(); })();
+(async () => { render(); if (BY) { try { S.inviter = await call('inviteInfo', BY); S.step = 'inv'; render(); return; } catch (e) {} } try { const r = await call('joinInfo'); S.meet = r.meet; S.step = r.meet ? 'start' : 'none'; } catch (e) { S.step = 'none'; } render(); })();
 </script>
 </body>
 </html>

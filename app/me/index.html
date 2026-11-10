@@ -14,6 +14,7 @@
 <link rel="icon" type="image/png" sizes="192x192" href="../icons/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Unbounded:wght@600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 :root{--bg:#0E0F12;--card:#15171B;--card2:#17191E;--line:#1F2127;--line2:#2A2D35;--line3:#3A3D46;--tx:#F4F4F5;--tx2:#D4D4D8;--mu:#A1A1AA;--mu2:#8B8B94;--acc:#FF8A3D;--acc2:#FFB27A;--accbg:#1C140F;--accbg2:#2A1A10;--green:#4ADE80}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -130,6 +131,7 @@ const BI = { first: I.star, m5: I.cal, m10: I.cal, m25: I.cal, m50: I.trophy, m1
   d3: I.phone, d7: I.phone, d14: I.phone, d30: I.cal, d100: I.crown, b1: I.book, book: I.book, verse: I.heart, tgchat: I.tg, igsub: I.ig, allin: I.chat,
   friend: I.plus, friend3: I.plus, party: I.cal, groups: I.map, night: I.moon, camp: I.tent, help: I.hand, back: I.back, bday: I.cake, thanks: I.star, legend: I.crown };
 BI.profile = I.user;
+BI.friend5 = I.plus;
 const CATS = [['meet', 'ВСТРЕЧИ'], ['streak', 'СЕРИИ НА ВСТРЕЧАХ'], ['app', 'ПРИЛОЖЕНИЕ КАЖДЫЙ ДЕНЬ'], ['bible', 'БИБЛИЯ'], ['social', 'СОЦСЕТИ'], ['friends', 'ДРУЗЬЯ И СОБЫТИЯ'], ['special', 'ОСОБЫЕ']];
 const RULES_OLD = [['Пришёл на встречу или малую группу', '+10'], ['Событие', '+15'], ['Задание', '+10…30'], ['Зашёл в приложение (раз в день)', '+2'], ['Вступил в Telegram-чат', '+15'], ['Подписался на Instagram', '+15'], ['Ачивка', '+5…200']];
 const ERR = { network: 'Нет связи. Проверь интернет.', no_meeting: 'Сейчас нет встречи.', bad_birth: 'Проверь дату рождения.', bad_phone: 'В телефоне должно быть 10 цифр.', need_name: 'Напиши своё имя.', no_bot: 'Вход через Telegram ещё настраивается. Попробуй чуть позже.', no_chat: 'Бот ещё не добавлен в чат — скажи лидеру.', no_tg: 'Войди через Telegram ещё раз.', need_nick: 'Напиши свой ник в Instagram' };
@@ -225,7 +227,7 @@ function weekCards() {
   <div class="card acc"><div class="row"><div class="circ got" style="width:44px;height:44px">${svg(I.book, '#0E0F12', 20)}</div><div style="flex:1;min-width:0"><div style="font-weight:700">Глава недели: ${esc(w.ref)}</div><div class="sm mu">${esc(w.title)}</div></div></div><a class="btnS ghost" href="${esc(w.url)}" target="_blank" rel="noopener">Открыть в Библии</a></div>
   ${wk.map(weekTaskCard).join('')}
   <div class="sec" style="padding:6px 4px 0">ВСЕГДА МОЖНО</div>
-  <div class="card"><div class="row"><div class="circ" style="width:44px;height:44px">${svg(I.plus, '#A1A1AA', 20)}</div><div style="flex:1;min-width:0"><div style="font-weight:700">Приведи друга</div><div class="sm mu" style="line-height:1.4">Друг отмечается по QR на встрече и выбирает тебя — баллы придут сами.</div></div><span class="pill">+30</span></div></div>
+  <div class="card"><div class="row"><div class="circ" style="width:44px;height:44px">${svg(I.plus, '#A1A1AA', 20)}</div><div style="flex:1;min-width:0"><div style="font-weight:700">Приведи друга</div><div class="sm mu" style="line-height:1.4">Отправь другу свою ссылку. Баллы придут, когда он первый раз отметится на встрече.</div></div><span class="pill">+30</span></div><button class="btnS" data-a="invite">Пригласить друга</button></div>
   ${serve ? weekTaskCard(serve) : ''}`;
 }
 function socialCards() {
@@ -306,7 +308,7 @@ function pointsCards() {
   <div class="sub">Каждую неделю</div>
   ${c(I.users, 'Приди на встречу', D.meet ? 'сейчас идёт: ' + D.meet.label + ' — отметься' : 'общая встреча или малая группа', '+10', D.meet ? { a: 'scan' } : {})}
   ${D.week ? c(I.book, 'Выполни задания недели', 'глава недели: ' + D.week.ref + ' · засчитывает лидер', 'до +25', { a: 'tab', x: 'home' }) : ''}
-  ${c(I.plus, 'Приведи друга', 'друг отмечается по QR и выбирает тебя', '+30')}
+  ${c(I.plus, 'Приведи друга', D.invite && D.invite.came ? 'уже привёл: ' + D.invite.came : 'отправь другу свою ссылку', '+30', { a: 'invite' })}
   ${open ? c(I.star, 'Задание от лидера', 'сейчас: ' + open.title, '+' + open.pts, { a: 'tab', x: 'home' }) : ''}
   ${c(I.flame, 'Заходи каждый день', 'серия: ' + D.appStreak + ' ' + plural(D.appStreak, 'день', 'дня', 'дней') + ' подряд', '+2')}
   <div class="sub">Один раз</div>
@@ -333,6 +335,17 @@ function viewProfile() {
 }
 function viewOverlay() {
   const o = S.ov; if (!o) return '';
+  if (o.type === 'invite') {
+    const v = D.invite || { link: '', list: [], came: 0 }; const nx = [1, 3, 5].find(n => v.came < n);
+    const ST = { came: ['пришёл — засчитано', 'var(--acc)', '+30'], wait: ['записался, ждём на встрече', '#F2C14E', ''], known: ['уже был у нас — не засчитано', 'var(--mu)', ''] };
+    return `<div class="ov" data-a="close"><div class="sheet" data-stop="1" style="text-align:left;align-items:stretch;gap:12px;overflow-y:auto"><div class="h2">Пригласи друга</div>
+      <div class="card acc"><div class="row" style="justify-content:space-between"><span style="font-weight:700">За каждого нового друга</span><span class="pts">+30</span></div><div class="sm mu" style="line-height:1.45">Баллы придут, когда друг первый раз придёт на встречу и отметится. Считаются только те, кого у нас ещё не было.</div>
+        <div id="invqr" style="align-self:center;background:#fff;padding:10px;border-radius:14px;line-height:0"></div>
+        <button class="btn" data-a="invShare">Отправить приглашение</button><button class="btn2" data-a="invCopy">Скопировать ссылку</button></div>
+      ${v.list.length ? `<div class="sec">ТВОИ ПРИГЛАШЕНИЯ</div><div class="card" style="gap:0;padding:2px 16px">${v.list.map(x => { const t = ST[x.status] || ST.wait; return `<div class="pr" style="cursor:default"><span style="flex:1;min-width:0"><span style="display:block;font-weight:600">${esc(x.name)}</span><span class="xs" style="color:${t[1]}">${t[0]}</span></span>${t[2] ? `<span class="pts">${t[2]}</span>` : ''}</div>`; }).join('')}</div>` : ''}
+      <div class="sm mu" style="line-height:1.45">Ачивки: 1 друг, 3 друга, 5 друзей. ${nx ? 'Сейчас ' + v.came + ' из ' + nx + '.' : 'Все три получены!'}</div>
+      <button class="btn2" data-a="close">Закрыть</button></div></div>`;
+  }
   if (o.type === 'pf') {
     const p = PF(), k = o.part; const inp = (id, label, val, type, ph, extra) => `<label class="lbl" for="pf_${id}">${label}</label><input class="inp" id="pf_${id}" type="${type || 'text'}" value="${esc(val || '')}" placeholder="${esc(ph || '')}" ${extra || ''}>`;
     const body = k === 'name' ? inp('first', 'Имя', p.first, 'text', '', 'autocomplete="given-name"') + inp('last', 'Фамилия', p.last, 'text', '', 'autocomplete="family-name"')
@@ -367,6 +380,7 @@ function render() {
   $.innerHTML = `<div class="app"><main class="main"><div class="wrap">${body}</div></main><nav class="nav">${tabs.map(([k, l, d]) => k === 'scan' ? `<button class="c" data-a="scan"><div class="ring">${svg(d, '#0E0F12', 26, 2.5)}</div><span>${l}</span></button>` : `<button class="${S.tab === k ? 'on' : ''}" data-a="tab" data-x="${k}">${svg(d, S.tab === k ? '#FF8A3D' : '#8B8B94', 24)}<span>${l}</span></button>`).join('')}</nav></div>${viewOverlay()}`;
   if (same) { const m2 = document.querySelector('.main'); if (m2) m2.scrollTop = sc; }
   syncUrl();
+  const q = document.getElementById('invqr'); if (q && window.QRCode && D.invite) { q.innerHTML = ''; new QRCode(q, { text: D.invite.link, width: 150, height: 150, colorDark: '#0E0F12', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M }); }
 }
 
 const H = {
@@ -376,6 +390,10 @@ const H = {
   tab(x) { S.tab = x; S.ov = null; render(); const m = document.querySelector('.main'); if (m) m.scrollTop = 0; },
   scope(x) { S.scope = x; render(); },
   badge(x) { S.ov = { type: 'badge', id: x }; render(); },
+  invite() { S.ov = { type: 'invite' }; render(); },
+  async invShare() { const url = D.invite.link, text = 'Приходи со мной на SOL 3:16 Teens! Запишись здесь:';
+    if (navigator.share) { try { await navigator.share({ title: 'SOL 3:16 Teens', text, url }); } catch (e) {} } else H.invCopy(); },
+  async invCopy() { try { await navigator.clipboard.writeText(D.invite.link); toast('Ссылка скопирована'); } catch (e) { toast(D.invite.link); } },
   async wk(id) { const k = D.week && D.week.tasks.find(x => x.id === id); if (!k) return; const was = k.status; k.status = 'pending'; render();
     try { await api('weekDone', { id }); toast('Отправлено лидеру на подтверждение'); } catch (e) { k.status = was; render(); toast(errT(e)); } },
   pf(k) { if (!k || k === 'phone') return; S.ov = { type: 'pf', part: k, err: '' }; render(); const f = document.querySelector('.sheet .inp'); if (f && !f.value) f.focus(); },
