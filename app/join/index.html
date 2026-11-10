@@ -72,10 +72,10 @@ function renderInvite() {
     <div class="mu" style="font-size:13px;line-height:1.45">Телефон нужен, чтобы отметить тебя на встрече. Никакой рекламы.</div></div>`; return true; }
   if (S.step === 'invOk') { const r = S.res; $.innerHTML = `<div class="w" style="align-items:stretch;text-align:center;padding-top:56px"><div class="ok">${ico('M5 12l5 5L19 7', '#0E0F12', 52, 3)}</div>
     <h1 class="h1" style="font-size:26px">Ждём тебя, ${esc(r.first)}!</h1>${r.when ? `<div class="mu">${esc(r.when)}</div>` : ''}
-    <div class="card" style="text-align:left;font-size:15px;line-height:1.5">Когда придёшь, отсканируй QR у входа и отметься с этим же телефоном — ${esc(r.inviter || 'твой друг')} получит баллы за приглашение.</div>
+    <div class="card" style="text-align:left;font-size:15px;line-height:1.5">Когда придёшь, отсканируй QR у входа и отметься с этим же телефоном. ${esc(r.inviter || 'Твой друг')} будет тебя ждать!</div>
     <a class="btn2" style="display:flex;align-items:center;justify-content:center;text-decoration:none;height:54px;font-size:15px" href="https://www.instagram.com/sol316teens/" target="_blank" rel="noopener">Instagram @sol316teens</a></div>`; return true; }
   if (S.step === 'invKnown') { $.innerHTML = `<div class="w" style="align-items:stretch;padding-top:56px"><div class="k">SOL 3:16 TEENS</div><h1 class="h1" style="font-size:26px">Ты уже с нами${S.res && S.res.first ? ', ' + esc(S.res.first) : ''}</h1>
-    <div class="card" style="font-size:15px;line-height:1.5">Этот телефон или имя уже есть у нас, поэтому приглашение не считается. Но мы тебе рады — приходи!</div>
+    <div class="card" style="font-size:15px;line-height:1.5">Похоже, мы уже знакомы — записываться заново не нужно. Мы тебе рады, приходи!</div>
     <a class="btn" style="display:flex;align-items:center;justify-content:center;text-decoration:none" href="../me/">Открыть приложение</a></div>`; return true; }
   return false;
 }
