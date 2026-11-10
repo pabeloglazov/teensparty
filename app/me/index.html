@@ -209,6 +209,25 @@ function taskCard(k) {
     <div class="sm mu">До ${esc(word(k.due))}${k.doneCount ? ' · уже сделали ' + k.doneCount + ' ' + plural(k.doneCount, 'человек', 'человека', 'человек') : ''}</div>
     ${k.done ? `<div class="row" style="justify-content:space-between"><span class="ok">${svg(I.check, 'var(--green)', 18, 3)} Выполнено · +${k.pts}</span><button class="sm mu" data-a="undo" data-x="${k.id}">отменить</button></div>` : `<button class="btn" data-a="done" data-x="${k.id}">${btn}</button>`}</div>`;
 }
+// ---------- задания недели ----------
+const WI = { share: 'chat', verse: 'heart', good: 'star', serve: 'hand' };
+function weekTaskCard(k) {
+  const st = k.status;
+  return `<div class="card"><div class="row"><div class="circ ${st === 'ok' ? 'got' : ''}" style="width:44px;height:44px">${svg(st === 'ok' ? I.check : (I[WI[k.kind]] || I.star), st === 'ok' ? '#0E0F12' : '#A1A1AA', 20, st === 'ok' ? 3 : 2)}</div><div style="flex:1;min-width:0"><div style="font-weight:700">${esc(k.title)}</div><div class="sm mu" style="line-height:1.4">${esc(k.desc)}</div></div><span class="pill">+${k.pts}</span></div>
+    ${st === 'ok' ? `<div class="sm" style="color:var(--acc);font-weight:700;display:flex;align-items:center;gap:6px">${svg(I.check, 'var(--acc)', 16, 3)} Засчитано${k.by ? ' · ' + esc(k.by) : ''} · +${k.pts}</div>`
+    : st === 'pending' ? `<div class="sm" style="color:#F2C14E;font-weight:600">Ждёт подтверждения лидера</div>`
+    : `${st === 'no' ? `<div class="sm mu">Лидер пока не засчитал — сделай и отправь ещё раз.</div>` : ''}<button class="btnS" data-a="wk" data-x="${k.id}">${esc(k.btn)}</button>`}</div>`;
+}
+function weekCards() {
+  const w = D.week; if (!w) return '';
+  const wk = w.tasks.filter(k => k.kind !== 'serve'), serve = w.tasks.find(k => k.kind === 'serve');
+  return `<div class="sec" style="padding:6px 4px 0">НЕДЕЛЯ ${w.n} · ДО ${esc(human(w.end)).toUpperCase()}</div>
+  <div class="card acc"><div class="row"><div class="circ got" style="width:44px;height:44px">${svg(I.book, '#0E0F12', 20)}</div><div style="flex:1;min-width:0"><div style="font-weight:700">Глава недели: ${esc(w.ref)}</div><div class="sm mu">${esc(w.title)}</div></div></div><a class="btnS ghost" href="${esc(w.url)}" target="_blank" rel="noopener">Открыть в Библии</a></div>
+  ${wk.map(weekTaskCard).join('')}
+  <div class="sec" style="padding:6px 4px 0">ВСЕГДА МОЖНО</div>
+  <div class="card"><div class="row"><div class="circ" style="width:44px;height:44px">${svg(I.plus, '#A1A1AA', 20)}</div><div style="flex:1;min-width:0"><div style="font-weight:700">Приведи друга</div><div class="sm mu" style="line-height:1.4">Друг отмечается по QR на встрече и выбирает тебя — баллы придут сами.</div></div><span class="pill">+30</span></div></div>
+  ${serve ? weekTaskCard(serve) : ''}`;
+}
 function socialCards() {
   const tg = D.tg, ig = D.ig;
   const tgC = `<div class="card"><div class="row"><div class="circ ${tg.ok ? 'got' : ''}" style="width:44px;height:44px">${svg(I.tg, tg.ok ? '#0E0F12' : '#A1A1AA', 20)}</div><div style="flex:1;min-width:0"><div style="font-weight:700">Telegram-чат SOL 3:16 Teens</div><div class="sm mu">Новости, фото, обсуждения</div></div><span class="pill">+15</span></div>
@@ -235,6 +254,7 @@ function viewHome() {
   <div class="card acc"><div class="row" style="justify-content:space-between"><div><div class="sec" style="color:var(--acc2)">УРОВЕНЬ ${lv.num}</div><div class="h2" style="margin-top:4px">${esc(lv.name)}</div></div><div style="text-align:right"><div style="font-family:Unbounded,Inter,sans-serif;font-size:30px;font-weight:700;color:var(--acc)">${D.pts}</div><div class="xs mu">${plural(D.pts, 'балл', 'балла', 'баллов')}</div></div></div><div class="bar"><i style="width:${lv.pct}%"></i></div><div class="sm mu">${esc(lv.left)}</div></div>
   <button class="card" data-a="daily" style="text-align:left;width:100%"><div class="row" style="justify-content:space-between"><div class="row"><div class="circ got" style="width:44px;height:44px">${svg(I.flame, '#0E0F12', 22)}</div><div><div style="font-weight:700;font-size:17px">${D.appStreak} ${plural(D.appStreak, 'день', 'дня', 'дней')} подряд</div><div class="xs mu">в приложении · рекорд ${D.appBest}</div></div></div><span class="pill">+2/день</span></div><div class="days">${days}</div>${ms ? `<div class="xs mu">До ачивки за ${ms} ${plural(ms, 'день', 'дня', 'дней')} — ещё ${ms - D.appStreak}</div>` : ''}</button>
   <div class="stats"><div class="stat"><b>${D.weekStreak}</b><span class="xs mu">${plural(D.weekStreak, 'неделя', 'недели', 'недель')} подряд на встречах</span></div><button class="stat" data-a="tab" data-x="rank" style="text-align:left"><b>${D.rank.myMonth ? '#' + D.rank.myMonth : '—'}</b><span class="xs mu">в рейтинге месяца</span></button></div>
+  ${weekCards()}
   ${tasks.map(taskCard).join('')}
   ${socialCards()}
   ${pfNudge()}
@@ -276,16 +296,18 @@ function profileCards() {
   <div class="card" style="gap:0;padding:2px 16px">${PARTS.map(([k, l]) => { const ok = left.indexOf(k) < 0, v = pfVal(k);
     return `<button class="pr" ${k === 'phone' ? 'style="cursor:default"' : `data-a="pf" data-x="${k}"`}>${ok ? svg(I.check, 'var(--acc)', 20, 3) : `<span style="width:20px;height:20px;border-radius:999px;border:2px solid var(--line3);flex-shrink:0"></span>`}<span style="flex:1;min-width:0"><span style="display:block;font-weight:600">${l}</span>${v ? `<span class="xs mu ellip" style="display:block">${esc(v)}</span>` : ''}</span>${ok ? (k === 'phone' ? '' : `<span class="xs mu">изменить</span>`) : (k === 'phone' ? '' : `<span class="go">Добавить</span>`)}</button>`; }).join('')}</div>`;
 }
-function pfNudge() { const n = pfLeft().length; return n ? `<button class="pc" data-a="tab" data-x="profile" style="border-color:#3A2414;background:var(--accbg)"><div class="circ got">${svg(I.user, '#0E0F12', 20)}</div><span style="flex:1;min-width:0"><span style="display:block;font-weight:700">Заполни профиль</span><span class="xs mu">${n === 1 ? 'осталось 1 поле' : 'осталось ' + n + ' ' + plural(n, 'поле', 'поля', 'полей')}</span></span><span class="go">+30 ›</span></button>` : ''; }
+function pfNudge() { const n = pfLeft().length; return n ? `<button class="pc" data-a="tab" data-x="profile" style="border-color:#3A2414;background:var(--accbg)"><div class="circ got">${svg(I.user, '#0E0F12', 20)}</div><span style="flex:1;min-width:0"><span style="display:block;font-weight:700">Заполни профиль</span><span class="xs mu">${n === 1 ? 'осталось 1 поле' : 'осталось ' + n + ' ' + plural(n, 'поле', 'поля', 'полей')}</span></span><span class="pts">+30</span><span class="mu" style="font-size:18px;margin-left:-4px">›</span></button>` : ''; }
 // ---------- как получать баллы ----------
 function pointsCards() {
   const c = (icon, title, sub, right, o) => { o = o || {}; const tag = o.a ? 'button' : 'div';
-    return `<${tag} class="pc ${o.done ? 'done' : ''}" ${o.a ? `data-a="${o.a}" ${o.x ? `data-x="${o.x}"` : ''}` : ''}><div class="circ ${o.dim ? '' : 'got'}">${svg(o.done ? I.check : icon, o.dim ? '#A1A1AA' : '#0E0F12', 20, o.done ? 3 : 2)}</div><span style="flex:1;min-width:0"><span style="display:block;font-weight:700">${title}</span>${sub ? `<span class="xs mu" style="display:block;line-height:1.35">${esc(sub)}</span>` : ''}</span>${o.done ? `<span class="xs mu">получено</span>` : o.go ? `<span class="go">${right} ›</span>` : `<span class="pts">${right}</span>`}</${tag}>`; };
+    return `<${tag} class="pc ${o.done ? 'done' : ''}" ${o.a ? `data-a="${o.a}" ${o.x ? `data-x="${o.x}"` : ''}` : ''}><div class="circ ${o.dim ? '' : 'got'}">${svg(o.done ? I.check : icon, o.dim ? '#A1A1AA' : '#0E0F12', 20, o.done ? 3 : 2)}</div><span style="flex:1;min-width:0"><span style="display:block;font-weight:700">${title}</span>${sub ? `<span class="xs mu" style="display:block;line-height:1.35">${esc(sub)}</span>` : ''}</span>${o.done ? `<span class="xs mu">получено</span>` : `<span class="pts">${String(right).replace(/^до /, '<span class="xs mu" style="font-family:Inter,sans-serif;font-weight:600">до </span>')}</span>${o.a ? `<span class="mu" style="font-size:18px;margin-left:-4px">›</span>` : ''}`}</${tag}>`; };
   const open = D.tasks.find(k => !k.done), got = D.badges.filter(b => b.have >= b.need).length, n = pfLeft().length, ig = D.ig.status;
   return `<div class="sec" style="padding:6px 4px 0">КАК ПОЛУЧАТЬ БАЛЛЫ</div>
   <div class="sub">Каждую неделю</div>
   ${c(I.users, 'Приди на встречу', D.meet ? 'сейчас идёт: ' + D.meet.label + ' — отметься' : 'общая встреча или малая группа', '+10', D.meet ? { a: 'scan' } : {})}
-  ${c(I.book, 'Выполни задание', open ? 'сейчас: ' + open.title : D.tasks.length ? 'все задания выполнены' : 'лидер скоро даст задание', open ? '+' + open.pts : 'до +30', open ? { a: 'tab', x: 'home' } : {})}
+  ${D.week ? c(I.book, 'Выполни задания недели', 'глава недели: ' + D.week.ref + ' · засчитывает лидер', 'до +25', { a: 'tab', x: 'home' }) : ''}
+  ${c(I.plus, 'Приведи друга', 'друг отмечается по QR и выбирает тебя', '+30')}
+  ${open ? c(I.star, 'Задание от лидера', 'сейчас: ' + open.title, '+' + open.pts, { a: 'tab', x: 'home' }) : ''}
   ${c(I.flame, 'Заходи каждый день', 'серия: ' + D.appStreak + ' ' + plural(D.appStreak, 'день', 'дня', 'дней') + ' подряд', '+2')}
   <div class="sub">Один раз</div>
   ${n ? c(I.user, 'Заполни профиль', n === 1 ? 'осталось 1 поле' : 'осталось ' + n + ' ' + plural(n, 'поле', 'поля', 'полей'), '+30', { a: 'pf', x: pfLeft()[0], go: 1, dim: 1 }) : c(I.user, 'Заполнил профиль', '', '', { done: 1 })}
@@ -354,6 +376,8 @@ const H = {
   tab(x) { S.tab = x; S.ov = null; render(); const m = document.querySelector('.main'); if (m) m.scrollTop = 0; },
   scope(x) { S.scope = x; render(); },
   badge(x) { S.ov = { type: 'badge', id: x }; render(); },
+  async wk(id) { const k = D.week && D.week.tasks.find(x => x.id === id); if (!k) return; const was = k.status; k.status = 'pending'; render();
+    try { await api('weekDone', { id }); toast('Отправлено лидеру на подтверждение'); } catch (e) { k.status = was; render(); toast(errT(e)); } },
   pf(k) { if (!k || k === 'phone') return; S.ov = { type: 'pf', part: k, err: '' }; render(); const f = document.querySelector('.sheet .inp'); if (f && !f.value) f.focus(); },
   async savePf() {
     const o = S.ov, f = {}; document.querySelectorAll('.sheet .inp').forEach(i => f[i.id.slice(3)] = i.value.trim());

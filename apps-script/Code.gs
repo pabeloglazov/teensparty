@@ -17,7 +17,7 @@ const COLS = {
   'События': [['id','ID'],['name','Название'],['date','Дата'],['reg','Регистраций']],
   'Лидеры': [['id','ID'],['email','Email'],['name','Имя'],['role','Роль'],['groups','Группы (ID)'],['status','Статус'],['code','Код приглашения'],['invitedAt','Приглашён']],
   'Задания': [['id','ID'],['title','Задание'],['kind','Тип'],['due','Срок'],['pts','Баллы'],['aud','Для групп (ID)'],['createdBy','Создал'],['createdAt','Создано']],
-  'Выполнения': [['taskId','Задание (ID)'],['teenId','Подросток (ID)'],['date','Дата'],['by','Засчитал']],
+  'Выполнения': [['taskId','Задание (ID)'],['teenId','Подросток (ID)'],['date','Дата'],['by','Засчитал'],['status','Статус']],
   'Напоминания': [['taskId','Задание (ID)'],['teenId','Подросток (ID)'],['date','Дата'],['by','Кто']],
   'Ачивки': [['id','ID'],['badge','Ачивка'],['teenId','Подросток (ID)'],['date','Дата'],['by','Засчитал']],
   'Настройки': [['key','Ключ'],['value','Значение']],
@@ -276,7 +276,7 @@ const CAN = {
   mark: ['admin', 'leader', 'mod'], attNow: ['admin', 'leader', 'mod', 'viewer'], addTeen: ['admin', 'leader', 'mod'], updateTeen: ['admin', 'leader', 'mod'], reviewTeen: ['admin', 'leader', 'mod'],
   addEvent: ['admin', 'leader'], editEvent: ['admin'], delEvent: ['admin'], saveGroup: ['admin'], saveSettings: ['admin'],
   invite: ['admin'], updateLeader: ['admin'], removeLeader: ['admin'],
-  addTask: ['admin', 'leader'], taskDone: ['admin', 'leader'], remind: ['admin', 'leader'], award: ['admin', 'leader'], igReview: ['admin', 'leader']
+  confirmTask: ['admin', 'leader'], addTask: ['admin', 'leader'], taskDone: ['admin', 'leader'], remind: ['admin', 'leader'], award: ['admin', 'leader'], igReview: ['admin', 'leader']
 };
 function api(token, action, payload) {
   return out_(() => {
@@ -331,10 +331,17 @@ const A_ = {
       groups: rows_('Группы').filter(g => g.active !== '0').map(g => ({ id: g.id, name: g.name, leader: g.leader, day: +g.day, time: g.time })),
       events: rows_('События').map(e => ({ id: e.id, name: e.name, date: e.date, reg: +e.reg || 0 })),
       tasks: rows_('Задания').map(t => ({ id: t.id, title: t.title, kind: t.kind, due: t.due, pts: +t.pts || 0, aud: t.aud ? t.aud.split(',').filter(Boolean) : [], createdAt: t.createdAt })),
-      done: rows_('Выполнения').map(d => [d.taskId, d.teenId, d.date]),
+      done: rows_('Выполнения').filter(counted_).map(d => [d.taskId, d.teenId, d.date]),
       reminders: rows_('Напоминания').map(d => [d.taskId, d.teenId]),
       awards: rows_('Ачивки').map(a => ({ id: a.id, badge: a.badge, teenId: a.teenId, date: a.date }))
     };
+    if (me.role === 'admin' || me.role === 'leader') {
+      const allDone = rows_('Выполнения'), w = weekInfo_(today_());
+      res.pending = allDone.filter(d => d.status === 'pending').map(d => { const k = vtask_(d.taskId) || {}; return { taskId: d.taskId, teenId: d.teenId, date: d.date, title: k.title || '', pts: k.pts || 0 }; });
+      const okNow = {}; allDone.filter(counted_).forEach(d => { if (String(d.taskId).indexOf('W' + w.mon + ':') === 0) okNow[d.teenId] = 1; });
+      res.plan = [0, 1, 2, 3].map(i => { const x = weekInfo_(dstr_(dnum_(w.mon) + 7 * i)); return { n: x.n, mon: x.mon, ref: x.ref, title: x.title, verse: x.verse }; });
+      res.planDone = Object.keys(okNow).length;
+    }
     if (me.role === 'admin') res.ssUrl = ss_().getUrl();
     if (me.role === 'admin') res.leaders = rows_('Лидеры').filter(l => l.status !== 'removed').map(l => ({ id: l.id, email: l.email, name: l.name, role: l.role, groups: l.groups ? l.groups.split(',').filter(Boolean) : [], status: l.status, code: l.code, me: l.email.toLowerCase() === me.email.toLowerCase() }));
     return res;
@@ -393,6 +400,12 @@ const A_ = {
     const t = rows_('Подростки').find(x => x.id === p.id); if (t) update_('Подростки', t, { review: '' }); return true;
   },
 
+  confirmTask(me, p) {
+    const r = rows_('Выполнения').find(d => d.taskId === p.taskId && d.teenId === p.teenId && d.status === 'pending');
+    if (!r) return { gone: true };
+    update_('Выполнения', r, { status: p.ok ? 'ok' : 'no', by: me.email });
+    return { ok: !!p.ok };
+  },
   addEvent(me, p) {
     const name = String(p.name || '').trim(); if (!name) throw new Error('need_name');
     const e = { id: uid_('E'), name, date: p.date || today_() };

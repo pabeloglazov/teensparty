@@ -160,6 +160,29 @@ function teenAuth_(token) {
 
 // ---------------- подсчёт баллов ----------------
 const dnum_ = s => { const p = String(s).split('-'); return Math.round(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); };
+// ---------------- задания недели (глава + задания с подтверждением лидера) ----------------
+const PLAN_START = '2026-11-09'; // понедельник первой недели
+const PLAN = [['JHN', 3, 'Иоанна 3', 'Бог так возлюбил мир', 'Иоанна 3:16'], ['LUK', 15, 'Луки 15', 'Блудный сын', 'Луки 15:10'], ['MAT', 5, 'Матфея 5', 'Нагорная проповедь', 'Матфея 5:16'],
+  ['MRK', 4, 'Марка 4', 'Буря на море', 'Марка 4:40'], ['PRO', 3, 'Притчи 3', 'Мудрость и доверие', 'Притчи 3:5–6'], ['ROM', 8, 'Римлянам 8', 'Ничто не отлучит', 'Римлянам 8:28'],
+  ['DAN', 3, 'Даниил 3', 'Три друга в печи', 'Даниил 3:17–18'], ['PHP', 4, 'Филиппийцам 4', 'Радость и мир', 'Филиппийцам 4:13'], ['1SA', 17, '1 Царств 17', 'Давид и Голиаф', '1 Царств 17:45'],
+  ['JAS', 1, 'Иакова 1', 'Вера в деле', 'Иакова 1:22'], ['EPH', 6, 'Ефесянам 6', 'Всеоружие Божье', 'Ефесянам 6:10–11'], ['1CO', 13, '1 Коринфянам 13', 'Что такое любовь', '1 Коринфянам 13:4']];
+const WEEK_TASKS = [['share', 'Расскажи на группе', 'Прочитай главу недели ({ref}) и расскажи на малой группе, что ты понял.', 20, 'Я рассказал'],
+  ['verse', 'Выучи стих', '{verse} — расскажи лидеру наизусть.', 25, 'Я рассказал лидеру'],
+  ['good', 'Доброе дело', 'Сделай доброе дело дома или в школе и расскажи о нём на группе.', 20, 'Я сделал'],
+  ['serve', 'Послужи на встрече', 'Встреть гостей, помоги с техникой или убери зал.', 20, 'Я послужил']];
+const dstr_ = n => new Date(n * 86400000).toISOString().slice(0, 10);
+function weekInfo_(dateStr) {
+  const n = dnum_(dateStr), mon = n - ((n + 3) % 7), k = Math.round((mon - dnum_(PLAN_START)) / 7);
+  const p = PLAN[((k % PLAN.length) + PLAN.length) % PLAN.length];
+  return { mon: dstr_(mon), end: dstr_(mon + 6), n: k + 1, ref: p[2], title: p[3], verse: p[4], url: 'https://www.bible.com/bible/400/' + p[0] + '.' + p[1] + '.SYNO' };
+}
+function weekTasks_(w) { return WEEK_TASKS.map(t => ({ id: 'W' + w.mon + ':' + t[0], kind: t[0], title: t[1], desc: t[2].replace('{ref}', w.ref).replace('{verse}', w.verse), pts: t[3], btn: t[4] })); }
+function vtask_(id) {
+  const m = /^W(\d{4}-\d{2}-\d{2}):(\w+)$/.exec(String(id || '')); if (!m) return null;
+  const t = WEEK_TASKS.find(x => x[0] === m[2]); if (!t) return null; const w = weekInfo_(m[1]);
+  return { id: id, kind: t[0], title: t[1] + (t[0] === 'verse' ? ' · ' + w.verse : t[0] === 'share' ? ' · ' + w.ref : ''), pts: t[3], week: w.mon };
+}
+const counted_ = d => d.status !== 'pending' && d.status !== 'no';
 function loadCtx_() {
   const teens = rows_('Подростки').filter(t => t.archived !== '1');
   const tasks = {}; rows_('Задания').forEach(k => tasks[k.id] = k);
@@ -177,12 +200,13 @@ function score_(t, C, full) {
   const log = []; let pts = 0, month = 0;
   const add = (what, date, p) => { pts += p; if (date && date.slice(0, 7) === C.month) month += p; if (full) log.push({ what, date, pts: p }); };
   att.forEach(a => add(a.kind === 'event' ? 'Событие' : a.kind === 'group' ? 'Малая группа' : 'Встреча', a.date, a.kind === 'event' ? 15 : 10));
-  done.forEach(d => { const k = C.tasks[d.taskId]; if (k) add('Задание: ' + k.title, d.date, +k.pts || 0); });
+  done.filter(counted_).forEach(d => { const k = C.tasks[d.taskId] || vtask_(d.taskId); if (k) add('Задание: ' + k.title, d.date, +k.pts || 0); });
   const appDays = Array.from(new Set(lg.map(l => l.date))).sort();
   appDays.forEach(d => add('Зашёл в приложение', d, 2));
   aw.forEach(a => { if (MANUAL_PTS[a.badge]) add('Ачивка от лидера', a.date, MANUAL_PTS[a.badge]); });
   if (t.tgChat === '1') add('Вступил в Telegram-чат', '', 15);
   if (t.igStatus === 'ok') add('Подписался на Instagram', '', 15);
+  (C.invited[t.id] || []).filter(f => (C.att[f.id] || []).length).forEach(f => add('Привёл друга: ' + f.first, f.createdAt || '', 30));
   // серия недель на встречах
   const weeks = Array.from(new Set(att.map(a => { const n = dnum_(a.date); return n - ((n + 3) % 7); }))).sort((a, b) => a - b); // понедельник недели
   let best = 0, run = 0; weeks.forEach((w, i) => { run = i && w - weeks[i - 1] === 7 ? run + 1 : 1; best = Math.max(best, run); });
@@ -196,7 +220,7 @@ function score_(t, C, full) {
   }
   const last7 = []; for (let d = tn - 6; d <= tn; d++) last7.push(set.has(d) ? 1 : (d === frz ? 2 : 0));
   // ачивки
-  const cntKind = kind => done.filter(d => C.tasks[d.taskId] && C.tasks[d.taskId].kind === kind).length;
+  const cntKind = kind => done.filter(counted_).filter(d => { const k = C.tasks[d.taskId] || vtask_(d.taskId); return k && k.kind === kind; }).length;
   const manual = id => aw.filter(a => a.badge === id).length;
   const friends = (C.invited[t.id] || []).filter(f => (C.att[f.id] || []).length).length + manual('friend');
   const visitedGroups = new Set(att.filter(a => a.kind === 'group').map(a => a.meetId));
@@ -256,6 +280,8 @@ const TA_ = {
       rank: { month: month.slice(0, 20), all: allTime.slice(0, 20), myMonth: (month.find(x => x.me) || {}).place || 0, myAll: (allTime.find(x => x.me) || {}).place || 0 },
       tg: { link: TG_CHAT_LINK, ok: me.tgChat === '1', canCheck: !!st.tgChatId },
       profile: { first: me.first, last: me.last, phone: me.phone, birth: me.birth, addr: me.addr, pFirst: me.pFirst, pLast: me.pLast, pPhone: me.pPhone, left: profileLeft_(me), total: PROFILE_PARTS.length },
+      week: (() => { const w = weekInfo_(C.today); const mine = {}; (C.done[t.id] || []).forEach(d => mine[d.taskId] = d);
+        return Object.assign(w, { tasks: weekTasks_(w).map(k => { const r = mine[k.id]; return Object.assign(k, { status: r ? (r.status || 'ok') : '', by: r && counted_(r) ? markerName_({ by: r.by }) : '' }); }) }); })(),
       ig: { link: IG_LINK, status: me.igStatus || '', nick: me.ig || '' },
       meet: currentMeeting_(),
       schedule: services_(st).map(x => ({ name: x.name, day: x.day, time: x.time }))
@@ -274,6 +300,13 @@ const TA_ = {
     }
     if ('pPhone' in f) { const d = digits_(f.pPhone); if (txt('pPhone') && d.length < 10) throw new Error('bad_phone'); patch.pPhone = d; }
     if (Object.keys(patch).length) update_('Подростки', row, patch);
+    return true;
+  },
+  weekDone(t, p) {
+    const k = weekTasks_(weekInfo_(today_())).find(x => x.id === p.id); if (!k) throw new Error('bad_task');
+    const hit = rows_('Выполнения').filter(d => d.taskId === k.id && d.teenId === t.id);
+    if (!hit.length) append_('Выполнения', { taskId: k.id, teenId: t.id, date: today_(), by: 'self', status: 'pending' });
+    else if (hit[0].status === 'no') update_('Выполнения', hit[0], { status: 'pending', date: today_(), by: 'self' });
     return true;
   },
   taskDone(t, p) {
