@@ -573,9 +573,32 @@ function taskPendHtml() {
 }
 function planHtml() {
   const p = D.plan; if (!p || !p.length) return '';
+  const adm = myRole() === 'admin'; const list = S.planAll ? p : p.slice(0, 4);
   return `<div class="sec" style="padding:10px 4px 0">${tr('ЗАДАНИЯ НЕДЕЛИ · ПЛАН', 'WEEKLY TASKS · PLAN')}</div>
-  ${p.map((w, i) => `<div class="card" style="padding:12px 14px;display:flex;flex-direction:column;gap:4px;${i ? '' : 'border-color:var(--acc)'}"><div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline"><span style="font-size:15px;font-weight:700">${tr('Неделя ', 'Week ')}${w.n} · ${esc(w.ref)}</span><span class="xs" style="color:${i ? 'var(--mu)' : 'var(--acc)'};font-weight:700;white-space:nowrap">${i ? tr('с ', 'from ') + esc(human(w.mon)) : tr('идёт', 'now')}</span></div><span class="xs mut">${esc(w.title)} · ${tr('стих: ', 'verse: ')}${esc(w.verse)}${i ? '' : ' · ' + tr('выполнили: ', 'done by: ') + (D.planDone || 0)}</span></div>`).join('')}
-  <div class="xs mut" style="padding:0 4px;line-height:1.45">${tr('Каждую неделю: рассказать на группе (+20), выучить стих (+25), доброе дело (+20), послужить (+20). Меняются сами по понедельникам.', 'Each week: share at group (+20), memorize the verse (+25), a good deed (+20), serve (+20). They rotate every Monday.')}</div>`;
+  ${list.map((w, i) => `<button class="card" data-a="planWeek" data-x="${i}" style="padding:12px 14px;display:flex;flex-direction:column;gap:4px;text-align:left;width:100%;color:inherit;font:inherit;${i ? '' : 'border-color:var(--acc)'}"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><span style="font-size:15px;font-weight:700">${tr('Неделя ', 'Week ')}${w.n} · ${esc(w.ref)}</span><span style="display:flex;align-items:center;gap:6px"><span class="xs" style="color:${i ? 'var(--mu)' : 'var(--acc)'};font-weight:700;white-space:nowrap">${i ? tr('с ', 'from ') + esc(human(w.mon)) : tr('идёт', 'now')}</span>${svg(IC.right, '#5F626B', 16, 2.5)}</span></div><span class="xs mut">${esc(w.title)} · ${tr('стих: ', 'verse: ')}${esc(w.verse)}${i ? '' : ' · ' + tr('выполнили: ', 'done by: ') + (D.planDone || 0)}</span></button>`).join('')}
+  ${p.length > 4 ? `<button class="btn2" data-a="planAll">${S.planAll ? tr('Свернуть', 'Collapse') : tr('Показать все ', 'Show all ') + p.length + tr(' недель', ' weeks')}</button>` : ''}
+  <div class="xs mut" style="padding:0 4px;line-height:1.45">${adm ? tr('Нажмите на неделю, чтобы посмотреть и изменить главу, задания и баллы.', 'Tap a week to view and edit the chapter, tasks and points.') : tr('Нажмите на неделю, чтобы посмотреть задания.', 'Tap a week to view its tasks.')} ${tr('Недели меняются сами по понедельникам.', 'Weeks rotate every Monday.')}</div>`;
+}
+function planOverlay(o) {
+  const w = D.plan[o.i], adm = myRole() === 'admin', F = o.f;
+  if (o.who) { const by = {}; (D.weekWho || []).forEach(x => (by[x.teenId] = by[x.teenId] || []).push(x)); const ids = Object.keys(by).filter(id => IDX.teen[id]).sort((a, b) => tname(IDX.teen[a]).localeCompare(tname(IDX.teen[b])));
+    return sheet(tr('Неделя ', 'Week ') + w.n + tr(' · выполнили', ' · done'), `<button class="btn2" data-a="planBack">‹ ${tr('Назад к неделе', 'Back to the week')}</button>
+      <div style="display:flex;flex-direction:column;gap:6px">${ids.map(id => { const it = by[id], pts = it.filter(x => x.status !== 'pending').reduce((a, x) => a + x.pts, 0), wait = it.some(x => x.status === 'pending');
+        return `<button class="row" data-a="openProf" data-x="${id}" style="min-height:56px"><div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:600">${esc(tname(IDX.teen[id]))}</span><span class="xs mut">${it.map(x => esc(x.title) + (x.status === 'pending' ? tr(' (ждёт)', ' (pending)') : '')).join(' · ')}</span></div><span class="sm" style="font-weight:700;color:${wait && !pts ? '#F2C14E' : 'var(--acc)'}">${pts ? '+' + pts : tr('ждёт', 'pending')}</span></button>`; }).join('') || `<div class="empty">${tr('Пока никто не выполнил', 'No one yet')}</div>`}</div>`); }
+  if (o.edit) { const t = o.tasks[o.edit];
+    return sheet(tr('Задание', 'Task'), `<button class="btn2" data-a="planBack">‹ ${tr('Назад к неделе', 'Back to the week')}</button>
+      ${fld('ov.tasks.' + o.edit + '.title', tr('Название', 'Title'), t.title)}
+      <div class="field"><label class="lbl" for="ptd">${tr('Что нужно сделать', 'What to do')}</label><textarea id="ptd" class="inp" style="height:96px;padding:12px 14px;line-height:1.4;resize:none;font-family:inherit" data-b="ov.tasks.${o.edit}.desc">${esc(t.desc)}</textarea></div>
+      <div class="field"><div class="lbl">${tr('Баллы', 'Points')}</div><div style="display:grid;grid-template-columns:52px 1fr 52px;align-items:center;gap:10px"><button class="icb" style="width:52px;height:52px;font-size:22px;color:var(--tx)" data-a="planPts" data-x="-5" aria-label="−5">−</button><div style="text-align:center;font-family:Unbounded,sans-serif;font-size:24px;font-weight:700;color:var(--acc)">+${t.pts}</div><button class="icb" style="width:52px;height:52px;font-size:22px;color:var(--tx)" data-a="planPts" data-x="5" aria-label="+5">+</button></div></div>
+      <div class="field"><div class="lbl">${tr('Где применить', 'Apply to')}</div>${[[0, tr('Только на этой неделе', 'This week only')], [1, tr('На всех неделях', 'All weeks')]].map(([v, l]) => `<button class="row" data-a="planScope" data-x="${v}" style="gap:12px;${!!t.all === !!v ? 'border-color:var(--acc);background:var(--accbg)' : ''}"><div class="rd ${!!t.all === !!v ? 'on' : ''}"></div><span style="font-size:15px;font-weight:600">${l}</span></button>`).join('')}</div>`,
+      `<button class="btn" data-a="planBack">${tr('Готово', 'Done')}</button>`); }
+  return sheet(tr('Неделя ', 'Week ') + w.n + (o.i ? ' · ' + tr('с ', 'from ') + human(w.mon) : ' · ' + tr('идёт', 'now')), `
+    ${adm ? fld('ov.f.ref', tr('Глава недели', 'Chapter of the week'), F.ref, 'text', tr('Например, Марка 4', 'e.g. Mark 4')) + fld('ov.f.title', tr('Тема', 'Theme'), F.title) + fld('ov.f.verse', tr('Стих для заучивания', 'Memory verse'), F.verse, 'text', tr('Например, Марка 4:40', 'e.g. Mark 4:40'))
+      : `<div class="card" style="padding:12px 14px"><div style="font-size:16px;font-weight:700">${esc(w.ref)}</div><div class="sm mut">${esc(w.title)} · ${tr('стих: ', 'verse: ')}${esc(w.verse)}</div></div>`}
+    <div class="sec" style="padding-top:4px">${tr('ЗАДАНИЯ', 'TASKS')}</div>
+    ${Object.keys(o.tasks).map(k => { const t = o.tasks[k]; return `<${adm ? 'button data-a="planTask" data-x="' + k + '"' : 'div'} class="row" style="gap:10px;${adm ? '' : 'cursor:default'}"><div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;text-align:left"><span style="font-size:15px;font-weight:600">${esc(t.title)}${k === 'serve' ? ` <span class="xs mut">· ${tr('всегда', 'always on')}</span>` : ''}</span><span class="xs mut" style="line-height:1.4">${esc(t.desc)}</span></div><span class="sm" style="font-weight:700;color:var(--acc);white-space:nowrap">+${t.pts}</span>${adm ? svg(IC.pen, '#8B8B94', 16, 2.2) : ''}</${adm ? 'button' : 'div'}>`; }).join('')}
+    ${o.i === 0 ? `<button class="row" data-a="planWho"><span style="flex:1;font-size:15px;font-weight:600;text-align:left">${tr('Кто выполнил', 'Who completed')}</span><span class="sm mut">${new Set((D.weekWho || []).map(x => x.teenId)).size}${tr(' чел.', ' people')}</span>${svg(IC.right, '#5F626B', 16, 2.5)}</button>` : ''}
+    ${o.err ? `<div class="err">${esc(o.err)}</div>` : ''}`, adm ? `<button class="btn" data-a="planSave">${tr('Сохранить', 'Save')}</button>` : `<button class="btn2" data-a="close">${tr('Закрыть', 'Close')}</button>`);
 }
 function igPendingHtml() {
   const pend = D.teens.filter(t => t.igStatus === 'pending' && t.ig);
@@ -787,6 +810,7 @@ function viewOverlay() {
       <div class="dd" id="awlist" style="background:var(--bg)">${awardPeople()}</div></div>
       ${o.err ? `<div class="err">${esc(o.err)}</div>` : ''}`, `<button class="btn" data-a="saveAward">${tr('Засчитать', 'Award')}${who.length ? ' (' + who.length + ')' : ''}</button>`);
   }
+  if (o.type === 'pw') return planOverlay(o);
   if (o.type === 'ev') {
     return sheet(o.id ? tr('Событие', 'Event') : tr('Новое событие', 'New event'), `
       ${fld('ov.f.name', tr('Название', 'Name'), F.name, 'text', tr('Например, TEENS PARTY', 'e.g. TEENS PARTY'))}
@@ -983,6 +1007,16 @@ const H = {
   // дашборд
   dash(x) { S.dash = x; S.bar = null; rerender(); },
   bar(x) { S.bar = x; rerender(); },
+  planAll() { S.planAll = !S.planAll; rerender(); },
+  planWeek(i) { const w = D.plan[+i]; const tasks = {}; w.tasks.forEach(t => tasks[t.kind] = { title: t.title, desc: t.desc, pts: t.pts, all: false }); S.ov = { type: 'pw', i: +i, f: { ref: w.ref, title: w.title, verse: w.verse }, tasks, dirty: {} }; rerender(); },
+  planTask(k) { S.ov.edit = k; S.ov.dirty[k] = 1; rerender(); },
+  planWho() { S.ov.who = true; rerender(); },
+  planBack() { S.ov.edit = null; S.ov.who = false; rerender(); },
+  planPts(d) { const t = S.ov.tasks[S.ov.edit]; t.pts = Math.max(0, Math.min(200, t.pts + (+d))); rerender(); },
+  planScope(v) { S.ov.tasks[S.ov.edit].all = v === '1'; rerender(); },
+  async planSave() { const o = S.ov, w = D.plan[o.i]; if (!(o.f.ref || '').trim()) { o.err = tr('Укажите главу', 'Enter the chapter'); return rerender(); }
+    const tasks = {}; Object.keys(o.dirty).forEach(k => tasks[k] = o.tasks[k]);
+    try { await api('savePlanWeek', { idx: w.idx, ref: o.f.ref, title: o.f.title, verse: o.f.verse, tasks }); S.ov = null; await load(); toast(tr('Сохранено', 'Saved')); } catch (e) { o.err = errText(e); rerender(); } },
   async gqOk(id) { return H.gqSet(id, true); }, async gqNo(id) { return H.gqSet(id, false); },
   async gqSet(id, ok) { const old = D.greqs, q = old.find(x => x.id === id); D.greqs = old.filter(x => x.id !== id); rerender();
     try { await api('groupReq', { id, ok }); if (ok && q) { const t = IDX.teen[q.teenId]; if (t && t.groups.indexOf(q.groupId) < 0) t.groups.push(q.groupId); buildIdx(); rerender(); } toast(ok ? tr('Записан в группу', 'Added to the group') : tr('Отклонено', 'Rejected')); } catch (e) { D.greqs = old; rerender(); toast(errText(e)); } },

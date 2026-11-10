@@ -173,16 +173,45 @@ const WEEK_TASKS = [['share', 'Расскажи на группе', 'Прочи�
   ['good', 'Доброе дело', 'Сделай доброе дело дома или в школе и расскажи о нём на группе.', 20, 'Я сделал'],
   ['serve', 'Послужи на встрече', 'Встреть гостей, помоги с техникой или убери зал.', 20, 'Я послужил']];
 const dstr_ = n => new Date(n * 86400000).toISOString().slice(0, 10);
-function weekInfo_(dateStr) {
-  const n = dnum_(dateStr), mon = n - ((n + 3) % 7), k = Math.round((mon - dnum_(PLAN_START)) / 7);
-  const p = PLAN[((k % PLAN.length) + PLAN.length) % PLAN.length];
-  return { mon: dstr_(mon), end: dstr_(mon + 6), n: k + 1, ref: p[2], title: p[3], verse: p[4], url: 'https://www.bible.com/bible/400/' + p[0] + '.' + p[1] + '.SYNO' };
+// названия книг (Синодальный перевод) → коды для ссылки на bible.com
+const BOOKS_ = { 'бытие': 'GEN', 'исход': 'EXO', 'левит': 'LEV', 'числа': 'NUM', 'второзаконие': 'DEU', 'иисус навин': 'JOS', 'иисуса навина': 'JOS', 'судей': 'JDG', 'судьи': 'JDG', 'руфь': 'RUT',
+  '1 царств': '1SA', '2 царств': '2SA', '3 царств': '1KI', '4 царств': '2KI', '1 паралипоменон': '1CH', '2 паралипоменон': '2CH', 'ездра': 'EZR', 'ездры': 'EZR', 'неемия': 'NEH', 'неемии': 'NEH', 'есфирь': 'EST', 'иов': 'JOB', 'иова': 'JOB',
+  'псалом': 'PSA', 'псалтирь': 'PSA', 'псалмы': 'PSA', 'притчи': 'PRO', 'притчей': 'PRO', 'екклесиаст': 'ECC', 'екклесиаста': 'ECC', 'песнь песней': 'SNG', 'исаия': 'ISA', 'исаии': 'ISA', 'иеремия': 'JER', 'иеремии': 'JER', 'плач иеремии': 'LAM',
+  'иезекииль': 'EZK', 'иезекииля': 'EZK', 'даниил': 'DAN', 'даниила': 'DAN', 'осия': 'HOS', 'осии': 'HOS', 'иоиль': 'JOL', 'иоиля': 'JOL', 'амос': 'AMO', 'амоса': 'AMO', 'авдий': 'OBA', 'авдия': 'OBA', 'иона': 'JON', 'ионы': 'JON', 'михей': 'MIC', 'михея': 'MIC',
+  'наум': 'NAM', 'наума': 'NAM', 'аввакум': 'HAB', 'аввакума': 'HAB', 'софония': 'ZEP', 'софонии': 'ZEP', 'аггей': 'HAG', 'аггея': 'HAG', 'захария': 'ZEC', 'захарии': 'ZEC', 'малахия': 'MAL', 'малахии': 'MAL',
+  'матфея': 'MAT', 'марка': 'MRK', 'луки': 'LUK', 'иоанна': 'JHN', 'деяния': 'ACT', 'деяний': 'ACT', 'иакова': 'JAS', '1 петра': '1PE', '2 петра': '2PE', '1 иоанна': '1JN', '2 иоанна': '2JN', '3 иоанна': '3JN', 'иуды': 'JUD',
+  'римлянам': 'ROM', '1 коринфянам': '1CO', '2 коринфянам': '2CO', 'галатам': 'GAL', 'ефесянам': 'EPH', 'филиппийцам': 'PHP', 'колоссянам': 'COL', '1 фессалоникийцам': '1TH', '2 фессалоникийцам': '2TH',
+  '1 тимофею': '1TI', '2 тимофею': '2TI', 'титу': 'TIT', 'филимону': 'PHM', 'евреям': 'HEB', 'откровение': 'REV', 'откровения': 'REV' };
+function bibleUrl_(ref) {
+  const m = /^(.*?)[\s,]+(\d+)/.exec(String(ref || '').trim().toLowerCase().replace(/ё/g, 'е').replace(/[-–]\s*е\b/g, ''));
+  const code = m && BOOKS_[m[1].replace(/\s+/g, ' ').trim()];
+  return code ? 'https://www.bible.com/bible/400/' + code + '.' + m[2] + '.SYNO' : 'https://www.bible.com/search/bible?query=' + encodeURIComponent(ref || '');
 }
-function weekTasks_(w) { return WEEK_TASKS.map(t => ({ id: 'W' + w.mon + ':' + t[0], kind: t[0], title: t[1], desc: t[2].replace('{ref}', w.ref).replace('{verse}', w.verse), pts: t[3], btn: t[4] })); }
+// план недель и правки заданий: из «Настроек» (plan, weekTasks), иначе — встроенные
+let PLANCFG_ = null;
+function planCfg_() {
+  if (PLANCFG_) return PLANCFG_;
+  const st = settings_(); let plan = null, tk = null;
+  try { const j = JSON.parse(st.plan || ''); if (Array.isArray(j) && j.length) plan = j; } catch (e) {}
+  try { const j = JSON.parse(st.weekTasks || ''); if (j && typeof j === 'object') tk = j; } catch (e) {}
+  if (!plan) plan = PLAN.map(p => ({ ref: p[2], title: p[3], verse: p[4] }));
+  return (PLANCFG_ = { plan: plan, g: (tk && tk.g) || {}, w: (tk && tk.w) || {} });
+}
+function weekInfo_(dateStr) {
+  const cfg = planCfg_(), n = dnum_(dateStr), mon = n - ((n + 3) % 7), k = Math.round((mon - dnum_(PLAN_START)) / 7);
+  const idx = ((k % cfg.plan.length) + cfg.plan.length) % cfg.plan.length, p = cfg.plan[idx];
+  return { mon: dstr_(mon), end: dstr_(mon + 6), n: k + 1, idx: idx, ref: p.ref, title: p.title, verse: p.verse, url: bibleUrl_(p.ref) };
+}
+function weekTaskDefs_(idx) {
+  const cfg = planCfg_();
+  return WEEK_TASKS.map(t => { const o = Object.assign({}, cfg.g[t[0]] || {}, (cfg.w[idx] || {})[t[0]] || {});
+    return { kind: t[0], title: o.title || t[1], desc: o.desc || t[2], pts: o.pts != null && o.pts !== '' ? +o.pts : t[3], btn: t[4] }; });
+}
+function weekTasks_(w) { return weekTaskDefs_(w.idx).map(t => ({ id: 'W' + w.mon + ':' + t.kind, kind: t.kind, title: t.title, desc: t.desc.replace('{ref}', w.ref).replace('{verse}', w.verse), pts: t.pts, btn: t.btn })); }
 function vtask_(id) {
   const m = /^W(\d{4}-\d{2}-\d{2}):(\w+)$/.exec(String(id || '')); if (!m) return null;
-  const t = WEEK_TASKS.find(x => x[0] === m[2]); if (!t) return null; const w = weekInfo_(m[1]);
-  return { id: id, kind: t[0], title: t[1] + (t[0] === 'verse' ? ' · ' + w.verse : t[0] === 'share' ? ' · ' + w.ref : ''), pts: t[3], week: w.mon };
+  const w = weekInfo_(m[1]); const t = weekTaskDefs_(w.idx).find(x => x.kind === m[2]); if (!t) return null;
+  return { id: id, kind: t.kind, title: t.title + (t.kind === 'verse' ? ' · ' + w.verse : t.kind === 'share' ? ' · ' + w.ref : ''), pts: t.pts, week: w.mon };
 }
 const counted_ = d => d.status !== 'pending' && d.status !== 'no';
 function loadCtx_() {

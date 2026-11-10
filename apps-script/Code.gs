@@ -278,7 +278,7 @@ const CAN = {
   mark: ['admin', 'leader', 'mod'], attNow: ['admin', 'leader', 'mod', 'viewer'], addTeen: ['admin', 'leader', 'mod'], updateTeen: ['admin', 'leader', 'mod'], reviewTeen: ['admin', 'leader', 'mod'],
   addEvent: ['admin', 'leader'], editEvent: ['admin'], delEvent: ['admin'], saveGroup: ['admin'], saveSettings: ['admin'],
   invite: ['admin'], updateLeader: ['admin'], removeLeader: ['admin'],
-  groupReq: ['admin'], confirmTask: ['admin', 'leader'], addTask: ['admin', 'leader'], taskDone: ['admin', 'leader'], remind: ['admin', 'leader'], award: ['admin', 'leader'], igReview: ['admin', 'leader']
+  savePlanWeek: ['admin'], groupReq: ['admin'], confirmTask: ['admin', 'leader'], addTask: ['admin', 'leader'], taskDone: ['admin', 'leader'], remind: ['admin', 'leader'], award: ['admin', 'leader'], igReview: ['admin', 'leader']
 };
 function api(token, action, payload) {
   return out_(() => {
@@ -341,7 +341,8 @@ const A_ = {
       const allDone = rows_('Выполнения'), w = weekInfo_(today_());
       res.pending = allDone.filter(d => d.status === 'pending').map(d => { const k = vtask_(d.taskId) || {}; return { taskId: d.taskId, teenId: d.teenId, date: d.date, title: k.title || '', pts: k.pts || 0 }; });
       const okNow = {}; allDone.filter(counted_).forEach(d => { if (String(d.taskId).indexOf('W' + w.mon + ':') === 0) okNow[d.teenId] = 1; });
-      res.plan = [0, 1, 2, 3].map(i => { const x = weekInfo_(dstr_(dnum_(w.mon) + 7 * i)); return { n: x.n, mon: x.mon, ref: x.ref, title: x.title, verse: x.verse }; });
+      res.plan = planCfg_().plan.map((_, i) => { const x = weekInfo_(dstr_(dnum_(w.mon) + 7 * i)); return { n: x.n, mon: x.mon, idx: x.idx, ref: x.ref, title: x.title, verse: x.verse, tasks: weekTasks_(x).map(k => ({ kind: k.kind, title: k.title, desc: k.desc, pts: k.pts })) }; });
+      res.weekWho = allDone.filter(d => String(d.taskId).indexOf('W' + w.mon + ':') === 0 && d.status !== 'no').map(d => { const k = vtask_(d.taskId) || {}; return { teenId: d.teenId, title: k.title || '', pts: k.pts || 0, status: d.status || 'ok' }; });
       res.planDone = Object.keys(okNow).length;
     }
     if (me.role === 'admin') res.greqs = greqs_().filter(x => x.status === 'pending').map(x => ({ id: x.id, teenId: x.teenId, groupId: x.groupId, date: x.date }));
@@ -403,6 +404,24 @@ const A_ = {
     const t = rows_('Подростки').find(x => x.id === p.id); if (t) update_('Подростки', t, { review: '' }); return true;
   },
 
+  savePlanWeek(me, p) {
+    const cfg = planCfg_(), idx = +p.idx; if (!(idx >= 0 && idx < cfg.plan.length)) throw new Error('bad_week');
+    const cl = (v, n) => String(v == null ? '' : v).replace(/\s+/g, ' ').trim().slice(0, n || 200);
+    const plan = cfg.plan.map(x => ({ ref: x.ref, title: x.title, verse: x.verse })); const old = plan[idx];
+    const nw = { ref: cl(p.ref, 60) || old.ref, title: cl(p.title, 80), verse: cl(p.verse, 60) }; plan[idx] = nw;
+    const g = JSON.parse(JSON.stringify(cfg.g)), w = JSON.parse(JSON.stringify(cfg.w));
+    Object.keys(p.tasks || {}).forEach(kind => {
+      const def = WEEK_TASKS.find(t => t[0] === kind); if (!def) return; const t = p.tasks[kind] || {};
+      // текст с названием главы/стиха храним шаблоном, чтобы он подходил и другим неделям
+      let desc = cl(t.desc, 300); [[nw.verse, '{verse}'], [old.verse, '{verse}'], [nw.ref, '{ref}'], [old.ref, '{ref}']].forEach(a => { if (a[0]) desc = desc.split(a[0]).join(a[1]); });
+      const pts = Math.max(0, Math.min(200, Math.round(+t.pts || 0)));
+      const o = { title: cl(t.title, 60) || def[1], desc: desc || def[2], pts: pts };
+      if (t.all) { g[kind] = o; Object.keys(w).forEach(i => { if (w[i]) delete w[i][kind]; }); } else { (w[idx] = w[idx] || {})[kind] = o; }
+    });
+    A_.saveSettings(me, { plan: JSON.stringify(plan), weekTasks: JSON.stringify({ g: g, w: w }) });
+    PLANCFG_ = null;
+    return true;
+  },
   groupReq(me, p) {
     const r = greqs_().find(x => x.id === p.id && x.status === 'pending'); if (!r) return { gone: true };
     if (p.ok) { const t = rows_('Подростки').find(x => x.id === r.teenId);
