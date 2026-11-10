@@ -421,7 +421,7 @@ function markSections() {
 }
 function rowHtml(x) {
   const n = tname(x.t);
-  const tag = x.st.cat === 'new' ? (x.t.source === 'qr' ? tr('отметился сам', 'self check-in') : tr('новый', 'new')) : x.st.label;
+  const tag = x.t.isLeader ? tr('лидер', 'leader') : x.st.cat === 'new' ? (x.t.source === 'qr' ? tr('отметился сам', 'self check-in') : tr('новый', 'new')) : x.st.label;
   const mb = x.on ? markedBy(x.t.id) : null;
   const lbl = mb ? (mb.mine ? tr('вы', 'you') : mb.n) + (mb.t ? ' · ' + mb.t : '') : tag;
   return `<button class="row ${x.on ? 'on' : ''}" data-a="toggle" data-x="${x.t.id}"><div class="av">${esc(ini(n))}</div><div class="nm">${esc(n)}</div><div class="tag ${!mb && x.st.cat === 'gone' ? 'blue' : ''}" ${mb && !mb.mine ? 'style="color:var(--acc2)"' : ''}>${esc(lbl)}</div><div class="dot ${SAV.has(x.t.id) ? 'sav' : ''}">${x.on ? svg(IC.check, '#0E0F12', 15, 3.2) : ''}</div></button>`;
@@ -589,6 +589,13 @@ function taskPendHtml() {
   <div class="xs mut" style="line-height:1.4">${tr('Подросток отметил задание выполненным. Галочка — начислить баллы, крестик — не засчитывать.', 'The teen marked a task done. Check — award points, cross — reject.')}</div>
   ${pend.map(x => `<div class="row" style="cursor:default;background:var(--bg)"><div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:600">${esc(tname(IDX.teen[x.teenId]))}</span><span class="xs mut">${esc(x.title)} · +${x.pts} · ${esc(human(x.date))}</span></div><button class="icb" style="width:42px;height:42px;background:var(--acc)" data-a="tkOk" data-x="${x.teenId}|${x.taskId}" aria-label="${tr('Засчитать', 'Confirm')}">${svg(IC.check, '#0E0F12', 18, 3)}</button><button class="icb" style="width:42px;height:42px;border:1px solid var(--line2);background:transparent" data-a="tkNo" data-x="${x.teenId}|${x.taskId}" aria-label="${tr('Не засчитывать', 'Reject')}">${svg(IC.x, '#8B8B94', 16, 2.5)}</button></div>`).join('')}</div>`;
 }
+function vcomHtml() {
+  const l = D.vcom || []; if (['admin', 'leader'].indexOf(myRole()) < 0 || !l.length) return '';
+  const list = S.vcomAll ? l : l.slice(0, 5);
+  return `<div class="sec" style="padding:10px 4px 0">${tr('КОММЕНТАРИИ К СТИХУ ДНЯ', 'VERSE OF THE DAY COMMENTS')} · ${l.length}</div>
+  ${list.map(c => `<div class="row" style="cursor:default;gap:10px;align-items:flex-start;padding-top:10px;padding-bottom:10px"><div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px"><span style="font-size:14px;font-weight:600">${esc(IDX.teen[c.teenId] ? tname(IDX.teen[c.teenId]) : tr('Подросток', 'Teen'))}</span><span class="sm" style="line-height:1.4;word-break:break-word">${esc(c.text)}</span><span class="xs mut">${esc(c.ref)} · ${esc(human(c.date))}</span></div>${S.vdel === c.id ? `<button class="btnS" style="background:#EF4444;color:#fff;height:44px" data-a="vcomDel" data-x="${c.id}">${tr('Удалить', 'Delete')}</button>` : `<button class="icb" data-a="vcomAsk" data-x="${c.id}" aria-label="${tr('Удалить комментарий', 'Delete comment')}">${svg(IC.trash, '#F87171', 18, 2.2)}</button>`}</div>`).join('')}
+  ${l.length > 5 ? `<button class="btn2" data-a="vcomAll">${S.vcomAll ? tr('Свернуть', 'Collapse') : tr('Показать все ', 'Show all ') + l.length}</button>` : ''}`;
+}
 function planHtml() {
   const p = D.plan; if (!p || !p.length) return '';
   const adm = myRole() === 'admin'; const list = S.planAll ? p : p.slice(0, 4);
@@ -634,6 +641,7 @@ function viewTasks() {
   ${taskPendHtml()}
   ${igPendingHtml()}
   ${planHtml()}
+  ${vcomHtml()}
   ${list.length ? list.map(k => { const mem = audMembers(k.aud); const dm = doneMap(k.id); const n = mem.filter(t => dm[t.id]).length;
     return `<button class="card" data-a="openTask" data-x="${k.id}" style="display:flex;flex-direction:column;gap:10px;text-align:left;width:100%"><div style="display:flex;justify-content:space-between;gap:10px;width:100%"><span style="font-size:15px;font-weight:700;line-height:1.3">${esc(k.title)}</span><span class="sm" style="color:var(--acc);font-weight:700;flex-shrink:0">+${k.pts}</span></div><span class="xs mut">${KINDS()[k.kind] || ''} · ${tr('до ', 'due ')}${esc(human(k.due))} · ${esc(audLabel(k.aud))}</span><div class="prog" style="width:100%"><i style="width:${mem.length ? Math.round(n / mem.length * 100) : 0}%"></i></div><span class="xs" style="color:var(--tx2)">${tr('Выполнили ', 'Done by ')}${n}${tr(' из ', ' of ')}${mem.length}</span></button>`; }).join('')
     : `<div class="empty">${tr('Заданий пока нет. Нажмите «+», чтобы создать первое.', 'No tasks yet. Tap “+” to create one.')}</div>`}
@@ -753,12 +761,13 @@ function viewOverlay() {
   }
   if (o.type === 'teenForm') {
     const dup = o.dup ? `<div class="card" style="border-color:var(--acc);background:var(--accbg);display:flex;flex-direction:column;gap:10px"><div style="font-weight:700">${tr('Похоже, уже есть в базе: ', 'Looks like already in the database: ')}${esc(o.dup.name)}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btnA" data-a="dupIsHim">${tr('Это он — отметить', 'That’s them — check in')}</button><button class="btn2" style="height:44px" data-a="dupNew">${tr('Нет, новый', 'No, new')}</button></div></div>` : '';
-    return full(tr('Новый подросток', 'New teen'), `
-      ${fld('ov.f.first', tr('Имя', 'First name'), F.first)}${fld('ov.f.last', tr('Фамилия', 'Last name'), F.last)}${fld('ov.f.phone', tr('Телефон', 'Phone'), F.phone, 'tel', '(916) 123-4567')}${fld('ov.f.birth', tr('Дата рождения', 'Date of birth'), F.birth, 'date')}
-      <button class="row" data-a="ovToggle" data-x="addrOpen" style="justify-content:space-between"><span style="font-size:15px;font-weight:600">${tr('Адрес подростка', 'Teen’s address')}</span><span style="color:var(--acc);font-size:18px">${o.addrOpen ? '−' : '+'}</span></button>
+    return full(F.isLeader ? tr('Новый лидер', 'New leader') : tr('Новый подросток', 'New teen'), `
+      ${fld('ov.f.first', tr('Имя', 'First name'), F.first)}${fld('ov.f.last', tr('Фамилия', 'Last name'), F.last)}${F.isLeader ? '' : fld('ov.f.phone', tr('Телефон', 'Phone'), F.phone, 'tel', '(916) 123-4567')}${fld('ov.f.birth', tr('Дата рождения', 'Date of birth'), F.birth, 'date')}
+      <button class="row" data-a="ldrToggle" style="gap:12px;${F.isLeader ? 'border-color:var(--acc);background:var(--accbg)' : ''}"><div class="cb ${F.isLeader ? 'on' : ''}">${F.isLeader ? svg(IC.check, '#0E0F12', 14, 3.2) : ''}</div><span style="flex:1;text-align:left;display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:600">${tr('Это лидер', 'This is a leader')}</span><span class="xs mut">${tr('нужны только имя, фамилия и дата рождения', 'only name and date of birth are needed')}</span></span></button>
+      ${F.isLeader ? '' : `<button class="row" data-a="ovToggle" data-x="addrOpen" style="justify-content:space-between"><span style="font-size:15px;font-weight:600">${tr('Адрес подростка', 'Teen’s address')}</span><span style="color:var(--acc);font-size:18px">${o.addrOpen ? '−' : '+'}</span></button>
       ${o.addrOpen ? fld('ov.f.addr', tr('Адрес', 'Address'), F.addr, 'text', tr('Улица, дом, город', 'Street, number, city')) : ''}
       ${myRole() !== 'mod' ? `<button class="row" data-a="ovToggle" data-x="parOpen" style="justify-content:space-between"><span style="font-size:15px;font-weight:600">${tr('Родитель', 'Parent')}</span><span style="color:var(--acc);font-size:18px">${o.parOpen ? '−' : '+'}</span></button>
-      ${o.parOpen ? fld('ov.f.pFirst', tr('Имя родителя', 'Parent first name'), F.pFirst) + fld('ov.f.pLast', tr('Фамилия родителя', 'Parent last name'), F.pLast) + fld('ov.f.pPhone', tr('Телефон родителя', 'Parent phone'), F.pPhone, 'tel') + fld('ov.f.pAddr', tr('Адрес родителя', 'Parent address'), F.pAddr) + `<button class="btnA" data-a="copyAddr" style="align-self:flex-start">${tr('Адрес как у подростка', 'Same address as teen')}</button>` : ''}` : ''}
+      ${o.parOpen ? fld('ov.f.pFirst', tr('Имя родителя', 'Parent first name'), F.pFirst) + fld('ov.f.pLast', tr('Фамилия родителя', 'Parent last name'), F.pLast) + fld('ov.f.pPhone', tr('Телефон родителя', 'Parent phone'), F.pPhone, 'tel') + fld('ov.f.pAddr', tr('Адрес родителя', 'Parent address'), F.pAddr) + `<button class="btnA" data-a="copyAddr" style="align-self:flex-start">${tr('Адрес как у подростка', 'Same address as teen')}</button>` : ''}` : ''}`}
       ${dup}${o.err ? `<div class="err">${esc(o.err)}</div>` : ''}`, `<button class="btn" data-a="saveTeen">${tr('Сохранить и отметить', 'Save & check in')}</button>`);
   }
   if (o.type === 'prof') {
@@ -780,9 +789,9 @@ function viewOverlay() {
     return full(`${esc(nm)}${age ? `<div class="sm mut" style="font-family:Inter;font-weight:500">${esc(age)}</div>` : ''}`, `
       <div class="stats3"><div class="stat"><b style="color:var(--acc)">${st.cat === 'gone' ? st.miss : (st.known ? st.cnt + '/' + st.known : '—')}</b><span class="xs mut">${st.cat === 'gone' ? tr('пропуска подряд', 'missed in a row') : tr('из последних', 'of recent')}</span></div><div class="stat"><b>${st.total}</b><span class="xs mut">${tr('всего раз', 'visits total')}</span></div><div class="stat"><span style="font-size:14px;font-weight:700;line-height:1.25">${CAT()[st.cat]}</span><span class="xs mut">${tr('статус', 'status')}</span></div></div>
       <div style="display:flex;flex-direction:column;gap:6px"><div class="sec">${tr('ПОСЛЕДНИЕ 8 ВСТРЕЧ', 'LAST 8 MEETINGS')}</div><div class="hist">${hist.map((c, i) => `<button class="${c === '1' ? 'h1x' : c === '0' ? 'h0' : 'hn'} ${o.hi === i ? 'sel' : ''}" data-a="hist" data-x="${i}" data-hover="${i}" title="${esc(tipOf(i))}" aria-label="${esc(tipOf(i))}"></button>`).join('')}</div><div class="tip" id="histtip">${hi != null ? esc(tipOf(hi)) : ''}</div></div>
-      ${canEdit ? `<div style="display:flex;flex-direction:column;gap:14px"><div class="sec">${tr('ПОДРОСТОК', 'TEEN')}</div>${fld('ov.f.first', tr('Имя', 'First name'), F.first)}${fld('ov.f.last', tr('Фамилия', 'Last name'), F.last)}${fld('ov.f.phone', tr('Телефон', 'Phone'), F.phone, 'tel')}${fld('ov.f.birth', tr('Дата рождения', 'Date of birth'), F.birth, 'date')}${fld('ov.f.addr', tr('Адрес', 'Address'), F.addr, 'text', tr('Улица, дом, город', 'Street, number, city'))}</div>` : ''}
+      ${canEdit ? `<div style="display:flex;flex-direction:column;gap:14px"><div class="sec">${F.isLeader ? tr('ЛИДЕР', 'LEADER') : tr('ПОДРОСТОК', 'TEEN')}</div>${fld('ov.f.first', tr('Имя', 'First name'), F.first)}${fld('ov.f.last', tr('Фамилия', 'Last name'), F.last)}${F.isLeader ? '' : fld('ov.f.phone', tr('Телефон', 'Phone'), F.phone, 'tel')}${fld('ov.f.birth', tr('Дата рождения', 'Date of birth'), F.birth, 'date')}<button class="row" data-a="ldrToggle" style="gap:12px;${F.isLeader ? 'border-color:var(--acc);background:var(--accbg)' : ''}"><div class="cb ${F.isLeader ? 'on' : ''}">${F.isLeader ? svg(IC.check, '#0E0F12', 14, 3.2) : ''}</div><span style="flex:1;text-align:left;display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:600">${tr('Это лидер', 'This is a leader')}</span><span class="xs mut">${tr('нужны только имя, фамилия и дата рождения', 'only name and date of birth are needed')}</span></span></button>${F.isLeader ? '' : fld('ov.f.addr', tr('Адрес', 'Address'), F.addr, 'text', tr('Улица, дом, город', 'Street, number, city'))}</div>` : ''}
       ${myRole() === 'admin' || myRole() === 'leader' ? `<div style="display:flex;flex-direction:column;gap:8px"><div style="display:flex;justify-content:space-between;align-items:baseline"><div class="sec">${tr('ГРУППЫ', 'GROUPS')}</div><div class="xs mut">${tr('Можно выбрать несколько', 'You can pick several')}</div></div>${D.groups.length ? ddGroups('', o.groups, o.gOpen, 'profG', 'profPick', { empty: tr('Без группы', 'No group') }) : `<div class="xs mut">${tr('Групп пока нет', 'No groups yet')}</div>`}</div>` : ''}
-      ${t.canEditParent ? `<div style="display:flex;flex-direction:column;gap:14px"><div class="sec">${tr('РОДИТЕЛЬ', 'PARENT')}</div>${fld('ov.f.pFirst', tr('Имя родителя', 'Parent first name'), F.pFirst)}${fld('ov.f.pLast', tr('Фамилия родителя', 'Parent last name'), F.pLast)}${fld('ov.f.pPhone', tr('Телефон родителя', 'Parent phone'), F.pPhone, 'tel')}${fld('ov.f.pAddr', tr('Адрес родителя', 'Parent address'), F.pAddr)}</div>` : ''}
+      ${t.canEditParent && !F.isLeader ? `<div style="display:flex;flex-direction:column;gap:14px"><div class="sec">${tr('РОДИТЕЛЬ', 'PARENT')}</div>${fld('ov.f.pFirst', tr('Имя родителя', 'Parent first name'), F.pFirst)}${fld('ov.f.pLast', tr('Фамилия родителя', 'Parent last name'), F.pLast)}${fld('ov.f.pPhone', tr('Телефон родителя', 'Parent phone'), F.pPhone, 'tel')}${fld('ov.f.pAddr', tr('Адрес родителя', 'Parent address'), F.pAddr)}</div>` : ''}
       ${t.pts != null ? `<div class="sm mut">${tr('Баллы в приложении: ', 'App points: ')}<b style="color:var(--acc)">${t.pts}</b> · Telegram ${t.tgChat === '1' ? '✓' : '—'} · Instagram ${t.igStatus === 'ok' ? '✓' : t.igStatus === 'pending' ? tr('на проверке', 'pending') : '—'}</div>` : ''}
       ${t.invitedBy && IDX.teen[t.invitedBy] ? `<div class="sm mut">${tr('Пригласил: ', 'Invited by: ')}${esc(tname(IDX.teen[t.invitedBy]))}</div>` : ''}`,
       canEdit ? `<button class="btn" data-a="saveProf">${tr('Сохранить', 'Save')}</button>` : '');
@@ -956,7 +965,7 @@ document.addEventListener('focusout', () => setTimeout(() => { if (syncDirty) so
 setInterval(syncMarks, 7000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) syncMarks(); });
 const markedBy = id => { const m = meet(); if (MK.key !== mkKey(m)) return null; return MK.by[id] || null; };
-function teenFromForm(F) { return { first: F.first || '', last: F.last || '', phone: F.phone || '', birth: F.birth || '', addr: F.addr || '', pFirst: F.pFirst || '', pLast: F.pLast || '', pPhone: F.pPhone || '', pAddr: F.pAddr || '' }; }
+function teenFromForm(F) { return { first: F.first || '', last: F.last || '', phone: F.phone || '', birth: F.birth || '', addr: F.addr || '', pFirst: F.pFirst || '', pLast: F.pLast || '', pPhone: F.pPhone || '', pAddr: F.pAddr || '', isLeader: !!F.isLeader }; }
 
 const H = {
   noop() {},
@@ -974,6 +983,7 @@ const H = {
   moreRoot() { S.more = 'root'; render(); }, goGroups() { S.more = 'groups'; render(); }, goRules() { S.more = 'rules'; render(); }, goAccess() { S.more = 'access'; render(); }, goQR() { S.more = 'qr'; render(); },
   close() { S.ov = null; rerender(); },
   ovToggle(x) { S.ov[x] = !S.ov[x]; rerender(); },
+  ldrToggle() { S.ov.f.isLeader = !S.ov.f.isLeader; rerender(); },
   ovSet(x) { S.ov[x] = true; S.ov.f = S.ov.f || {}; rerender(); },
   ovF(x) { const i = x.indexOf(':'); const k = x.slice(0, i), v = x.slice(i + 1); S.ov.f[k] = v; if (k === 'badge') S.ov.listOpen = false; S.ov.err = ''; rerender(); },
   // отметка
@@ -1028,6 +1038,9 @@ const H = {
   bar(x) { S.bar = x; rerender(); },
   dayEv(k) { S.ov = { type: 'day', key: k, tab: 0 }; rerender(); },
   dayTab(v) { S.ov.tab = +v; rerender(); },
+  vcomAll() { S.vcomAll = !S.vcomAll; rerender(); },
+  vcomAsk(id) { S.vdel = id; rerender(); },
+  async vcomDel(id) { S.vdel = null; const keep = D.vcom; D.vcom = D.vcom.filter(c => c.id !== id); rerender(); try { await api('delVcom', { id }); toast(tr('Комментарий удалён', 'Comment deleted')); } catch (e) { D.vcom = keep; rerender(); toast(errText(e)); } },
   planAll() { S.planAll = !S.planAll; rerender(); },
   planWeek(i) { const w = D.plan[+i]; const tasks = {}; w.tasks.forEach(t => tasks[t.kind] = { title: t.title, desc: t.desc, pts: t.pts, all: false }); S.ov = { type: 'pw', i: +i, f: { ref: w.ref, title: w.title, verse: w.verse }, tasks, dirty: {} }; rerender(); },
   planTask(k) { S.ov.edit = k; S.ov.dirty[k] = 1; rerender(); },

@@ -11,7 +11,7 @@ const COLS = {
   'Подростки': [['id','ID'],['first','Имя'],['last','Фамилия'],['phone','Телефон'],['birth','Дата рождения'],['addr','Адрес'],
     ['pFirst','Имя родителя'],['pLast','Фамилия родителя'],['pPhone','Телефон родителя'],['pAddr','Адрес родителя'],
     ['groups','Группы (ID)'],['createdAt','Добавлен'],['source','Источник'],['invitedBy','Пригласил (ID)'],['review','Проверить'],
-    ['ig','Instagram'],['tgId','Telegram ID'],['archived','Скрыт'],['igStatus','Instagram: статус'],['tgChat','В Telegram-чате'],['age','Возраст (со слов)'],['ageAt','Возраст указан (дата)']],
+    ['ig','Instagram'],['tgId','Telegram ID'],['archived','Скрыт'],['igStatus','Instagram: статус'],['tgChat','В Telegram-чате'],['age','Возраст (со слов)'],['ageAt','Возраст указан (дата)'],['isLeader','Лидер']],
   'Посещения': [['id','ID'],['date','Дата'],['kind','Тип'],['meetId','Встреча (ID)'],['teenId','Подросток (ID)'],['teenName','Подросток'],['by','Отметил'],['method','Способ'],['ts','Время отметки']],
   'Группы': [['id','ID'],['name','Название'],['leader','Лидер'],['day','День (0=вс)'],['time','Время'],['active','Активна'],['addr','Адрес'],['contact','Контакт лидера']],
   'События': [['id','ID'],['name','Название'],['date','Дата'],['reg','Регистраций']],
@@ -23,6 +23,7 @@ const COLS = {
   'Настройки': [['key','Ключ'],['value','Значение']],
   'Входы': [['teenId','Подросток (ID)'],['date','Дата']],
   'Заявки': [['id','ID'],['teenId','Подросток (ID)'],['groupId','Группа (ID)'],['date','Дата'],['status','Статус'],['by','Решил']],
+  'Стих дня': [['id','ID'],['date','Дата'],['teenId','Подросток (ID)'],['kind','Тип'],['text','Текст'],['ts','Когда']],
   'Приглашения': [['id','ID'],['by','Пригласил (ID)'],['first','Имя'],['last','Фамилия'],['phone','Телефон'],['date','Дата'],['status','Статус'],['teenId','Подросток (ID)']],
   '_Сессии': [['token','Токен'],['email','Email'],['expires','Истекает']],
   '_ТГ': [['nonce','Код входа'],['chatId','Telegram чат'],['teenId','Подросток (ID)'],['status','Статус'],['created','Создан']],
@@ -278,7 +279,7 @@ const CAN = {
   mark: ['admin', 'leader', 'mod'], attNow: ['admin', 'leader', 'mod', 'viewer'], addTeen: ['admin', 'leader', 'mod'], updateTeen: ['admin', 'leader', 'mod'], reviewTeen: ['admin', 'leader', 'mod'],
   addEvent: ['admin', 'leader'], editEvent: ['admin'], delEvent: ['admin'], saveGroup: ['admin'], saveSettings: ['admin'],
   invite: ['admin'], updateLeader: ['admin'], removeLeader: ['admin'],
-  savePlanWeek: ['admin'], groupReq: ['admin'], confirmTask: ['admin', 'leader'], addTask: ['admin', 'leader'], taskDone: ['admin', 'leader'], remind: ['admin', 'leader'], award: ['admin', 'leader'], igReview: ['admin', 'leader']
+  savePlanWeek: ['admin'], delVcom: ['admin', 'leader'], groupReq: ['admin'], confirmTask: ['admin', 'leader'], addTask: ['admin', 'leader'], taskDone: ['admin', 'leader'], remind: ['admin', 'leader'], award: ['admin', 'leader'], igReview: ['admin', 'leader']
 };
 function api(token, action, payload) {
   return out_(() => {
@@ -317,7 +318,7 @@ const A_ = {
     const teens = rows_('Подростки').filter(t => t.archived !== '1');
     const myGroups = me.groups;
     const visTeens = teens.map(t => {
-      const o = { id: t.id, first: t.first, last: t.last, groups: t.groups ? t.groups.split(',').filter(Boolean) : [], createdAt: t.createdAt, source: t.source, review: t.review === '1', invitedBy: t.invitedBy };
+      const o = { id: t.id, first: t.first, last: t.last, groups: t.groups ? t.groups.split(',').filter(Boolean) : [], createdAt: t.createdAt, source: t.source, review: t.review === '1', invitedBy: t.invitedBy, isLeader: t.isLeader === '1' };
       const own = me.role === 'admin' || (me.role === 'leader' && o.groups.some(g => myGroups.indexOf(g) >= 0));
       if (me.role !== 'viewer') CONTACT_KEYS.forEach(k => o[k] = t[k]);
       if (own) PARENT_KEYS.forEach(k => o[k] = t[k]);
@@ -344,6 +345,7 @@ const A_ = {
       res.plan = planCfg_().plan.map((_, i) => { const x = weekInfo_(dstr_(dnum_(w.mon) + 7 * i)); return { n: x.n, mon: x.mon, idx: x.idx, ref: x.ref, title: x.title, verse: x.verse, tasks: weekTasks_(x).map(k => ({ kind: k.kind, title: k.title, desc: k.desc, pts: k.pts })) }; });
       res.weekWho = allDone.filter(d => String(d.taskId).indexOf('W' + w.mon + ':') === 0 && d.status !== 'no').map(d => { const k = vtask_(d.taskId) || {}; return { teenId: d.teenId, title: k.title || '', pts: k.pts || 0, status: d.status || 'ok' }; });
       res.planDone = Object.keys(okNow).length;
+      res.vcom = vrows_().filter(r => r.kind === 'com' && dnum_(today_()) - dnum_(r.date) <= 14).map(r => ({ id: r.id, date: r.date, ref: verseOf_(r.date).ref, teenId: r.teenId, text: r.text, ts: r.ts })).reverse();
     }
     if (me.role === 'admin') res.greqs = greqs_().filter(x => x.status === 'pending').map(x => ({ id: x.id, teenId: x.teenId, groupId: x.groupId, date: x.date }));
     if (me.role === 'admin') res.ssUrl = ss_().getUrl();
@@ -376,7 +378,7 @@ const A_ = {
       const dup = findDup_(t);
       if (dup) return { dup: { id: dup.id, name: (dup.first + ' ' + dup.last).trim() } };
     }
-    const o = { id: uid_('T'), groups: (t.groups || []).join(','), createdAt: today_(), source: 'leader', review: '', archived: '' };
+    const o = { id: uid_('T'), groups: (t.groups || []).join(','), createdAt: today_(), source: 'leader', review: '', archived: '', isLeader: t.isLeader ? '1' : '' };
     ['first', 'last', 'phone', 'birth', 'addr', 'pFirst', 'pLast', 'pPhone', 'pAddr'].forEach(k => o[k] = String(t[k] || '').trim());
     if (me.role === 'mod') PARENT_KEYS.forEach(k => o[k] = '');
     append_('Подростки', o);
@@ -393,6 +395,7 @@ const A_ = {
     const patch = {};
     ['first', 'last', 'phone', 'birth', 'addr'].forEach(k => { if (p.fields && k in p.fields) patch[k] = String(p.fields[k] || '').trim(); });
     if (own || me.role === 'admin') PARENT_KEYS.forEach(k => { if (p.fields && k in p.fields) patch[k] = String(p.fields[k] || '').trim(); });
+    if (p.fields && 'isLeader' in p.fields && me.role !== 'mod') patch.isLeader = p.fields.isLeader ? '1' : '';
     if (p.groups && me.role !== 'mod') patch.groups = p.groups.join(',');
     if (p.archived != null && me.role === 'admin') patch.archived = p.archived ? '1' : '';
     patch.review = '';
@@ -404,6 +407,7 @@ const A_ = {
     const t = rows_('Подростки').find(x => x.id === p.id); if (t) update_('Подростки', t, { review: '' }); return true;
   },
 
+  delVcom(me, p) { const hit = vrows_().filter(r => r.id === p.id && r.kind === 'com'); if (hit.length) delete_('Стих дня', hit.map(h => h._row)); return true; },
   savePlanWeek(me, p) {
     const cfg = planCfg_(), idx = +p.idx; if (!(idx >= 0 && idx < cfg.plan.length)) throw new Error('bad_week');
     const cl = (v, n) => String(v == null ? '' : v).replace(/\s+/g, ' ').trim().slice(0, n || 200);

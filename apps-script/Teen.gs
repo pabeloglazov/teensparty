@@ -30,6 +30,9 @@ const BADGES = [
   ['wkall', 'tasks', 'Вся неделя', 'Выполнить все задания одной недели.', 1, 40],
   ['wk3', 'tasks', 'Три недели в деле', 'Выполнять задания недели 3 недели подряд.', 3, 30],
   ['wk6', 'tasks', 'Шесть недель в деле', 'Выполнять задания недели 6 недель подряд.', 6, 75],
+  ['vid1', 'video', 'Первое слово', 'Досмотреть видео недели до конца.', 1, 10],
+  ['vid4', 'video', 'Месяц со Словом', 'Смотреть видео недели 4 недели подряд.', 4, 30],
+  ['vid12', 'video', 'Ни одного пропуска', 'Посмотреть 12 видео недели.', 12, 75],
   ['tgchat', 'social', 'В чате', 'Вступить в Telegram-чат SOL 3:16 Teens. Проверяет бот.', 1, 15],
   ['igsub', 'social', 'Подписчик', 'Подписаться на @sol316teens в Instagram. Подтверждает лидер.', 1, 15],
   ['allin', 'social', 'На связи', 'Быть и в Telegram-чате, и в Instagram.', 2, 10],
@@ -188,7 +191,7 @@ const BOOKS_ = { 'бытие': 'GEN', 'исход': 'EXO', 'левит': 'LEV', 
 function bibleUrl_(ref) {
   const m = /^(.*?)[\s,]+(\d+)/.exec(String(ref || '').trim().toLowerCase().replace(/ё/g, 'е').replace(/[-–]\s*е\b/g, ''));
   const code = m && BOOKS_[m[1].replace(/\s+/g, ' ').trim()];
-  return code ? 'https://www.bible.com/bible/400/' + code + '.' + m[2] + '.SYNO' : 'https://www.bible.com/search/bible?query=' + encodeURIComponent(ref || '');
+  return code ? 'https://www.bible.com/bible/143/' + code + '.' + m[2] + '.НРП' : 'https://www.bible.com/search/bible?query=' + encodeURIComponent(ref || '');
 }
 // план недель и правки заданий: из «Настроек» (plan, weekTasks), иначе — встроенные
 let PLANCFG_ = null;
@@ -212,9 +215,65 @@ function weekTaskDefs_(idx) {
 }
 function weekTasks_(w) { return weekTaskDefs_(w.idx).map(t => ({ id: 'W' + w.mon + ':' + t.kind, kind: t.kind, title: t.title, desc: t.desc.replace('{ref}', w.ref).replace('{verse}', w.verse), pts: t.pts, btn: t.btn })); }
 function vtask_(id) {
+  if (/^V\d{4}-\d{2}-\d{2}$/.test(String(id || ''))) return { id: id, kind: 'video', title: 'Видео недели', pts: VIDEO_PTS, week: String(id).slice(1) };
   const m = /^W(\d{4}-\d{2}-\d{2}):(\w+)$/.exec(String(id || '')); if (!m) return null;
   const w = weekInfo_(m[1]); const t = weekTaskDefs_(w.idx).find(x => x.kind === m[2]); if (!t) return null;
   return { id: id, kind: t.kind, title: t.title + (t.kind === 'verse' ? ' · ' + w.verse : t.kind === 'share' ? ' · ' + w.ref : ''), pts: t.pts, week: w.mon };
+}
+// ---------- стих дня ----------
+// Текст — Синодальный перевод (общественное достояние); кнопка «Читать» открывает главу в YouVersion (НРП).
+const VIDEO_PTS = 15, VCOM_PTS = 5;
+const VERSES = [
+  ['Псалом 118:105', 'PSA.118.105', 'Слово Твое — светильник ноге моей и свет стезе моей.'],
+  ['Иоанна 3:16', 'JHN.3.16', 'Ибо так возлюбил Бог мир, что отдал Сына Своего Единородного, дабы всякий верующий в Него, не погиб, но имел жизнь вечную.'],
+  ['Филиппийцам 4:13', 'PHP.4.13', 'Все могу в укрепляющем меня Иисусе Христе.'],
+  ['Притчи 3:5', 'PRO.3.5', 'Надейся на Господа всем сердцем твоим, и не полагайся на разум твой.'],
+  ['Исаия 41:10', 'ISA.41.10', 'Не бойся, ибо Я с тобою; не смущайся, ибо Я Бог твой; Я укреплю тебя, и помогу тебе, и поддержу тебя десницею правды Моей.'],
+  ['Иисус Навин 1:9', 'JOS.1.9', 'Вот Я повелеваю тебе: будь тверд и мужествен, не страшись и не ужасайся; ибо с тобою Господь Бог твой везде, куда ни пойдешь.'],
+  ['Римлянам 8:28', 'ROM.8.28', 'Притом знаем, что любящим Бога, призванным по Его изволению, все содействует ко благу.'],
+  ['Матфея 6:33', 'MAT.6.33', 'Ищите же прежде Царства Божия и правды Его, и это все приложится вам.'],
+  ['Матфея 11:28', 'MAT.11.28', 'Придите ко Мне все труждающиеся и обремененные, и Я успокою вас.'],
+  ['Псалом 22:1', 'PSA.22.1', 'Господь — Пастырь мой; я ни в чем не буду нуждаться.'],
+  ['1 Тимофею 4:12', '1TI.4.12', 'Никто да не пренебрегает юностью твоею; но будь образцом для верных в слове, в житии, в любви, в духе, в вере, в чистоте.'],
+  ['Иеремия 29:11', 'JER.29.11', 'Ибо только Я знаю намерения, какие имею о вас, говорит Господь, намерения во благо, а не на зло, чтобы дать вам будущность и надежду.'],
+  ['2 Тимофею 1:7', '2TI.1.7', 'Ибо дал нам Бог духа не боязни, но силы и любви и целомудрия.'],
+  ['Римлянам 12:2', 'ROM.12.2', 'И не сообразуйтесь с веком сим, но преобразуйтесь обновлением ума вашего, чтобы вам познавать, что есть воля Божия, благая, угодная и совершенная.'],
+  ['Иоанна 14:6', 'JHN.14.6', 'Иисус сказал ему: Я есмь путь и истина и жизнь; никто не приходит к Отцу, как только через Меня.'],
+  ['1 Иоанна 4:19', '1JN.4.19', 'Будем любить Его, потому что Он прежде возлюбил нас.'],
+  ['Филиппийцам 4:6', 'PHP.4.6', 'Не заботьтесь ни о чем, но всегда в молитве и прошении с благодарением открывайте свои желания пред Богом.'],
+  ['Евреям 11:1', 'HEB.11.1', 'Вера же есть осуществление ожидаемого и уверенность в невидимом.'],
+  ['1 Коринфянам 16:14', '1CO.16.14', 'Все у вас да будет с любовью.'],
+  ['Иакова 1:5', 'JAS.1.5', 'Если же у кого из вас недостает мудрости, да просит у Бога, дающего всем просто и без упреков, — и дастся ему.'],
+  ['Матфея 5:16', 'MAT.5.16', 'Так да светит свет ваш пред людьми, чтобы они видели ваши добрые дела и прославляли Отца вашего Небесного.'],
+  ['Матфея 7:7', 'MAT.7.7', 'Просите, и дано будет вам; ищите, и найдете; стучите, и отворят вам.'],
+  ['Римлянам 8:31', 'ROM.8.31', 'Что же сказать на это? Если Бог за нас, кто против нас?'],
+  ['1 Петра 5:7', '1PE.5.7', 'Все заботы ваши возложите на Него, ибо Он печется о вас.'],
+  ['Ефесянам 2:8', 'EPH.2.8', 'Ибо благодатью вы спасены через веру, и сие не от вас, Божий дар.'],
+  ['2 Коринфянам 5:17', '2CO.5.17', 'Итак, кто во Христе, тот новая тварь; древнее прошло, теперь все новое.'],
+  ['Псалом 36:4', 'PSA.36.4', 'Утешайся Господом, и Он исполнит желания сердца твоего.'],
+  ['Притчи 4:23', 'PRO.4.23', 'Больше всего хранимого храни сердце твое, потому что из него источники жизни.'],
+  ['Иоанна 15:5', 'JHN.15.5', 'Я есмь лоза, а вы ветви; кто пребывает во Мне, и Я в нем, тот приносит много плода; ибо без Меня не можете делать ничего.'],
+  ['Колоссянам 3:23', 'COL.3.23', 'И все, что делаете, делайте от души, как для Господа, а не для человеков.'],
+  ['1 Иоанна 1:9', '1JN.1.9', 'Если исповедуем грехи наши, то Он, будучи верен и праведен, простит нам грехи наши и очистит нас от всякой неправды.'],
+  ['Исаия 40:31', 'ISA.40.31', 'А надеющиеся на Господа обновятся в силе: поднимут крылья, как орлы, потекут — и не устанут, пойдут — и не утомятся.'],
+  ['Псалом 118:9', 'PSA.118.9', 'Как юноше содержать в чистоте путь свой? — Хранением себя по слову Твоему.'],
+  ['Иоанна 16:33', 'JHN.16.33', 'Сие сказал Я вам, чтобы вы имели во Мне мир. В мире будете иметь скорбь; но мужайтесь: Я победил мир.'],
+  ['1 Коринфянам 10:31', '1CO.10.31', 'Итак, едите ли, пьете ли, или иное что делаете, все делайте в славу Божию.'],
+  ['Евреям 13:8', 'HEB.13.8', 'Иисус Христос вчера и сегодня и во веки Тот же.']
+];
+const VERSE_START = '2026-11-09';
+function verseOf_(date) { const n = VERSES.length, v = VERSES[(((dnum_(date) - dnum_(VERSE_START)) % n) + n) % n];
+  return { date: date, ref: v[0], text: v[2], url: 'https://www.bible.com/bible/143/' + v[1] + '.НРП' }; }
+function vrows_() { return ss_().getSheetByName('Стих дня') ? rows_('Стих дня') : []; }
+function vdate_(p) { const d = String((p && p.date) || today_()); if (!/^\d{4}-\d{2}-\d{2}$/.test(d) || d > today_() || dnum_(today_()) - dnum_(d) > 30) throw new Error('bad_date'); return d; }
+function verseOut_(t, date, full, rows) {
+  rows = (rows || vrows_()).filter(r => r.date === date);
+  const o = verseOf_(date); const likes = rows.filter(r => r.kind === 'like'), com = rows.filter(r => r.kind === 'com');
+  o.likes = likes.length; o.liked = likes.some(r => r.teenId === t.id); o.ncom = com.length;
+  if (full) { const nm = {}; rows_('Подростки').forEach(x => nm[x.id] = shortName_(x));
+    o.com = com.map(r => ({ id: r.id, name: nm[r.teenId] || 'Гость', text: r.text, ts: r.ts, mine: r.teenId === t.id }));
+    o.past = []; for (let i = 1; i <= 6; i++) { const d = dstr_(dnum_(today_()) - i); o.past.push({ date: d, ref: verseOf_(d).ref }); } }
+  return o;
 }
 const counted_ = d => d.status !== 'pending' && d.status !== 'no';
 function loadCtx_() {
@@ -226,7 +285,8 @@ function loadCtx_() {
     att: by(rows_('Посещения'), 'teenId'), done: by(rows_('Выполнения'), 'teenId'),
     awards: by(rows_('Ачивки'), 'teenId'), logins: by(rows_('Входы'), 'teenId'),
     groups: rows_('Группы').filter(g => g.active !== '0'),
-    invited: by(teens.filter(t => t.invitedBy), 'invitedBy')
+    invited: by(teens.filter(t => t.invitedBy), 'invitedBy'),
+    vcom: by(vrows_().filter(r => r.kind === 'com'), 'teenId')
   };
 }
 function score_(t, C, full) {
@@ -235,6 +295,7 @@ function score_(t, C, full) {
   const add = (what, date, p) => { pts += p; if (date && date.slice(0, 7) === C.month) month += p; if (full) log.push({ what, date, pts: p }); };
   att.forEach(a => add(a.kind === 'event' ? 'Событие' : a.kind === 'group' ? 'Малая группа' : 'Встреча', a.date, a.kind === 'event' ? 15 : 10));
   done.filter(counted_).forEach(d => { const k = C.tasks[d.taskId] || vtask_(d.taskId); if (k) add('Задание: ' + k.title, d.date, +k.pts || 0); });
+  Array.from(new Set((C.vcom[t.id] || []).map(r => r.date))).sort().forEach(d => add('Комментарий к стиху дня', d, VCOM_PTS));
   const appDays = Array.from(new Set(lg.map(l => l.date))).sort();
   appDays.forEach(d => add('Зашёл в приложение', d, 2));
   aw.forEach(a => { if (MANUAL_PTS[a.badge]) add('Ачивка от лидера', a.date, MANUAL_PTS[a.badge]); });
@@ -257,6 +318,8 @@ function score_(t, C, full) {
   const cntKind = kind => done.filter(counted_).filter(d => { const k = C.tasks[d.taskId] || vtask_(d.taskId); return k && k.kind === kind; }).length;
   const wkBy = {}; done.filter(counted_).forEach(d => { const m = /^W(\d{4}-\d{2}-\d{2}):(\w+)$/.exec(String(d.taskId || '')); if (m) (wkBy[m[1]] = wkBy[m[1]] || new Set()).add(m[2]); });
   const wkMons = Object.keys(wkBy).map(dnum_).sort((a, b) => a - b); let wkBest = 0, wkRun = 0; wkMons.forEach((w, i) => { wkRun = i && w - wkMons[i - 1] === 7 ? wkRun + 1 : 1; wkBest = Math.max(wkBest, wkRun); });
+  const vidMons = Array.from(new Set(done.filter(d => /^V\d{4}-\d{2}-\d{2}$/.test(String(d.taskId || ''))).map(d => dnum_(String(d.taskId).slice(1))))).sort((a, b) => a - b);
+  let vidBest = 0, vidRun = 0; vidMons.forEach((w, i) => { vidRun = i && w - vidMons[i - 1] === 7 ? vidRun + 1 : 1; vidBest = Math.max(vidBest, vidRun); });
   const wkAll = Object.keys(wkBy).some(k => wkBy[k].size >= WEEK_TASKS.length) ? 1 : 0;
   const manual = id => aw.filter(a => a.badge === id).length;
   const friends = (C.invited[t.id] || []).filter(f => (C.att[f.id] || []).length).length + manual('friend');
@@ -267,7 +330,7 @@ function score_(t, C, full) {
     d3: dBest, d7: dBest, d14: dBest, d30: dBest, d100: dBest,
     b1: cntKind('read'), book: cntKind('read'), verse: cntKind('verse'),
     tgchat: t.tgChat === '1' ? 1 : 0, igsub: t.igStatus === 'ok' ? 1 : 0, allin: (t.tgChat === '1' ? 1 : 0) + (t.igStatus === 'ok' ? 1 : 0),
-    profile: profileLeft_(t).length ? 0 : 1, wkall: wkAll, wk3: wkBest, wk6: wkBest,
+    profile: profileLeft_(t).length ? 0 : 1, wkall: wkAll, wk3: wkBest, wk6: wkBest, vid1: vidMons.length, vid4: vidBest, vid12: vidMons.length,
     friend: friends, friend3: friends, friend5: friends, mygroup: String(t.groups || '').split(',').filter(Boolean).length ? 1 : 0, party: att.filter(a => a.kind === 'event').length,
     groups: C.groups.length >= 2 && C.groups.every(g => visitedGroups.has(g.id)) ? 1 : 0,
     night: manual('night'), camp: manual('camp'), help: manual('help'), back: manual('back'), bday: manual('bday'), thanks: manual('thanks')
@@ -298,7 +361,8 @@ const TA_ = {
     const C = loadCtx_(); const me = C.teens.find(x => x.id === t.id) || t;
     const sc = score_(me, C, true);
     const all = C.teens.map(x => { const s = x.id === t.id ? sc : score_(x, C, false); return { id: x.id, name: shortName_(x), pts: s.pts, month: s.month }; });
-    const top = key => all.filter(x => x[key] > 0).sort((a, b) => b[key] - a[key]).map((x, i) => ({ place: i + 1, name: x.name, pts: x[key], me: x.id === t.id }));
+    const ldr = {}; C.teens.forEach(x => { if (x.isLeader === '1' && x.id !== t.id) ldr[x.id] = 1; });
+    const top = key => all.filter(x => x[key] > 0 && !ldr[x.id]).sort((a, b) => b[key] - a[key]).map((x, i) => ({ place: i + 1, name: x.name, pts: x[key], me: x.id === t.id }));
     const month = top('month'), allTime = top('pts');
     const groups = (me.groups || '').split(',').filter(Boolean);
     const gname = {}; C.groups.forEach(g => gname[g.id] = g.name);
@@ -325,6 +389,8 @@ const TA_ = {
       invite: { link: APP_URL + 'join/?by=' + me.id, came: (C.invited[t.id] || []).filter(f => (C.att[f.id] || []).length).length,
         list: invites_().filter(x => x.by === t.id).map(x => ({ name: (x.first + ' ' + String(x.last || '').charAt(0) + '.').trim(), status: x.status, date: x.date })).reverse().slice(0, 30) },
       ig: { link: IG_LINK, status: me.igStatus || '', nick: me.ig || '' },
+      verse: verseOut_(t, C.today, false),
+      vid: (C.done[t.id] || []).filter(d => /^V\d/.test(String(d.taskId || ''))).map(d => String(d.taskId).slice(1)), vidPts: VIDEO_PTS, vcomPts: VCOM_PTS,
       meet: currentMeeting_(),
       schedule: services_(st).map(x => ({ name: x.name, day: x.day, time: x.time }))
     };
@@ -357,6 +423,26 @@ const TA_ = {
     const hit = rows_('Выполнения').filter(d => d.taskId === k.id && d.teenId === t.id);
     if (!hit.length) append_('Выполнения', { taskId: k.id, teenId: t.id, date: today_(), by: 'self', status: 'pending' });
     else if (hit[0].status === 'no') update_('Выполнения', hit[0], { status: 'pending', date: today_(), by: 'self' });
+    return true;
+  },
+  verse(t, p) { return verseOut_(t, vdate_(p), true); },
+  verseLike(t, p) {
+    const d = vdate_(p); ensure_('Стих дня');
+    lock_(() => { const hit = rows_('Стих дня').filter(r => r.date === d && r.kind === 'like' && r.teenId === t.id);
+      if (hit.length) delete_('Стих дня', hit.map(h => h._row)); else append_('Стих дня', { id: uid_('L'), date: d, teenId: t.id, kind: 'like', text: '', ts: nowIso_() }); });
+    return verseOut_(t, d, true);
+  },
+  verseCom(t, p) {
+    const d = vdate_(p), text = String(p.text || '').replace(/\s+/g, ' ').trim().slice(0, 300); if (!text) throw new Error('empty');
+    ensure_('Стих дня');
+    if (rows_('Стих дня').filter(r => r.date === d && r.kind === 'com' && r.teenId === t.id).length >= 10) throw new Error('Слишком много комментариев за день');
+    append_('Стих дня', { id: uid_('M'), date: d, teenId: t.id, kind: 'com', text: text, ts: nowIso_() });
+    return verseOut_(t, d, true);
+  },
+  videoDone(t, p) {
+    const mon = String(p.mon || ''), w = weekInfo_(today_()).mon;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(mon) || mon > w || (dnum_(mon) + 3) % 7 !== 0) throw new Error('bad_week');
+    if (!rows_('Выполнения').some(d => d.taskId === 'V' + mon && d.teenId === t.id)) append_('Выполнения', { taskId: 'V' + mon, teenId: t.id, date: today_(), by: 'self' });
     return true;
   },
   taskDone(t, p) {

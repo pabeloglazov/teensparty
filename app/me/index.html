@@ -71,6 +71,22 @@ a{color:inherit}
 .blk.first{background:var(--accbg2);border-color:var(--acc)}
 .rr{display:flex;align-items:center;gap:12px;min-height:54px;padding:6px 14px;border-radius:14px;background:var(--card);border:1px solid var(--line)}
 .rr.me{background:var(--accbg);border-color:var(--acc)}
+.vcard{background:var(--accbg2);border:1px solid var(--acc);border-radius:20px;padding:16px 16px 4px;display:flex;flex-direction:column;gap:12px}
+.vcard .vt{font-size:20px;line-height:1.45;font-weight:500}
+.vst{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:28px;font-size:13px;color:var(--acc2)}
+.vst button{color:var(--acc2);font-size:13px;min-height:28px}
+.vhc{width:22px;height:22px;border-radius:999px;background:var(--acc);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.vact{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid #4A3320}
+.vact>*{height:48px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:13px;font-weight:600;color:var(--tx);text-decoration:none;white-space:nowrap}
+.vact .on{color:var(--acc)}
+.vcm{display:flex;flex-direction:column;gap:2px;padding:10px 0;border-bottom:1px solid var(--line)}
+.vemo{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.vemo button{height:40px;font-size:20px;border-radius:10px;background:var(--card)}
+.vsend{width:50px;height:50px;border-radius:14px;background:var(--acc);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.vid{position:fixed;inset:0;z-index:30;background:#000;display:flex;flex-direction:column}
+.vid video{flex:1;min-height:0;width:100%;object-fit:contain;background:#000}
+.vid .vb{padding:12px 16px calc(16px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:8px;background:#0E0F12}
+.vid .vx{position:absolute;top:calc(10px + env(safe-area-inset-top));left:12px;width:44px;height:44px;border-radius:12px;background:rgba(14,15,18,.7);display:flex;align-items:center;justify-content:center;z-index:2}
 .ov{position:fixed;top:0;left:0;right:0;height:var(--apph,100%);background:rgba(0,0,0,.6);display:flex;align-items:flex-end;justify-content:center;z-index:10}
 .sheet{width:100%;max-width:520px;background:#16181D;border-radius:24px 24px 0 0;padding:22px 20px calc(24px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:14px;align-items:center;text-align:center;max-height:90vh;overflow-y:auto}
 .inp[type=date]{-webkit-appearance:none;appearance:none;display:block;min-width:0;max-width:100%;text-align:left;line-height:48px}
@@ -141,8 +157,8 @@ const BI = { first: I.star, m5: I.cal, m10: I.cal, m25: I.cal, m50: I.trophy, m1
   d3: I.phone, d7: I.phone, d14: I.phone, d30: I.cal, d100: I.crown, b1: I.book, book: I.book, verse: I.heart, tgchat: I.tg, igsub: I.ig, allin: I.chat,
   friend: I.plus, friend3: I.plus, party: I.cal, groups: I.map, night: I.moon, camp: I.tent, help: I.hand, back: I.back, bday: I.cake, thanks: I.star, legend: I.crown };
 BI.profile = I.user;
-BI.friend5 = I.plus; BI.mygroup = I.users; BI.wkall = I.trophy; BI.wk3 = I.flame; BI.wk6 = I.flame;
-const CATS = [['meet', 'ВСТРЕЧИ'], ['streak', 'СЕРИИ НА ВСТРЕЧАХ'], ['app', 'ПРИЛОЖЕНИЕ КАЖДЫЙ ДЕНЬ'], ['bible', 'БИБЛИЯ'], ['tasks', 'ЗАДАНИЯ НЕДЕЛИ'], ['social', 'СОЦСЕТИ'], ['friends', 'ДРУЗЬЯ И СОБЫТИЯ'], ['special', 'ОСОБЫЕ']];
+BI.friend5 = I.plus; BI.mygroup = I.users; BI.vid1 = I.star; BI.vid4 = I.flame; BI.vid12 = I.crown; BI.wkall = I.trophy; BI.wk3 = I.flame; BI.wk6 = I.flame;
+const CATS = [['meet', 'ВСТРЕЧИ'], ['streak', 'СЕРИИ НА ВСТРЕЧАХ'], ['app', 'ПРИЛОЖЕНИЕ КАЖДЫЙ ДЕНЬ'], ['bible', 'БИБЛИЯ'], ['tasks', 'ЗАДАНИЯ НЕДЕЛИ'], ['video', 'СЛОВО НЕДЕЛИ'], ['social', 'СОЦСЕТИ'], ['friends', 'ДРУЗЬЯ И СОБЫТИЯ'], ['special', 'ОСОБЫЕ']];
 const RULES_OLD = [['Пришёл на встречу или малую группу', '+10'], ['Событие', '+15'], ['Задание', '+10…30'], ['Зашёл в приложение (раз в день)', '+2'], ['Вступил в Telegram-чат', '+15'], ['Подписался на Instagram', '+15'], ['Ачивка', '+5…200']];
 const ERR = { network: 'Нет связи. Проверь интернет.', no_meeting: 'Сейчас нет встречи.', bad_birth: 'Проверь дату рождения.', bad_phone: 'В телефоне должно быть 10 цифр.', need_name: 'Напиши своё имя.', no_bot: 'Вход через Telegram ещё настраивается. Попробуй чуть позже.', no_chat: 'Бот ещё не добавлен в чат — скажи лидеру.', no_tg: 'Войди через Telegram ещё раз.', need_nick: 'Напиши свой ник в Instagram' };
 const errT = e => ERR[e && e.message] || 'Что-то пошло не так. Попробуй ещё раз.';
@@ -165,7 +181,7 @@ const laToday = () => { try { return new Intl.DateTimeFormat('en-CA', { timeZone
 function applyRoute() { const t = (location.hash || '').replace(/^#\/?/, '').split('/')[0]; if (TABS.indexOf(t) >= 0) S.tab = t; }
 function syncUrl() { if (!S.token || !D) return; const r = '#/' + S.tab; document.title = TTL[S.tab] + ' · SOL 3:16 Teens'; if (location.hash === r) return; try { if (!location.hash || location.hash === '#') history.replaceState(null, '', r); else history.pushState(null, '', r); } catch (e) {} }
 window.addEventListener('popstate', () => { if (!D) return; applyRoute(); S.ov = null; render(); });
-async function load() { try { const keep = S.ov && S.ov.type === 'pf'; const fresh = await api('me'); if (keep && S.ov && S.ov.type === 'pf') return; D = fresh; LS.set(MEC, JSON.stringify({ day: laToday(), d: D })); render(); } catch (e) { if (D && S.token) { if (e.message !== 'auth') toast(errT(e)); return; } if (S.token) { $.innerHTML = `<div class="login"><div class="h2">Не удалось загрузить</div><div class="mu">${esc(errT(e))}</div><button class="btn" data-a="reload">Повторить</button></div>`; } } }
+async function load() { try { const keep = S.ov && S.ov.type === 'pf'; const fresh = await api('me'); if (keep && S.ov && S.ov.type === 'pf') return; D = fresh; S.vfull = null; LS.set(MEC, JSON.stringify({ day: laToday(), d: D })); render(); } catch (e) { if (D && S.token) { if (e.message !== 'auth') toast(errT(e)); return; } if (S.token) { $.innerHTML = `<div class="login"><div class="h2">Не удалось загрузить</div><div class="mu">${esc(errT(e))}</div><button class="btn" data-a="reload">Повторить</button></div>`; } } }
 
 // ---------- вход ----------
 let pollT = null;
@@ -229,6 +245,54 @@ function weekTaskCard(k) {
     ${st === 'ok' ? `<div class="sm" style="color:var(--acc);font-weight:700;display:flex;align-items:center;gap:6px">${svg(I.check, 'var(--acc)', 16, 3)} Засчитано${k.by ? ' · ' + esc(k.by) : ''} · +${k.pts}</div>`
     : st === 'pending' ? `<div class="sm" style="color:#F2C14E;font-weight:600">Ждёт подтверждения лидера</div>`
     : `${st === 'no' ? `<div class="sm mu">Лидер пока не засчитал — сделай и отправь ещё раз.</div>` : ''}<button class="btnS" data-a="wk" data-x="${k.id}">${esc(k.btn)}</button>`}</div>`;
+}
+const VI = { share: 'M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7M16 6l-4-4-4 4M12 2v13', chat: 'M21 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.1-5.4A8.5 8.5 0 1 1 21 11.5z', play: 'M7 4l13 8-13 8z', send: 'M22 2L11 13M22 2l-7 20-4-9-9-4z', x: 'M6 6l12 12M18 6L6 18', right: 'M9 6l6 6-6 6' };
+const vNow = () => (S.vfull && S.vfull.date === D.today ? S.vfull : D.verse);
+function verseCard() {
+  const v = vNow(); if (!v) return '';
+  return `<div class="vcard"><div><div class="xs" style="color:var(--acc2);font-weight:600">Стих дня</div><div style="font-weight:700">${esc(v.ref)}</div></div>
+    <div class="vt">${esc(v.text)}</div>
+    <div class="vst"><span style="display:flex;align-items:center;gap:6px"><span class="vhc">${svg(I.heart, '#0E0F12', 12, 2.6)}</span>${v.likes}</span><button data-a="verse" data-x="${v.date}">${v.ncom ? v.ncom + ' ' + plural(v.ncom, 'комментарий', 'комментария', 'комментариев') : 'Написать комментарий'} ›</button></div>
+    <div class="vact"><button class="${v.liked ? 'on' : ''}" data-a="vLike" data-x="${v.date}">${svg(I.heart, v.liked ? 'var(--acc)' : '#F4F4F5', 18, 2.2)}Нравится</button><button data-a="vShare" data-x="${v.date}">${svg(VI.share, '#F4F4F5', 18, 2.2)}Поделиться</button><a href="${esc(v.url)}" target="_blank" rel="noopener">${svg(I.book, '#F4F4F5', 18, 2.2)}Читать</a></div></div>`;
+}
+function videoCard() {
+  const w = D.week, v = w && S.videos && S.videos[w.mon]; if (!v) return '';
+  const seen = (D.vid || []).indexOf(w.mon) >= 0;
+  return `<button class="card" data-a="video" data-x="${w.mon}" style="flex-direction:row;align-items:center;text-align:left;width:100%"><span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px"><span class="xs mu">Слово недели · видео</span><span style="font-weight:700;font-size:16px">${esc(v.title)}</span><span class="xs mu">${esc(v.dur || '')}${v.by ? ' · ' + esc(v.by) : ''}</span><span class="xs" style="font-weight:700;color:${seen ? 'var(--mu)' : 'var(--acc)'}">${seen ? 'просмотрено' : '+' + (D.vidPts || 15) + ' за просмотр до конца'}</span></span><span class="circ ${seen ? '' : 'got'}" style="width:56px;height:56px;flex-shrink:0">${svg(seen ? I.check : VI.play, seen ? '#A1A1AA' : '#0E0F12', 24, 2.4)}</span></button>`;
+}
+function verseOverlay(o) {
+  const v = o.v; const today = !v || v.date === D.today;
+  return `<div class="ov" data-a="close"><div class="sheet" data-stop="1" style="text-align:left;align-items:stretch;gap:10px;max-height:calc(var(--apph,100vh) - 56px)">
+    <div class="row" style="justify-content:space-between"><div style="min-width:0"><div class="xs mu">${v ? (today ? 'Стих дня' : esc(word(v.date))) : 'Стих дня'}</div><div class="h2" style="font-size:18px">${v ? esc(v.ref) : ''}</div></div><button data-a="close" class="circ" style="width:44px;height:44px;border-radius:12px" aria-label="Закрыть">${svg(VI.x, '#A1A1AA', 20, 2.2)}</button></div>
+    ${!v ? `<div style="display:flex;justify-content:center;padding:30px"><div class="spin"></div></div>` : `
+    <div class="sm" style="line-height:1.5;color:var(--tx2)">${esc(v.text)}</div>
+    <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:2px">${[{ date: D.today, ref: 'Сегодня' }].concat(v.past || []).map(x => `<button class="btnS ${x.date === v.date ? '' : 'ghost'}" style="height:36px;padding:0 12px;font-size:12px" data-a="verse" data-x="${x.date}">${x.date === D.today ? 'Сегодня' : esc(human(x.date))}</button>`).join('')}</div>
+    <div>${v.com.length ? v.com.map(c => `<div class="vcm"><div class="row" style="justify-content:space-between;gap:8px"><span class="sm" style="font-weight:700">${esc(c.name)}${c.mine ? ' <span class="xs mu" style="font-weight:500">· ты</span>' : ''}</span><span class="xs mu">${esc(vtime(c.ts))}</span></div><div class="sm" style="line-height:1.45;word-break:break-word">${esc(c.text)}</div></div>`).join('') : `<div class="sm mu" style="padding:14px 0;text-align:center">Пока нет комментариев. Напиши первым</div>`}</div>
+    <div class="vemo">${['❤️', '🙏', '🔥', '🙌', '👏', '😊', '👍'].map(e => `<button data-a="vEmo" data-x="${e}" aria-label="${e}">${e}</button>`).join('')}</div>
+    <div class="row" style="gap:8px"><input class="inp" id="vci" data-b="vc" maxlength="300" value="${esc(S.vc || '')}" placeholder="Комментарий" aria-label="Комментарий"><button class="vsend" data-a="vSend" aria-label="Отправить">${svg(VI.send, '#0E0F12', 20, 2.4)}</button></div>
+    <div class="xs mu">+${D.vcomPts || 5} баллов за первый комментарий в день</div>`}
+  </div></div>`;
+}
+const vtime = ts => { const m = /(\d{2}):(\d{2})$/.exec(String(ts || '')); if (!m) return ''; const h = +m[1]; return (h % 12 || 12) + ':' + m[2] + (h < 12 ? ' AM' : ' PM'); };
+function loadVideos() { fetch('../media/videos.json?t=' + Date.now()).then(r => r.json()).then(j => { S.videos = j || {}; if (D && S.tab === 'home' && !S.ov) render(); }).catch(() => {}); }
+function openVideo(mon) {
+  const v = S.videos && S.videos[mon]; if (!v) return;
+  const seen = (D.vid || []).indexOf(mon) >= 0;
+  const el = document.createElement('div'); el.className = 'vid';
+  el.innerHTML = `<button class="vx" aria-label="Закрыть">${svg(VI.x, '#F4F4F5', 20, 2.2)}</button><video playsinline webkit-playsinline preload="auto" src="../media/${esc(v.file)}"></video><div class="vb"><div class="bar"><i style="width:0%"></i></div><div class="row" style="justify-content:space-between"><span class="xs mu" id="vtm">0:00</span><span class="xs mu" id="vhint">${seen ? 'уже просмотрено' : 'досмотри до конца — получишь +' + (D.vidPts || 15)}</span></div></div>`;
+  document.body.appendChild(el);
+  const vd = el.querySelector('video'), bar = el.querySelector('.bar i'), tm = el.querySelector('#vtm'); let maxT = 0, sent = false;
+  const fmt = x => Math.floor(x / 60) + ':' + String(Math.floor(x % 60)).padStart(2, '0');
+  const close = () => { try { vd.pause(); } catch (e) {} el.remove(); };
+  el.querySelector('.vx').onclick = close;
+  vd.onclick = () => { vd.paused ? vd.play() : vd.pause(); };
+  vd.ontimeupdate = () => { if (!vd.seeking) maxT = Math.max(maxT, vd.currentTime); bar.style.width = (vd.duration ? vd.currentTime / vd.duration * 100 : 0) + '%'; tm.textContent = fmt(vd.currentTime) + (vd.duration ? ' / ' + fmt(vd.duration) : ''); };
+  vd.onseeking = () => { if (vd.currentTime > maxT + 1) vd.currentTime = maxT; };
+  vd.onended = async () => { if (sent) return; sent = true; close();
+    if (seen) return;
+    try { await api('videoDone', { mon }); D.vid = (D.vid || []).concat(mon); render(); toast('Досмотрел до конца · +' + (D.vidPts || 15)); load(); } catch (e) { toast(errT(e)); } };
+  vd.onerror = () => { el.querySelector('#vhint').textContent = 'Видео не загрузилось. Проверь интернет'; };
+  vd.play().catch(() => { el.querySelector('#vhint').textContent = 'Нажми на видео, чтобы начать'; });
 }
 function weekCards() {
   const w = D.week; if (!w) return '';
@@ -304,6 +368,8 @@ function viewHome() {
   const ms = [3, 7, 14, 30, 100].find(m => m > D.appStreak);
   return `<div><div class="sm mu">${DAYS[t.getDay()]}, ${t.getDate()} ${MON[t.getMonth()]}</div><h1 class="h1">Привет, ${esc(D.me.first)}!</h1></div>
   ${D.meet ? `<div class="card acc"><div class="row"><div class="circ got" style="width:44px;height:44px">${svg(I.scan, '#0E0F12', 22, 2.4)}</div><div style="flex:1"><div style="font-weight:700">Сейчас: ${esc(D.meet.label)}</div><div class="sm mu">Ты на месте? Отметься и получи +10</div></div></div><button class="btn" data-a="checkin">Я на встрече</button></div>` : ''}
+  ${verseCard()}
+  ${videoCard()}
   <div class="card acc"><div class="row" style="justify-content:space-between"><div><div class="sec" style="color:var(--acc2)">УРОВЕНЬ ${lv.num}</div><div class="h2" style="margin-top:4px">${esc(lv.name)}</div></div><div style="text-align:right"><div style="font-family:Unbounded,Inter,sans-serif;font-size:30px;font-weight:700;color:var(--acc)">${D.pts}</div><div class="xs mu">${plural(D.pts, 'балл', 'балла', 'баллов')}</div></div></div><div class="bar"><i style="width:${lv.pct}%"></i></div><div class="sm mu">${esc(lv.left)}</div></div>
   <button class="card" data-a="daily" style="text-align:left;width:100%"><div class="row" style="justify-content:space-between"><div class="row"><div class="circ got" style="width:44px;height:44px">${svg(I.flame, '#0E0F12', 22)}</div><div><div style="font-weight:700;font-size:17px">${D.appStreak} ${plural(D.appStreak, 'день', 'дня', 'дней')} подряд</div><div class="xs mu">в приложении · рекорд ${D.appBest}</div></div></div><span class="pill">+2/день</span></div><div class="days">${days}</div>${ms ? `<div class="xs mu">До ачивки за ${ms} ${plural(ms, 'день', 'дня', 'дней')} — ещё ${ms - D.appStreak}</div>` : ''}</button>
   <div class="stats"><div class="stat"><b>${D.weekStreak}</b><span class="xs mu">${plural(D.weekStreak, 'неделя', 'недели', 'недель')} подряд на встречах</span></div><button class="stat" data-a="tab" data-x="rank" style="text-align:left"><b>${D.rank.myMonth ? '#' + D.rank.myMonth : '—'}</b><span class="xs mu">в рейтинге месяца</span></button></div>
@@ -389,6 +455,7 @@ function viewProfile() {
 }
 function viewOverlay() {
   const o = S.ov; if (!o) return '';
+  if (o.type === 'verse') return verseOverlay(o);
   if (o.type === 'route') { const q = encodeURIComponent(o.addr + ', CA');
     return `<div class="ov" data-a="close"><div class="sheet" data-stop="1" style="text-align:left;align-items:stretch;gap:10px"><div class="h2">Проложить маршрут</div><div class="sm mu">${esc(o.addr)}</div><a class="btn ibtn" href="https://maps.apple.com/?daddr=${q}" target="_blank" rel="noopener" data-go="route">Apple Maps</a><a class="btn2 ibtn" href="https://www.google.com/maps/dir/?api=1&destination=${q}" target="_blank" rel="noopener" data-go="route">Google Maps</a><button class="btn2 ibtn" data-a="close">Отмена</button></div></div>`; }
   if (o.type === 'sg') return `<div class="ov" data-a="close"><div class="sheet" data-stop="1" style="text-align:left;align-items:stretch;gap:12px"><div class="h2">Малые группы</div><div class="sm mu" style="line-height:1.45">Выбери, куда удобнее по дню, времени и адресу.</div>${(D.sg.all || []).map(g => `<div class="card" ${D.sg.req && D.sg.req.status === 'pending' && D.sg.req.groupId === g.id ? 'style="border-color:var(--acc)"' : ''}>${sgBody(g, true)}</div>`).join('')}<button class="btn2 ibtn" data-a="close">Закрыть</button></div></div>`;
@@ -454,6 +521,16 @@ const H = {
   inst() { S.ov = { type: 'inst', v: 'pick' }; render(); },
   instGo(x) { S.ov = { type: 'inst', v: x }; render(); },
   instDone() { LS.set('sol_teen_inst', '1'); S.ov = null; render(); toast('Отлично! Открывай приложение с иконки'); },
+  async verse(d) { const keep = S.ov && S.ov.type === 'verse' ? S.ov.v : null; S.ov = { type: 'verse', v: keep && keep.date === d ? keep : null }; render();
+    try { const v = await api('verse', { date: d }); if (S.ov && S.ov.type === 'verse') { S.ov.v = v; if (d === D.today) S.vfull = v; render(); } } catch (e) { toast(errT(e)); } },
+  async vLike(d) { const v = vNow(); if (!v || S.vbusy) return; S.vbusy = 1; v.liked = !v.liked; v.likes += v.liked ? 1 : -1; render();
+    try { S.vfull = await api('verseLike', { date: d }); } catch (e) { v.liked = !v.liked; v.likes += v.liked ? 1 : -1; toast(errT(e)); } S.vbusy = 0; render(); },
+  async vShare() { const v = vNow(); const text = '«' + v.text + '» — ' + v.ref;
+    if (navigator.share) { try { await navigator.share({ text, url: v.url }); } catch (e) {} } else { try { await navigator.clipboard.writeText(text + ' ' + v.url); toast('Стих скопирован'); } catch (e) { toast(text); } } },
+  vEmo(e) { S.vc = (S.vc || '') + e; const i = document.getElementById('vci'); if (i) { i.value = S.vc; i.focus(); } },
+  async vSend() { const o = S.ov, text = (S.vc || '').trim(); if (!o || !o.v || !text || S.vbusy) return; S.vbusy = 1;
+    try { const first = !o.v.com.some(c => c.mine); const v = await api('verseCom', { date: o.v.date, text }); S.vc = ''; if (S.ov && S.ov.type === 'verse') S.ov.v = v; if (v.date === D.today) S.vfull = v; render(); if (first) toast('Комментарий отправлен · +' + (D.vcomPts || 5)); } catch (e) { toast(errT(e)); } S.vbusy = 0; },
+  video(mon) { openVideo(mon); },
   invite() { S.ov = { type: 'invite' }; render(); },
   async invShare() { const url = D.invite.link, text = 'Приходи со мной на SOL 3:16 Teens! Запишись здесь:';
     if (navigator.share) { try { await navigator.share({ title: 'SOL 3:16 Teens', text, url }); } catch (e) {} } else H.invCopy(); },
@@ -491,6 +568,7 @@ document.addEventListener('input', e => { const b = e.target.getAttribute && e.t
 applyRoute();
 if (S.token) { try { const c = JSON.parse(LS.get(MEC) || 'null'); if (c && c.day === laToday() && c.d) D = c.d; } catch (e) {} }
 render();
+loadVideos();
 if (S.token) load();
 setInterval(() => { if (!S.token && !S.nonce) prefetch(); }, 60000);
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
