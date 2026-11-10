@@ -271,7 +271,8 @@ function verseOut_(t, date, full, rows) {
   const o = verseOf_(date); const likes = rows.filter(r => r.kind === 'like'), com = rows.filter(r => r.kind === 'com');
   o.likes = likes.length; o.liked = likes.some(r => r.teenId === t.id); o.ncom = com.length;
   if (full) { const nm = {}; rows_('Подростки').forEach(x => nm[x.id] = shortName_(x));
-    o.com = com.map(r => ({ id: r.id, name: nm[r.teenId] || 'Гость', text: r.text, ts: r.ts, mine: r.teenId === t.id }));
+    const cl = rows.filter(r => r.kind === 'clike');
+    o.com = com.map(r => ({ id: r.id, name: nm[r.teenId] || 'Гость', text: r.text, ts: r.ts, mine: r.teenId === t.id, likes: cl.filter(x => x.text === r.id).length, liked: cl.some(x => x.text === r.id && x.teenId === t.id) }));
     o.past = []; for (let i = 1; i <= 6; i++) { const d = dstr_(dnum_(today_()) - i); o.past.push({ date: d, ref: verseOf_(d).ref }); } }
   return o;
 }
@@ -389,7 +390,7 @@ const TA_ = {
       invite: { link: APP_URL + 'join/?by=' + me.id, came: (C.invited[t.id] || []).filter(f => (C.att[f.id] || []).length).length,
         list: invites_().filter(x => x.by === t.id).map(x => ({ name: (x.first + ' ' + String(x.last || '').charAt(0) + '.').trim(), status: x.status, date: x.date })).reverse().slice(0, 30) },
       ig: { link: IG_LINK, status: me.igStatus || '', nick: me.ig || '' },
-      verse: verseOut_(t, C.today, false),
+      verse: verseOut_(t, C.today, true),
       vid: (C.done[t.id] || []).filter(d => /^V\d/.test(String(d.taskId || ''))).map(d => String(d.taskId).slice(1)), vidPts: VIDEO_PTS, vcomPts: VCOM_PTS,
       meet: currentMeeting_(),
       schedule: services_(st).map(x => ({ name: x.name, day: x.day, time: x.time }))
@@ -431,6 +432,12 @@ const TA_ = {
     lock_(() => { const hit = rows_('Стих дня').filter(r => r.date === d && r.kind === 'like' && r.teenId === t.id);
       if (hit.length) delete_('Стих дня', hit.map(h => h._row)); else append_('Стих дня', { id: uid_('L'), date: d, teenId: t.id, kind: 'like', text: '', ts: nowIso_() }); });
     return verseOut_(t, d, true);
+  },
+  vcLike(t, p) {
+    const c = vrows_().find(r => r.id === p.id && r.kind === 'com'); if (!c) throw new Error('not_found');
+    lock_(() => { const hit = rows_('Стих дня').filter(r => r.kind === 'clike' && r.text === c.id && r.teenId === t.id);
+      if (hit.length) delete_('Стих дня', hit.map(h => h._row)); else append_('Стих дня', { id: uid_('K'), date: c.date, teenId: t.id, kind: 'clike', text: c.id, ts: nowIso_() }); });
+    return verseOut_(t, c.date, true);
   },
   verseCom(t, p) {
     const d = vdate_(p), text = String(p.text || '').replace(/\s+/g, ' ').trim().slice(0, 300); if (!text) throw new Error('empty');

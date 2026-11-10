@@ -79,9 +79,9 @@ a{color:inherit}
 .vact{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid #4A3320}
 .vact>*{height:48px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:13px;font-weight:600;color:var(--tx);text-decoration:none;white-space:nowrap}
 .vact .on{color:var(--acc)}
-.vcm{display:flex;flex-direction:column;gap:2px;padding:10px 0;border-bottom:1px solid var(--line)}
+.vcm{display:flex;flex-direction:column;gap:4px;padding:12px 0 4px}
 .vemo{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
-.vemo button{height:40px;font-size:20px;border-radius:10px;background:var(--card)}
+.vemo button{height:40px;font-size:22px}
 .vsend{width:50px;height:50px;border-radius:14px;background:var(--acc);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .vid{position:fixed;inset:0;z-index:30;background:#000;display:flex;flex-direction:column}
 .vid video{flex:1;min-height:0;width:100%;object-fit:contain;background:#000}
@@ -261,16 +261,14 @@ function videoCard() {
   return `<button class="card" data-a="video" data-x="${w.mon}" style="flex-direction:row;align-items:center;text-align:left;width:100%"><span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px"><span class="xs mu">Слово недели · видео</span><span style="font-weight:700;font-size:16px">${esc(v.title)}</span><span class="xs mu">${esc(v.dur || '')}${v.by ? ' · ' + esc(v.by) : ''}</span><span class="xs" style="font-weight:700;color:${seen ? 'var(--mu)' : 'var(--acc)'}">${seen ? 'просмотрено' : '+' + (D.vidPts || 15) + ' за просмотр до конца'}</span></span><span class="circ ${seen ? '' : 'got'}" style="width:56px;height:56px;flex-shrink:0">${svg(seen ? I.check : VI.play, seen ? '#A1A1AA' : '#0E0F12', 24, 2.4)}</span></button>`;
 }
 function verseOverlay(o) {
-  const v = o.v; const today = !v || v.date === D.today;
-  return `<div class="ov" data-a="close"><div class="sheet" data-stop="1" style="text-align:left;align-items:stretch;gap:10px;max-height:calc(var(--apph,100vh) - 56px)">
-    <div class="row" style="justify-content:space-between"><div style="min-width:0"><div class="xs mu">${v ? (today ? 'Стих дня' : esc(word(v.date))) : 'Стих дня'}</div><div class="h2" style="font-size:18px">${v ? esc(v.ref) : ''}</div></div><button data-a="close" class="circ" style="width:44px;height:44px;border-radius:12px" aria-label="Закрыть">${svg(VI.x, '#A1A1AA', 20, 2.2)}</button></div>
+  const v = o.v;
+  return `<div class="ov" data-a="close"><div class="sheet" data-stop="1" style="text-align:left;align-items:stretch;gap:10px;padding-top:10px;max-height:calc(var(--apph,100vh) - 56px)">
+    <div style="width:40px;height:4px;border-radius:999px;background:var(--line3);align-self:center"></div>
+    <div style="display:grid;grid-template-columns:44px 1fr 44px;align-items:center"><span></span><div style="text-align:center;font-weight:700;font-size:16px">${v ? (v.com.length ? v.com.length + ' ' + plural(v.com.length, 'комментарий', 'комментария', 'комментариев') : 'Комментарии') : 'Комментарии'}</div><button data-a="close" class="circ" style="width:44px;height:44px;border-radius:12px" aria-label="Закрыть">${svg(VI.x, '#A1A1AA', 20, 2.2)}</button></div>
     ${!v ? `<div style="display:flex;justify-content:center;padding:30px"><div class="spin"></div></div>` : `
-    <div class="sm" style="line-height:1.5;color:var(--tx2)">${esc(v.text)} <a href="${esc(v.url)}" target="_blank" rel="noopener" style="color:var(--acc);font-weight:600;white-space:nowrap">Читать главу ›</a></div>
-    <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:2px">${[{ date: D.today, ref: 'Сегодня' }].concat(v.past || []).map(x => `<button class="btnS ${x.date === v.date ? '' : 'ghost'}" style="height:36px;padding:0 12px;font-size:12px" data-a="verse" data-x="${x.date}">${x.date === D.today ? 'Сегодня' : esc(human(x.date))}</button>`).join('')}</div>
-    <div>${v.com.length ? v.com.map(c => `<div class="vcm"><div class="row" style="justify-content:space-between;gap:8px"><span class="sm" style="font-weight:700">${esc(c.name)}${c.mine ? ' <span class="xs mu" style="font-weight:500">· ты</span>' : ''}</span><span class="xs mu">${esc(vtime(c.ts))}</span></div><div class="sm" style="line-height:1.45;word-break:break-word">${esc(c.text)}</div></div>`).join('') : `<div class="sm mu" style="padding:14px 0;text-align:center">Пока нет комментариев. Напиши первым</div>`}</div>
+    <div style="min-height:120px">${v.com.length ? v.com.map(c => `<div class="vcm"><div class="row" style="justify-content:space-between;gap:8px"><span class="sm mu" style="font-weight:600">${esc(c.name)}${c.mine ? ' · ты' : ''}</span><span class="xs mu">${esc(vtime(c.ts))}</span></div><div style="font-size:15px;line-height:1.45;word-break:break-word">${esc(c.text)}</div><button class="row" data-a="vcLike" data-x="${c.id}" style="gap:6px;min-height:40px;align-self:flex-start;font-size:13px;color:${c.liked ? 'var(--acc)' : 'var(--mu)'}" aria-label="Нравится">${svg(I.heart, c.liked ? 'var(--acc)' : '#F4F4F5', 20, 2)}${c.likes || ''}</button></div>`).join('') : `<div class="sm mu" style="padding:40px 0;text-align:center">Пока нет комментариев. Напиши первым</div>`}</div>
     <div class="vemo">${['❤️', '🙏', '🔥', '🙌', '👏', '😊', '👍'].map(e => `<button data-a="vEmo" data-x="${e}" aria-label="${e}">${e}</button>`).join('')}</div>
-    <div class="row" style="gap:8px"><input class="inp" id="vci" data-b="vc" maxlength="300" value="${esc(S.vc || '')}" placeholder="Комментарий" aria-label="Комментарий"><button class="vsend" data-a="vSend" aria-label="Отправить">${svg(VI.send, '#0E0F12', 20, 2.4)}</button></div>
-    <div class="xs mu">+${D.vcomPts || 5} баллов за первый комментарий в день</div>`}
+    <div class="row" style="gap:8px"><input class="inp" id="vci" data-b="vc" maxlength="300" value="${esc(S.vc || '')}" placeholder="Комментарий" aria-label="Комментарий"><button class="vsend" data-a="vSend" aria-label="Отправить">${svg(VI.send, '#0E0F12', 20, 2.4)}</button></div>`}
   </div></div>`;
 }
 const vtime = ts => { const m = /(\d{2}):(\d{2})$/.exec(String(ts || '')); if (!m) return ''; const h = +m[1]; return (h % 12 || 12) + ':' + m[2] + (h < 12 ? ' AM' : ' PM'); };
@@ -521,7 +519,7 @@ const H = {
   inst() { S.ov = { type: 'inst', v: 'pick' }; render(); },
   instGo(x) { S.ov = { type: 'inst', v: x }; render(); },
   instDone() { LS.set('sol_teen_inst', '1'); S.ov = null; render(); toast('Отлично! Открывай приложение с иконки'); },
-  async verse(d) { const keep = S.ov && S.ov.type === 'verse' ? S.ov.v : null; S.ov = { type: 'verse', v: keep && keep.date === d ? keep : null }; render();
+  async verse(d) { const have = vNow(); S.ov = { type: 'verse', v: have && have.date === d && have.com ? have : null }; render();
     try { const v = await api('verse', { date: d }); if (S.ov && S.ov.type === 'verse') { S.ov.v = v; if (d === D.today) S.vfull = v; render(); } } catch (e) { toast(errT(e)); } },
   async vLike(d) { const v = vNow(); if (!v || S.vbusy) return; S.vbusy = 1; v.liked = !v.liked; v.likes += v.liked ? 1 : -1; render();
     try { S.vfull = await api('verseLike', { date: d }); } catch (e) { v.liked = !v.liked; v.likes += v.liked ? 1 : -1; toast(errT(e)); } S.vbusy = 0; render(); },
@@ -529,7 +527,11 @@ const H = {
     if (navigator.share) { try { await navigator.share({ text, url: v.url }); } catch (e) {} } else { try { await navigator.clipboard.writeText(text + ' ' + v.url); toast('Стих скопирован'); } catch (e) { toast(text); } } },
   vEmo(e) { S.vc = (S.vc || '') + e; const i = document.getElementById('vci'); if (i) { i.value = S.vc; i.focus(); } },
   async vSend() { const o = S.ov, text = (S.vc || '').trim(); if (!o || !o.v || !text || S.vbusy) return; S.vbusy = 1;
-    try { const first = !o.v.com.some(c => c.mine); const v = await api('verseCom', { date: o.v.date, text }); S.vc = ''; if (S.ov && S.ov.type === 'verse') S.ov.v = v; if (v.date === D.today) S.vfull = v; render(); if (first) toast('Комментарий отправлен · +' + (D.vcomPts || 5)); } catch (e) { toast(errT(e)); } S.vbusy = 0; },
+    const first = !o.v.com.some(c => c.mine); const now = new Date(); const tmp = { id: 'tmp', name: (D.me.first + ' ' + (D.me.last ? D.me.last.charAt(0) + '.' : '')).trim(), text, ts: String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0'), mine: true, likes: 0, liked: false };
+    o.v.com.push(tmp); o.v.ncom = o.v.com.length; S.vc = ''; render();
+    try { const v = await api('verseCom', { date: o.v.date, text }); if (S.ov && S.ov.type === 'verse') S.ov.v = v; if (v.date === D.today) S.vfull = v; render(); if (first) toast('Комментарий отправлен · +' + (D.vcomPts || 5)); } catch (e) { o.v.com = o.v.com.filter(c => c !== tmp); o.v.ncom = o.v.com.length; S.vc = text; render(); toast(errT(e)); } S.vbusy = 0; },
+  async vcLike(id) { const o = S.ov; if (!o || !o.v || S.vbusy || id === 'tmp') return; const c = o.v.com.find(x => x.id === id); if (!c) return; S.vbusy = 1; c.liked = !c.liked; c.likes += c.liked ? 1 : -1; render();
+    try { const v = await api('vcLike', { id }); if (S.ov && S.ov.type === 'verse') { S.ov.v = v; render(); } } catch (e) { c.liked = !c.liked; c.likes += c.liked ? 1 : -1; render(); toast(errT(e)); } S.vbusy = 0; },
   video(mon) { openVideo(mon); },
   invite() { S.ov = { type: 'invite' }; render(); },
   async invShare() { const url = D.invite.link, text = 'Приходи со мной на SOL 3:16 Teens! Запишись здесь:';

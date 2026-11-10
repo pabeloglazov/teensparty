@@ -407,7 +407,7 @@ const A_ = {
     const t = rows_('Подростки').find(x => x.id === p.id); if (t) update_('Подростки', t, { review: '' }); return true;
   },
 
-  delVcom(me, p) { const hit = vrows_().filter(r => r.id === p.id && r.kind === 'com'); if (hit.length) delete_('Стих дня', hit.map(h => h._row)); return true; },
+  delVcom(me, p) { const hit = vrows_().filter(r => (r.id === p.id && r.kind === 'com') || (r.kind === 'clike' && r.text === p.id)); if (hit.length) delete_('Стих дня', hit.map(h => h._row)); return true; },
   savePlanWeek(me, p) {
     const cfg = planCfg_(), idx = +p.idx; if (!(idx >= 0 && idx < cfg.plan.length)) throw new Error('bad_week');
     const cl = (v, n) => String(v == null ? '' : v).replace(/\s+/g, ' ').trim().slice(0, n || 200);
