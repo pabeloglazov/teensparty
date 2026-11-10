@@ -474,13 +474,24 @@ function ageCard() {
   const by = {}; known.forEach(t => { const a = ageOf(t); by[a] = (by[a] || 0) + 1; });
   const ages = Object.keys(by).map(Number).sort((a, b) => a - b), mx = Math.max(1, ...Object.values(by));
   const avg = known.length ? (known.reduce((x, t) => x + ageOf(t), 0) / known.length) : 0;
-  const soon = known.map(t => ({ t, n: nextBday(t) })).filter(x => x.n && x.n.days <= 30).sort((a, b) => a.n.days - b.n.days).slice(0, 6);
+  
+  return ageBody(known, none, by, ages, mx, avg);
+}
+function bdayCard() {
+  if (!D.teens.some(t => 'birth' in t)) return '';
+  const withB = D.teens.map(t => ({ t, n: nextBday(t) })).filter(x => x.n).sort((a, b) => a.n.days - b.n.days); const soon = withB.slice(0, 6); const noB = D.teens.length - withB.length;
   const when = d => d === 0 ? tr('сегодня', 'today') : d === 1 ? tr('завтра', 'tomorrow') : tr('через ', 'in ') + d + (L() ? ' days' : ' ' + plural(d, 'день', 'дня', 'дней'));
+  return `<div class="card" style="display:flex;flex-direction:column;gap:10px">
+    <div style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600">${svg(IC.cake, ACC, 18, 2)} ${tr('Ближайшие дни рождения', 'Upcoming birthdays')}</div>
+    ${soon.length ? soon.map(x => `<button class="agebar" style="grid-template-columns:1fr auto;gap:12px" data-a="openProf" data-x="${x.t.id}"><span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(tname(x.t))}</span><span class="xs mut">${tr('исполнится ', 'turns ')}${x.n.turns}</span></span><span style="display:flex;flex-direction:column;align-items:flex-end;gap:2px"><span style="font-size:13px;font-weight:600">${human(bIso(x.t))}</span><span class="xs" style="color:${x.n.days <= 7 ? 'var(--acc)' : 'var(--tx2)'}">${when(x.n.days)}</span></span></button>`).join('') : `<div class="sm mut" style="line-height:1.45">${tr('Пока ни у кого не указана дата рождения.', 'No birth dates yet.')}</div>`}
+    ${noB ? `<button class="agebar" style="grid-template-columns:1fr auto;color:var(--tx2);border-top:1px solid var(--line2);padding-top:10px" data-a="ageList" data-x="nobirth"><span>${tr('Нет даты рождения — добавить', 'No birth date — add')}</span><b>${noB} ›</b></button>` : ''}
+  </div>`;
+}
+function ageBody(known, none, by, ages, mx, avg) {
   return `<div class="card" style="display:flex;flex-direction:column;gap:12px">
     <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><div style="font-size:14px;font-weight:600">${tr('Возраст', 'Ages')}</div>${known.length ? `<div class="xs mut">${tr('средний ', 'average ')}<b style="color:var(--tx);font-size:14px">${avg.toFixed(1).replace('.', L() ? '.' : ',')}</b></div>` : ''}</div>
     ${ages.length ? `<div style="display:flex;flex-direction:column;gap:4px">${ages.map(a => `<button class="agebar" data-a="ageList" data-x="${a}"><span>${a} ${yrs(a)}</span><span class="tr"><i style="width:${Math.round(by[a] / mx * 100)}%"></i></span><b style="text-align:right">${by[a]}</b></button>`).join('')}</div>` : `<div class="xs mut">${tr('Пока ни у кого не указана дата рождения', 'No birth dates yet')}</div>`}
     ${none ? `<button class="agebar" style="grid-template-columns:1fr auto;color:var(--tx2)" data-a="ageList" data-x="none"><span>${tr('Без даты рождения', 'No birth date')}</span><b>${none}</b></button>` : ''}
-    ${soon.length ? `<div style="border-top:1px solid var(--line2);padding-top:10px;display:flex;flex-direction:column;gap:8px"><div class="xs mut" style="display:flex;align-items:center;gap:6px">${svg(IC.cake, ACC, 16, 2)} ${tr('Дни рождения в ближайший месяц', 'Birthdays in the next 30 days')}</div>${soon.map(x => `<button class="agebar" style="grid-template-columns:1fr auto;gap:12px" data-a="openProf" data-x="${x.t.id}"><span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(tname(x.t))}</span><span class="xs mut">${tr('исполнится ', 'turns ')}${x.n.turns}</span></span><span style="display:flex;flex-direction:column;align-items:flex-end;gap:2px"><span style="font-size:13px;font-weight:600">${human(bIso(x.t))}</span><span class="xs" style="color:${x.n.days <= 7 ? 'var(--acc)' : 'var(--tx2)'}">${when(x.n.days)}</span></span></button>`).join('')}</div>` : ''}
   </div>`;
 }
 function viewDash() {
@@ -512,6 +523,7 @@ function viewDash() {
   ${S.dash === 'all' ? `<div class="xs mut">${tr('До цели 50 не хватает ', 'Short of the 50 goal by ') + Math.max(0, 50 - last)}</div>` : ''}` : `<div class="empty">${tr('Пока нет данных', 'No data yet')}</div>`}</div>
   <div class="card" style="display:flex;flex-direction:column;gap:10px"><div style="font-size:14px;font-weight:600">${tr('Группы', 'Groups')}</div>
   ${gs.length ? gs.map(x => `<div style="display:flex;justify-content:space-between;align-items:center;font-size:14px;min-height:28px"><span>${esc(x.g.name)}</span><span style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--tx2)">${x.txt}${x.arrow}</span></div>`).join('') : `<div class="xs mut">${tr('Групп пока нет. Добавьте их в «Ещё → Группы».', 'No groups yet. Add them in More → Groups.')}</div>`}</div>
+  ${bdayCard()}
   ${ageCard()}
   </div>`;
 }
@@ -773,10 +785,11 @@ function viewOverlay() {
       <div style="display:flex;flex-direction:column;gap:6px">${list.map(t => `<button class="row" data-a="openProf" data-x="${t.id}" style="min-height:52px"><div class="av" style="width:34px;height:34px;font-size:12px">${esc(ini(tname(t)))}</div><span style="flex:1;font-size:15px;font-weight:500">${esc(tname(t))}</span><span class="xs mut">${ageOf(t) != null ? (t.birth ? '' : '~') + ageOf(t) + ' ' + yrs(ageOf(t)) : ''}</span>${svg(IC.right, '#5F626B', 16, 2.5)}</button>`).join('') || `<div class="empty">${tr('Пока никто не отмечен', 'No one marked yet')}</div>`}</div>`);
   }
   if (o.type === 'ages') {
-    const list = D.teens.filter(t => o.age === 'none' ? ageOf(t) == null : ageOf(t) === +o.age).sort((a, b) => o.age === 'none' ? tname(a).localeCompare(tname(b)) : bIso(a).localeCompare(bIso(b)));
-    return sheet(o.age === 'none' ? tr('Без даты рождения', 'No birth date') : o.age + ' ' + yrs(+o.age) + ' · ' + list.length + tr(' чел.', ' people'), `
-      ${o.age === 'none' ? `<div class="sm mut" style="line-height:1.45">${tr('Нажмите на имя, чтобы добавить дату рождения.', 'Tap a name to add the birth date.')}</div>` : ''}
-      <div style="display:flex;flex-direction:column;gap:6px">${list.map(t => `<button class="row" data-a="openProf" data-x="${t.id}" style="min-height:52px"><span style="flex:1;font-size:15px;font-weight:500">${esc(tname(t))}</span><span class="xs mut">${o.age !== 'none' && bIso(t) ? human(bIso(t)) + ' ' + bIso(t).slice(0, 4) : ''}</span>${svg(IC.right, '#5F626B', 16, 2.5)}</button>`).join('')}</div>`);
+    const nb = o.age === 'nobirth'; 
+    const list = D.teens.filter(t => nb ? !bDate(t) : (nb || o.age === 'none') ? ageOf(t) == null : ageOf(t) === +o.age).sort((a, b) => (nb || o.age === 'none') ? tname(a).localeCompare(tname(b)) : bIso(a).localeCompare(bIso(b)));
+    return sheet((nb || o.age === 'none') ? tr('Без даты рождения', 'No birth date') : o.age + ' ' + yrs(+o.age) + ' · ' + list.length + tr(' чел.', ' people'), `
+      ${(nb || o.age === 'none') ? `<div class="sm mut" style="line-height:1.45">${tr('Нажмите на имя, чтобы добавить дату рождения.', 'Tap a name to add the birth date.')}</div>` : ''}
+      <div style="display:flex;flex-direction:column;gap:6px">${list.map(t => `<button class="row" data-a="openProf" data-x="${t.id}" style="min-height:52px"><span style="flex:1;font-size:15px;font-weight:500">${esc(tname(t))}</span><span class="xs mut">${!(nb || o.age === 'none') && bIso(t) ? human(bIso(t)) + ' ' + bIso(t).slice(0, 4) : ''}</span>${svg(IC.right, '#5F626B', 16, 2.5)}</button>`).join('')}</div>`);
   }
   if (o.type === 'svc') {
     return sheet(o.id ? tr('Общая встреча', 'Meeting') : tr('Новая общая встреча', 'New meeting'), `
