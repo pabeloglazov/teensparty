@@ -738,7 +738,7 @@ function nextMeet_() { const sv = services_()[0]; return sv ? DAYS_RU_[sv.day] +
 function patchGroups1() {
   setup(); ensure_('Заявки'); ensure_('Приглашения');
   const g = rows_('Группы').find(x => /^tima/i.test(x.name)); if (g) update_('Группы', g, { addr: g.addr || '7457 Walnut Road', contact: g.contact || '(916) 559-5882' });
-  const g2 = rows_('Группы').find(x => /^pasha/i.test(x.name)); if (g2 && !g2.contact) update_('Группы', g2, { contact: 't.me/pabeloglazov 2797592990' });
+  const g2 = rows_('Группы').find(x => /^pasha/i.test(x.name)); if (g2) update_('Группы', g2, { contact: g2.contact || 't.me/pabeloglazov 2797592990', addr: g2.addr || '5357 Hidden Glen Dr' });
   Logger.log('Группы: ' + JSON.stringify(rows_('Группы').map(x => [x.name, x.addr, x.contact])));
 }
 function inviteInfo(by) {
