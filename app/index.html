@@ -243,7 +243,7 @@ function applyRoute() {
   const p = (location.hash || '').replace(/^#\/?/, '').split('/').filter(Boolean); if (!p.length) return;
   if (tabs().indexOf(p[0]) >= 0) { S.tab = p[0]; S.more = p[0] === 'more' && MORE_OK().indexOf(p[1]) >= 0 ? p[1] : 'root'; }
   const i = p.indexOf('teen'); const t = i >= 0 ? IDX.teen[p[i + 1]] : null;
-  if (t) { if (!(S.ov && S.ov.type === 'prof' && S.ov.id === t.id)) S.ov = { type: 'prof', id: t.id, f: Object.assign({}, t), groups: t.groups.slice(), gOpen: false, hi: null, hov: null }; }
+  if (t) { if (!(S.ov && S.ov.type === 'prof' && S.ov.id === t.id)) S.ov = { type: 'prof', id: t.id, f: Object.assign({}, t), groups: t.groups.slice(), gOpen: false, hi: null, hov: null, sameAddr: !!(t.addr && String(t.addr).trim() && String(t.addr).trim() === String(t.pAddr || '').trim()) }; }
   else if (S.ov && S.ov.type === 'prof') S.ov = null;
 }
 function setHash(h) { try { history.replaceState(null, '', h || location.pathname); } catch (e) {} }
@@ -920,6 +920,7 @@ function awardPeople() {
 }
 
 // =================== СОБЫТИЯ ===================
+function syncForm() { document.querySelectorAll('.full input[data-b], .full textarea[data-b], .sheet input[data-b], .sheet textarea[data-b]').forEach(el => { const b = el.getAttribute('data-b'); if (b && b.indexOf('ov.') === 0 && S.ov) setPath(b, el.value); }); }
 function setPath(path, v) { const p = path.split('.'); let o = S; for (let i = 0; i < p.length - 1; i++) { o[p[i]] = o[p[i]] || {}; o = o[p[i]]; } o[p[p.length - 1]] = v; }
 document.addEventListener('input', e => {
   const el = e.target; const b = el.getAttribute && el.getAttribute('data-b'); if (!b) return;
@@ -989,7 +990,7 @@ const H = {
   close() { S.ov = null; rerender(); },
   ovToggle(x) { S.ov[x] = !S.ov[x]; rerender(); },
   async teenCode() { const ov = S.ov; try { const r = await api('teenCode', { teenId: ov.id }); if (S.ov === ov) { ov.code = r.code; rerender(); } } catch (e) { toast(errText(e)); } },
-  sameAddr() { const ov = S.ov, F = ov.f; if (!ov.sameAddr) { if (!String(F.addr || '').trim()) return toast(tr('Сначала введите адрес подростка', 'Enter the teen’s address first')); ov.sameAddr = true; F.pAddr = F.addr; } else { ov.sameAddr = false; F.pAddr = ''; } rerender(); },
+  sameAddr() { syncForm(); const ov = S.ov, F = ov.f; if (!ov.sameAddr) { if (!String(F.addr || '').trim()) return toast(tr('Сначала введите адрес подростка', 'Enter the teen’s address first')); ov.sameAddr = true; F.pAddr = F.addr; } else { ov.sameAddr = false; F.pAddr = ''; } rerender(); },
   ldrToggle() { S.ov.f.isLeader = !S.ov.f.isLeader; rerender(); },
   ovSet(x) { S.ov[x] = true; S.ov.f = S.ov.f || {}; rerender(); },
   ovF(x) { const i = x.indexOf(':'); const k = x.slice(0, i), v = x.slice(i + 1); S.ov.f[k] = v; if (k === 'badge') S.ov.listOpen = false; S.ov.err = ''; rerender(); },
@@ -1031,12 +1032,12 @@ const H = {
   dupNew() { H.saveTeen(true); },
   async dupIsHim() { const id = S.ov.dup.id; S.ov = null; if (!has(meet().date, meet().kind, meet().meetId, id)) await H.toggle(id); else rerender(); },
   // подростки
-  openProf(id) { const t = IDX.teen[id]; if (!t) return; S.ov = { type: 'prof', id, f: Object.assign({}, t), groups: t.groups.slice(), gOpen: false, hi: null, hov: null }; rerender(); },
+  openProf(id) { const t = IDX.teen[id]; if (!t) return; S.ov = { type: 'prof', id, f: Object.assign({}, t), groups: t.groups.slice(), gOpen: false, hi: null, hov: null, sameAddr: !!(t.addr && String(t.addr).trim() && String(t.addr).trim() === String(t.pAddr || '').trim()) }; rerender(); },
   hist(x) { const i = +x; S.ov.hi = S.ov.hi === i ? null : i; rerender(); },
   profG() { S.ov.gOpen = !S.ov.gOpen; rerender(); },
   profPick(g) { const a = S.ov.groups; const i = a.indexOf(g); i >= 0 ? a.splice(i, 1) : a.push(g); rerender(); },
   async saveProf() {
-    const o = S.ov; const t = IDX.teen[o.id];
+    syncForm(); const o = S.ov; const t = IDX.teen[o.id]; if (o.sameAddr) o.f.pAddr = o.f.addr || '';
     try { await api('updateTeen', { id: o.id, fields: o.f, groups: o.groups }); Object.assign(t, teenFromForm(o.f)); if (myRole() !== 'mod') t.groups = o.groups.slice(); t.review = false; buildIdx(); S.ov = null; toast(tr('Сохранено', 'Saved')); rerender(); }
     catch (e) { toast(errText(e)); }
   },
