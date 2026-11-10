@@ -13,7 +13,7 @@
 <link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="../icons/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Unbounded:wght@600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Unbounded:wght@600;700&family=Lilita+One&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 :root{--bg:#0E0F12;--card:#15171B;--card2:#17191E;--line:#1F2127;--line2:#2A2D35;--line3:#3A3D46;--tx:#F4F4F5;--tx2:#D4D4D8;--mu:#A1A1AA;--mu2:#8B8B94;--acc:#FF8A3D;--acc2:#FFB27A;--accbg:#1C140F;--accbg2:#2A1A10;--green:#4ADE80}
@@ -92,11 +92,12 @@ a{color:inherit}
 .pth .sc{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 .pth .map{position:relative;max-width:520px;margin:0 auto;aspect-ratio:826/5302;background:#2A2D35}
 .pth .map img.t{display:block;width:100%;position:absolute;left:0}
-.pw{position:absolute;left:0;right:0;height:46px;transform:translateY(-80%);display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(14,15,18,0),rgba(14,15,18,.82) 35%,rgba(14,15,18,.82) 65%,rgba(14,15,18,0))}
+.pw{position:absolute;left:0;right:0;height:40px;transform:translateY(-125%);display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(14,15,18,0),rgba(14,15,18,.82) 35%,rgba(14,15,18,.82) 65%,rgba(14,15,18,0))}
 .pw span{font-family:Unbounded,Inter,sans-serif;font-size:13px;font-weight:700;color:#fff;letter-spacing:.04em}
-.pst{position:absolute;transform:translate(-50%,-50%);min-width:30px;height:22px;padding:0 6px;border-radius:999px;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.82);color:#4A3A22}
-.pst.on{background:var(--acc);color:#0E0F12}
-.pst.cur{box-shadow:0 0 0 3px rgba(255,255,255,.85)}
+.pth .map{container-type:inline-size}
+.pst{position:absolute;transform:translate(-50%,-50%) scaleY(.72);font-family:'Lilita One',Unbounded,Inter,sans-serif;font-size:26px;font-size:6.6cqw;line-height:1;letter-spacing:.01em;color:#8E6E48;text-shadow:0 .28cqw 0 rgba(255,244,220,.75),0 -.2cqw 0 rgba(70,45,20,.45);display:flex;align-items:center;justify-content:center;white-space:nowrap}
+.pst.on{color:#FFD766;-webkit-text-stroke:1.5cqw #7A3A0A;paint-order:stroke fill;text-shadow:0 .5cqw 0 #5A2A06,0 0 2.2cqw rgba(255,196,80,.9)}
+.pst.on::before{content:'';position:absolute;left:50%;top:50%;width:15cqw;height:9cqw;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(closest-side,rgba(255,200,90,.55),rgba(255,170,60,.25) 60%,rgba(255,170,60,0));z-index:-1}
 .pj{position:absolute;width:21%;transform:translate(-50%,-93%);pointer-events:none;animation:pjbob 2.6s ease-in-out infinite;filter:drop-shadow(0 6px 6px rgba(0,0,0,.35))}
 .pj img{display:block;width:100%}
 .pj img.b{position:absolute;left:0;top:0;opacity:0;animation:pjblink 4.2s infinite}
