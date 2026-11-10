@@ -159,6 +159,19 @@ function tgPoll(nonce) {
     return { status: n.status };
   }));
 }
+// вход подростка по коду от лидера (если Telegram не работает)
+function teenByCode(code) {
+  return out_(() => lock_(() => {
+    const cache = CacheService.getScriptCache(), bad = +(cache.get('tcbad') || 0);
+    if (bad >= 30) throw new Error('Слишком много попыток. Подожди 10 минут');
+    const c = String(code || '').replace(/\D/g, '');
+    const r = c.length === 6 ? rows_('_Коды').find(x => x.email.indexOf('teen:') === 0 && x.code === c) : null;
+    if (!r || +r.expires < Date.now()) { cache.put('tcbad', String(bad + 1), 600); throw new Error('Код не подошёл или устарел. Попроси лидера выдать новый'); }
+    const t = rows_('Подростки').find(x => x.id === r.email.slice(5) && x.archived !== '1'); if (!t) throw new Error('auth');
+    delete_('_Коды', [r._row]);
+    return { token: newSession_(r.email) };
+  }));
+}
 function teenAuth_(token) {
   if (!token) throw new Error('auth');
   const s = rows_('_Сессии').find(x => x.token === token);

@@ -194,7 +194,7 @@ function doGet(e) {
 // JSON-API для приложения на GitHub Pages: POST {fn, args} -> {ok, data|error}
 function doPost(e) {
   if (e && e.parameter && e.parameter.tg) { try { tgWebhook_(e); } catch (err) { Logger.log(err); } return HtmlService.createHtmlOutput('ok'); }
-  const FNS = { requestCode, verifyCode, joinByCode, logout, api, joinInfo, joinKnown, joinNew, joinFriends, inviteInfo, inviteJoin, tgStart, tgPoll, teenApi };
+  const FNS = { requestCode, verifyCode, joinByCode, logout, api, joinInfo, joinKnown, joinNew, joinFriends, inviteInfo, inviteJoin, tgStart, tgPoll, teenApi, teenByCode };
   let r;
   try {
     const b = JSON.parse(e.postData.contents);
@@ -279,7 +279,7 @@ const CAN = {
   mark: ['admin', 'leader', 'mod'], attNow: ['admin', 'leader', 'mod', 'viewer'], addTeen: ['admin', 'leader', 'mod'], updateTeen: ['admin', 'leader', 'mod'], reviewTeen: ['admin', 'leader', 'mod'],
   addEvent: ['admin', 'leader'], editEvent: ['admin'], delEvent: ['admin'], saveGroup: ['admin'], saveSettings: ['admin'],
   invite: ['admin'], updateLeader: ['admin'], removeLeader: ['admin'],
-  savePlanWeek: ['admin'], delVcom: ['admin', 'leader'], groupReq: ['admin'], confirmTask: ['admin', 'leader'], addTask: ['admin', 'leader'], taskDone: ['admin', 'leader'], remind: ['admin', 'leader'], award: ['admin', 'leader'], igReview: ['admin', 'leader']
+  savePlanWeek: ['admin'], delVcom: ['admin', 'leader'], teenCode: ['admin', 'leader'], groupReq: ['admin'], confirmTask: ['admin', 'leader'], addTask: ['admin', 'leader'], taskDone: ['admin', 'leader'], remind: ['admin', 'leader'], award: ['admin', 'leader'], igReview: ['admin', 'leader']
 };
 function api(token, action, payload) {
   return out_(() => {
@@ -408,6 +408,16 @@ const A_ = {
   },
 
   delVcom(me, p) { const hit = vrows_().filter(r => (r.id === p.id && r.kind === 'com') || (r.kind === 'clike' && r.text === p.id)); if (hit.length) delete_('Стих дня', hit.map(h => h._row)); return true; },
+  // одноразовый код входа для подростка без Telegram: выдаёт лидер, действует 24 часа
+  teenCode(me, p) {
+    const t = rows_('Подростки').find(x => x.id === p.teenId && x.archived !== '1'); if (!t) throw new Error('not_found');
+    const key = 'teen:' + t.id; let code;
+    const taken = {}; rows_('_Коды').forEach(r => { if (r.email.indexOf('teen:') === 0) taken[r.code] = 1; });
+    do { code = String(Math.floor(100000 + Math.random() * 900000)); } while (taken[code]);
+    delete_('_Коды', rows_('_Коды').filter(r => r.email === key).map(r => r._row));
+    append_('_Коды', { email: key, code: code, expires: String(Date.now() + 24 * 3600000) });
+    return { code: code, hours: 24 };
+  },
   savePlanWeek(me, p) {
     const cfg = planCfg_(), idx = +p.idx; if (!(idx >= 0 && idx < cfg.plan.length)) throw new Error('bad_week');
     const cl = (v, n) => String(v == null ? '' : v).replace(/\s+/g, ' ').trim().slice(0, n || 200);
