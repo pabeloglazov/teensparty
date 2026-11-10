@@ -112,8 +112,11 @@ a{color:var(--acc)}
 /* слои */
 .ov{position:fixed;top:0;left:0;right:0;height:var(--apph,100%);z-index:20;display:flex;flex-direction:column;justify-content:flex-end;background:rgba(0,0,0,.6)}
 .ov .bd{flex:1;min-height:40px;border:none;background:transparent}
-.sheet{background:var(--card);border-radius:24px 24px 0 0;border-top:1px solid var(--line2);max-height:92vh;display:flex;flex-direction:column}
-.sheet .sc{overflow-y:auto;padding:10px 20px 20px;display:flex;flex-direction:column;gap:16px}
+.sheet{background:var(--card);border-radius:24px 24px 0 0;border-top:1px solid var(--line2);max-height:calc(var(--apph,100vh) - 64px);display:flex;flex-direction:column;min-height:0}
+.sheet .shd{flex-shrink:0;display:flex;flex-direction:column;gap:8px;padding:10px 12px 6px 20px}
+.sheet .shd>div{display:flex;align-items:center;gap:10px;min-height:44px}
+.sheet .shd .h2{flex:1;min-width:0;font-size:20px}
+.sheet .sc{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:6px 20px 20px;display:flex;flex-direction:column;gap:16px}
 .sheet .ft{padding:12px 20px calc(24px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}
 .grab{width:40px;height:4px;border-radius:999px;background:var(--line3);align-self:center}
 .full{position:fixed;top:0;left:0;right:0;height:var(--apph,100%);z-index:20;background:var(--bg);display:flex;flex-direction:column}
@@ -714,7 +717,7 @@ function drawQR() {
 
 // =================== СЛОИ ===================
 const full = (title, body, foot) => `<div class="full" role="dialog" aria-label="${esc(title)}"><div class="hd"><button class="icb" data-a="close" aria-label="${tr('Назад', 'Back')}">${svg(IC.back, '#F4F4F5', 20, 2.5)}</button><h2 class="h2" style="font-size:17px;line-height:1.25;overflow:hidden;text-overflow:ellipsis">${title}</h2></div><div class="sc"><div class="in">${body}</div></div>${foot ? `<div class="ft">${foot}</div>` : ''}</div>`;
-const sheet = (title, body, foot) => `<div class="ov"><button class="bd" data-a="close" aria-label="${tr('Закрыть', 'Close')}"></button><div class="sheet" role="dialog" aria-label="${esc(title)}"><div class="sc"><div class="grab"></div><div class="h2" style="font-size:20px">${title}</div>${body}</div>${foot ? `<div class="ft">${foot}</div>` : ''}</div></div>`;
+const sheet = (title, body, foot) => `<div class="ov"><button class="bd" data-a="close" aria-label="${tr('Закрыть', 'Close')}"></button><div class="sheet" role="dialog" aria-label="${esc(title)}"><div class="shd"><span class="grab"></span><div><div class="h2">${title}</div><button class="icb" data-a="close" aria-label="${tr('Закрыть', 'Close')}">${svg(IC.x, '#8B8B94', 20, 2.2)}</button></div></div><div class="sc">${body}</div>${foot ? `<div class="ft">${foot}</div>` : ''}</div></div>`;
 const fld = (path, label, val, type, ph, extra) => `<div class="field"><label class="lbl" for="f_${path.replace(/\W/g, '_')}">${label}</label><input class="inp" id="f_${path.replace(/\W/g, '_')}" type="${type || 'text'}" data-b="${path}" value="${esc(val || '')}" placeholder="${esc(ph || '')}" ${type === 'date' ? 'data-picker="1"' : ''} ${extra || ''}></div>`;
 const cbx = on => `<div class="cb ${on ? 'on' : ''}">${on ? svg(IC.check, '#0E0F12', 14, 3.5) : ''}</div>`;
 function ddGroups(path, sel, open, toggleA, pickA, opts) {
