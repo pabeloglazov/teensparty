@@ -24,6 +24,8 @@ const BADGES = [
   ['d14', 'app', 'Две недели', 'Заходить в приложение 14 дней подряд.', 14, 30],
   ['d30', 'app', 'Месяц без пропусков', 'Заходить в приложение 30 дней подряд.', 30, 60],
   ['d100', 'app', '100 дней', 'Заходить в приложение 100 дней подряд. Это сильно.', 100, 200],
+  ['d150', 'app', '150 дней', 'Заходить в приложение 150 дней подряд.', 150, 250],
+  ['d200', 'app', 'Весь путь', 'Заходить в приложение 200 дней подряд и дойти до небесных ворот.', 200, 400],
   ['b1', 'bible', 'Первая глава', 'Выполнить первое задание по чтению.', 1, 10],
   ['book', 'bible', 'Книжный червь', 'Выполнить 7 заданий по чтению Библии.', 7, 40],
   ['verse', 'bible', 'Стих наизусть', 'Выучить 5 стихов из заданий.', 5, 30],
@@ -222,7 +224,7 @@ function vtask_(id) {
 }
 // ---------- стих дня ----------
 // Текст — Синодальный перевод (общественное достояние); кнопка «Читать» открывает главу в YouVersion (НРП).
-const VIDEO_PTS = 15, VCOM_PTS = 5;
+const VIDEO_PTS = 15, VCOM_PTS = 5, RESTORES = 3;
 const VERSES = [
   ['Псалом 118:105', 'PSA.118.105', 'Слово Твое — светильник ноге моей и свет стезе моей.'],
   ['Иоанна 3:16', 'JHN.3.16', 'Ибо так возлюбил Бог мир, что отдал Сына Своего Единородного, дабы всякий верующий в Него, не погиб, но имел жизнь вечную.'],
@@ -308,13 +310,20 @@ function score_(t, C, full) {
   let best = 0, run = 0; weeks.forEach((w, i) => { run = i && w - weeks[i - 1] === 7 ? run + 1 : 1; best = Math.max(best, run); });
   const tn = dnum_(C.today), thisW = tn - ((tn + 3) % 7);
   let wk = 0; for (let w = weeks.indexOf(thisW) >= 0 ? thisW : thisW - 7; weeks.indexOf(w) >= 0; w -= 7) wk++;
-  // серия дней в приложении (раз в 7 дней пропуск прощается — «заморозка»)
-  const set = new Set(appDays.map(dnum_)); let dRun = 0, dBest = 0, frz = -99;
-  if (appDays.length) for (let d = dnum_(appDays[0]); d <= tn; d++) {
-    if (set.has(d)) dRun++; else if (d < tn && d - frz >= 7) frz = d; else if (d < tn) dRun = 0;
-    dBest = Math.max(dBest, dRun);
+  // серия дней в приложении: пропуск обнуляет серию, но 3 пропущенных дня в месяц прощаются («восстановления»)
+  const set = new Set(appDays.map(dnum_)); let dRun = 0, dBest = 0; const frzSet = new Set(), used = {}, forgiven = []; let lost = null;
+  if (appDays.length) { let gap = [];
+    const closeGap = () => { if (!gap.length) return; const mo = dstr_(gap[0]).slice(0, 7), u = used[mo] || 0;
+      if (dRun > 0 && u + gap.length <= RESTORES) { used[mo] = u + gap.length; gap.forEach(g => { frzSet.add(g); forgiven.push(dstr_(g)); }); }
+      else { if (dRun > 0) lost = { date: dstr_(gap[0]), days: dRun }; dRun = 0; }
+      gap = []; };
+    for (let d = dnum_(appDays[0]); d <= tn; d++) {
+      if (set.has(d)) { closeGap(); dRun++; dBest = Math.max(dBest, dRun); } else if (d < tn) gap.push(d);
+    }
+    closeGap();
   }
-  const last7 = []; for (let d = tn - 6; d <= tn; d++) last7.push(set.has(d) ? 1 : (d === frz ? 2 : 0));
+  const usedNow = used[C.month] || 0;
+  const last7 = []; for (let d = tn - 6; d <= tn; d++) last7.push(set.has(d) ? 1 : (frzSet.has(d) ? 2 : 0));
   // ачивки
   const cntKind = kind => done.filter(counted_).filter(d => { const k = C.tasks[d.taskId] || vtask_(d.taskId); return k && k.kind === kind; }).length;
   const wkBy = {}; done.filter(counted_).forEach(d => { const m = /^W(\d{4}-\d{2}-\d{2}):(\w+)$/.exec(String(d.taskId || '')); if (m) (wkBy[m[1]] = wkBy[m[1]] || new Set()).add(m[2]); });
@@ -328,7 +337,7 @@ function score_(t, C, full) {
   const have = {
     first: att.length, m5: att.length, m10: att.length, m25: att.length, m50: att.length, m100: att.length,
     w4: best, w8: best, w12: best, w20: best, team: att.filter(a => a.kind === 'group').length,
-    d3: dBest, d7: dBest, d14: dBest, d30: dBest, d100: dBest,
+    d3: dBest, d7: dBest, d14: dBest, d30: dBest, d100: dBest, d150: dBest, d200: dBest,
     b1: cntKind('read'), book: cntKind('read'), verse: cntKind('verse'),
     tgchat: t.tgChat === '1' ? 1 : 0, igsub: t.igStatus === 'ok' ? 1 : 0, allin: (t.tgChat === '1' ? 1 : 0) + (t.igStatus === 'ok' ? 1 : 0),
     profile: profileLeft_(t).length ? 0 : 1, wkall: wkAll, wk3: wkBest, wk6: wkBest, vid1: vidMons.length, vid4: vidBest, vid12: vidMons.length,
@@ -339,7 +348,7 @@ function score_(t, C, full) {
   const badges = BADGES.map(([id, cat, name, desc, need, bonus]) => ({ id, cat, name, desc, need, bonus, have: id === 'legend' ? 0 : Math.min(have[id] || 0, need) }));
   badges.forEach(b => { if (b.id !== 'legend' && b.have >= b.need && b.bonus) add('Ачивка «' + b.name + '»', '', b.bonus); });
   const lg_ = badges.find(b => b.id === 'legend'); lg_.have = Math.min(pts, 1000); if (pts >= 1000) add('Ачивка «Легенда»', '', 100);
-  return { pts, month, visits: att.length, weekStreak: wk, weekBest: best, appStreak: dRun, appBest: dBest, last7, badges, log };
+  return { pts, month, visits: att.length, weekStreak: wk, weekBest: best, appStreak: dRun, appBest: dBest, last7, badges, log, restore: { max: RESTORES, used: usedNow, left: Math.max(0, RESTORES - usedNow), last: forgiven.length ? forgiven[forgiven.length - 1] : '', lost: lost } };
 }
 function allPoints_() { const C = loadCtx_(); const o = {}; C.teens.forEach(t => o[t.id] = score_(t, C, false).pts); return o; }
 
@@ -378,7 +387,7 @@ const TA_ = {
     return {
       today: C.today, levels: LEVELS,
       me: { id: me.id, first: me.first, last: me.last, since: me.createdAt, groups: groups.map(g => gname[g]).filter(Boolean) },
-      pts: sc.pts, month: sc.month, visits: sc.visits, weekStreak: sc.weekStreak, appStreak: sc.appStreak, appBest: sc.appBest, last7: sc.last7,
+      pts: sc.pts, month: sc.month, visits: sc.visits, weekStreak: sc.weekStreak, appStreak: sc.appStreak, appBest: sc.appBest, last7: sc.last7, restore: sc.restore,
       badges: sc.badges, log: sc.log.filter(x => x.date).slice(0, 12), tasks,
       rank: { month: month.slice(0, 20), all: allTime.slice(0, 20), myMonth: (month.find(x => x.me) || {}).place || 0, myAll: (allTime.find(x => x.me) || {}).place || 0 },
       tg: { link: TG_CHAT_LINK, ok: me.tgChat === '1', canCheck: !!st.tgChatId },
