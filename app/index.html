@@ -96,7 +96,10 @@ a{color:var(--acc)}
 .bars{display:flex;align-items:flex-end;gap:8px;height:210px}
 .bars>button{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:5px;height:100%;background:none;border:0;padding:0;color:inherit;font:inherit;cursor:pointer}
 .bars>button>b{font-size:13px;font-weight:700}.bars>button>em{font-style:normal;font-size:10px;color:var(--mu);white-space:nowrap}
-.bars>button.sel i{background:var(--acc)}.bars>button.sel>b{color:var(--acc)}
+.bars>button.sel i{background:var(--acc)}
+.bars>button.off i{background:transparent;border:1px dashed var(--line3)}
+.bars>button.off.sel i{background:transparent;border-color:var(--acc)}
+.bars>button>b svg{display:block}.bars>button.sel>b{color:var(--acc)}
 .bars i{display:block;width:100%;border-radius:8px;background:var(--line3)}
 .prog{height:6px;border-radius:999px;background:#22252C;overflow:hidden}
 .prog i{display:block;height:100%;border-radius:999px;background:var(--acc)}
@@ -222,7 +225,7 @@ function paintBusy() { let b = document.querySelector('.busy'); if (S.busy > 0 &
 let toastT;
 function toast(m) { S.toast = m; paintToast(); clearTimeout(toastT); toastT = setTimeout(() => { S.toast = ''; paintToast(); }, 2600); }
 function paintToast() { let t = document.querySelector('.toast'); if (S.toast) { if (!t) { t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); } t.textContent = S.toast; } else if (t) t.remove(); }
-const ERR = () => ({ network: tr('Нет связи с сервером. Проверьте интернет.', 'No connection. Check your internet.'), bad_email: tr('Проверьте email', 'Check the email'), not_invited: tr('Этой почты нет в команде. Попросите админа пригласить вас.', 'This email isn’t on the team. Ask an admin to invite you.'), bad_code: tr('Неверный или устаревший код', 'Wrong or expired code'), bad_invite: tr('Код приглашения не найден', 'Invite code not found'), invite_expired: tr('Код приглашения устарел', 'Invite code expired'), email_taken: tr('Эта почта уже в команде', 'This email is already on the team'), need_name: tr('Введите имя', 'Enter a name'), need_title: tr('Напишите, что нужно сделать', 'Describe the task'), preview: tr('Это просмотр глазами другого — изменения отключены', 'Preview mode — changes are disabled') });
+const ERR = () => ({ has_marks: tr('На этой встрече уже есть отмеченные — сначала снимите отметки', 'Someone is already checked in — remove the check-ins first'), meet_off: tr('Встреча отмечена как несостоявшаяся', 'This meeting is marked as not held'), network: tr('Нет связи с сервером. Проверьте интернет.', 'No connection. Check your internet.'), bad_email: tr('Проверьте email', 'Check the email'), not_invited: tr('Этой почты нет в команде. Попросите админа пригласить вас.', 'This email isn’t on the team. Ask an admin to invite you.'), bad_code: tr('Неверный или устаревший код', 'Wrong or expired code'), bad_invite: tr('Код приглашения не найден', 'Invite code not found'), invite_expired: tr('Код приглашения устарел', 'Invite code expired'), email_taken: tr('Эта почта уже в команде', 'This email is already on the team'), need_name: tr('Введите имя', 'Enter a name'), need_title: tr('Напишите, что нужно сделать', 'Describe the task'), preview: tr('Это просмотр глазами другого — изменения отключены', 'Preview mode — changes are disabled') });
 const errText = e => ERR()[e && e.message] || tr('Что-то пошло не так: ', 'Something went wrong: ') + (e && e.message || e);
 
 const BOOT = 'sol_boot';
@@ -269,16 +272,23 @@ async function load() {
 
 // ---------- индексы ----------
 function buildIdx() {
-  const set = new Set(), sess = {}, total = {}, allDates = {};
+  const set = new Set(), sess = {}, total = {}, allDates = {}, off = {};
+  (D.off || []).forEach(o => off[o[0] + '|' + o[1] + '|' + o[2]] = { reason: o[3] || '', by: o[4] || '' });
   D.att.forEach(([d, k, m, t]) => {
     set.add(d + '|' + k + '|' + m + '|' + t);
-    const key = k + ':' + m; (sess[key] = sess[key] || new Set()).add(d);
+    const key = k + ':' + m; if (!off[d + '|' + k + '|' + m]) (sess[key] = sess[key] || new Set()).add(d);
     total[t] = (total[t] || 0) + 1;
     allDates[d] = 1;
   });
   const S2 = {}; Object.keys(sess).forEach(k => S2[k] = Array.from(sess[k]).sort());
-  IDX = { set, sess: S2, total, teen: Object.fromEntries(D.teens.map(t => [t.id, t])), group: Object.fromEntries(D.groups.map(g => [g.id, g])) };
+  IDX = { set, sess: S2, total, off, teen: Object.fromEntries(D.teens.map(t => [t.id, t])), group: Object.fromEntries(D.groups.map(g => [g.id, g])) };
 }
+// «Встречи не было»: причины хранятся по-русски, в английском интерфейсе переводятся
+const OFFR = [['Праздник / каникулы', 'Holiday / break'], ['Лидер не смог', 'Leader unavailable'], ['Погода', 'Weather'], ['Нет помещения', 'No venue'], ['Перенесли', 'Rescheduled'], ['Общее событие церкви', 'Church-wide event'], ['Выезд / лагерь', 'Trip / camp']];
+const offOf = m => IDX.off[m.date + '|' + m.kind + '|' + m.meetId] || null;
+const offLabel = r => { const x = OFFR.find(a => a[0] === r); return x ? tr(x[0], x[1]) : r; };
+const canOff = m => !S.as && m.kind !== 'event' && (myRole() === 'admin' || (myRole() === 'leader' && m.kind === 'group' && (D.me.groups || []).indexOf(m.meetId) >= 0));
+const BAN = 'M12 2a10 10 0 1 0 0 20a10 10 0 0 0 0-20zM5 5l14 14';
 const has = (d, k, m, t) => IDX.set.has(d + '|' + k + '|' + m + '|' + t);
 const R = () => ({ win: +D.settings.win || 8, reg: +D.settings.reg || 6, gone: +D.settings.gone || 3 });
 const tname = t => ((t.first || '') + ' ' + (t.last || '')).trim();
@@ -438,27 +448,31 @@ function listHtml() {
 }
 function viewMark() {
   const m = meet();
-  const cnt = D.teens.filter(t => has(m.date, m.kind, m.meetId, t.id)).length;
+  const cnt = D.teens.filter(t => has(m.date, m.kind, m.meetId, t.id)).length, off = offOf(m);
   const review = D.teens.filter(t => t.review);
   return `<div style="display:flex;align-items:center;gap:8px">
     <button class="cap" data-a="openMeet" aria-label="${tr('Выбрать встречу', 'Choose meeting')}"><span>${esc(m.label)}</span>${svg(IC.chev, '#A1A1AA', 18, 2.5)}</button>
     <button class="cnt" data-a="noop" aria-label="${tr('Отмечено', 'Checked in')}">${cnt}</button>
     <button class="plus" data-a="newTeen" aria-label="${tr('Добавить нового подростка', 'Add new teen')}">${svg(IC.plus, '#0E0F12', 20, 2.5)}</button></div>
     ${m.date !== D.today ? `<div class="xs" style="color:var(--acc2);padding:0 4px">${word(m.date) === human(m.date) ? '' : word(m.date) + ', '}${human(m.date)}</div>` : ''}
+    ${off ? `<div class="card" style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:28px 18px;text-align:center"><span style="width:56px;height:56px;border-radius:999px;background:var(--accbg);display:flex;align-items:center;justify-content:center">${svg(BAN, ACC, 26, 2.1)}</span><div style="font-size:18px;font-weight:700">${tr('Встречи не было', 'No meeting')}</div><div class="sm" style="color:var(--acc)">${esc(offLabel(off.reason))}</div><div class="xs mut" style="line-height:1.45">${esc(m.label)} · ${esc(human(m.date))}<br>${off.by ? tr('Отметил ', 'Marked by ') + esc(off.by) + ' · ' : ''}${tr('в статистику не идёт', 'not counted in stats')}</div></div>${canOff(m) ? `<button class="btn2" data-a="offOpen">${tr('Изменить причину', 'Change reason')}</button><button class="btn2" data-a="offUndo">${tr('Встреча всё-таки была', 'The meeting did happen')}</button>` : ''}` : `
+    ${canOff(m) && !cnt && !S.q ? `<button data-a="offOpen" style="display:flex;align-items:center;gap:8px;min-height:40px;padding:0 14px;border-radius:12px;border:1px dashed var(--line3);background:transparent;color:var(--mu);font-size:13px;font-weight:600;width:100%">${svg(BAN, '#8B8B94', 16, 2.2)}<span style="flex:1;text-align:left">${tr('Встречи не было', 'No meeting')}</span>${svg(IC.right, '#5F626B', 16, 2.5)}</button>` : ''}
     <label class="search"><span style="display:flex">${svg(IC.search, '#8B8B94', 18)}</span><input data-b="q" data-live="list" value="${esc(S.q)}" placeholder="${tr('Поиск по имени', 'Search by name')}" aria-label="${tr('Поиск подростка', 'Search teen')}"></label>
     ${review.map(t => `<button class="banner" data-a="openProf" data-x="${t.id}"><div style="width:38px;height:38px;border-radius:999px;background:var(--acc);display:flex;align-items:center;justify-content:center;flex-shrink:0">${svg(IC.userplus, '#0E0F12', 20, 2.5)}</div><div style="flex:1;display:flex;flex-direction:column;gap:2px"><span class="xs" style="font-weight:700;color:var(--acc2);letter-spacing:.04em">${tr('ЗАРЕГИСТРИРОВАЛСЯ САМ ПО QR', 'SELF-REGISTERED VIA QR')}</span><span style="font-size:15px;font-weight:600">${esc(tname(t))}</span></div><span class="sm" style="font-weight:700;color:var(--acc)">${tr('Проверить', 'Review')} ›</span></button>`).join('')}
-    <div id="list" style="display:flex;flex-direction:column;gap:6px">${listHtml()}</div>`;
+    <div id="list" style="display:flex;flex-direction:column;gap:6px">${listHtml()}</div>`}`;
 }
 
 // ---------- ДАШБОРД ----------
 const fmatch = (f, k, m) => f === 'all' || (k === 'service' && (m === f || f === 'svc')) || (f === 'events' && k === 'event') || (k === 'group' && (m === f || f === 'grp'));
-function series(f) {
+function series(f, withOff) {
   const by = {};
   D.att.forEach(([d, k, m, t]) => {
     const ok = fmatch(f, k, m);
     if (!ok) return; (by[d] = by[d] || new Set()).add(t);
   });
-  return Object.keys(by).sort().map(d => ({ d, v: by[d].size }));
+  const res = Object.keys(by).map(d => ({ d, v: by[d].size }));
+  if (withOff) { const seen = {}; (D.off || []).forEach(o => { if (!by[o[0]] && !seen[o[0]] && fmatch(f, o[1], o[2])) { seen[o[0]] = 1; res.push({ d: o[0], v: 0, off: true }); } }); }
+  return res.sort((a, b) => a.d < b.d ? -1 : 1);
 }
 // что было в выбранный день: названия встреч / групп / событий и сколько пришло
 function dayItems(d, f) {
@@ -521,8 +535,8 @@ function viewDash() {
   const groups = visibleGroups();
   const fk = [['all', tr('Всё', 'All')], ...SVCS().map(s => [s.id, s.pl]), ...(groups.length ? [['grp', tr('Малые группы', 'Small groups')]] : []), ['events', tr('События', 'Events')], ...groups.map(g => [g.id, g.name])];
   if (!fk.find(x => x[0] === S.dash)) S.dash = 'all';
-  const ser = series(S.dash).slice(-10);
-  const vals = ser.map(x => x.v);
+  const ser = series(S.dash, true).slice(-10);
+  const vals = ser.filter(x => !x.off).map(x => x.v);
   const selD = ser.length ? (ser.find(x => x.d === S.bar) || ser[ser.length - 1]).d : '';
   const mx = Math.max(1, ...vals);
   const last = vals.length ? vals[vals.length - 1] : 0;
@@ -541,8 +555,8 @@ function viewDash() {
   <div class="stats3"><div class="stat acc"><b>${last}</b><span class="xs mut">${tr('последняя', 'latest')}</span></div><div class="stat"><b>${avg}</b><span class="xs mut">${tr('в среднем', 'average')}</span></div><div class="stat"><b>${S.dash === 'all' ? rec : Math.max(0, ...vals)}</b><span class="xs mut">${tr('рекорд', 'record')}</span></div></div>
   <div class="dashgrid">
   <div class="card" style="display:flex;flex-direction:column;gap:12px"><div style="font-size:14px;font-weight:600">${tr('Посещаемость · ', 'Attendance · ')}${esc(label)}${tr(' · последние встречи', ' · recent meetings')}</div>
-  ${ser.length ? `<div class="bars">${ser.map(x => `<button class="${x.d === selD ? 'sel' : ''}" data-a="bar" data-x="${x.d}" aria-label="${esc(human(x.d))}: ${x.v}"><b>${x.v}</b><i style="height:${Math.max(4, Math.round(x.v / mx * 150))}px"></i><em>${+x.d.slice(8)}.${x.d.slice(5, 7)}</em></button>`).join('')}</div>
-  <div style="border-top:1px solid var(--line2);padding-top:12px;display:flex;flex-direction:column;gap:6px"><div style="font-size:15px;font-weight:700">${esc(human(selD))} ${selD.slice(0, 4)}</div>${dayItems(selD, S.dash).map(x => `<button class="row" data-a="dayEv" data-x="${esc(x.key)}" style="min-height:52px;background:var(--bg);border-color:var(--line2)"><span style="flex:1;min-width:0;font-size:15px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(x.name)}</span><b style="color:var(--acc);font-size:15px">${x.n}</b>${svg(IC.right, '#5F626B', 16, 2.5)}</button>`).join('')}</div>
+  ${ser.length ? `<div class="bars">${ser.map(x => `<button class="${x.d === selD ? 'sel' : ''}${x.off ? ' off' : ''}" data-a="bar" data-x="${x.d}" aria-label="${esc(human(x.d))}: ${x.off ? tr('встречи не было', 'no meeting') : x.v}"><b>${x.off ? svg(BAN, x.d === selD ? ACC : '#8B8B94', 14, 2.2) : x.v}</b><i style="height:${x.off ? 22 : Math.max(4, Math.round(x.v / mx * 150))}px"></i><em>${+x.d.slice(8)}.${x.d.slice(5, 7)}</em></button>`).join('')}</div>
+  <div style="border-top:1px solid var(--line2);padding-top:12px;display:flex;flex-direction:column;gap:6px"><div style="font-size:15px;font-weight:700">${esc(human(selD))} ${selD.slice(0, 4)}</div>${dayItems(selD, S.dash).map(x => `<button class="row" data-a="dayEv" data-x="${esc(x.key)}" style="min-height:52px;background:var(--bg);border-color:var(--line2)"><span style="flex:1;min-width:0;font-size:15px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(x.name)}</span><b style="color:var(--acc);font-size:15px">${x.n}</b>${svg(IC.right, '#5F626B', 16, 2.5)}</button>`).join('')}${(D.off || []).filter(o => o[0] === selD && fmatch(S.dash, o[1], o[2])).map(o => `<div class="row" style="min-height:52px;background:var(--bg);border-color:var(--line2);border-style:dashed;cursor:default">${svg(BAN, '#8B8B94', 16, 2.2)}<span style="flex:1;min-width:0;font-size:15px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(meetName(o[1], o[2]))}</span><span class="xs mut" style="white-space:nowrap">${tr('не было · ', 'off · ')}${esc(offLabel(o[3]))}</span></div>`).join('')}</div>
   ${S.dash === 'all' ? `<div class="xs mut">${tr('До цели 50 не хватает ', 'Short of the 50 goal by ') + Math.max(0, 50 - last)}</div>` : ''}` : `<div class="empty">${tr('Пока нет данных', 'No data yet')}</div>`}</div>
   <div class="card" style="display:flex;flex-direction:column;gap:10px"><div style="font-size:14px;font-weight:600">${tr('Группы', 'Groups')}</div>
   ${gs.length ? gs.map(x => `<div style="display:flex;justify-content:space-between;align-items:center;font-size:14px;min-height:28px"><span>${esc(x.g.name)}</span><span style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--tx2)">${x.txt}${x.arrow}</span></div>`).join('') : `<div class="xs mut">${tr('Групп пока нет. Добавьте их в «Ещё → Группы».', 'No groups yet. Add them in More → Groups.')}</div>`}</div>
@@ -848,6 +862,13 @@ function viewOverlay() {
   }
   if (o.type === 'pw') return planOverlay(o);
   if (o.type === 'day') return dayOverlay(o);
+  if (o.type === 'off') { const m = meet(), custom = o.reason === '*';
+    return sheet(tr('Встречи не было', 'No meeting'), `<div class="sm mut">${esc(m.label)} · ${esc(human(m.date))}</div>
+      <div class="sec">${tr('ПРИЧИНА', 'REASON')}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">${OFFR.map(r => `<button class="chip ${o.reason === r[0] ? 'on' : ''}" data-a="offPick" data-x="${esc(r[0])}">${tr(r[0], r[1])}</button>`).join('')}<button class="chip ${custom ? 'on' : ''}" data-a="offPick" data-x="*">${tr('Другое', 'Other')}</button></div>
+      ${custom ? `<input class="inp" style="height:48px;background:var(--bg)" data-b="ov.other" maxlength="80" value="${esc(o.other || '')}" placeholder="${tr('Напишите причину', 'Type the reason')}" aria-label="${tr('Причина', 'Reason')}">` : ''}
+      <div class="xs mut" style="line-height:1.45">${tr('Этот день не считается пропуском: подростки не попадают в «Не пришли», регулярность не страдает.', 'This day is not counted as a miss: teens do not land in “Absent” and regularity is not affected.')}</div>
+      ${o.err ? `<div class="err">${esc(o.err)}</div>` : ''}`, `<button class="btn" data-a="offSave">${tr('Сохранить', 'Save')}</button>`); }
   if (o.type === 'ev') {
     return sheet(o.id ? tr('Событие', 'Event') : tr('Новое событие', 'New event'), `
       ${fld('ov.f.name', tr('Название', 'Name'), F.name, 'text', tr('Например, TEENS PARTY', 'e.g. TEENS PARTY'))}
@@ -1050,6 +1071,16 @@ const H = {
   bar(x) { S.bar = x; rerender(); },
   dayEv(k) { S.ov = { type: 'day', key: k, tab: 0 }; rerender(); },
   dayTab(v) { S.ov.tab = +v; rerender(); },
+  offOpen() { const off = offOf(meet()); const r = off ? off.reason : ''; const known = OFFR.some(a => a[0] === r); S.ov = { type: 'off', reason: !r ? OFFR[0][0] : known ? r : '*', other: known ? '' : r }; rerender(); },
+  offPick(x) { syncForm(); S.ov.reason = x; S.ov.err = ''; rerender(); },
+  async offSave() { syncForm(); const o = S.ov, m = meet(); const reason = (o.reason === '*' ? String(o.other || '') : o.reason).trim().slice(0, 80);
+    if (!reason) { o.err = tr('Напишите причину', 'Type the reason'); return rerender(); }
+    const old = D.off || []; const same = x => x[0] === m.date && x[1] === m.kind && x[2] === m.meetId;
+    D.off = old.filter(x => !same(x)).concat([[m.date, m.kind, m.meetId, reason, D.me.name || '']]); S.ov = null; buildIdx(); rerender();
+    try { await api('meetOff', { date: m.date, kind: m.kind, meetId: m.meetId, reason }); toast(tr('Сохранено', 'Saved')); } catch (e) { D.off = old; buildIdx(); rerender(); toast(errText(e)); } },
+  async offUndo() { const m = meet(); const old = D.off || [];
+    D.off = old.filter(x => !(x[0] === m.date && x[1] === m.kind && x[2] === m.meetId)); buildIdx(); rerender();
+    try { await api('meetOff', { date: m.date, kind: m.kind, meetId: m.meetId, on: false }); } catch (e) { D.off = old; buildIdx(); rerender(); toast(errText(e)); } },
   vcomAll() { S.vcomAll = !S.vcomAll; rerender(); },
   vcomAsk(id) { S.vdel = id; rerender(); },
   async vcomDel(id) { S.vdel = null; const keep = D.vcom; D.vcom = D.vcom.filter(c => c.id !== id); rerender(); try { await api('delVcom', { id }); toast(tr('Комментарий удалён', 'Comment deleted')); } catch (e) { D.vcom = keep; rerender(); toast(errText(e)); } },
