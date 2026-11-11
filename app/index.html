@@ -56,6 +56,11 @@ a{color:var(--acc)}
 .row .dot.sav{border:2px dashed var(--acc);background:transparent;animation:spin .9s linear infinite}
 .row .dot.sav svg{display:none}
 @keyframes spin{to{transform:rotate(360deg)}}
+@keyframes hgflip{0%,35%{transform:rotate(0)}50%,85%{transform:rotate(180deg)}100%{transform:rotate(360deg)}}
+.hg{width:132px;height:132px;border-radius:999px;background:var(--accbg);display:flex;align-items:center;justify-content:center;margin-bottom:6px}
+.hg svg{animation:hgflip 2.6s ease-in-out infinite}
+.offl{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:32px 28px;text-align:center;max-width:420px;margin:0 auto}
+@media (prefers-reduced-motion:reduce){.hg svg{animation:none}}
 @media (prefers-reduced-motion:reduce){.row .dot.sav{animation-duration:3s}}
 .nm{flex:1;min-width:0;font-size:15px;font-weight:500}
 .tag{font-size:12px;color:var(--mu);white-space:nowrap}
@@ -267,7 +272,7 @@ async function load() {
     if (!had) applyRoute();
     pickTab(); had ? rerender() : render(); syncMarks();
   }
-  catch (e) { if (D && S.token) { if (e.message !== 'auth') toast(errText(e)); return; } if (S.token) { $app.innerHTML = `<div class="login"><div class="h2">${tr('Не удалось загрузить', 'Could not load')}</div><div class="mut">${esc(errText(e))}</div><button class="btn" data-a="reload">${tr('Повторить', 'Retry')}</button></div>`; } }
+  catch (e) { if (D && S.token) { if (e.message !== 'auth') toast(errText(e)); return; } if (S.token) { const net = !e || e.message === 'network'; $app.innerHTML = `<div class="offl"><span class="hg">${svg('M6 2h12M6 22h12M7 2v4a5 5 0 0 0 2 4l3 2 3-2a5 5 0 0 0 2-4V2M7 22v-4a5 5 0 0 1 2-4l3-2 3 2a5 5 0 0 1 2 4v4', ACC, 64, 1.6)}</span><div class="h2" style="font-size:24px">${tr('Секундочку…', 'One moment…')}</div><div class="mut" style="font-size:16px;line-height:1.5">${net ? tr('Не получилось связаться с сервером.<br>Проверьте интернет — всё на месте.', 'Could not reach the server.<br>Check your internet — your data is safe.') : esc(errText(e))}</div><button class="btn" style="margin-top:10px" data-a="reload">${tr('Попробовать ещё раз', 'Try again')}</button></div>`; } }
 }
 
 // ---------- индексы ----------
@@ -771,7 +776,7 @@ function viewOverlay() {
     D.events.filter(e => e.date === D.today).forEach(e => now.push(item({ kind: 'event', meetId: e.id, label: e.name, date: e.date }, tr('сегодня · событие', 'today · event'))));
     SVCS().filter(s => s.day === dow).forEach(s => now.push(item(svc(D.today, s.id), tr('сегодня · ', 'today · ') + t12(s.time))));
     visibleGroups().filter(g => g.day === dow).forEach(g => now.push(item({ kind: 'group', meetId: g.id, label: g.name, date: D.today }, tr('сегодня · ', 'today · ') + t12(g.time))));
-    SVCS().filter(s => s.day !== dow).map(s => svc(lastDow(s.day), s.id)).sort((x, y) => y.date.localeCompare(x.date)).forEach(x => now.push(item(x, tr('прошедшая · ', 'past · ') + word(x.date) + ', ' + human(x.date))));
+    SVCS().filter(s => s.day !== dow).map(s => svc(lastDow(s.day), s.id)).sort((x, y) => y.date.localeCompare(x.date)).forEach(x => now.push(item(x, tr('прошедшая · ', 'past · ') + (word(x.date) === human(x.date) ? '' : word(x.date) + ', ') + human(x.date))));
     const grp = visibleGroups().map(g => { const gd = lastDow(g.day); return item({ kind: 'group', meetId: g.id, label: g.name, date: gd }, DLONG()[g.day] + ' ' + t12(g.time) + tr(' · последняя ', ' · latest ') + word(gd)); });
     const evs = D.events.slice().sort((a, b) => b.date.localeCompare(a.date)).slice(0, 10).map(e => item({ kind: 'event', meetId: e.id, label: e.name, date: e.date }, 'Church Event · ' + human(e.date)));
     const canEv = ['admin', 'leader'].indexOf(myRole()) >= 0;
@@ -779,7 +784,7 @@ function viewOverlay() {
       <div class="list2"><div class="sec">${tr('СЕЙЧАС', 'NOW')}</div>${now.join('')}</div>
       ${grp.length ? `<div class="list2"><div class="sec">${tr('МАЛЫЕ ГРУППЫ', 'SMALL GROUPS')}</div>${grp.join('')}</div>` : ''}
       ${evs.length ? `<div class="list2"><div class="sec">${tr('СОБЫТИЯ', 'EVENTS')}</div>${evs.join('')}</div>` : ''}
-      <div class="list2"><div class="sec">${tr('ДАТА', 'DATE')}</div><div class="row" style="cursor:default"><label for="od" style="flex:1;font-size:15px;font-weight:600">${tr('Другая дата', 'Other date')}</label><input id="od" type="date" class="inp" style="width:170px;height:42px" data-picker="1" data-change="otherDate" value="${esc(m.date)}"></div></div>
+      <div class="list2"><div class="sec">${tr('ДАТА', 'DATE')}</div><div class="row" style="cursor:pointer;position:relative"><span style="flex:1;font-size:15px;font-weight:600">${tr('Другая дата', 'Other date')}</span><span style="display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 14px;border-radius:12px;border:1px solid var(--line2);background:var(--card2);font-size:15px;font-weight:600;white-space:nowrap">${svg('M3 6h18v15H3zM3 10h18M8 3v4M16 3v4', '#A1A1AA', 16, 2)}${esc(human(m.date))}${m.date.slice(0, 4) !== D.today.slice(0, 4) ? ' ' + m.date.slice(0, 4) : ''}</span><input id="od" type="date" aria-label="${tr('Другая дата', 'Other date')}" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;border:0;padding:0;margin:0;-webkit-appearance:none;appearance:none;cursor:pointer" data-picker="1" data-change="otherDate" value="${esc(m.date)}"></div></div>
       ${canEv ? (o.newEv ? `<div class="card" style="display:flex;flex-direction:column;gap:12px;background:var(--bg)">${fld('ov.f.name', tr('Название события', 'Event name'), F.name, 'text', tr('Например, Выезд на озеро', 'e.g. Lake trip'))}${fld('ov.f.date', tr('Дата', 'Date'), F.date || D.today, 'date')}<button class="btn" data-a="saveEvent">${tr('Создать и отмечать', 'Create & check in')}</button></div>`
         : `<button class="btn2" style="border:2px dashed var(--line3);color:var(--acc)" data-a="ovSet" data-x="newEv">+ ${tr('Новое событие', 'New event')}</button>`) : ''}`);
   }
