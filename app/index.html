@@ -461,7 +461,7 @@ function viewMark() {
     <button class="plus" data-a="newTeen" aria-label="${tr('Добавить нового подростка', 'Add new teen')}">${svg(IC.plus, '#0E0F12', 20, 2.5)}</button></div>
     ${m.date !== D.today ? `<div class="xs" style="color:var(--acc2);padding:0 4px">${word(m.date) === human(m.date) ? '' : word(m.date) + ', '}${human(m.date)}</div>` : ''}
     ${off ? `<div class="card" style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:28px 18px;text-align:center"><span style="width:56px;height:56px;border-radius:999px;background:var(--accbg);display:flex;align-items:center;justify-content:center">${svg(BAN, ACC, 26, 2.1)}</span><div style="font-size:18px;font-weight:700">${tr('Встречи не было', 'No meeting')}</div><div class="sm" style="color:var(--acc)">${esc(offLabel(off.reason))}</div><div class="xs mut" style="line-height:1.45">${esc(m.label)} · ${esc(human(m.date))}<br>${off.by ? tr('Отметил ', 'Marked by ') + esc(off.by) + ' · ' : ''}${tr('в статистику не идёт', 'not counted in stats')}</div></div>${canOff(m) ? `<button class="btn2" data-a="offOpen">${tr('Изменить причину', 'Change reason')}</button><button class="btn2" data-a="offUndo">${tr('Встреча всё-таки была', 'The meeting did happen')}</button>` : ''}` : `
-    ${canOff(m) && !cnt && !S.q ? `<button data-a="offOpen" style="display:flex;align-items:center;gap:8px;min-height:40px;padding:0 14px;border-radius:12px;border:1px dashed var(--line3);background:transparent;color:var(--mu);font-size:13px;font-weight:600;width:100%">${svg(BAN, '#8B8B94', 16, 2.2)}<span style="flex:1;text-align:left">${tr('Встречи не было', 'No meeting')}</span>${svg(IC.right, '#5F626B', 16, 2.5)}</button>` : ''}
+    ${canOff(m) && !S.q ? `<button data-a="offOpen" style="display:flex;align-items:center;gap:8px;min-height:40px;padding:0 14px;border-radius:12px;border:1px dashed var(--line3);background:transparent;color:var(--mu);font-size:13px;font-weight:600;width:100%">${svg(BAN, '#8B8B94', 16, 2.2)}<span style="flex:1;text-align:left">${tr('Встречи не было', 'No meeting')}</span>${svg(IC.right, '#5F626B', 16, 2.5)}</button>` : ''}
     <label class="search"><span style="display:flex">${svg(IC.search, '#8B8B94', 18)}</span><input data-b="q" data-live="list" value="${esc(S.q)}" placeholder="${tr('Поиск по имени', 'Search by name')}" aria-label="${tr('Поиск подростка', 'Search teen')}"></label>
     ${review.map(t => `<button class="banner" data-a="openProf" data-x="${t.id}"><div style="width:38px;height:38px;border-radius:999px;background:var(--acc);display:flex;align-items:center;justify-content:center;flex-shrink:0">${svg(IC.userplus, '#0E0F12', 20, 2.5)}</div><div style="flex:1;display:flex;flex-direction:column;gap:2px"><span class="xs" style="font-weight:700;color:var(--acc2);letter-spacing:.04em">${tr('ЗАРЕГИСТРИРОВАЛСЯ САМ ПО QR', 'SELF-REGISTERED VIA QR')}</span><span style="font-size:15px;font-weight:600">${esc(tname(t))}</span></div><span class="sm" style="font-weight:700;color:var(--acc)">${tr('Проверить', 'Review')} ›</span></button>`).join('')}
     <div id="list" style="display:flex;flex-direction:column;gap:6px">${listHtml()}</div>`}`;
@@ -874,6 +874,7 @@ function viewOverlay() {
       <div class="sec">${tr('ПРИЧИНА', 'REASON')}</div>
       <div style="display:flex;flex-wrap:wrap;gap:8px">${OFFR.map(r => `<button class="chip ${o.reason === r[0] ? 'on' : ''}" data-a="offPick" data-x="${esc(r[0])}">${tr(r[0], r[1])}</button>`).join('')}<button class="chip ${custom ? 'on' : ''}" data-a="offPick" data-x="*">${tr('Другое', 'Other')}</button></div>
       ${custom ? `<input class="inp" style="height:48px;background:var(--bg)" data-b="ov.other" maxlength="80" value="${esc(o.other || '')}" placeholder="${tr('Напишите причину', 'Type the reason')}" aria-label="${tr('Причина', 'Reason')}">` : ''}
+      ${o.cnt ? `<div class="err" style="color:var(--acc2)">${tr('На встрече уже отмечено: ' + o.cnt + '. При сохранении эти отметки снимутся.', o.cnt + ' already checked in. Saving will remove these check-ins.')}</div>` : ''}
       <div class="xs mut" style="line-height:1.45">${tr('Этот день не считается пропуском: подростки не попадают в «Не пришли», регулярность не страдает.', 'This day is not counted as a miss: teens do not land in “Absent” and regularity is not affected.')}</div>
       ${o.err ? `<div class="err">${esc(o.err)}</div>` : ''}`, `<button class="btn" data-a="offSave">${tr('Сохранить', 'Save')}</button>`); }
   if (o.type === 'ev') {
@@ -1078,13 +1079,13 @@ const H = {
   bar(x) { S.bar = x; rerender(); },
   dayEv(k) { S.ov = { type: 'day', key: k, tab: 0 }; rerender(); },
   dayTab(v) { S.ov.tab = +v; rerender(); },
-  offOpen() { const off = offOf(meet()); const r = off ? off.reason : ''; const known = OFFR.some(a => a[0] === r); S.ov = { type: 'off', reason: !r ? OFFR[0][0] : known ? r : '*', other: known ? '' : r }; rerender(); },
+  offOpen() { const off = offOf(meet()); const r = off ? off.reason : ''; const known = OFFR.some(a => a[0] === r); const m = meet(); S.ov = { type: 'off', reason: !r ? OFFR[0][0] : known ? r : '*', other: known ? '' : r, cnt: D.teens.filter(t => has(m.date, m.kind, m.meetId, t.id)).length }; rerender(); },
   offPick(x) { syncForm(); S.ov.reason = x; S.ov.err = ''; rerender(); },
   async offSave() { syncForm(); const o = S.ov, m = meet(); const reason = (o.reason === '*' ? String(o.other || '') : o.reason).trim().slice(0, 80);
     if (!reason) { o.err = tr('Напишите причину', 'Type the reason'); return rerender(); }
-    const old = D.off || []; const same = x => x[0] === m.date && x[1] === m.kind && x[2] === m.meetId;
-    D.off = old.filter(x => !same(x)).concat([[m.date, m.kind, m.meetId, reason, D.me.name || '']]); S.ov = null; buildIdx(); rerender();
-    try { await api('meetOff', { date: m.date, kind: m.kind, meetId: m.meetId, reason }); toast(tr('Сохранено', 'Saved')); } catch (e) { D.off = old; buildIdx(); rerender(); toast(errText(e)); } },
+    const old = D.off || [], oldAtt = D.att; const same = x => x[0] === m.date && x[1] === m.kind && x[2] === m.meetId; const clear = !!o.cnt;
+    D.off = old.filter(x => !same(x)).concat([[m.date, m.kind, m.meetId, reason, D.me.name || '']]); if (clear) D.att = D.att.filter(x => !same(x)); S.ov = null; buildIdx(); rerender();
+    try { await api('meetOff', { date: m.date, kind: m.kind, meetId: m.meetId, reason, clear }); toast(tr('Сохранено', 'Saved')); } catch (e) { D.off = old; D.att = oldAtt; buildIdx(); rerender(); toast(errText(e)); } },
   async offUndo() { const m = meet(); const old = D.off || [];
     D.off = old.filter(x => !(x[0] === m.date && x[1] === m.kind && x[2] === m.meetId)); buildIdx(); rerender();
     try { await api('meetOff', { date: m.date, kind: m.kind, meetId: m.meetId, on: false }); } catch (e) { D.off = old; buildIdx(); rerender(); toast(errText(e)); } },

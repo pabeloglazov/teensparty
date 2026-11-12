@@ -375,7 +375,8 @@ const A_ = {
     const hit = offs_().filter(o => o.date === p.date && o.kind === p.kind && o.meetId === p.meetId);
     if (p.on === false) { if (hit.length) delete_('Отмены', hit.map(h => h._row)); return { on: false }; }
     const reason = String(p.reason || '').trim().slice(0, 80); if (!reason) throw new Error('bad_request');
-    if (rows_('Посещения').some(a => a.date === p.date && a.kind === p.kind && a.meetId === p.meetId)) throw new Error('has_marks');
+    const marks = rows_('Посещения').filter(a => a.date === p.date && a.kind === p.kind && a.meetId === p.meetId);
+    if (marks.length) { if (!p.clear) throw new Error('has_marks'); delete_('Посещения', marks.map(x => x._row)); }
     ensure_('Отмены');
     if (hit.length) { update_('Отмены', hit[0], { reason: reason, by: me.email, ts: nowIso_() }); if (hit.length > 1) delete_('Отмены', hit.slice(1).map(h => h._row)); }
     else append_('Отмены', { id: uid_('X'), date: p.date, kind: p.kind, meetId: p.meetId, reason: reason, by: me.email, ts: nowIso_() });
@@ -590,16 +591,18 @@ function currentMeeting_() {
   const ev = rows_('События').find(e => e.date === today);
   if (ev) return { kind: 'event', meetId: ev.id, label: ev.name, date: today };
   const SV = services_(st);
-  const sv = SV.find(x => x.day === day && inWin(x.time));
+  const OFF = offs_(), isOff = (k, id) => OFF.some(o => o.date === today && o.kind === k && o.meetId === id);
+  const sv = SV.find(x => x.day === day && inWin(x.time) && !isOff('service', x.id));
   if (sv) return { kind: 'service', meetId: sv.id, label: sv.name, date: today };
-  const g = rows_('Группы').find(x => x.active !== '0' && +x.day === day && inWin(x.time));
+  const g = rows_('Группы').find(x => x.active !== '0' && +x.day === day && inWin(x.time) && !isOff('group', x.id));
   if (g) return { kind: 'group', meetId: g.id, label: g.name, date: today };
-  if (st.qrAlways === '1') { const t = SV.find(x => x.day === day) || SV[0]; if (!t) return null; return { kind: 'service', meetId: t.id, label: t.name, date: today, test: true }; }
+  if (st.qrAlways === '1') { const t = SV.find(x => x.day === day) || SV[0]; if (!t || isOff('service', t.id)) return null; return { kind: 'service', meetId: t.id, label: t.name, date: today, test: true }; }
   return null;
 }
 function joinInfo() { return out_(() => ({ meet: currentMeeting_() })); }
 
 function checkIn_(teenId, teenName, meet, method) {
+  if (offs_().some(o => o.date === meet.date && o.kind === meet.kind && o.meetId === meet.meetId)) throw new Error('no_meeting');
   const all = rows_('Посещения');
   if (!all.some(a => a.date === meet.date && a.kind === meet.kind && a.meetId === meet.meetId && a.teenId === teenId)) {
     append_('Посещения', { id: uid_('A'), date: meet.date, kind: meet.kind, meetId: meet.meetId, teenId, teenName, by: 'self', method, ts: nowIso_() });
