@@ -279,7 +279,7 @@ function logout(token) {
 const CAN = {
   mark: ['admin', 'leader', 'mod'], attNow: ['admin', 'leader', 'mod', 'viewer'], addTeen: ['admin', 'leader', 'mod'], updateTeen: ['admin', 'leader', 'mod'], reviewTeen: ['admin', 'leader', 'mod'],
   addEvent: ['admin', 'leader'], editEvent: ['admin'], delEvent: ['admin'], saveGroup: ['admin'], saveSettings: ['admin'],
-  meetOff: ['admin', 'leader'],
+  meetOff: ['admin', 'leader'], mergeTeens: ['admin'], notDup: ['admin'],
   invite: ['admin'], updateLeader: ['admin'], removeLeader: ['admin'],
   savePlanWeek: ['admin'], delVcom: ['admin', 'leader'], teenCode: ['admin', 'leader'], groupReq: ['admin'], confirmTask: ['admin', 'leader'], addTask: ['admin', 'leader'], taskDone: ['admin', 'leader'], remind: ['admin', 'leader'], award: ['admin', 'leader'], igReview: ['admin', 'leader']
 };
@@ -328,11 +328,12 @@ const A_ = {
       return o;
     });
     if (me.role !== 'viewer') { const P = allPoints_(); visTeens.forEach(o => o.pts = P[o.id] || 0); }
+    const dups = me.role === 'admin' ? dupPairs_(teens, settings_().notDup) : [];
     const att = rows_('Посещения').map(a => [a.date, a.kind, a.meetId, a.teenId]);
     const st = settings_();
     const res = {
       me, today: today_(), execUrl: execUrl_(), settings: st,
-      teens: visTeens, att, off: offs_().map(o => [o.date, o.kind, o.meetId, o.reason, markerName_({ by: o.by })]),
+      teens: visTeens, dups, att, off: offs_().map(o => [o.date, o.kind, o.meetId, o.reason, markerName_({ by: o.by })]),
       groups: rows_('Группы').filter(g => g.active !== '0').map(g => ({ id: g.id, name: g.name, leader: g.leader, day: +g.day, time: g.time, addr: g.addr || '', contact: g.contact || '' })),
       events: rows_('События').map(e => ({ id: e.id, name: e.name, date: e.date, reg: +e.reg || 0 })),
       tasks: rows_('Задания').map(t => ({ id: t.id, title: t.title, kind: t.kind, due: t.due, pts: +t.pts || 0, aud: t.aud ? t.aud.split(',').filter(Boolean) : [], createdAt: t.createdAt })),
@@ -367,6 +368,58 @@ const A_ = {
     }
     if (hit.length) delete_('Посещения', hit.map(h => h._row));
     return { on: false };
+  },
+  // Склейка дублей: всё с профиля drop переезжает на keep, drop скрывается
+  mergeTeens(me, p) {
+    const teens = rows_('Подростки');
+    const keep = teens.find(x => x.id === p.keepId && x.archived !== '1'), drop = teens.find(x => x.id === p.dropId && x.archived !== '1');
+    if (!keep || !drop || keep.id === drop.id) throw new Error('not_found');
+    const K = keep.id, Dp = drop.id, keepName = p.name === 'drop' ? (drop.first + ' ' + drop.last).trim() : (keep.first + ' ' + keep.last).trim();
+    const move = (name, col, keyFn, extra) => {
+      if (!ss_().getSheetByName(name)) return 0;
+      const rows = rows_(name), sh = sh_(name), ci = keys_(name).indexOf(col) + 1;
+      const seen = {}; if (keyFn) rows.forEach(r => { if (r[col] === K) seen[keyFn(r)] = 1; });
+      const del = []; let n = 0;
+      rows.forEach(r => { if (r[col] !== Dp) return;
+        if (keyFn) { const k = keyFn(r); if (seen[k]) { del.push(r._row); return; } seen[k] = 1; }
+        sh.getRange(r._row, ci, 1, 1).setValues([[K]]); if (extra) extra(sh, r); n++; });
+      if (del.length) delete_(name, del);
+      return n;
+    };
+    const ni = keys_('Посещения').indexOf('teenName') + 1;
+    const moved = move('Посещения', 'teenId', r => r.date + '|' + r.kind + '|' + r.meetId, (sh, r) => sh.getRange(r._row, ni, 1, 1).setValues([[keepName]]));
+    move('Выполнения', 'teenId', r => r.taskId);
+    move('Напоминания', 'teenId', r => r.taskId + '|' + r.date);
+    move('Ачивки', 'teenId', r => r.badge + '|' + r.date);
+    move('Входы', 'teenId', r => r.date);
+    move('Заявки', 'teenId', r => r.groupId + '|' + r.status);
+    move('Стих дня', 'teenId', r => r.kind === 'com' ? r.id : r.date + '|' + r.kind + '|' + r.text);
+    move('Приглашения', 'teenId'); move('Приглашения', 'by');
+    move('_ТГ', 'teenId'); move('Подростки', 'invitedBy');
+    const sess = rows_('_Сессии').filter(x => x.email === 'teen:' + Dp), si = keys_('_Сессии').indexOf('email') + 1;
+    sess.forEach(x => sh_('_Сессии').getRange(x._row, si, 1, 1).setValues([['teen:' + K]]));
+    const codes = rows_('_Коды').filter(x => x.email === 'teen:' + Dp); if (codes.length) delete_('_Коды', codes.map(x => x._row));
+    const patch = {};
+    ['phone', 'birth', 'addr', 'pFirst', 'pLast', 'pPhone', 'pAddr', 'invitedBy'].forEach(k => { if (!keep[k] && drop[k]) patch[k] = drop[k]; });
+    if (!keep.ig && drop.ig) { patch.ig = drop.ig; patch.igStatus = drop.igStatus; }
+    if (!keep.tgId && drop.tgId) { patch.tgId = drop.tgId; patch.tgChat = drop.tgChat; }
+    if (!keep.birth && !drop.birth && !keep.age && drop.age) { patch.age = drop.age; patch.ageAt = drop.ageAt; }
+    if (patch.invitedBy === K) delete patch.invitedBy;
+    const gs = (keep.groups ? keep.groups.split(',') : []).concat(drop.groups ? drop.groups.split(',') : []).filter((g, i, a) => g && a.indexOf(g) === i).join(',');
+    if (gs !== keep.groups) patch.groups = gs;
+    if (drop.createdAt && (!keep.createdAt || drop.createdAt < keep.createdAt)) patch.createdAt = drop.createdAt;
+    if (drop.isLeader === '1' && keep.isLeader !== '1') patch.isLeader = '1';
+    if (p.name === 'drop') { patch.first = drop.first; patch.last = drop.last; }
+    const fresh = rows_('Подростки');
+    update_('Подростки', fresh.find(x => x.id === K), patch);
+    update_('Подростки', fresh.find(x => x.id === Dp), { archived: '1', review: '', tgId: '', source: 'merged:' + K });
+    return { moved: moved };
+  },
+  notDup(me, p) {
+    if (!p.a || !p.b) throw new Error('bad_request');
+    const key = [p.a, p.b].sort().join('|'); const cur = String(settings_().notDup || '').split(',').filter(Boolean);
+    if (cur.indexOf(key) < 0) { cur.push(key); A_.saveSettings(me, { notDup: cur.join(',') }); }
+    return true;
   },
   // «Встречи не было»: день закрыт с причиной и не считается пропуском
   meetOff(me, p) {
@@ -779,11 +832,27 @@ function knownPerson_(f, teens) {
   const ph = digits_(f.phone), pp = digits_(f.pPhone);
   const hit = n => n && n.length >= 10 && teens.some(t => digits_(t.phone) === n || digits_(t.pPhone) === n);
   if (hit(ph) || hit(pp)) return true;
-  const m = matchTeen_(String(f.first || '').trim(), String(f.last || '').trim(), ph, teens.filter(t => t.archived !== '1' || true));
+  const m = matchTeen_(String(f.first || '').trim(), String(f.last || '').trim(), ph, teens.filter(t => String(t.source || '').indexOf('merged:') !== 0));
   return !!m.t;
 }
 const DAYS_RU_ = ['воскресенье', 'понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота'];
 function t12_(hhmm) { const m = /^(\d{1,2}):(\d{2})$/.exec(String(hhmm || '')); if (!m) return String(hhmm || ''); const h = +m[1]; return ((h % 12) || 12) + ':' + m[2] + ' ' + (h < 12 ? 'AM' : 'PM'); }
+// Пары, похожие на дубли: то же имя (с транслитом и опечатками) или тот же телефон + то же имя
+function dupPairs_(teens, notDup) {
+  const skip = {}; String(notDup || '').split(',').forEach(k => { if (k) skip[k] = 1; });
+  const res = [];
+  for (let i = 0; i < teens.length; i++) for (let j = i + 1; j < teens.length; j++) {
+    const a = teens[i], b = teens[j]; if (skip[[a.id, b.id].sort().join('|')]) continue;
+    const sf = sameFirst_(a.first, b.first), pa = digits_(a.phone), ph = pa.length >= 7 && pa === digits_(b.phone);
+    const rev = sameFirst_(a.first, b.last) && sameLast_(a.last, b.first);
+    let how = '';
+    if (ph && (sf || rev)) how = 'phone';
+    else if ((sf && a.last && b.last && sameLast_(a.last, b.last)) || (rev && a.last && b.last)) how = 'name';
+    if (how && a.birth && b.birth && a.birth !== b.birth) how = '';
+    if (how) res.push([a.id, b.id, how]);
+  }
+  return res.slice(0, 30);
+}
 function offs_() { return ss_().getSheetByName('Отмены') ? rows_('Отмены') : []; }
 function greqs_() { return ss_().getSheetByName('Заявки') ? rows_('Заявки') : []; }
 function nextMeet_() { const sv = services_()[0]; return sv ? DAYS_RU_[sv.day] + ', ' + t12_(sv.time) : ''; }

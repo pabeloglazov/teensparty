@@ -580,8 +580,39 @@ function teenRowsHtml() {
   return list.map(t => { const st = stat(t, 'service', 'sunday', '9999'); const gs = t.groups.map(g => IDX.group[g] && IDX.group[g].name).filter(Boolean).join(', ') || tr('без группы', 'no group');
     return `<button class="row" data-a="openProf" data-x="${t.id}"><div class="av ${t.isLeader ? 'ldr' : ''}">${esc(ini(tname(t)))}</div><div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:500">${esc(tname(t))}</span><span class="xs mut">${t.isLeader ? `<span style="color:#F2C14E;font-weight:600">${tr('лидер', 'leader')}</span> · ` : ''}${esc(gs)} · ${CAT()[st.cat]}</span></div>${svg(IC.right, '#5F626B', 18, 2.5)}</button>`; }).join('');
 }
+const MRG = 'M8 3v6a4 4 0 0 0 4 4a4 4 0 0 1 4 4v4M16 3v6a4 4 0 0 1-4 4';
+const plur = (n, a, b, c) => { const d = n % 10, h = n % 100; return d === 1 && h !== 11 ? a : d >= 2 && d <= 4 && (h < 12 || h > 14) ? b : c; };
+const dupList = () => myRole() === 'admin' && !S.as ? (D.dups || []).filter(p => IDX.teen[p[0]] && IDX.teen[p[1]]) : [];
+function mergeStart(a, b, how, auto) { const ta = IDX.total[a] || 0, tb = IDX.total[b] || 0; const sw = tb > ta; S.ov = { type: 'merge', keep: sw ? b : a, drop: sw ? a : b, how: how || '', name: 'keep', auto: !!auto }; rerender(); }
+function mergeOverlay(o) {
+  const k = IDX.teen[o.keep], d = IDX.teen[o.drop]; if (!k || !d) return '';
+  const SRC = t => ({ import: tr('импорт', 'import'), qr: tr('сам по QR', 'self via QR'), leader: tr('лидер', 'leader'), teensparty: 'Teens Party', invite: tr('приглашение', 'invite') })[t.source] || t.source || '—';
+  const fld = (l, v, hi) => `<div style="display:flex;flex-direction:column;gap:1px"><span class="xs mut">${l}</span><span style="font-size:13px;font-weight:600;overflow-wrap:anywhere;${hi ? 'color:var(--acc)' : ''}">${esc(v || '—')}</span></div>`;
+  const bd = t => t.birth ? human(t.birth) + ' ' + String(t.birth).slice(0, 4) : '';
+  const card = (t, o2, main) => `<button data-a="mergeSwap" class="card" style="flex:1;min-width:0;padding:14px 12px;display:flex;flex-direction:column;gap:8px;text-align:left;${main ? 'border-color:var(--acc)' : ''}"><div style="display:flex;align-items:center;gap:8px"><div class="av" style="flex-shrink:0">${esc(ini(tname(t)))}</div><div style="font-size:14px;font-weight:700;line-height:1.2;overflow-wrap:anywhere">${esc(tname(t))}</div></div><span class="xs" style="font-weight:700;letter-spacing:.04em;color:${main ? 'var(--acc)' : 'var(--mu)'}">${main ? tr('ОСНОВНОЙ', 'MAIN') : tr('ВОЛЬЁТСЯ', 'MERGES IN')}</span>${fld(tr('Телефон', 'Phone'), t.phone, (t.phone || '') !== (o2.phone || ''))}${fld(tr('Дата рождения', 'Birthday'), bd(t), bd(t) !== bd(o2))}${fld(tr('Посещений', 'Visits'), String(IDX.total[t.id] || 0))}${fld(tr('Добавлен', 'Added'), SRC(t) + (t.createdAt ? ' · ' + human(t.createdAt) + ' ' + String(t.createdAt).slice(0, 4) : ''))}</button>`;
+  const pairs = dupList(), idx = pairs.findIndex(p => (p[0] === o.keep && p[1] === o.drop) || (p[1] === o.keep && p[0] === o.drop));
+  const sub = (idx >= 0 ? tr('Пара ', 'Pair ') + (idx + 1) + tr(' из ', ' of ') + pairs.length + ' · ' : '') + (o.how === 'phone' ? tr('совпал телефон', 'same phone') : o.how === 'name' ? tr('похожее имя', 'similar name') : tr('выбрано вручную', 'picked manually'));
+  const sum = (IDX.total[k.id] || 0) + (IDX.total[d.id] || 0);
+  return sheet(tr('Это один человек?', 'Same person?'), `<div class="sm mut">${sub}</div>
+    <div style="display:flex;gap:8px">${card(k, d, true)}${card(d, k, false)}</div>
+    <div class="xs mut">${tr('Нажмите на карточку, чтобы сделать её основной.', 'Tap a card to make it the main one.')}</div>
+    ${tname(k) !== tname(d) ? `<div class="sec">${tr('КАКОЕ ИМЯ ОСТАВИТЬ', 'NAME TO KEEP')}</div><div style="display:flex;flex-direction:column;gap:6px">${[['keep', k], ['drop', d]].map(x => `<button class="row ${o.name === x[0] ? 'on' : ''}" data-a="mergeName" data-x="${x[0]}" style="min-height:48px"><span style="flex:1;text-align:left;font-size:15px;font-weight:600">${esc(tname(x[1]))}</span>${o.name === x[0] ? svg(IC.check, ACC, 18, 3) : ''}</button>`).join('')}</div>` : ''}
+    <div class="xs mut" style="line-height:1.45">${tr('Посещения, баллы, задания, ачивки и вход через Telegram сложатся в один профиль (до ' + sum + ' ' + plur(sum, 'посещения', 'посещений', 'посещений') + '). Пустые поля заполнятся из второго. Отменить склейку нельзя.', 'Visits, points, tasks, badges and Telegram login are combined into one profile (up to ' + sum + ' visits). Empty fields are filled from the other one. This cannot be undone.')}</div>
+    ${o.err ? `<div class="err">${esc(o.err)}</div>` : ''}`,
+    `<button class="btn" data-a="mergeDo" ${o.busy ? 'disabled' : ''}>${o.busy ? tr('Объединяю…', 'Merging…') : tr('Объединить', 'Merge')}</button>${idx >= 0 ? `<button class="btn2" style="margin-top:8px" data-a="mergeNot" ${o.busy ? 'disabled' : ''}>${tr('Это разные люди', 'Different people')}</button>` : ''}`);
+}
+function mergePickOverlay(o) {
+  const q = String(o.q || '').trim().toLowerCase(), me = IDX.teen[o.id];
+  const list = D.teens.filter(t => t.id !== o.id && (!q || tname(t).toLowerCase().indexOf(q) >= 0)).sort((a, b) => tname(a).localeCompare(tname(b))).slice(0, 30);
+  return sheet(tr('Объединить с…', 'Merge with…'), `<div class="sm mut">${tr('Профиль: ', 'Profile: ')}${esc(tname(me || {}))}</div>
+    <label class="search"><span style="display:flex">${svg(IC.search, '#8B8B94', 18)}</span><input data-b="ov.q" data-live="mpick" value="${esc(o.q || '')}" placeholder="${tr('Поиск по имени', 'Search by name')}" aria-label="${tr('Поиск подростка', 'Search teen')}"></label>
+    <div id="mpick" style="display:flex;flex-direction:column;gap:6px">${mergePickRows(list)}</div>
+    <div class="xs mut" style="line-height:1.45">${tr('Дальше откроется сравнение двух профилей — ничего не склеится без подтверждения.', 'Next you will compare the two profiles — nothing is merged without confirmation.')}</div>`, '');
+}
+const mergePickRows = list => list.length ? list.map(t => `<button class="row" data-a="mergePicked" data-x="${t.id}"><div class="av">${esc(ini(tname(t)))}</div><div style="flex:1;min-width:0;text-align:left;display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:600">${esc(tname(t))}</span><span class="xs mut">${IDX.total[t.id] || 0} ${tr(plur(IDX.total[t.id] || 0, 'посещение', 'посещения', 'посещений'), 'visits')}</span></div>${svg(IC.right, '#5F626B', 18, 2.5)}</button>`).join('') : `<div class="empty">${tr('Никого не нашли', 'No one found')}</div>`;
 function viewTeens() {
   return `<div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><div><div class="sm mut">${D.teens.length}${tr(' в базе', ' in database')}</div><h1 class="h1">${tr('Подростки', 'Teens')}</h1></div>${myRole() !== 'viewer' ? `<button class="plus" data-a="newTeen" aria-label="${tr('Добавить нового подростка', 'Add new teen')}">${svg(IC.plus, '#0E0F12', 20, 2.5)}</button>` : ''}</div>
+  ${dupList().length ? `<button class="banner" data-a="dupOpen" style="width:100%"><div style="width:38px;height:38px;border-radius:999px;background:var(--acc);display:flex;align-items:center;justify-content:center;flex-shrink:0">${svg(MRG, '#0E0F12', 20, 2.4)}</div><div style="flex:1;display:flex;flex-direction:column;gap:2px;text-align:left"><span class="xs" style="font-weight:700;color:var(--acc2);letter-spacing:.04em">${tr('ПОХОЖЕ НА ДУБЛИ', 'POSSIBLE DUPLICATES')}</span><span style="font-size:15px;font-weight:600">${dupList().length} ${tr(plur(dupList().length, 'пара', 'пары', 'пар') + ' — проверить', 'to review')}</span></div>${svg(IC.right, ACC, 18, 2.5)}</button>` : ''}
   <label class="search"><span style="display:flex">${svg(IC.search, '#8B8B94', 18)}</span><input data-b="tq" data-live="teens" value="${esc(S.tq)}" placeholder="${tr('Поиск по имени', 'Search by name')}" aria-label="${tr('Поиск подростка', 'Search teen')}"></label>
   <div id="teens" class="teens2 list2">${teenRowsHtml()}</div>`;
 }
@@ -822,6 +853,7 @@ function viewOverlay() {
       ${myRole() === 'admin' || myRole() === 'leader' ? `<div style="display:flex;flex-direction:column;gap:8px"><div style="display:flex;justify-content:space-between;align-items:baseline"><div class="sec">${tr('ГРУППЫ', 'GROUPS')}</div><div class="xs mut">${tr('Можно выбрать несколько', 'You can pick several')}</div></div>${D.groups.length ? ddGroups('', o.groups, o.gOpen, 'profG', 'profPick', { empty: tr('Без группы', 'No group') }) : `<div class="xs mut">${tr('Групп пока нет', 'No groups yet')}</div>`}</div>` : ''}
       ${t.canEditParent && !F.isLeader ? `<div style="display:flex;flex-direction:column;gap:14px"><div class="sec">${tr('РОДИТЕЛЬ', 'PARENT')}</div>${fld('ov.f.pFirst', tr('Имя родителя', 'Parent first name'), F.pFirst)}${fld('ov.f.pLast', tr('Фамилия родителя', 'Parent last name'), F.pLast)}${fld('ov.f.pPhone', tr('Телефон родителя', 'Parent phone'), F.pPhone, 'tel')}${fld('ov.f.pAddr', tr('Адрес родителя', 'Parent address'), F.pAddr)}<button class="row" data-a="sameAddr" style="gap:12px;${o.sameAddr ? 'border-color:var(--acc);background:var(--accbg)' : ''}"><div class="cb ${o.sameAddr ? 'on' : ''}">${o.sameAddr ? svg(IC.check, '#0E0F12', 14, 3.2) : ''}</div><span style="flex:1;text-align:left;display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:600">${tr('Адрес как у подростка', 'Same address as the teen')}</span><span class="xs mut">${tr('подставит адрес, введённый выше', 'copies the address entered above')}</span></span></button></div>` : ''}
       ${['admin', 'leader'].indexOf(myRole()) >= 0 ? (o.code ? `<div class="card" style="border-color:var(--acc);background:var(--accbg);display:flex;flex-direction:column;gap:6px;align-items:center;text-align:center"><div class="xs mut">${tr('Код входа в приложение подростка', 'Teen app login code')}</div><div style="font-family:Unbounded,sans-serif;font-size:30px;font-weight:700;letter-spacing:6px;color:var(--acc)">${esc(o.code)}</div><div class="xs mut" style="line-height:1.4">${tr('Одноразовый, действует 24 часа. Подросток вводит его на экране входа: «Войти по коду от лидера».', 'One-time, valid for 24 hours. The teen enters it on the login screen.')}</div></div>` : `<button class="btn2" data-a="teenCode">${tr('Выдать код входа (если нет Telegram)', 'Issue a login code (no Telegram)')}</button>`) : ''}
+      ${myRole() === 'admin' && !S.as ? `<button class="btn2" data-a="mergePick" style="display:flex;align-items:center;justify-content:center;gap:8px">${svg(MRG, 'currentColor', 16, 2.2)}${tr('Объединить с другим профилем', 'Merge with another profile')}</button>` : ''}
       ${t.pts != null ? `<div class="sm mut">${tr('Баллы в приложении: ', 'App points: ')}<b style="color:var(--acc)">${t.pts}</b> · Telegram ${t.tgChat === '1' ? '✓' : '—'} · Instagram ${t.igStatus === 'ok' ? '✓' : t.igStatus === 'pending' ? tr('на проверке', 'pending') : '—'}</div>` : ''}
       ${t.invitedBy && IDX.teen[t.invitedBy] ? `<div class="sm mut">${tr('Пригласил: ', 'Invited by: ')}${esc(tname(IDX.teen[t.invitedBy]))}</div>` : ''}`,
       canEdit ? `<button class="btn" data-a="saveProf">${tr('Сохранить', 'Save')}</button>` : '');
@@ -869,6 +901,8 @@ function viewOverlay() {
   }
   if (o.type === 'pw') return planOverlay(o);
   if (o.type === 'day') return dayOverlay(o);
+  if (o.type === 'merge') return mergeOverlay(o);
+  if (o.type === 'mpick') return mergePickOverlay(o);
   if (o.type === 'off') { const m = meet(), custom = o.reason === '*';
     return sheet(tr('Встречи не было', 'No meeting'), `<div class="sm mut">${esc(m.label)} · ${esc(human(m.date))}</div>
       <div class="sec">${tr('ПРИЧИНА', 'REASON')}</div>
@@ -962,6 +996,7 @@ document.addEventListener('input', e => {
   const live = el.getAttribute('data-live');
   if (live === 'list') document.getElementById('list').innerHTML = listHtml();
   if (live === 'teens') document.getElementById('teens').innerHTML = teenRowsHtml();
+  if (live === 'mpick') { const o = S.ov, q = String(o.q || '').trim().toLowerCase(); document.getElementById('mpick').innerHTML = mergePickRows(D.teens.filter(t => t.id !== o.id && (!q || tname(t).toLowerCase().indexOf(q) >= 0)).sort((a, b) => tname(a).localeCompare(tname(b))).slice(0, 30)); }
   if (live === 'award') document.getElementById('awlist').innerHTML = awardPeople();
 });
 document.addEventListener('change', e => {
@@ -1079,6 +1114,18 @@ const H = {
   bar(x) { S.bar = x; rerender(); },
   dayEv(k) { S.ov = { type: 'day', key: k, tab: 0 }; rerender(); },
   dayTab(v) { S.ov.tab = +v; rerender(); },
+  dupOpen() { const p = dupList()[0]; if (p) mergeStart(p[0], p[1], p[2], true); },
+  mergePick() { S.ov = { type: 'mpick', id: S.ov.id, q: '' }; rerender(); },
+  mergePicked(id) { const a = S.ov.id; const p = dupList().find(p => (p[0] === a && p[1] === id) || (p[1] === a && p[0] === id)); mergeStart(a, id, p ? p[2] : ''); },
+  mergeSwap() { const o = S.ov; if (o.busy) return; const k = o.keep; o.keep = o.drop; o.drop = k; o.name = o.name === 'keep' ? 'drop' : 'keep'; rerender(); },
+  mergeName(x) { if (S.ov.busy) return; S.ov.name = x; rerender(); },
+  async mergeDo() { const o = S.ov; if (o.busy) return; o.busy = true; o.err = ''; rerender();
+    try { await api('mergeTeens', { keepId: o.keep, dropId: o.drop, name: o.name }); const fresh = await api('bootstrap', {}); D = fresh; buildIdx(); LS.set(BOOT, JSON.stringify(D));
+      const nx = dupList()[0]; if (nx && o.auto) mergeStart(nx[0], nx[1], nx[2], true); else { S.ov = null; rerender(); } toast(tr('Профили объединены', 'Profiles merged')); }
+    catch (e) { o.busy = false; o.err = errText(e); rerender(); } },
+  async mergeNot() { const o = S.ov; const old = D.dups; D.dups = (D.dups || []).filter(p => !((p[0] === o.keep && p[1] === o.drop) || (p[1] === o.keep && p[0] === o.drop)));
+    const nx = dupList()[0]; if (nx && o.auto) mergeStart(nx[0], nx[1], nx[2], true); else { S.ov = null; rerender(); }
+    try { await api('notDup', { a: o.keep, b: o.drop }); } catch (e) { D.dups = old; rerender(); toast(errText(e)); } },
   offOpen() { const off = offOf(meet()); const r = off ? off.reason : ''; const known = OFFR.some(a => a[0] === r); const m = meet(); S.ov = { type: 'off', reason: !r ? OFFR[0][0] : known ? r : '*', other: known ? '' : r, cnt: D.teens.filter(t => has(m.date, m.kind, m.meetId, t.id)).length }; rerender(); },
   offPick(x) { syncForm(); S.ov.reason = x; S.ov.err = ''; rerender(); },
   async offSave() { syncForm(); const o = S.ov, m = meet(); const reason = (o.reason === '*' ? String(o.other || '') : o.reason).trim().slice(0, 80);
