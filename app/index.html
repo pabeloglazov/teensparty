@@ -457,7 +457,7 @@ function viewMark() {
   const review = D.teens.filter(t => t.review);
   return `<div style="display:flex;align-items:center;gap:8px">
     <button class="cap" data-a="openMeet" aria-label="${tr('Выбрать встречу', 'Choose meeting')}"><span>${esc(m.label)}</span>${svg(IC.chev, '#A1A1AA', 18, 2.5)}</button>
-    <button class="cnt" data-a="noop" aria-label="${tr('Отмечено', 'Checked in')}">${cnt}</button>
+    <button class="cnt" data-a="cntOpen" aria-label="${tr('Отмечено: ', 'Checked in: ')}${cnt}${tr('. Показать список', '. Show list')}">${cnt}</button>
     <button class="plus" data-a="newTeen" aria-label="${tr('Добавить нового подростка', 'Add new teen')}">${svg(IC.plus, '#0E0F12', 20, 2.5)}</button></div>
     ${m.date !== D.today ? `<div class="xs" style="color:var(--acc2);padding:0 4px">${word(m.date) === human(m.date) ? '' : word(m.date) + ', '}${human(m.date)}</div>` : ''}
     ${off ? `<div class="card" style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:28px 18px;text-align:center"><span style="width:56px;height:56px;border-radius:999px;background:var(--accbg);display:flex;align-items:center;justify-content:center">${svg(BAN, ACC, 26, 2.1)}</span><div style="font-size:18px;font-weight:700">${tr('Встречи не было', 'No meeting')}</div><div class="sm" style="color:var(--acc)">${esc(offLabel(off.reason))}</div><div class="xs mut" style="line-height:1.45">${esc(m.label)} · ${esc(human(m.date))}<br>${off.by ? tr('Отметил ', 'Marked by ') + esc(off.by) + ' · ' : ''}${tr('в статистику не идёт', 'not counted in stats')}</div></div>${canOff(m) ? `<button class="btn2" data-a="offOpen">${tr('Изменить причину', 'Change reason')}</button><button class="btn2" data-a="offUndo">${tr('Встреча всё-таки была', 'The meeting did happen')}</button>` : ''}` : `
@@ -1114,6 +1114,7 @@ const H = {
   bar(x) { S.bar = x; rerender(); },
   dayEv(k) { S.ov = { type: 'day', key: k, tab: 0 }; rerender(); },
   dayTab(v) { S.ov.tab = +v; rerender(); },
+  cntOpen() { const m = meet(); S.ov = { type: 'day', key: m.date + '|' + m.kind + '|' + m.meetId, tab: 0 }; rerender(); },
   dupOpen() { const p = dupList()[0]; if (p) mergeStart(p[0], p[1], p[2], true); },
   mergePick() { S.ov = { type: 'mpick', id: S.ov.id, q: '' }; rerender(); },
   mergePicked(id) { const a = S.ov.id; const p = dupList().find(p => (p[0] === a && p[1] === id) || (p[1] === a && p[0] === id)); mergeStart(a, id, p ? p[2] : ''); },
