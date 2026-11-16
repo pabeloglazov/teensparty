@@ -44,6 +44,14 @@ a[style*="border-radius"]:active,button:active{transform:scale(.98)}
 .xcal .d{display:block;font:900 clamp(40px,6.4vw,80px)/1 Unbounded,sans-serif;letter-spacing:-.04em;padding:clamp(8px,1.2vw,16px) 0 clamp(10px,1.5vw,20px)}
 .xbtn{position:relative;grid-column:1 / -1;display:flex;align-items:center;justify-content:center;height:64px;border-radius:16px;background:#EF4444;color:#0E0F12;font:700 18px Inter,sans-serif}
 @media (max-width:720px){.xban{align-items:start}.xcal{border-radius:14px}.xbtn{height:58px;font-size:17px}.xtag{font-size:11px;padding:8px 12px}}
+.prog{background:#15171B;border:1px solid #2A2D35;border-radius:20px}
+.prog summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:14px;min-height:64px;padding:10px 22px;cursor:pointer;font-family:Unbounded,sans-serif;font-weight:700;font-size:clamp(16px,2.2vw,20px);border-radius:20px;transition:background .15s ease}
+.prog summary::-webkit-details-marker{display:none}
+.prog summary:hover{background:#1C1F25}
+.prog summary svg{flex:none;color:#FF8A3D;transition:transform .2s ease}
+.prog[open] summary svg{transform:rotate(180deg)}
+.prog .pgrid{padding:6px 14px 14px}
+.prog .pgrid>div{background:#0E0F12!important}
 .xban .mbr{display:none}@media (max-width:720px){.xban .mbr{display:inline}}
 .pgrid{grid-template-columns:repeat(3,minmax(0,1fr))}
 .orig{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -78,27 +86,9 @@ a[style*="border-radius"]:active,button:active{transform:scale(.98)}
   
 </div>
 
-<div style="max-width: 1200px; margin: 0 auto; padding: 0 24px 72px; display: flex; flex-direction: column; gap: 24px">
-  <h2 id="photos" style="margin: 0; scroll-margin-top: 20px; font-family: Unbounded, sans-serif; font-weight: 700; font-size: clamp(30px, 4.4vw, 52px); line-height: 1; letter-spacing: -0.02em">Фото</h2>
-  <div class="phgrid" id="grid"></div>
-  <button type="button" id="more" style="min-height: 68px; border: 0; border-radius: 18px; background: #FF8A3D; color: #0E0F12; font-family: Unbounded, sans-serif; font-weight: 700; font-size: clamp(18px, 2.2vw, 24px); cursor: pointer">Показать все 385 фото</button>
-  <div class="orig"><a href="https://drive.google.com/drive/folders/1QIw4TVgPmyOMGkzsL4CC16FU-Yhdnsno" target="_blank" rel="noopener">Оригиналы · часть 1</a><a href="https://drive.google.com/drive/folders/11PTTfKbpxl5khkHiY6QnLCak1cJREZJA" target="_blank" rel="noopener">Оригиналы · часть 2</a></div>
-  <a class="tgbtn" href="https://t.me/+P1QV3wSylSQyNDFi" target="_blank" rel="noopener"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M21.9 4.3l-3 14.3c-.2 1-.8 1.2-1.7.8l-4.6-3.4-2.2 2.1c-.2.2-.5.5-.9.5l.3-4.7 8.5-7.7c.4-.3-.1-.5-.6-.2L7.2 12.6 2.7 11.2c-1-.3-1-1 .2-1.4L20.6 3c.8-.3 1.5.2 1.3 1.3z"></path></svg><span>Вступить в Telegram-чат</span></a>
-  <span style="font-family: Unbounded, sans-serif; font-weight: 700; font-size: clamp(22px, 3vw, 34px); line-height: 1.1; margin-top: 24px">Хочешь на следующую?</span>
-  <a class="xban" href="/xmas26/">
-    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" style="position: absolute; left: 46%; top: 16%; width: 44px; height: 44px; color: #F4F4F5; opacity: 0.3"><path d="M12 2v20M3.3 7l17.4 10M3.3 17L20.7 7"></path><path d="M12 5l-2-2M12 5l2-2M12 19l-2 2M12 19l2 2M6 8.5L3.4 9.4M6 8.5L5.4 5.8M18 15.5l2.6-.9M18 15.5l.6 2.7M6 15.5l-2.6-.9M6 15.5l-.6 2.7M18 8.5l2.6.9M18 8.5l.6-2.7"></path></svg><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" style="position: absolute; left: 62%; bottom: 30%; width: 96px; height: 96px; color: #EF4444; opacity: 0.4"><path d="M12 2v20M3.3 7l17.4 10M3.3 17L20.7 7"></path><path d="M12 5l-2-2M12 5l2-2M12 19l-2 2M12 19l2 2M6 8.5L3.4 9.4M6 8.5L5.4 5.8M18 15.5l2.6-.9M18 15.5l.6 2.7M6 15.5l-2.6-.9M6 15.5l-.6 2.7M18 8.5l2.6.9M18 8.5l.6-2.7"></path></svg><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" style="position: absolute; left: 30%; bottom: 34%; width: 34px; height: 34px; color: #4ADE80; opacity: 0.35"><path d="M12 2v20M3.3 7l17.4 10M3.3 17L20.7 7"></path><path d="M12 5l-2-2M12 5l2-2M12 19l-2 2M12 19l2 2M6 8.5L3.4 9.4M6 8.5L5.4 5.8M18 15.5l2.6-.9M18 15.5l.6 2.7M6 15.5l-2.6-.9M6 15.5l-.6 2.7M18 8.5l2.6.9M18 8.5l.6-2.7"></path></svg>
-    <div class="candy" aria-hidden="true"></div>
-    <div class="xtxt">
-      <span class="xtag">CHRISTMAS EDITION</span>
-      <h3>TEENS <br class="mbr"><span>PARTY</span></h3>
-    </div>
-    <div class="xcal" role="img" aria-label="December 19"><span class="m">DEC</span><span class="d">19</span></div>
-    <span class="xbtn">Зарегистрироваться</span>
-  </a>
-</div>
-
-<div style="max-width: 1200px; margin: 0 auto; padding: 0 24px 72px; display: flex; flex-direction: column; gap: 24px">
-  <h2 style="margin: 0; font-family: Unbounded, sans-serif; font-weight: 700; font-size: clamp(30px, 4.4vw, 52px); line-height: 1; letter-spacing: -0.02em">Программа</h2>
+<div style="max-width: 1200px; margin: 0 auto; padding: 0 24px 40px; display: flex; flex-direction: column; gap: 0">
+<details class="prog">
+  <summary><span>Какая была программа</span><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg></summary>
   <div class="pgrid" style="display: grid; gap: 12px">
     <div style="background: #15171B; border: 1px solid #2A2D35; border-radius: 20px; padding: 22px; display: flex; flex-direction: column; gap: 10px; min-height: 150px">
       <span style="font-family: Unbounded, sans-serif; font-weight: 700; font-size: 14px; color: #FF8A3D">01</span>
@@ -131,12 +121,32 @@ a[style*="border-radius"]:active,button:active{transform:scale(.98)}
       <span style="color: #A1A1AA; font-size: 15px">Новые знакомства, разговоры и просто классное время вместе.</span>
     </div>
   </div>
+</details>
+</div>
+
+<div style="max-width: 1200px; margin: 0 auto; padding: 0 24px 72px; display: flex; flex-direction: column; gap: 24px">
+  <h2 id="photos" style="margin: 0; scroll-margin-top: 20px; font-family: Unbounded, sans-serif; font-weight: 700; font-size: clamp(30px, 4.4vw, 52px); line-height: 1; letter-spacing: -0.02em">Фото</h2>
+  <div class="phgrid" id="grid"></div>
+  <button type="button" id="more" style="min-height: 68px; border: 0; border-radius: 18px; background: #FF8A3D; color: #0E0F12; font-family: Unbounded, sans-serif; font-weight: 700; font-size: clamp(18px, 2.2vw, 24px); cursor: pointer">Показать все 385 фото</button>
+  <div class="orig"><a href="https://drive.google.com/drive/folders/1QIw4TVgPmyOMGkzsL4CC16FU-Yhdnsno" target="_blank" rel="noopener">Оригиналы · часть 1</a><a href="https://drive.google.com/drive/folders/11PTTfKbpxl5khkHiY6QnLCak1cJREZJA" target="_blank" rel="noopener">Оригиналы · часть 2</a></div>
+  <a class="tgbtn" href="https://t.me/+P1QV3wSylSQyNDFi" target="_blank" rel="noopener"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M21.9 4.3l-3 14.3c-.2 1-.8 1.2-1.7.8l-4.6-3.4-2.2 2.1c-.2.2-.5.5-.9.5l.3-4.7 8.5-7.7c.4-.3-.1-.5-.6-.2L7.2 12.6 2.7 11.2c-1-.3-1-1 .2-1.4L20.6 3c.8-.3 1.5.2 1.3 1.3z"></path></svg><span>Вступить в Telegram-чат</span></a>
+  <span style="font-family: Unbounded, sans-serif; font-weight: 700; font-size: clamp(22px, 3vw, 34px); line-height: 1.1; margin-top: 24px">Хочешь на следующую?</span>
+  <a class="xban" href="/xmas26/">
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" style="position: absolute; left: 46%; top: 16%; width: 44px; height: 44px; color: #F4F4F5; opacity: 0.3"><path d="M12 2v20M3.3 7l17.4 10M3.3 17L20.7 7"></path><path d="M12 5l-2-2M12 5l2-2M12 19l-2 2M12 19l2 2M6 8.5L3.4 9.4M6 8.5L5.4 5.8M18 15.5l2.6-.9M18 15.5l.6 2.7M6 15.5l-2.6-.9M6 15.5l-.6 2.7M18 8.5l2.6.9M18 8.5l.6-2.7"></path></svg><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" style="position: absolute; left: 62%; bottom: 30%; width: 96px; height: 96px; color: #EF4444; opacity: 0.4"><path d="M12 2v20M3.3 7l17.4 10M3.3 17L20.7 7"></path><path d="M12 5l-2-2M12 5l2-2M12 19l-2 2M12 19l2 2M6 8.5L3.4 9.4M6 8.5L5.4 5.8M18 15.5l2.6-.9M18 15.5l.6 2.7M6 15.5l-2.6-.9M6 15.5l-.6 2.7M18 8.5l2.6.9M18 8.5l.6-2.7"></path></svg><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" style="position: absolute; left: 30%; bottom: 34%; width: 34px; height: 34px; color: #4ADE80; opacity: 0.35"><path d="M12 2v20M3.3 7l17.4 10M3.3 17L20.7 7"></path><path d="M12 5l-2-2M12 5l2-2M12 19l-2 2M12 19l2 2M6 8.5L3.4 9.4M6 8.5L5.4 5.8M18 15.5l2.6-.9M18 15.5l.6 2.7M6 15.5l-2.6-.9M6 15.5l-.6 2.7M18 8.5l2.6.9M18 8.5l.6-2.7"></path></svg>
+    <div class="candy" aria-hidden="true"></div>
+    <div class="xtxt">
+      <span class="xtag">CHRISTMAS EDITION</span>
+      <h3>TEENS <br class="mbr"><span>PARTY</span></h3>
+    </div>
+    <div class="xcal" role="img" aria-label="December 19"><span class="m">DEC</span><span class="d">19</span></div>
+    <span class="xbtn">Зарегистрироваться</span>
+  </a>
 </div>
 
 </div>
 <div class="lb" id="lb" aria-hidden="true"><img id="lbImg" alt=""><button type="button" class="x" aria-label="Close">×</button><button type="button" class="pv" aria-label="Previous">‹</button><button type="button" class="nx" aria-label="Next">›</button><div class="cnt" id="lbC"></div></div>
 <script>
-var TR={"← Все события": ["← All events", "← Усі події"], "УЖЕ ПРОШЛО": ["ALREADY HAPPENED", "ВЖЕ МИНУЛО"], "Программа": ["Program", "Програма"], "Фото": ["Photos", "Фото"], "Фотозона": ["Photo zone", "Фотозона"], "Кадры для сторис с друзьями.": ["Grab shots for your stories with friends.", "Кадри для сторіс із друзями."], "Секретная миссия": ["Secret mission", "Секретна місія"], "Сканируй QR, получи задания и знакомься с людьми по всему залу.": ["Scan the QR, get your missions and meet people across the room.", "Скануй QR, отримуй завдання і знайомся з людьми по всій залі."], "Секретный агент": ["Secret agent", "Секретний агент"], "Командный квиз: узнаем, кто здесь лучший агент.": ["A team quiz to find the best agent in the room.", "Командний квіз: дізнаємось, хто тут найкращий агент."], "Короткий честный разговор с пастором о главном.": ["A short, honest talk with the pastor about what really matters.", "Коротка чесна розмова з пастором про головне."], "Еда и напитки": ["Food & drinks", "Їжа та напої"], "Еда, напитки и закуски — хватит всем.": ["Food, drinks and snacks — enough for everyone.", "Їжа, напої та закуски — вистачить усім."], "Живое общение": ["Hang out", "Живе спілкування"], "Новые знакомства, разговоры и просто классное время вместе.": ["Meet new people, talk and just have a good time.", "Нові знайомства, розмови і просто класний час разом."], "Показать все 385 фото": ["Show all 385 photos", "Показати всі 385 фото"], "Показать ещё": ["Show more", "Показати ще"], "Вступить в Telegram-чат": ["Join our Telegram chat", "Вступити в Telegram-чат"], "Оригиналы · часть 1": ["Originals · part 1", "Оригінали · частина 1"], "Оригиналы · часть 2": ["Originals · part 2", "Оригінали · частина 2"], "Хочешь на следующую?": ["Want to come to the next one?", "Хочеш на наступну?"], "Зарегистрироваться": ["Register", "Зареєструватися"]};
+var TR={"← Все события": ["← All events", "← Усі події"], "УЖЕ ПРОШЛО": ["ALREADY HAPPENED", "ВЖЕ МИНУЛО"], "Какая была программа": ["What the program was", "Якою була програма"], "Фото": ["Photos", "Фото"], "Фотозона": ["Photo zone", "Фотозона"], "Кадры для сторис с друзьями.": ["Grab shots for your stories with friends.", "Кадри для сторіс із друзями."], "Секретная миссия": ["Secret mission", "Секретна місія"], "Сканируй QR, получи задания и знакомься с людьми по всему залу.": ["Scan the QR, get your missions and meet people across the room.", "Скануй QR, отримуй завдання і знайомся з людьми по всій залі."], "Секретный агент": ["Secret agent", "Секретний агент"], "Командный квиз: узнаем, кто здесь лучший агент.": ["A team quiz to find the best agent in the room.", "Командний квіз: дізнаємось, хто тут найкращий агент."], "Короткий честный разговор с пастором о главном.": ["A short, honest talk with the pastor about what really matters.", "Коротка чесна розмова з пастором про головне."], "Еда и напитки": ["Food & drinks", "Їжа та напої"], "Еда, напитки и закуски — хватит всем.": ["Food, drinks and snacks — enough for everyone.", "Їжа, напої та закуски — вистачить усім."], "Живое общение": ["Hang out", "Живе спілкування"], "Новые знакомства, разговоры и просто классное время вместе.": ["Meet new people, talk and just have a good time.", "Нові знайомства, розмови і просто класний час разом."], "Показать все 385 фото": ["Show all 385 photos", "Показати всі 385 фото"], "Показать ещё": ["Show more", "Показати ще"], "Вступить в Telegram-чат": ["Join our Telegram chat", "Вступити в Telegram-чат"], "Оригиналы · часть 1": ["Originals · part 1", "Оригінали · частина 1"], "Оригиналы · часть 2": ["Originals · part 2", "Оригінали · частина 2"], "Хочешь на следующую?": ["Want to come to the next one?", "Хочеш на наступну?"], "Зарегистрироваться": ["Register", "Зареєструватися"]};
 (function(){
   var nodes=[], w=document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT), n;
   while((n=w.nextNode())){ var k=n.nodeValue.trim(); if(k && TR[k]) nodes.push([n,k,n.nodeValue]); }

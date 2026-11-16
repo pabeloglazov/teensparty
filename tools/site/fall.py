@@ -23,12 +23,24 @@ assert '{{' not in b and '<img src="/fall26' not in b
 # v3: регистрация на новое событие — рождественский баннер, как на главной
 i=b.index('<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; background: #15171B; border: 1px solid #2A2D35; border-radius: 20px; padding: 20px 24px">'); j=b.index('</a>',i); j=b.index('</div>',j)+6
 b=b[:i]+'<span style="font-family: Unbounded, sans-serif; font-weight: 700; font-size: clamp(22px, 3vw, 34px); line-height: 1.1; margin-top: 24px">Хочешь на следующую?</span>\n  '+BAN.strip()+b[j:]
-# v3: порядок — фото, регистрация на новое событие, программа
+# порядок: программа (свёрнута) → фото → регистрация на новое событие
 P='<div style="max-width: 1200px; margin: 0 auto; padding: 0 24px 56px; display: flex; flex-direction: column; gap: 24px">'; Q='<div style="max-width: 1200px; margin: 0 auto; padding: 0 24px 72px; display: flex; flex-direction: column; gap: 24px">'
 assert b.count(P)==1 and b.count(Q)==1
-i=b.index(P); j=b.index(Q); prog=b[i:j]; k=b.rindex('</div>')
-b=b[:i]+b[j:k]+prog.replace('padding: 0 24px 56px','padding: 0 24px 72px')+b[k:]
+# v4: программа прошедшей пати — в начале, свёрнута в раскрывающийся блок «Какая была программа» (чтобы не читалась как программа Christmas)
+import re as _re
+i=b.index(P); j=b.index(Q); prog=b[i:j]
+h2=_re.search(r'<h2[^>]*>Программа</h2>',prog).group(0)
+inner=prog[len(P):prog.rindex('</div>')].replace(h2,'<summary><span>Какая была программа</span><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg></summary>')
+b=b[:i]+P.replace('padding: 0 24px 56px','padding: 0 24px 40px').replace('gap: 24px','gap: 0')+'\n<details class="prog">'+inner+'</details>\n</div>\n\n'+b[j:]
 css=XBAN_CSS+'''
+.prog{background:#15171B;border:1px solid #2A2D35;border-radius:20px}
+.prog summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:14px;min-height:64px;padding:10px 22px;cursor:pointer;font-family:Unbounded,sans-serif;font-weight:700;font-size:clamp(16px,2.2vw,20px);border-radius:20px;transition:background .15s ease}
+.prog summary::-webkit-details-marker{display:none}
+.prog summary:hover{background:#1C1F25}
+.prog summary svg{flex:none;color:#FF8A3D;transition:transform .2s ease}
+.prog[open] summary svg{transform:rotate(180deg)}
+.prog .pgrid{padding:6px 14px 14px}
+.prog .pgrid>div{background:#0E0F12!important}
 .xban .mbr{display:none}@media (max-width:720px){.xban .mbr{display:inline}}
 .pgrid{grid-template-columns:repeat(3,minmax(0,1fr))}
 .orig{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -39,7 +51,7 @@ css=XBAN_CSS+'''
 .phgrid button{display:block;padding:0;border:0;background:#15171B;border-radius:18px;overflow:hidden;cursor:zoom-in}
 .phgrid img{display:block;width:100%;aspect-ratio:3 / 2;object-fit:cover}
 @media (max-width:720px){.pgrid{grid-template-columns:1fr}.phgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.phgrid button{border-radius:14px}.mbr{display:inline}}'''
-TR={'← Все события':['← All events','← Усі події'],'УЖЕ ПРОШЛО':['ALREADY HAPPENED','ВЖЕ МИНУЛО'],'Программа':['Program','Програма'],'Фото':['Photos','Фото'],
+TR={'← Все события':['← All events','← Усі події'],'УЖЕ ПРОШЛО':['ALREADY HAPPENED','ВЖЕ МИНУЛО'],'Какая была программа':['What the program was','Якою була програма'],'Фото':['Photos','Фото'],
 'Фотозона':['Photo zone','Фотозона'],'Кадры для сторис с друзьями.':['Grab shots for your stories with friends.','Кадри для сторіс із друзями.'],
 'Секретная миссия':['Secret mission','Секретна місія'],'Сканируй QR, получи задания и знакомься с людьми по всему залу.':['Scan the QR, get your missions and meet people across the room.','Скануй QR, отримуй завдання і знайомся з людьми по всій залі.'],
 'Секретный агент':['Secret agent','Секретний агент'],'Командный квиз: узнаем, кто здесь лучший агент.':['A team quiz to find the best agent in the room.','Командний квіз: дізнаємось, хто тут найкращий агент.'],
