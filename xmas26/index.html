@@ -272,7 +272,7 @@ h1 .outline{color:var(--bg);-webkit-text-stroke:2px var(--fg)}
 .ticket{position:relative;background:var(--paper);border:0;border-radius:28px;box-shadow:none;transform:none;overflow:hidden;animation:none;max-width:420px}
 @media (min-width:900px){.ticket{flex:0 0 420px;width:420px}}
 /* на компьютере билет тянется до нижней линии таймера */
-@media (min-width:900px){.wrap{align-items:stretch}.ticket .part:first-child{flex:1;gap:0;justify-content:space-between}.ticket .part:first-child>*{flex:none}.ticket .part.stub{flex:none}}
+@media (min-width:900px){.wrap{align-items:stretch}.ticket .part:not(.stub){flex:1;gap:0;justify-content:space-between}.ticket .part:not(.stub)>*{flex:none}.ticket .part.stub{flex:none}}
 .ticket::before,.ticket::after{content:"";display:block;height:14px;flex:none;background:repeating-linear-gradient(135deg,#DC2626 0 14px,#FBF7EE 14px 28px,#1F7A46 28px 42px)}
 .ticket::after{order:99}
 .part{padding:24px 28px}
@@ -360,15 +360,24 @@ dialog{border:0;border-radius:24px;box-shadow:0 30px 80px rgba(0,0,0,.5);overflo
 .tback{position:absolute;inset:14px 0;z-index:2;background:var(--paper);color:#0E0F12;display:flex;flex-direction:column}
 .tbh>span:first-child{white-space:nowrap}
 .tbh{flex:none;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:16px 28px;background:#B91C1C;color:#FBF7EE;font-family:var(--display);font-weight:700;font-size:14px;letter-spacing:.08em}
-.tbb{flex:1;min-height:0;padding:22px 28px 20px;display:flex;flex-direction:column;gap:8px;overflow:auto}
+.tbb{position:relative;flex:1;min-height:0;padding:22px 28px 14px;display:flex;flex-direction:column;gap:6px;overflow:hidden auto}
+.tbflake{position:absolute;right:-34px;top:6px;width:170px;height:170px;color:#B91C1C;opacity:.09;pointer-events:none}
 .tbk{font-weight:700;font-size:11px;letter-spacing:.12em;color:#52525B}
-.tbn{font-family:var(--display);font-weight:900;font-size:clamp(30px,8vw,40px);line-height:1.05;letter-spacing:-.02em;overflow-wrap:anywhere}
-.tbno{font-family:var(--display);font-weight:900;font-size:clamp(44px,12vw,64px);line-height:1;color:#B91C1C;letter-spacing:-.03em}
-.tbi{display:flex;flex-direction:column;gap:4px;margin-top:8px;padding-top:12px;border-top:2px solid #0E0F12;font-size:15px}
-.tbi a{color:#0E0F12;font-weight:700;text-underline-offset:3px}
-.tbr{display:flex;flex-direction:column;gap:2px;margin-top:6px;font-size:14px;font-weight:600}
-.tbb .hint{margin:6px 0 0}
-.tbf{margin-top:auto;padding-top:10px;display:flex;flex-direction:column;gap:10px}
+.tbn{position:relative;font-family:var(--display);font-weight:900;font-size:clamp(32px,9vw,44px);line-height:1.02;letter-spacing:-.03em;overflow-wrap:anywhere}
+.tbfr{align-self:flex-start;margin-top:4px;padding:5px 12px;border-radius:999px;background:#1F7A46;color:#FBF7EE;font-weight:700;font-size:13px}
+.tbg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.tbg>div{display:flex;flex-direction:column;gap:4px;padding:12px 14px;border:2px solid #0E0F12;border-radius:14px}
+.tbg b{font-family:var(--display);font-weight:700;font-size:clamp(17px,4.6vw,21px);white-space:nowrap}
+.tbg>div:first-child b{color:#B91C1C}
+.tba{display:flex;flex-direction:column;gap:4px;margin-top:10px}
+.tba a{color:#0E0F12;font-weight:700;font-size:15px;text-underline-offset:3px}
+.tbr{display:flex;flex-direction:column;gap:2px;margin-top:8px;font-size:14px;font-weight:600}
+.tback .perf{margin:0}
+.tbs{flex:none;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:6px 28px 12px}
+.tbadm{display:flex;flex-direction:column;gap:2px}
+.tbadm b{font-family:var(--display);font-weight:900;font-size:clamp(24px,7vw,32px);line-height:1;color:#B91C1C;letter-spacing:-.02em;white-space:nowrap}
+.tbbar{flex:0 1 120px;height:44px;background:repeating-linear-gradient(90deg,#0E0F12 0 3px,transparent 3px 5px,#0E0F12 5px 6px,transparent 6px 10px,#0E0F12 10px 14px,transparent 14px 16px,#0E0F12 16px 17px,transparent 17px 21px)}
+.tbf{flex:none;padding:0 28px 20px;display:flex;flex-direction:column;gap:10px}
 .tbf .ghost{min-height:50px;border:1.5px solid #14532D;border-radius:14px;background:transparent;color:#14532D;font:700 15px var(--body);cursor:pointer}
 .tbf .ghost:hover{background:#14532D;color:#FBF7EE}
 #rg .q-nav .ghost:disabled,#rg .q-nav .btn:disabled{opacity:.6;cursor:default}
@@ -1050,7 +1059,7 @@ ONLY</span></div>
   /* ===== Запись на событие: лёгкая форма на странице, данные сразу уходят в Check-in (evJoinSite: сервер сам сверяет с базой) ===== */
   var RG = (function(){
     var L = {
-      ru:{have:'Уже есть билет? Проверить',fT:'МОЙ БИЛЕТ',fP:'Телефон, с которым регистрировались',fN:'Твоё имя',fGo:'Показать билет',fEn:'Напиши имя',fNo:'Билет не нашли. Проверь номер и имя — или зарегистрируйся.',mine:'Мой билет',inl:'В СПИСКЕ',tk:'БИЛЕТ НА ИМЯ',withf:'Друзья:',also:'ЕЩЁ С ЭТОГО ТЕЛЕФОНА',door1:'На входе назови имя — лидер отметит тебя в списке.',story:'Поделиться в сторис',sgo:'Я ИДУ',sjoin:'Приходи тоже — регистрация открыта',who:'Кто регистрируется?',whoT:'Я подросток',whoTs:'записываюсь сам',whoP:'Я родитель',whoPs:'записываю своего подростка',n1:'Как тебя зовут? Имя и фамилия',n1p:'Как зовут подростка? Имя и фамилия',e1:'Напиши имя и фамилию',e1p:'Напишите имя и фамилию подростка',
+      ru:{kDate:'ДАТА',kTime:'НАЧАЛО',kAddr:'АДРЕС',kNo:'НОМЕР БИЛЕТА',have:'Уже есть билет? Проверить',have2:'Найти другой билет',fT:'МОЙ БИЛЕТ',fP:'Телефон, с которым регистрировались',fN:'Твоё имя',fGo:'Показать билет',fEn:'Напиши имя',fNo:'Билет не нашли. Проверь номер и имя — или зарегистрируйся.',mine:'Мой билет',inl:'В СПИСКЕ',tk:'БИЛЕТ НА ИМЯ',withf:'с собой',also:'ЕЩЁ С ЭТОГО ТЕЛЕФОНА',door1:'На входе назови имя — лидер отметит тебя в списке.',story:'Поделиться в сторис',sgo:'Я ИДУ',sjoin:'Приходи тоже — регистрация открыта',who:'Кто регистрируется?',whoT:'Я подросток',whoTs:'записываюсь сам',whoP:'Я родитель',whoPs:'записываю своего подростка',n1:'Как тебя зовут? Имя и фамилия',n1p:'Как зовут подростка? Имя и фамилия',e1:'Напиши имя и фамилию',e1p:'Напишите имя и фамилию подростка',
         n2:'Твой номер телефона',n2p:'Телефон подростка',np:'У меня нет своего номера',npp:'У подростка нет своего номера',nph:'Запишем номер родителя — спросим его дальше.',nphp:'Запишем ваш номер — спросим его дальше.',e2:'Введи номер США из 10 цифр',
         n3:'Сколько тебе лет?',n3p:'Сколько ему лет?',h3:'Нажми на возраст — сразу перейдём дальше.',e3:'Выбери возраст',
         n4:'Приведёшь друга?',n4p:'Приведёт друга?',h4:'Друзьям тоже нужно место — посчитаем их заранее.',no:'Нет',e4:'Выбери ответ',
@@ -1060,7 +1069,7 @@ ONLY</span></div>
         ok:'Ты в списке, {n}!',okp:'{n} в списке!',when:'сб, 19 декабря · 6:00 PM',fr:'Приведёшь: ',frp:'Приведёт: ',door:'На входе лидер отметит тебя по имени. Билет показывать не нужно.',doorp:'На входе лидер отметит подростка по имени. Билет показывать не нужно.',
         cal:'Добавить в календарь',cals:'чтобы не забыть',tg:'Вступить в чат подростков',tgs:'Telegram · новости и фото',more:'Зарегистрировать ещё кого-то',mores:'брата, сестру или друга',morep:'Записать ещё одного подростка',moresp:'ваши данные вводить заново не нужно',
         full:'Места закончились. Напиши лидеру — возможно, место появится.',closed:'Регистрация на это событие закрыта.',many:'Слишком много попыток. Попробуй позже или напиши лидеру.',gen:'Не получилось. Проверь интернет и попробуй ещё раз.',inlist:'в списке'},
-      en:{have:'Already have a ticket? Check',fT:'MY TICKET',fP:'Phone number used to register',fN:'Your first name',fGo:'Show my ticket',fEn:'Enter your name',fNo:'No ticket found. Check the number and name — or register.',mine:'My ticket',inl:'ON THE LIST',tk:'TICKET FOR',withf:'Friends:',also:'ALSO FROM THIS PHONE',door1:'Say your name at the door — a leader will check you in.',story:'Share to stories',sgo:"I'M GOING",sjoin:'Come too — registration is open',who:'Who is signing up?',whoT:"I'm a teen",whoTs:'signing up myself',whoP:"I'm a parent",whoPs:'signing up my teen',n1:"What's your first and last name?",n1p:"What's your teen's first and last name?",e1:'Enter your first and last name',e1p:"Enter your teen's first and last name",
+      en:{kDate:'DATE',kTime:'START',kAddr:'ADDRESS',kNo:'TICKET NO.',have:'Already have a ticket? Check',have2:'Find another ticket',fT:'MY TICKET',fP:'Phone number used to register',fN:'Your first name',fGo:'Show my ticket',fEn:'Enter your name',fNo:'No ticket found. Check the number and name — or register.',mine:'My ticket',inl:'ON THE LIST',tk:'TICKET FOR',withf:'with me',also:'ALSO FROM THIS PHONE',door1:'Say your name at the door — a leader will check you in.',story:'Share to stories',sgo:"I'M GOING",sjoin:'Come too — registration is open',who:'Who is signing up?',whoT:"I'm a teen",whoTs:'signing up myself',whoP:"I'm a parent",whoPs:'signing up my teen',n1:"What's your first and last name?",n1p:"What's your teen's first and last name?",e1:'Enter your first and last name',e1p:"Enter your teen's first and last name",
         n2:'Your phone number',n2p:"Your teen's phone",np:"I don't have my own number",npp:'My teen has no phone of their own',nph:"We'll use your parent's number — it's the next question.",nphp:"We'll use your number — it's the next question.",e2:'Enter a 10-digit US phone number',
         n3:'How old are you?',n3p:'How old is your teen?',h3:'Tap the age and we move on.',e3:'Choose the age',
         n4:'Bringing a friend?',n4p:'Bringing a friend?',h4:'Friends need a spot too — let us count them in.',no:'No',e4:'Pick an answer',
@@ -1070,7 +1079,7 @@ ONLY</span></div>
         ok:"You're on the list, {n}!",okp:'{n} is on the list!',when:'Sat, Dec 19 · 6:00 PM',fr:'Bringing: ',frp:'Bringing: ',door:'A leader will check you in by name at the door. No ticket needed.',doorp:'A leader will check your teen in by name at the door. No ticket needed.',
         cal:'Add to calendar',cals:"so you don't forget",tg:'Join the teens chat',tgs:'Telegram · news and photos',more:'Register someone else',mores:'a brother, sister or friend',morep:'Sign up another teen',moresp:'no need to enter your details again',
         full:'No spots left. Message a leader — a spot may open up.',closed:'Registration for this event is closed.',many:'Too many attempts. Try later or message a leader.',gen:'Something went wrong. Check your connection and try again.',inlist:'on the list'},
-      uk:{have:'Вже є квиток? Перевірити',fT:'МІЙ КВИТОК',fP:'Телефон, з яким реєструвалися',fN:'Твоє імʼя',fGo:'Показати квиток',fEn:'Напиши імʼя',fNo:'Квиток не знайшли. Перевір номер та імʼя — або зареєструйся.',mine:'Мій квиток',inl:'У СПИСКУ',tk:'КВИТОК НА ІМʼЯ',withf:'Друзі:',also:'ЩЕ З ЦЬОГО ТЕЛЕФОНУ',door1:'На вході назви імʼя — лідер відмітить тебе у списку.',story:'Поділитися в сторіс',sgo:'Я ЙДУ',sjoin:'Приходь теж — реєстрацію відкрито',who:'Хто реєструється?',whoT:'Я підліток',whoTs:'записуюся сам',whoP:'Я один із батьків',whoPs:'записую свого підлітка',n1:"Як тебе звати? Ім'я та прізвище",n1p:"Як звати підлітка? Ім'я та прізвище",e1:"Напиши ім'я та прізвище",e1p:"Напишіть ім'я та прізвище підлітка",
+      uk:{kDate:'ДАТА',kTime:'ПОЧАТОК',kAddr:'АДРЕСА',kNo:'НОМЕР КВИТКА',have:'Вже є квиток? Перевірити',have2:'Знайти інший квиток',fT:'МІЙ КВИТОК',fP:'Телефон, з яким реєструвалися',fN:'Твоє імʼя',fGo:'Показати квиток',fEn:'Напиши імʼя',fNo:'Квиток не знайшли. Перевір номер та імʼя — або зареєструйся.',mine:'Мій квиток',inl:'У СПИСКУ',tk:'КВИТОК НА ІМʼЯ',withf:'з собою',also:'ЩЕ З ЦЬОГО ТЕЛЕФОНУ',door1:'На вході назви імʼя — лідер відмітить тебе у списку.',story:'Поділитися в сторіс',sgo:'Я ЙДУ',sjoin:'Приходь теж — реєстрацію відкрито',who:'Хто реєструється?',whoT:'Я підліток',whoTs:'записуюся сам',whoP:'Я один із батьків',whoPs:'записую свого підлітка',n1:"Як тебе звати? Ім'я та прізвище",n1p:"Як звати підлітка? Ім'я та прізвище",e1:"Напиши ім'я та прізвище",e1p:"Напишіть ім'я та прізвище підлітка",
         n2:'Твій номер телефону',n2p:'Телефон підлітка',np:'У мене немає свого номера',npp:'У підлітка немає свого номера',nph:'Запишемо номер батьків — спитаємо його далі.',nphp:'Запишемо ваш номер — спитаємо його далі.',e2:'Введи номер США з 10 цифр',
         n3:'Скільки тобі років?',n3p:'Скільки йому років?',h3:'Натисни на вік — одразу перейдемо далі.',e3:'Обери вік',
         n4:'Приведеш друга?',n4p:'Приведе друга?',h4:'Друзям теж потрібне місце — порахуємо їх заздалегідь.',no:'Ні',e4:'Обери відповідь',
@@ -1158,15 +1167,18 @@ ONLY</span></div>
     function num(t){ return t.no ? '№ ' + ('00' + t.no).slice(-3) : ''; }
     function mark(){
       var a = tickets(), d = L[lang] || L.en, el = document.getElementById('rgMark'), op = document.getElementById('open');
-      var hv = document.getElementById('rgHave'); hv.textContent = d.have; hv.hidden = !!a.length;
+      var hv = document.getElementById('rgHave'); hv.textContent = d.have;
       el.hidden = !a.length; if(!a.length){ setBack(false, true); return; }
       el.textContent = d.mine; if(!op.disabled){ op.textContent = d.more; var o2 = document.getElementById('open2'); if(o2) o2.textContent = d.more; }
       var t = a[a.length - 1], rest = a.slice(0, -1);
-      BK.innerHTML = '<div class="tbh"><span>✳ CHRISTMAS PASS</span><span class="no">' + d.inl + '</span></div><div class="tbb">' +
-        '<span class="tbk">' + d.tk + '</span><span class="tbn">' + esc(t.n) + '</span>' + (num(t) ? '<span class="tbno">' + num(t) + '</span>' : '') +
-        '<div class="tbi"><span><b>DEC 19</b> · 6:00 PM</span><a href="https://maps.google.com/?q=5948+Pecan+Ave,+Orangevale,+CA+95662" target="_blank" rel="noopener">5948 Pecan Ave, Orangevale, CA 95662</a>' + (t.fr ? '<span>' + d.withf + ' <b>+' + t.fr + '</b></span>' : '') + '</div>' +
+      BK.innerHTML = '<div class="tbh"><span>✳ CHRISTMAS PASS</span><span class="no">✓ ' + d.inl + '</span></div><div class="tbb">' +
+        '<svg class="tbflake" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M12 2v20M3.3 7l17.4 10M3.3 17L20.7 7"></path><path d="M12 5l-2-2M12 5l2-2M12 19l-2 2M12 19l2 2M6 8.5L3.4 9.4M6 8.5L5.4 5.8M18 15.5l2.6-.9M18 15.5l.6 2.7M6 15.5l-2.6-.9M6 15.5l-.6 2.7M18 8.5l2.6.9M18 8.5l.6-2.7"></path></svg>' +
+        '<span class="tbk">' + d.tk + '</span><span class="tbn">' + esc(t.n) + '</span>' + (t.fr ? '<span class="tbfr">+' + t.fr + ' ' + d.withf + '</span>' : '') +
+        '<div class="tbg"><div><span class="tbk">' + d.kDate + '</span><b>DEC 19</b></div><div><span class="tbk">' + d.kTime + '</span><b>6:00 PM</b></div></div>' +
+        '<div class="tba"><span class="tbk">' + d.kAddr + '</span><a href="https://maps.google.com/?q=5948+Pecan+Ave,+Orangevale,+CA+95662" target="_blank" rel="noopener">5948 Pecan Ave, Orangevale, CA 95662</a></div>' +
         (rest.length ? '<div class="tbr"><span class="tbk">' + d.also + '</span>' + rest.map(function(o){ return '<span>' + esc(o.n) + (num(o) ? ' · ' + num(o) : '') + '</span>'; }).join('') + '</div>' : '') +
-        '<p class="hint">' + d.door1 + '</p><div class="tbf"><button type="button" class="btn" data-a="story">' + d.story + '</button><button type="button" class="ghost" data-a="front">' + d.back + '</button></div></div>';
+        '</div><div class="perf" aria-hidden="true"></div><div class="tbs"><div class="tbadm"><span class="tbk">' + (num(t) ? d.kNo : 'TEENS PARTY') + '</span><b>' + (num(t) || 'ADMIT ONE') + '</b></div><div class="tbbar" aria-hidden="true"></div></div>' +
+        '<div class="tbf"><button type="button" class="btn" data-a="story">' + d.story + '</button><button type="button" class="ghost" data-a="front">' + d.back + '</button></div>';
       prepStory(t);
     }
     function setBack(on, instant){
