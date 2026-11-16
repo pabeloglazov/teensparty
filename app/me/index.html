@@ -647,7 +647,7 @@ document.addEventListener('click', e => {
 document.addEventListener('input', e => { const b = e.target.getAttribute && e.target.getAttribute('data-b'); if (b) S[b] = e.target.value; });
 
 applyRoute();
-if (S.token) { try { const c = JSON.parse(LS.get(MEC) || 'null'); if (c && c.day === laToday() && c.d) D = c.d; } catch (e) {} }
+if (S.token) { try { const c = JSON.parse(LS.get(MEC) || 'null'); if (c && c.d) D = c.d; } catch (e) {} }
 render();
 loadVideos();
 if (S.token) load();

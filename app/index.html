@@ -170,7 +170,8 @@ select.inp{-webkit-appearance:none;appearance:none;padding:0 40px 0 16px;text-ov
 .evcover{position:relative;border-radius:16px;overflow:hidden;border:1px solid var(--line2)}.evcover.over{outline:2px solid var(--acc)}.evcover img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover}.evcover .cb2{position:absolute;right:10px;bottom:10px;display:flex;gap:8px}.evcover .cb2>*{height:44px;padding:0 14px;border-radius:12px;border:none;background:rgba(14,15,18,.82);color:#F4F4F5;font-size:13px;font-weight:600;font-family:inherit;display:flex;align-items:center;cursor:pointer}
 .evpick{position:relative;display:flex;align-items:center;gap:10px;height:52px;border-radius:14px;border:1px solid var(--line2);background:var(--card2);padding:0 14px;font-size:16px;cursor:pointer;overflow:hidden}.evpick:focus-within{border-color:var(--acc)}.evpick input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;border:0;padding:0;margin:0}.evpick input::-webkit-calendar-picker-indicator{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;opacity:0;cursor:pointer}
 .evform{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px dashed var(--line3);background:transparent;cursor:pointer}.evform.on{border:1px solid transparent;background:var(--accbg)}
-.evstats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.evstats>div{background:var(--card);border:1px solid var(--line2);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:2px;min-width:0}.evstats b{font-family:Unbounded,sans-serif;font-size:20px}
+.evstats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.evstats>div{background:var(--accbg);border:1px solid var(--accbg2);border-radius:18px;padding:14px 14px 13px;display:flex;flex-direction:column;gap:4px;min-width:0}.evstats b{font-family:Unbounded,sans-serif;font-size:30px;line-height:1.05;color:var(--acc)}.evstats span{font-size:13px;font-weight:600;color:#E6E8EE;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.evacts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.evacts>*{height:48px;display:flex;align-items:center;justify-content:center;background:var(--card);border:1px solid var(--line2);border-radius:14px;cursor:pointer;padding:0}.evacts>*:active{transform:scale(.97)}
 .evta{width:100%;height:104px;border-radius:14px;border:1px solid var(--line2);background:var(--card2);color:var(--tx);padding:12px 14px;font:inherit;font-size:16px;line-height:1.4;resize:none;outline:none}.evta:focus{border-color:var(--acc)}
 .evrow{display:flex;align-items:center;gap:12px;width:100%;min-height:60px;padding:8px 12px;border-radius:16px;border:1px solid var(--line2);background:var(--card);text-align:left;color:inherit;font:inherit;cursor:pointer}.evrow.on{border-color:var(--acc);background:var(--accbg)}
 .agecol{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end;background:none;border:0;padding:0;color:inherit;font:inherit;cursor:pointer}
@@ -240,14 +241,15 @@ function paintBusy() { let b = document.querySelector('.busy'); if (S.busy > 0 &
 let toastT;
 function toast(m) { S.toast = m; paintToast(); clearTimeout(toastT); toastT = setTimeout(() => { S.toast = ''; paintToast(); }, 2600); }
 function paintToast() { let t = document.querySelector('.toast'); if (S.toast) { if (!t) { t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); } t.textContent = S.toast; } else if (t) t.remove(); }
-const ERR = () => ({ has_marks: tr('На этой встрече уже есть отмеченные — сначала снимите отметки', 'Someone is already checked in — remove the check-ins first'), meet_off: tr('Встреча отмечена как несостоявшаяся', 'This meeting is marked as not held'), network: tr('Нет связи с сервером. Проверьте интернет.', 'No connection. Check your internet.'), bad_email: tr('Проверьте email', 'Check the email'), not_invited: tr('Этой почты нет в команде. Попросите админа пригласить вас.', 'This email isn’t on the team. Ask an admin to invite you.'), bad_code: tr('Неверный или устаревший код', 'Wrong or expired code'), bad_invite: tr('Код приглашения не найден', 'Invite code not found'), invite_expired: tr('Код приглашения устарел', 'Invite code expired'), email_taken: tr('Эта почта уже в команде', 'This email is already on the team'), need_name: tr('Введите имя', 'Enter a name'), need_title: tr('Напишите, что нужно сделать', 'Describe the task'), preview: tr('Это просмотр глазами другого — изменения отключены', 'Preview mode — changes are disabled') });
+const ERR = () => ({ future: tr('Эта встреча ещё не наступила — отметить можно с её дня', 'This meeting hasn’t happened yet — you can mark from its day'), has_marks: tr('На этой встрече уже есть отмеченные — сначала снимите отметки', 'Someone is already checked in — remove the check-ins first'), meet_off: tr('Встреча отмечена как несостоявшаяся', 'This meeting is marked as not held'), network: tr('Нет связи с сервером. Проверьте интернет.', 'No connection. Check your internet.'), bad_email: tr('Проверьте email', 'Check the email'), not_invited: tr('Этой почты нет в команде. Попросите админа пригласить вас.', 'This email isn’t on the team. Ask an admin to invite you.'), bad_code: tr('Неверный или устаревший код', 'Wrong or expired code'), bad_invite: tr('Код приглашения не найден', 'Invite code not found'), invite_expired: tr('Код приглашения устарел', 'Invite code expired'), email_taken: tr('Эта почта уже в команде', 'This email is already on the team'), need_name: tr('Введите имя', 'Enter a name'), need_title: tr('Напишите, что нужно сделать', 'Describe the task'), preview: tr('Это просмотр глазами другого — изменения отключены', 'Preview mode — changes are disabled') });
 const errText = e => ERR()[e && e.message] || tr('Что-то пошло не так: ', 'Something went wrong: ') + (e && e.message || e);
 
 const BOOT = 'sol_boot';
 const laToday = () => { try { return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Los_Angeles' }).format(new Date()); } catch (e) { return ''; } };
 function pickTab() { if (!S.tab || tabs().indexOf(S.tab) < 0) S.tab = tabs().indexOf('mark') >= 0 ? 'mark' : tabs()[0]; if (S.tab === 'more' && S.more !== 'root' && MORE_OK().indexOf(S.more) < 0) S.more = 'root'; }
+const saveBoot = () => { if (!S.as && D) try { LS.set(BOOT, JSON.stringify(D)); } catch (e) {} };
 // мгновенный старт: показываем последнюю сохранённую копию, пока грузятся свежие данные
-function bootFromCache() { try { const c = JSON.parse(LS.get(BOOT) || 'null'); if (c && c.me && c.today === laToday()) { D = c; buildIdx(); applyRoute(); pickTab(); return true; } } catch (e) {} return false; }
+function bootFromCache() { try { const c = JSON.parse(LS.get(BOOT) || 'null'); if (c && c.me) { const td = laToday(); if (td && c.today !== td) { c.today = td; S.stale = true; } D = c; buildIdx(); applyRoute(); pickTab(); return true; } } catch (e) {} return false; }
 // ---------- адреса экранов (URL) ----------
 const MORE_OK = () => { const r = myRole(); return r === 'admin' ? ['groups', 'rules', 'access', 'qr'] : r === 'leader' ? ['qr'] : []; };
 function routeOf() {
@@ -277,7 +279,7 @@ async function load() {
   try {
     const had = !!D; const fresh = await api('bootstrap', S.as || {});
     if (markPend > 0 && had) return; // не затираем отметки, которые ещё сохраняются
-    D = fresh; buildIdx();
+    D = fresh; S.stale = false; buildIdx();
     if (!S.as) LS.set(BOOT, JSON.stringify(D));
     if (!had) applyRoute();
     pickTab(); had ? rerender() : render(); syncMarks();
@@ -954,7 +956,7 @@ function viewMore() {
 }
 const subHead = (title, back) => `<div style="display:flex;align-items:center;gap:10px"><button class="icb" data-a="${back || 'moreRoot'}" aria-label="${tr('Назад', 'Back')}">${svg(IC.back, '#F4F4F5', 20, 2.5)}</button><h1 class="h2">${title}</h1></div>`;
 // ---------- СОБЫТИЯ С РЕГИСТРАЦИЕЙ ----------
-const EIC = { form: 'M9 4h6a1 1 0 0 1 1 1v1H8V5a1 1 0 0 1 1-1zM8 5H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M8 12h8M8 16h5', img: 'M5 4h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM3 16l5-5 4 4 3-3 6 6M15.5 9.5a1.5 1.5 0 1 0 0-3a1.5 1.5 0 0 0 0 3z',
+const EIC = { eye: 'M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z', copy: 'M9 9h10a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2zM17 9V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h2', share: 'M12 3v12M8 7l4-4 4 4M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7', down: 'M12 4v11M7 11l5 5 5-5M5 20h14', form: 'M9 4h6a1 1 0 0 1 1 1v1H8V5a1 1 0 0 1 1-1zM8 5H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M8 12h8M8 16h5', img: 'M5 4h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM3 16l5-5 4 4 3-3 6 6M15.5 9.5a1.5 1.5 0 1 0 0-3a1.5 1.5 0 0 0 0 3z',
   cal: 'M7 3v3M17 3v3M4 9h16M6 5h12a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z', clk: 'M12 21a9 9 0 1 0 0-18a9 9 0 0 0 0 18zM12 7v5l3 2' };
 const EVIMG = {}; // id события → полное фото (подгружается, когда нужно)
 const evById = id => D.events.find(x => x.id === id);
@@ -998,16 +1000,13 @@ function evShareOverlay(o) {
   return full(esc(e.name), `
     ${e.open ? '' : `<div class="card" style="display:flex;flex-direction:column;gap:10px"><div style="font-size:15px;font-weight:600">${tr('Регистрация закрыта', 'Registration is closed')}</div><div class="sm mut" style="line-height:1.45">${tr('Ссылка откроется, но записаться по ней нельзя.', 'The link opens, but nobody can sign up.')}</div><button class="btn" data-a="evOpenReg" data-x="${e.id}">${tr('Открыть регистрацию', 'Open registration')}</button></div>`}
     <div style="background:#fff;border-radius:20px;padding:18px 16px;display:flex;flex-direction:column;align-items:center;gap:10px;color:#0E0F12">${img ? `<img src="${img}" alt="" style="display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:12px">` : ''}<div style="font-family:Unbounded,sans-serif;font-size:18px;font-weight:700;text-align:center">${esc(e.name)}</div><div id="evqr" style="line-height:0"></div><div style="font-size:13px;font-weight:600;text-align:center">${esc(evWhen(e))} · ${esc(evPrice(e))}</div>${e.place ? `<a href="${evMap(e)}" target="_blank" rel="noopener" style="font-size:13px;color:#B4530B;text-decoration:underline;text-underline-offset:3px;text-align:center">${esc(e.place)}</a>` : ''}<div style="font-size:12px;color:#5B6070">${tr('Наведи камеру, чтобы записаться', 'Point your camera to sign up')}</div></div>
-    <button class="row" data-a="evCopy" data-x="${e.id}"><span style="flex:1;min-width:0;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(evUrl(e.id).replace(/^https?:\/\//, ''))}</span><span class="xs" style="color:var(--acc);font-weight:700">${tr('Скопировать', 'Copy')}</span></button>
-    <button class="btn" data-a="evShareDo" data-x="${e.id}">${tr('Поделиться', 'Share')}</button>
-    <button class="btn2" data-a="evPoster" data-x="${e.id}">${tr('Скачать QR-плакат', 'Download QR poster')}</button>
-    <a class="btn2" style="display:flex;align-items:center;justify-content:center;text-decoration:none" href="${evUrl(e.id)}" target="_blank" rel="noopener">${tr('Посмотреть форму как подросток', 'Preview the form as a teen')}</a>
-    <div class="evstats">${[[rg.length, tr('записались', 'signed up')], [nw, tr('новых', 'new')], ['+' + fr, tr('друзей', 'friends')]].map(x => `<div><b>${x[0]}</b><span class="xs mut">${x[1]}</span></div>`).join('')}</div>`,
+    <div class="evacts">${[['evCopy', EIC.copy, tr('Скопировать ссылку', 'Copy link')], ['evShareDo', EIC.share, tr('Поделиться', 'Share')], ['evPoster', EIC.down, tr('Скачать QR-плакат', 'Download QR poster')]].map(x => `<button data-a="${x[0]}" data-x="${e.id}" title="${x[2]}" aria-label="${x[2]}">${svg(x[1], '#E6E8EE', 22, 2)}</button>`).join('')}<a href="${evUrl(e.id)}" target="_blank" rel="noopener" title="${tr('Посмотреть форму как подросток', 'Preview the form as a teen')}" aria-label="${tr('Посмотреть форму как подросток', 'Preview the form as a teen')}">${svg(EIC.eye, '#E6E8EE', 22, 2)}</a></div>
+    <div class="evstats">${[[rg.length, tr('записались', 'signed up')], [nw, tr('новых', 'new')], ['+' + fr, tr('друзей', 'friends')]].map(x => `<div><b>${x[0]}</b><span>${x[1]}</span></div>`).join('')}</div>`,
     `<div style="display:flex;flex-direction:column;gap:8px"><button class="btn2" data-a="evPeople" data-x="${e.id}">${tr('Список записавшихся', 'Sign-ups')} · ${rg.length}</button><button class="btn2" data-a="editEv" data-x="${e.id}">${tr('Редактировать событие', 'Edit event')}</button></div>`);
 }
 function evRegsOverlay(o) {
   const e = evById(o.id); if (!e) return '';
-  const rg = evRegs(e.id), byId = {}; rg.forEach(r => { byId[r[1]] = r; });
+  const rg = evRegs(e.id), byId = {}, fut = evFuture(e); rg.forEach(r => { byId[r[1]] = r; });
   const cameIds = {}; D.att.forEach(a => { if (a[1] === 'event' && a[2] === e.id) cameIds[a[3]] = 1; });
   const ids = rg.map(r => r[1]).concat(Object.keys(cameIds).filter(id => !byId[id]));
   const tab = o.tab || 'reg', tabs = [['reg', tr('Все', 'All'), rg.length], ['came', tr('Пришли', 'Came'), Object.keys(cameIds).length], ['new', tr('Новые', 'New'), rg.filter(r => r[4]).length]];
@@ -1016,14 +1015,16 @@ function evRegsOverlay(o) {
   list.sort((a, b) => nm(a).localeCompare(nm(b)));
   const row = id => { const r = byId[id], t = IDX.teen[id] || {}, came = !!cameIds[id], a = ageOf(t), inv = r && r[5] && IDX.teen[r[5]];
     const sub = [r && r[4] ? tr('новый', 'new') : '', a != null ? a + ' ' + yrs(a) : '', r && r[4] && t.phone ? t.phone : '', inv ? tr('позвал(а) ', 'invited by ') + tname(inv) : '', r && (r[4] || r[6]) && t.pFirst ? tr('родитель: ', 'parent: ') + [t.pFirst, t.pLast, t.pPhone].filter(Boolean).join(' ') : '', r && r[2] ? tr('приведёт ', 'bringing ') + r[2] + (L() ? (r[2] === 1 ? ' friend' : ' friends') : ' ' + plural(r[2], 'друга', 'друзей', 'друзей')) : '', r && r[3] ? tr('принесёт: ', 'will bring: ') + r[3] : '', !r ? tr('без записи', 'not signed up') : ''].filter(Boolean).join(' · ') || tr('без ответов', 'no answers');
-    return `<button class="evrow ${came ? 'on' : ''}" data-a="evCameTg" data-x="${id}" aria-pressed="${came}"><div class="av ${t.isLeader ? 'ldr' : ''}" style="width:36px;height:36px;font-size:13px;flex-shrink:0">${esc(ini(nm(id)))}</div><span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(nm(id))}</span><span class="xs mut" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(sub)}</span></span><span style="width:26px;height:26px;border-radius:999px;border:2px solid ${came ? 'var(--acc)' : 'var(--line3)'};background:${came ? 'var(--acc)' : 'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0">${came ? svg(IC.check, '#0E0F12', 14, 3.2) : ''}</span></button>`; };
+    return `<button class="evrow ${came ? 'on' : ''}" data-a="evCameTg" data-x="${id}" ${fut ? '' : `aria-pressed="${came}"`}><div class="av ${t.isLeader ? 'ldr' : ''}" style="width:36px;height:36px;font-size:13px;flex-shrink:0">${esc(ini(nm(id)))}</div><span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(nm(id))}</span><span class="xs mut" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(sub)}</span></span>${fut ? '' : `<span style="width:26px;height:26px;border-radius:999px;border:2px solid ${came ? 'var(--acc)' : 'var(--line3)'};background:${came ? 'var(--acc)' : 'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0">${came ? svg(IC.check, '#0E0F12', 14, 3.2) : ''}</span>`}</button>`; };
   return full(esc(e.name), `
     <div class="xs mut">${esc(evDate(e.date))} ${String(e.date || '').slice(0, 4)}${e.time ? ' · ' + esc(t12(e.time)) : ''}${e.reg ? ' · ' + tr('регистраций раньше ', 'earlier registrations ') + e.reg : ''}</div>
     <div class="seg" style="grid-template-columns:repeat(3,minmax(0,1fr))">${tabs.map(t => `<button class="${tab === t[0] ? 'on' : ''}" data-a="evTab" data-x="${t[0]}" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t[1]} · ${t[2]}</button>`).join('')}</div>
     <div style="display:flex;flex-direction:column;gap:6px">${list.map(row).join('') || `<div class="empty">${tr('Здесь пока никого', 'Nobody here yet')}</div>`}</div>
-    <div class="xs mut" style="line-height:1.45">${canMark() ? tr('Нажмите на человека — он отмечается как пришедший. Это та же отметка, что и на вкладке «Отметка».', 'Tap a person to mark them as present. It is the same mark as on the Check-in tab.') : ''}</div>`,
-    `<div style="display:flex;flex-direction:column;gap:8px">${canMark() ? `<button class="btn" data-a="evMark" data-x="${e.id}">${tr('Отметить тех, кто не записывался', 'Mark people who did not sign up')}</button>` : ''}${canEv() ? `<button class="btn2" data-a="evShareOpen" data-x="${e.id}">${tr('Ссылка и QR', 'Link and QR')}</button>` : ''}</div>`);
+    <div class="xs mut" style="line-height:1.45">${!canMark() ? '' : fut ? esc(evSoon(e)) : tr('Нажмите на человека — он отмечается как пришедший. Это та же отметка, что и на вкладке «Отметка».', 'Tap a person to mark them as present. It is the same mark as on the Check-in tab.')}</div>`,
+    `<div style="display:flex;flex-direction:column;gap:8px">${canMark() && !fut ? `<button class="btn" data-a="evMark" data-x="${e.id}">${tr('Отметить тех, кто не записывался', 'Mark people who did not sign up')}</button>` : ''}${canEv() ? `<button class="btn2" data-a="evShareOpen" data-x="${e.id}">${tr('Ссылка и QR', 'Link and QR')}</button>` : ''}</div>`);
 }
+const evFuture = e => !!e && String(e.date) > String(D.today);
+const evSoon = e => tr('Отмечать пришедших можно с дня события — ', 'You can mark attendance from the event day — ') + evDate(e.date);
 const canMark = () => ['admin', 'leader', 'mod'].indexOf(myRole()) >= 0, canEv = () => ['admin', 'leader'].indexOf(myRole()) >= 0;
 function drawEvQR() { const el = document.getElementById('evqr'); if (!el || !window.QRCode || !S.ov) return; el.innerHTML = ''; new QRCode(el, { text: evUrl(S.ov.id), width: 200, height: 200, colorDark: '#0E0F12', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M }); }
 function evLoadImg(id) { const e = evById(id); if (!e || !e.img || EVIMG[id]) return; call('evInfo', id).then(r => { EVIMG[id] = r.img || ''; if (S.ov && S.ov.id === id && (S.ov.type === 'ev' || S.ov.type === 'evShare')) { syncForm(); rerender(); } }).catch(() => {}); }
@@ -1123,7 +1124,7 @@ function viewOverlay() {
     visibleGroups().filter(g => g.day === dow).forEach(g => now.push(item({ kind: 'group', meetId: g.id, label: g.name, date: D.today }, tr('сегодня · ', 'today · ') + t12(g.time))));
     SVCS().filter(s => s.day !== dow).map(s => svc(lastDow(s.day), s.id)).sort((x, y) => y.date.localeCompare(x.date)).forEach(x => now.push(item(x, tr('прошедшая · ', 'past · ') + (word(x.date) === human(x.date) ? '' : word(x.date) + ', ') + human(x.date))));
     const grp = visibleGroups().map(g => { const gd = lastDow(g.day); return item({ kind: 'group', meetId: g.id, label: g.name, date: gd }, DLONG()[g.day] + ' ' + t12(g.time) + tr(' · последняя ', ' · latest ') + word(gd)); });
-    const evs = D.events.slice().sort((a, b) => b.date.localeCompare(a.date)).slice(0, 10).map(e => item({ kind: 'event', meetId: e.id, label: e.name, date: e.date }, 'Church Event · ' + human(e.date)));
+    const evs = D.events.filter(e => !evFuture(e)).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 10).map(e => item({ kind: 'event', meetId: e.id, label: e.name, date: e.date }, 'Church Event · ' + human(e.date)));
     const canEv = ['admin', 'leader'].indexOf(myRole()) >= 0;
     return sheet(tr('Какая встреча?', 'Which meeting?'), `
       <div class="list2"><div class="sec">${tr('СЕЙЧАС', 'NOW')}</div>${now.join('')}</div>
@@ -1537,7 +1538,8 @@ const H = {
     S.ov = null; await saveSvcs(list); },
   editGroup(id) { const g = D.groups.find(x => x.id === id); S.ov = { type: 'group', id: id || '', f: g ? { name: g.name, leader: g.leader, day: String(g.day), time: g.time, addr: g.addr || '', contact: g.contact || '' } : { day: '5', time: '19:00' } }; rerender(); },
   async saveGroup() { const F = S.ov.f; if (!(F.name || '').trim()) { S.ov.err = tr('Введите название', 'Enter a name'); return rerender(); }
-    try { await api('saveGroup', { id: S.ov.id, name: F.name, leader: F.leader, day: +F.day, time: F.time, addr: F.addr || '', contact: F.contact || '' }); S.ov = null; await load(); toast(tr('Сохранено', 'Saved')); } catch (e) { S.ov.err = errText(e); rerender(); } },
+    try { const gid = S.ov.id; await api('saveGroup', { id: gid, name: F.name, leader: F.leader, day: +F.day, time: F.time, addr: F.addr || '', contact: F.contact || '' }); const g = gid && D.groups.find(x => x.id === gid);
+      if (g) { Object.assign(g, { name: F.name.trim(), leader: F.leader, day: +F.day, time: F.time, addr: F.addr || '', contact: F.contact || '' }); saveBoot(); S.ov = null; rerender(); toast(tr('Сохранено', 'Saved')); load(); } else { S.ov = null; await load(); toast(tr('Сохранено', 'Saved')); } } catch (e) { S.ov.err = errText(e); rerender(); } },
   // правила
   async rule(x) { const [k, d] = x.split(':'); const r = R(); const lim = { win: [3, 12], reg: [1, r.win], gone: [1, 12] }[k]; const v = Math.max(lim[0], Math.min(lim[1], r[k] + (+d))); if (v === r[k]) return;
     D.settings[k] = String(v); rerender(); try { await api('saveSettings', { [k]: v }); } catch (e) { toast(errText(e)); } },
@@ -1556,7 +1558,7 @@ const H = {
   evImgDel() { syncForm(); S.ov.f.img = ''; S.ov.f.thumb = ''; rerender(); },
   evCopy(id) { copy(evUrl(id)); },
   async evShareDo(id) { const e = evById(id), url = evUrl(id); if (navigator.share) { try { await navigator.share({ title: e.name, text: e.name + ' · ' + evWhen(e), url }); } catch (_) {} } else copy(url); },
-  async evCameTg(tid) { if (!canMark()) return; const e = evById(S.ov.id), on = !evCame(e, tid), row = [e.date, 'event', e.id, tid];
+  async evCameTg(tid) { if (!canMark()) return; if (evFuture(evById(S.ov.id))) return toast(evSoon(evById(S.ov.id))); const e = evById(S.ov.id), on = !evCame(e, tid), row = [e.date, 'event', e.id, tid];
     if (on) D.att.push(row); else D.att = D.att.filter(a => !(a[0] === e.date && a[1] === 'event' && a[2] === e.id && a[3] === tid)); buildIdx(); rerender();
     try { await api('mark', { date: e.date, kind: 'event', meetId: e.id, teenId: tid, on }); }
     catch (err) { if (on) D.att = D.att.filter(a => a !== row); else D.att.push(row); buildIdx(); rerender(); toast(errText(err)); } },
@@ -1578,7 +1580,7 @@ const H = {
       if (navigator.canShare && navigator.canShare({ files: [file] })) { try { await navigator.share({ files: [file] }); } catch (_) {} return; }
       const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'sol316-event.png'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 5000); }, 'image/png');
   },
-  evMark(id) { const e = D.events.find(x => x.id === id); if (!e) return; S.meet = { kind: 'event', meetId: e.id, label: e.name, date: e.date }; S.ov = null; S.q = ''; S.closed = {}; S.tab = 'mark'; render(); syncMarks(); },
+  evMark(id) { const e = D.events.find(x => x.id === id); if (!e) return; if (evFuture(e)) return toast(evSoon(e)); S.meet = { kind: 'event', meetId: e.id, label: e.name, date: e.date }; S.ov = null; S.q = ''; S.closed = {}; S.tab = 'mark'; render(); syncMarks(); },
   editEv(id) { const e = D.events.find(x => x.id === id);
     S.ov = { type: 'ev', id: id || '', f: e ? { name: e.name, date: e.date, time: e.time || '', place: e.place || '', desc: e.desc || '', descOn: !!e.descOn, paid: !!e.paid, price: e.price || '', incl: e.incl || '', lim: !!e.cap, cap: e.cap ? String(e.cap) : '', open: !!e.open, askFriend: !!e.askFriend, askBring: !!e.askBring }
       : { name: '', date: D.today, time: '18:00', place: '', desc: '', descOn: false, paid: false, price: '', incl: '', lim: false, cap: '', open: true, askFriend: true, askBring: false } };
@@ -1590,9 +1592,10 @@ const H = {
     const p = { name, date: F.date, time: F.time || '', place: F.place || '', desc: F.desc || '', descOn: !!(F.descOn && String(F.desc || '').trim()), paid: !!F.paid, price: F.paid ? F.price || '' : '', incl: F.paid ? F.incl || '' : '', cap: F.lim ? F.cap : '', open: !!F.open, askFriend: !!(F.open && F.askFriend), askBring: !!(F.open && F.askBring) };
     if (F.img != null) { p.img = F.img; p.thumb = F.thumb || ''; }
     try { const ev = id ? await api('editEvent', Object.assign({ id }, p)) : await api('addEvent', p); if (F.img != null) EVIMG[ev.id] = F.img;
-      S.ov = null; await load(); toast(id ? tr('Изменения сохранены', 'Changes saved') : tr('Событие создано', 'Event created')); if (ev.open) H.evShareOpen(ev.id); }
+      const i = D.events.findIndex(x => x.id === ev.id); if (i >= 0) D.events[i] = ev; else D.events.push(ev); saveBoot();
+      S.ov = null; toast(id ? tr('Изменения сохранены', 'Changes saved') : tr('Событие создано', 'Event created')); if (ev.open) H.evShareOpen(ev.id); else rerender(); load(); }
     catch (e) { if (S.ov) { S.ov.err = e && e.message === 'bad_image' ? tr('Фото слишком большое или не того формата. Выберите другое.', 'The photo is too large or in the wrong format. Choose another.') : errText(e); rerender(); } } },
-  async delEvOk() { const id = S.ov.id; try { await api('delEvent', { id }); S.ov = null; await load(); toast(tr('Удалено', 'Deleted')); } catch (e) { toast(errText(e)); } },
+  async delEvOk() { const id = S.ov.id; try { await api('delEvent', { id }); D.events = D.events.filter(x => x.id !== id); if (D.regs) D.regs = D.regs.filter(r => r[0] !== id); saveBoot(); S.ov = null; rerender(); toast(tr('Удалено', 'Deleted')); load(); } catch (e) { toast(errText(e)); } },
   ageList(x) { S.ov = { type: 'ages', age: x }; rerender(); },
   ageDyn() { S.ov = { type: 'ageDyn', n: 6, view: 'came', m: null, age: null }; rerender(); },
   ageN(x) { S.ov.n = +x; S.ov.m = null; rerender(); },
@@ -1605,9 +1608,9 @@ const H = {
     try { const r = await api('invite', { mode: F.mode, name: F.name, email: F.email, role: F.role, groups: F.groups }); if (r.code) { S.ov.code = r.code; await load(); S.more = 'access'; rerender(); } else { S.ov = null; toast(tr('Приглашение отправлено', 'Invite sent')); await load(); } }
     catch (e) { S.ov.err = errText(e); rerender(); } },
   copyCode() { const t = tr('Привет! Вот вход в SOL 3:16 Teens: ', 'Hi! Here is your SOL 3:16 Teens access: ') + APP + tr(' — нажми «У меня есть код приглашения» и введи ', ' — tap “I have an invite code” and enter ') + S.ov.code; copy(t); },
-  async saveLeader() { const F = S.ov.f; try { await api('updateLeader', { id: S.ov.id, role: F.role, groups: F.groups }); S.ov = null; await load(); toast(tr('Сохранено', 'Saved')); } catch (e) { S.ov.err = errText(e); rerender(); } },
+  async saveLeader() { const F = S.ov.f; try { const lid = S.ov.id; await api('updateLeader', { id: lid, role: F.role, groups: F.groups }); const l = (D.leaders || []).find(x => x.id === lid); if (l) { l.role = F.role; l.groups = F.role === 'leader' ? F.groups.slice() : []; } saveBoot(); S.ov = null; rerender(); toast(tr('Сохранено', 'Saved')); load(); } catch (e) { S.ov.err = errText(e); rerender(); } },
   async removeLeader() { if (!S.ov.confirmRm) { S.ov.confirmRm = true; S.ov.err = ''; return rerender(); }
-    try { await api('removeLeader', { id: S.ov.id }); S.ov = null; await load(); toast(tr('Доступ убран', 'Access removed')); } catch (e) { S.ov.err = errText(e); rerender(); } },
+    try { const lid = S.ov.id; await api('removeLeader', { id: lid }); if (D.leaders) D.leaders = D.leaders.filter(x => x.id !== lid); saveBoot(); S.ov = null; rerender(); toast(tr('Доступ убран', 'Access removed')); load(); } catch (e) { S.ov.err = errText(e); rerender(); } },
   copyJoin() { copy(joinUrl()); },
   copyTeen() { copy(APP + 'me/'); },
   copyMail() { copy(D.me.email || ''); },
