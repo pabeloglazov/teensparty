@@ -8,7 +8,7 @@ def rep(a,n,count=1):
 rep('href="Main.dc.html"','href="/"',2); rep('href="Event.dc.html"','href="/xmas26/"')
 # lang switch next to back link
 m=re.search(r'<a href="/" style="display: inline-flex; align-items: center; height: 44px;[^>]*>← Все события</a>',b); assert m
-b=b.replace(m.group(0),'<div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: flex-end; margin-left: auto">'+m.group(0)+LANGHTML+'</div>')
+b=b.replace(m.group(0),'<div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: flex-end; margin-left: auto">'+LANGHTML+'</div>')  # кнопки «Все события» нет: на главную ведёт логотип
 rep('TEENS <span style="color: #0E0F12;','TEENS <br class="mbr"><span style="color: #0E0F12;')
 g='<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px">'
 assert b.count(g)==2
