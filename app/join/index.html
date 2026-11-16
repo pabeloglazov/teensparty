@@ -3,54 +3,85 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>SOL 3:16 Teens — отметься</title>
+<title>SOL 3:16 Teens</title>
 <meta name="theme-color" content="#0E0F12">
 <link rel="icon" type="image/png" sizes="192x192" href="../icons/icon-192.png">
 <link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Unbounded:wght@600;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0E0F12;--card:#15171B;--card2:#17191E;--line:#1F2127;--line2:#2A2D35;--line3:#3A3D46;--tx:#F4F4F5;--mu:#A1A1AA;--mu2:#8B8B94;--acc:#FF8A3D;--acc2:#FFB27A;--accbg:#1C140F}
+:root{--bg:#0E0F12;--card:#15171B;--card2:#17191E;--line:#1F2127;--line2:#2A2D35;--line3:#3A3D46;--tx:#F4F4F5;--tx2:#D4D4D8;--mu:#A1A1AA;--mu2:#8B8B94;--acc:#FF8A3D;--acc2:#FFB27A;--accbg:#1C140F;--accbg2:#2A1A10}
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%;background:var(--bg);color:var(--tx);font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
 button{font-family:inherit;color:inherit;cursor:pointer}
-input{font-family:inherit}
+input,select,textarea{font-family:inherit}
 input::placeholder{color:var(--mu2)}
-.w{max-width:440px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;padding:32px 22px calc(28px + env(safe-area-inset-bottom));gap:18px}
+a{color:inherit;text-decoration:none}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.w{max-width:440px;margin:0 auto;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;padding:18px 22px calc(28px + env(safe-area-inset-bottom));gap:18px}
+.top{display:flex;align-items:center;gap:10px;min-height:44px}
 .h1{font-family:Unbounded,Inter,sans-serif;font-weight:700;font-size:28px;line-height:1.15;margin:0}
 .h2{font-family:Unbounded,Inter,sans-serif;font-weight:700;font-size:22px;line-height:1.2;margin:0}
 .k{font-size:13px;font-weight:700;letter-spacing:.1em;color:var(--acc)}
-.mu{color:var(--mu)}
-.btn{height:60px;border-radius:18px;border:none;background:var(--acc);color:#0E0F12;font-size:17px;font-weight:700;width:100%}
-.btn2{height:60px;border-radius:18px;border:1px solid var(--line2);background:var(--card);color:var(--tx);font-size:17px;font-weight:700;width:100%}
-.field{display:flex;flex-direction:column;gap:8px}
+.mu{color:var(--mu)}.xs{font-size:12px}.sm{font-size:14px}
+.btn{min-height:60px;border-radius:18px;border:none;background:var(--acc);color:#0E0F12;font-size:17px;font-weight:700;width:100%;display:flex;align-items:center;justify-content:center;text-align:center;padding:0 16px}
+.btn2{min-height:60px;border-radius:18px;border:1px solid var(--line2);background:var(--card);color:var(--tx);font-size:17px;font-weight:700;width:100%;display:flex;align-items:center;justify-content:center;text-align:center;padding:0 16px}
+.btn:disabled{opacity:.6}
+.field{display:flex;flex-direction:column;gap:8px;min-width:0}
 .lbl{font-size:13px;font-weight:600;color:var(--mu)}
 .inp{width:100%;height:54px;border-radius:14px;border:1px solid var(--line2);background:var(--card2);color:var(--tx);padding:0 14px;font-size:17px;color-scheme:dark;outline:none}
 .inp:focus{border-color:var(--acc)}
-.inp[type=date],.inp[type=time]{-webkit-appearance:none;appearance:none;display:block;min-width:0;max-width:100%;box-sizing:border-box;text-align:left;line-height:50px}
-.inp[type=date]::-webkit-date-and-time-value,.inp[type=time]::-webkit-date-and-time-value{text-align:left;margin:0}
-.field{min-width:0}
+.inp[type=date]{-webkit-appearance:none;appearance:none;display:block;min-width:0;max-width:100%;text-align:left;line-height:50px}
+.inp[type=date]::-webkit-date-and-time-value{text-align:left;margin:0}
+select.inp{-webkit-appearance:none;appearance:none;padding:0 44px 0 14px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23A1A1AA' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center}
 .sec{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--mu)}
-.back{width:44px;height:44px;border-radius:12px;border:none;background:var(--card2);display:flex;align-items:center;justify-content:center}
+.back{width:44px;height:44px;border-radius:12px;border:none;background:var(--card2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .card{background:var(--card);border:1px solid var(--line2);border-radius:18px;padding:16px}
-.err{font-size:14px;color:var(--acc)}
+.err{font-size:14px;color:#F87171;line-height:1.4}
 .sp{flex:1}
-.ok{width:104px;height:104px;border-radius:999px;background:var(--acc);display:flex;align-items:center;justify-content:center;align-self:center}
+.ok{width:96px;height:96px;border-radius:999px;background:var(--acc);display:flex;align-items:center;justify-content:center;align-self:center}
 .hit{min-height:48px;padding:0 14px;border-radius:12px;border:1px solid #23262D;background:#121318;font-size:15px;font-weight:600;text-align:left;width:100%}
 .sel{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:54px;padding:0 8px 0 14px;border-radius:14px;border:1px solid var(--acc);background:var(--accbg);font-weight:600}
+.lg{display:flex;gap:2px;background:var(--card);border:1px solid var(--line2);border-radius:12px;padding:3px;flex-shrink:0;margin-left:auto}
+.lg button{height:36px;min-width:44px;padding:0 10px;border-radius:9px;border:none;background:transparent;color:var(--mu);font-size:12px;font-weight:700;letter-spacing:.04em}
+.lg button.on{background:var(--acc);color:#0E0F12}
+.row{display:flex;align-items:center;gap:12px;width:100%;min-height:56px;padding:8px 14px;border-radius:16px;border:1px solid var(--line2);background:var(--card);text-align:left;font-size:15px}
+.row.on{border-color:var(--acc);background:var(--accbg2)}
+.cb{width:24px;height:24px;border-radius:7px;border:2px solid var(--line3);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cb.on{border-color:var(--acc);background:var(--acc)}
+.chips{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.chip{min-height:44px;min-width:0;padding:0;border-radius:999px;font-size:15px;font-weight:600;border:1px solid var(--line2);background:var(--card);color:var(--tx2)}
+.chip.on{background:var(--acc);border-color:var(--acc);color:#0E0F12}
+.seg{display:grid;gap:4px;background:var(--card);border:1px solid var(--line2);border-radius:14px;padding:4px}
+.seg button{height:44px;border-radius:10px;border:none;background:transparent;color:var(--mu);font-size:15px;font-weight:600}
+.seg button.on{background:var(--acc);color:#0E0F12}
+.hero{background:var(--accbg);border:1px solid var(--acc);border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:14px}
+.hero img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:12px}
+.ir{display:flex;align-items:center;gap:12px;min-height:44px}
+a.ir{margin:-4px -8px;padding:4px 8px;border-radius:12px}
+a.ir:active{background:var(--accbg2)}
+.ic{width:38px;height:38px;border-radius:11px;background:var(--accbg2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.av{width:44px;height:44px;border-radius:999px;background:var(--accbg2);color:var(--acc);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;flex-shrink:0}
+.pl{color:var(--acc2);text-decoration:underline;text-underline-offset:3px}
 .busy{position:fixed;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--acc),transparent);background-size:200% 100%;animation:b 1s linear infinite}
 @keyframes b{from{background-position:200% 0}to{background-position:-200% 0}}
+@media (prefers-reduced-motion:reduce){.busy{animation:none}}
 </style>
 </head>
 <body>
 <div id="app"></div>
 <script>
-let S = { step: 'load', f: {}, meet: null, err: '', busy: 0, hits: [], inv: null, dup: null, res: null };
+const LS = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
+let S = { lang: LS.get('sol_lang') === 'en' ? 'en' : 'ru', step: 'load', f: {}, meet: null, err: '', busy: 0, hits: [], inv: null, dup: null, res: null, ev: null, cands: [], me: null };
 const $ = document.getElementById('app');
+const tr = (ru, en) => S.lang === 'en' ? en : ru;
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const ico = (d, c, w, sw) => `<svg width="${w || 20}" height="${w || 20}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="${sw || 2.5}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"></path></svg>`;
-const BACK = `<button class="back" data-a="goStart" aria-label="Назад">${ico('M15 18l-6-6 6-6', '#F4F4F5')}</button>`;
+const I = { back: 'M15 18l-6-6 6-6', right: 'M9 6l6 6-6 6', ck: 'M5 12l5 5L19 7', x: 'M6 6l12 12M18 6L6 18',
+  cal: 'M7 3v3M17 3v3M4 9h16M6 5h12a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z', pin: 'M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11zM12 12.5a2.5 2.5 0 1 0 0-5a2.5 2.5 0 0 0 0 5z',
+  usd: 'M12 3v18M16.5 7.5c-.8-1.2-2.4-2-4.5-2c-2.5 0-4.2 1.2-4.2 3.1c0 4.4 9.2 1.9 9.2 6.5c0 2-1.9 3.4-4.8 3.4c-2.3 0-4.2-.9-5-2.4', ppl: 'M9 11a3.5 3.5 0 1 0 0-7a3.5 3.5 0 0 0 0 7zM2.5 20c.4-3.4 3-5.5 6.5-5.5s6.1 2.1 6.5 5.5M16 4.3a3.5 3.5 0 0 1 0 6.4M18 14.8c2 .7 3.2 2.5 3.5 5.2' };
 const API = 'https://script.google.com/macros/s/AKfycbw1J4PnxNLtZ8H8dCWhJpTiAeA2V-X5RWmJdB6VQPr_IFzemiKS-y_SW50PvR0dAnL6Cg/exec';
+const TG = 'https://t.me/+Q9dPL22CL5owNTUy', IG = 'https://www.instagram.com/sol316teens/';
 function call(fn, ...args) {
   S.busy++; busy();
   return fetch(API, { method: 'POST', body: JSON.stringify({ fn, args }) })
@@ -58,58 +89,151 @@ function call(fn, ...args) {
     .then(j => { if (!j.ok) throw new Error(j.error); return j.data; })
     .finally(() => { S.busy--; busy(); });
 }
-function busy() { let b = document.querySelector('.busy'); if (S.busy > 0 && !b) { b = document.createElement('div'); b.className = 'busy'; document.body.appendChild(b); } if (S.busy <= 0 && b) b.remove(); }
-const ERR = { no_meeting: 'Сейчас нет встречи — отметиться можно во время встречи.', bad_phone: 'Проверь номер телефона', need_fields: 'Заполни имя, фамилию и телефон (10 цифр)' };
-const errT = e => ERR[e && e.message] || 'Что-то пошло не так. Попробуй ещё раз или подойди к лидеру.';
-const fld = (k, label, type, ph) => `<div class="field"><label class="lbl" for="j_${k}">${label}</label><input class="inp" id="j_${k}" type="${type || 'text'}" data-b="${k}" value="${esc(S.f[k] || '')}" placeholder="${esc(ph || '')}" ${type === 'date' ? 'data-picker="1"' : ''} ${type === 'tel' ? 'inputmode="tel" autocomplete="tel"' : ''}></div>`;
+function busy() { let b = document.querySelector('.busy'); if (S.busy > 0 && !b) { b = document.createElement('div'); b.className = 'busy'; document.body.appendChild(b); } if (S.busy <= 0 && b) b.remove(); document.querySelectorAll('.btn').forEach(x => { x.disabled = S.busy > 0; }); }
+const ERR = () => ({
+  no_meeting: tr('Сейчас нет встречи — отметиться можно во время встречи.', 'There is no meeting right now — you can check in during a meeting.'),
+  bad_phone: tr('Напиши номер полностью — 10 цифр', 'Enter the full number — 10 digits'),
+  need_fields: tr('Заполни имя, фамилию и телефон (10 цифр)', 'Fill in first name, last name and phone (10 digits)'),
+  need_birth: tr('Выбери день и месяц рождения', 'Choose the day and month of your birthday'),
+  too_many: tr('Слишком много попыток. Подойди к лидеру — он запишет тебя сам.', 'Too many attempts. Ask a leader — they will sign you up.'),
+  expired: tr('Прошло много времени. Найди себя ещё раз.', 'That took a while. Please find yourself again.'),
+  use_lookup: tr('Найди себя по номеру и дню рождения.', 'Find yourself by number and birthday.'),
+  closed: tr('Регистрация на это событие закрыта.', 'Registration for this event is closed.'),
+  full: tr('Места закончились. Напиши лидеру — возможно, место появится.', 'No spots left. Message a leader — a spot may open up.'),
+  need_name: tr('Напиши имя и фамилию', 'Enter your first and last name'),
+  need_age: tr('Выбери возраст', 'Choose your age'),
+  need_phone: tr('Напиши свой телефон — 10 цифр или отметь, что номера нет', 'Enter your phone — 10 digits, or tick that you have no number'),
+  need_parent: tr('Напиши имя, фамилию и телефон родителя (10 цифр)', 'Enter your parent’s first name, last name and phone (10 digits)'),
+  need_consent: tr('Отметь, что родители знают и не против', 'Tick that your parents know and are okay with it'),
+  network: tr('Нет связи. Проверь интернет и попробуй ещё раз.', 'No connection. Check the internet and try again.')
+});
+const errT = e => ERR()[e && e.message] || tr('Что-то пошло не так. Попробуй ещё раз или подойди к лидеру.', 'Something went wrong. Try again or ask a leader.');
+const dg = v => String(v || '').replace(/\D/g, '');
+const fld = (k, label, type, ph, id) => `<div class="field"><label class="lbl" for="${id || 'j_' + k}">${label}</label><input class="inp" id="${id || 'j_' + k}" type="${type || 'text'}" data-b="${k}" value="${esc(S.f[k] || '')}" placeholder="${esc(ph || '')}" ${type === 'date' ? 'data-picker="1"' : ''} ${type === 'tel' ? 'inputmode="tel" autocomplete="tel"' : ''}></div>`;
+const lg = () => `<div class="lg" role="group" aria-label="${tr('Язык', 'Language')}"><button data-a="lang" data-x="ru" class="${S.lang === 'ru' ? 'on' : ''}" aria-pressed="${S.lang === 'ru'}">RU</button><button data-a="lang" data-x="en" class="${S.lang === 'en' ? 'on' : ''}" aria-pressed="${S.lang === 'en'}">EN</button></div>`;
+const topBar = back => `<div class="top">${back ? `<button class="back" data-a="${back}" aria-label="${tr('Назад', 'Back')}">${ico(I.back, '#F4F4F5')}</button>` : '<div class="k">SOL 3:16 TEENS</div>'}${lg()}</div>`;
+const errB = () => S.err ? `<div class="err" role="alert">${esc(S.err)}</div>` : '';
+const ck = (a, on, label) => `<button class="row ${on ? 'on' : ''}" data-a="${a}" role="checkbox" aria-checked="${!!on}"><span class="cb ${on ? 'on' : ''}">${on ? ico(I.ck, '#0E0F12', 14, 3.2) : ''}</span><span style="flex:1;font-weight:600">${label}</span></button>`;
+const MON = () => S.lang === 'en' ? ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'] : ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+const selB = (k, ph, opts) => `<select class="inp" data-b="${k}" aria-label="${ph}" style="flex:1;min-width:0">${[['', ph]].concat(opts).map(o => `<option value="${o[0]}" ${String(S.f[k] || '') === String(o[0]) ? 'selected' : ''}>${o[1]}</option>`).join('')}</select>`;
+// телефон + день и месяц рождения: так свои находят себя, не видя чужих имён
+const whoFields = () => `${fld('phone', tr('Телефон — твой или родителей', 'Phone — yours or a parent’s'), 'tel', '(916) 555-0100', 'kp')}
+  <div class="field"><div class="lbl">${tr('День рождения', 'Birthday')}</div><div style="display:flex;gap:8px">${selB('bd', tr('День', 'Day'), Array.from({ length: 31 }, (_, i) => [i + 1, i + 1]))}${selB('bm', tr('Месяц', 'Month'), MON().map((m, i) => [i + 1, m]))}</div></div>`;
+function whoErr() { if (dg(S.f.phone).length < 10) return ERR().bad_phone; if (!S.f.bd || !S.f.bm) return ERR().need_birth; return ''; }
+const phoneBlock = () => `${S.f.noPhone ? `<div class="field"><div class="lbl">${tr('Твой телефон', 'Your phone')}</div><div class="row" style="cursor:default;border-style:dashed;min-height:54px"><span class="sm mu" style="flex:1">${tr('Запишем номер родителя — заполни его ниже', 'We will use your parent’s number — fill it in below')}</span></div></div>` : fld('phone', tr('Твой телефон', 'Your phone'), 'tel', '(916) 555-0100')}${ck('noPhone', S.f.noPhone, tr('У меня нет своего номера', 'I don’t have my own number'))}`;
+const parentBlock = () => `<div class="sec" style="padding-top:6px">${tr('РОДИТЕЛЬ', 'PARENT')}</div>${fld('pFirst', tr('Имя родителя', 'Parent’s first name'), 'text', '')}${fld('pLast', tr('Фамилия родителя', 'Parent’s last name'), 'text', '')}${fld('pPhone', tr('Телефон родителя', 'Parent’s phone'), 'tel', '(916) 555-0100')}`;
+function parentErr() { if (!String(S.f.pFirst || '').trim() || !String(S.f.pLast || '').trim() || dg(S.f.pPhone).length < 10) return ERR().need_parent; return ''; }
+const consent = () => ck('consent', S.f.consent, tr('Родители знают и не против', 'My parents know and are okay with it'));
+function hitsHtml() { return S.hits.map(h => `<button class="hit" data-a="pickInv" data-x="${esc(h.id)}" data-n="${esc(h.name)}">${esc(h.name)}</button>`).join(''); }
 
-const BY = new URLSearchParams(location.search).get('by') || '';
+// ---------- событие ----------
+const P = new URLSearchParams(location.search), EID = P.get('e') || '', BY = P.get('by') || '';
+const DOW = () => S.lang === 'en' ? ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] : ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'];
+const MONS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+function fdate(iso) { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || ''); if (!m) return iso || ''; const d = new Date(+m[1], m[2] - 1, +m[3]); return S.lang === 'en' ? DOW()[d.getDay()] + ', ' + MONS[d.getMonth()] + ' ' + d.getDate() : DOW()[d.getDay()] + ', ' + d.getDate() + ' ' + MON()[d.getMonth()]; }
+const t12 = v => { const m = /^(\d{1,2}):(\d{2})$/.exec(String(v || '')); if (!m) return ''; const h = +m[1]; return ((h % 12) || 12) + ':' + m[2] + ' ' + (h < 12 ? 'AM' : 'PM'); };
+const when = e => fdate(e.date) + (t12(e.time) ? ' · ' + t12(e.time) : '');
+const price = e => !e.paid ? tr('Бесплатно', 'Free') : e.price ? (/^\d/.test(e.price) ? '$' + e.price : e.price) : tr('Платно', 'Paid');
+const mapUrl = e => 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(e.place);
+const ir = (ic, l, v, sub, href) => `<${href ? `a class="ir" href="${href}" target="_blank" rel="noopener"` : 'div class="ir"'}><span class="ic">${ico(ic, '#FF8A3D', 19, 2)}</span><span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px"><span class="xs mu" style="font-weight:700;letter-spacing:.06em">${l}</span><span style="font-size:15px;font-weight:600;line-height:1.3">${esc(v)}</span>${sub ? `<span class="xs" style="color:${href ? 'var(--acc2)' : 'var(--mu)'}">${esc(sub)}</span>` : ''}</span>${href ? ico(I.right, '#FFB27A', 18, 2.5) : ''}</${href ? 'a' : 'div'}>`;
+function hero(full) {
+  const e = S.ev, n = e.going || 0;
+  const head = `<div style="display:flex;flex-direction:column;gap:6px"><div class="k" style="font-size:12px;color:var(--acc2)">SOL 3:16 TEENS</div><div class="h2">${esc(e.name)}</div>`;
+  if (!full) return `<div class="hero" style="gap:6px">${head}<div class="sm mu" style="line-height:1.5">${esc(when(e))}${e.place ? ` · <a class="pl" href="${mapUrl(e)}" target="_blank" rel="noopener">${esc(e.place)}</a>` : ''} · ${esc(price(e))}</div></div></div>`;
+  return `<div class="hero">${e.img ? `<img src="${e.img}" alt="">` : ''}${head}${e.descOn && e.desc ? `<div class="sm" style="color:var(--tx2);line-height:1.45;white-space:pre-line">${esc(e.desc)}</div>` : ''}</div><div style="height:1px;background:#3A2414"></div>
+    ${ir(I.cal, tr('КОГДА', 'WHEN'), when(e))}${e.place ? ir(I.pin, tr('ГДЕ', 'WHERE'), e.place, tr('Открыть на карте', 'Open in maps'), mapUrl(e)) : ir(I.pin, tr('ГДЕ', 'WHERE'), tr('Место уточним', 'Place to be confirmed'))}
+    ${ir(I.usd, tr('СТОИМОСТЬ', 'PRICE'), price(e), e.paid ? (e.incl || tr('с человека', 'per person')) : '')}
+    ${ir(I.ppl, tr('ИДУТ', 'GOING'), e.cap ? n + tr(' из ', ' of ') + e.cap + tr(' мест', ' spots') : n ? n + tr(' чел.', ' people') : tr('Будь первым', 'Be the first'), e.cap ? (e.cap - n > 0 ? tr('осталось ', '') + (e.cap - n) + tr('', ' left') : tr('мест больше нет', 'no spots left')) : '')}</div>`;
+}
+const intro = () => S.ev.inviter ? `<div style="display:flex;align-items:center;gap:12px"><span class="av">${esc(S.ev.inviter.charAt(0))}</span><div><div style="font-size:16px;font-weight:700">${tr('Тебя зовёт ', '')}${esc(S.ev.inviter)}${tr('', ' invites you')}</div><div class="sm mu">${tr('на встречу подростков SOL 3:16 Teens', 'to a SOL 3:16 Teens hangout')}</div></div></div>` : '';
+function gcal(e) { const d = e.date.replace(/-/g, ''); let dates; const m = /^(\d{1,2}):(\d{2})$/.exec(e.time || ''); if (m) { const h = +m[1], p = n => String(n).padStart(2, '0'); dates = d + 'T' + p(h) + m[2] + '00/' + d + 'T' + p(Math.min(h + 2, 23)) + m[2] + '00'; } else { const n = new Date(+e.date.slice(0, 4), e.date.slice(5, 7) - 1, +e.date.slice(8, 10) + 1), p = x => String(x).padStart(2, '0'); dates = d + '/' + n.getFullYear() + p(n.getMonth() + 1) + p(n.getDate()); }
+  return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + encodeURIComponent(e.name + ' · SOL 3:16 Teens') + '&dates=' + dates + (m ? '&ctz=America/Los_Angeles' : '') + (e.place ? '&location=' + encodeURIComponent(e.place) : ''); }
+const act = (href, t, s, a) => `<${a ? `button data-a="${a}"` : `a href="${href}" target="_blank" rel="noopener"`} class="row"><span style="flex:1;display:flex;flex-direction:column;gap:2px"><span style="font-weight:600">${t}</span><span class="xs mu">${s}</span></span>${ico(I.right, '#5F626B', 18, 2.5)}</${a ? 'button' : 'a'}>`;
+function renderEvent() {
+  const e = S.ev, st = S.step;
+  if (st === 'evNone') { $.innerHTML = `<div class="w">${topBar()}<h1 class="h1">${tr('Такого события нет', 'No such event')}</h1><div class="mu" style="font-size:16px;line-height:1.5">${tr('Возможно, ссылка устарела. Спроси у лидера новую.', 'The link may be out of date. Ask a leader for a new one.')}</div></div>`; return; }
+  if (st === 'evClosed') { $.innerHTML = `<div class="w">${topBar()}${hero(true)}<div class="card" style="font-size:15px;line-height:1.5">${e.past ? tr('Это событие уже прошло.', 'This event has already happened.') : tr('Регистрация на это событие пока закрыта.', 'Registration for this event is closed for now.')}</div><a class="btn2" style="min-height:54px;font-size:15px" href="${IG}" target="_blank" rel="noopener">Instagram @sol316teens</a></div>`; return; }
+  if (st === 'evLand') { $.innerHTML = `<div class="w">${topBar()}${intro()}${hero(true)}${e.full ? `<div class="card" style="font-size:15px;line-height:1.5">${ERR().full}</div>` : ''}<div class="sp"></div><button class="btn" data-a="evGoNew">${tr('Иду!', 'I’m in!')}</button><button class="btn2" data-a="evGoFind">${tr('Я уже хожу в SOL Teens', 'I already come to SOL Teens')}</button></div>`; return; }
+  if (st === 'evFind') { $.innerHTML = `<div class="w">${topBar(BY ? 'evBack' : '')}${hero(!BY)}<div><h1 class="h2" style="font-size:20px">${tr('Уже ходишь к нам?', 'Already come to SOL Teens?')}</h1><div class="sm mu" style="margin-top:6px;line-height:1.45">${tr('Введи номер и день рождения — найдём тебя сами. Список имён никому не показываем.', 'Enter your number and birthday and we will find you. The list of names is never shown to anyone.')}</div></div>
+    ${whoFields()}${errB()}<div class="sp"></div><button class="btn" data-a="evLookup">${tr('Найти меня', 'Find me')}</button><button class="btn2" data-a="evGoNew">${tr('Я здесь впервые', 'I’m new here')}</button></div>`; return; }
+  if (st === 'evMiss') { $.innerHTML = `<div class="w">${topBar('evGoFind')}${hero()}<div class="card" style="display:flex;flex-direction:column;gap:8px"><div style="font-size:17px;font-weight:700">${tr('Не нашли тебя', 'We couldn’t find you')}</div><div class="sm mu" style="line-height:1.5">${tr('По этому номеру и дню рождения в списке никого нет. Возможно, у лидера записан другой номер — или тебя ещё нет в базе.', 'Nobody on the list matches this number and birthday. Your leader may have a different number for you, or you are not on the list yet.')}</div></div>
+    <div class="xs mu" style="line-height:1.45">${tr('Можно зарегистрироваться заново — это минута. Если ты уже ходишь, лидер потом объединит записи.', 'You can register again, it takes a minute. If you already come, your leader will merge the records later.')}</div><div class="sp"></div><button class="btn" data-a="evMissNew">${tr('Зарегистрироваться', 'Register')}</button><button class="btn2" data-a="evGoFind">${tr('Проверить данные ещё раз', 'Check my details again')}</button></div>`; return; }
+  if (st === 'evPick') { $.innerHTML = `<div class="w">${topBar('evGoFind')}${hero()}<div><h1 class="h2" style="font-size:20px">${tr('Кто из вас ты?', 'Which one are you?')}</h1><div class="sm mu" style="margin-top:6px;line-height:1.45">${tr('По этому номеру и дню рождения нашлось несколько человек. Выбери себя.', 'Several people match this number and birthday. Pick yourself.')}</div></div>
+    <div style="display:flex;flex-direction:column;gap:8px">${S.cands.map((c, i) => `<button class="row" data-a="evPickMe" data-x="${i}"><span class="av" style="width:36px;height:36px;font-size:13px">${esc(c.first.charAt(0))}</span><span style="flex:1;font-size:16px;font-weight:600">${esc(c.first)}</span>${ico(I.right, '#5F626B', 18, 2.5)}</button>`).join('')}</div><div class="sp"></div><button class="btn2" data-a="evGoFind">${tr('Меня здесь нет', 'I’m not here')}</button></div>`; return; }
+  if (st === 'evHit') { const c = S.me; $.innerHTML = `<div class="w">${topBar('evGoFind')}${hero()}<div class="card" style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:22px 18px;text-align:center"><span class="av" style="width:56px;height:56px;font-size:18px">${esc(c.first.charAt(0))}</span><div style="font-size:20px;font-weight:700">${tr('Привет, ', 'Hi, ')}${esc(c.first)}!</div><div class="sm mu">${c.already ? tr('Ты уже в списке на это событие', 'You are already on the list for this event') : tr('Нашли тебя в списке SOL 3:16 Teens', 'Found you on the SOL 3:16 Teens list')}</div></div>
+    <div class="sp"></div><button class="btn" data-a="evHitYes">${tr('Это я — дальше', 'That’s me — continue')}</button><button class="btn2" data-a="evGoFind">${tr('Это не я', 'That’s not me')}</button></div>`; return; }
+  if (st === 'evPar') { const c = S.me; $.innerHTML = `<div class="w">${topBar('evGoFind')}${hero()}${c.needPar ? `<div><h1 class="h2" style="font-size:20px">${tr('Добавь данные родителей', 'Add your parents’ details')}</h1><div class="sm mu" style="margin-top:6px;line-height:1.45">${esc(c.first)}${tr(', у нас нет контакта твоих родителей. Заполни один раз — больше спрашивать не будем.', ', we don’t have your parents’ contact. Fill it in once and we won’t ask again.')}</div></div>${fld('pFirst', tr('Имя родителя', 'Parent’s first name'), 'text', '')}${fld('pLast', tr('Фамилия родителя', 'Parent’s last name'), 'text', '')}${fld('pPhone', tr('Телефон родителя', 'Parent’s phone'), 'tel', '(916) 555-0100')}` : `<div><h1 class="h2" style="font-size:20px">${tr('Родители в курсе?', 'Do your parents know?')}</h1><div class="sm mu" style="margin-top:6px;line-height:1.45">${esc(c.first)}${tr(', осталась одна галочка.', ', just one checkbox left.')}</div></div>`}
+    ${consent()}${errB()}<div class="sp"></div><button class="btn" data-a="evJoin">${tr('Записаться', 'Sign up')}</button></div>`; return; }
+  if (st === 'evNew') { $.innerHTML = `<div class="w">${topBar(BY ? 'evBack' : 'evGoFind')}${BY ? intro() : hero()}<div><h1 class="h2" style="font-size:20px">${BY ? tr('Как тебя записать?', 'How should we sign you up?') : tr('Первый раз у нас?', 'First time with us?')}</h1><div class="sm mu" style="margin-top:6px">${tr('Про тебя и одного из родителей — займёт минуту.', 'About you and one parent — takes a minute.')}</div></div>
+    ${fld('first', tr('Имя', 'First name'), 'text', '')}${fld('last', tr('Фамилия', 'Last name'), 'text', '')}
+    <div class="field"><div class="lbl">${tr('Сколько тебе лет', 'How old are you')}</div><div class="chips">${[11, 12, 13, 14, 15, 16, 17].map(a => `<button class="chip ${+S.f.age === a ? 'on' : ''}" data-a="age" data-x="${a}" aria-pressed="${+S.f.age === a}">${a}</button>`).join('')}</div></div>
+    ${phoneBlock()}${parentBlock()}${consent()}${errB()}
+    <div class="xs mu" style="line-height:1.45">${tr('Телефон родителя нужен, чтобы лидер мог связаться, если что-то случится. Данные увидят только лидеры служения.', 'We need a parent’s phone so a leader can reach them if anything happens. Only the ministry leaders see this information.')}</div>
+    <button class="btn" data-a="evSign">${tr('Записаться', 'Sign up')}</button></div>`; return; }
+  if (st === 'evOk') { const r = S.res, ask = (e.askFriend || e.askBring) && !S.answered;
+    $.innerHTML = `<div class="w">${topBar()}<div class="card" style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:24px 18px;text-align:center"><span style="width:64px;height:64px;border-radius:999px;background:#12251A;display:flex;align-items:center;justify-content:center">${ico(I.ck, '#4ADE80', 30, 3)}</span><div style="font-size:20px;font-weight:700">${r.isNew ? tr('Ждём тебя, ', 'See you there, ') : tr('Ты в списке, ', 'You’re on the list, ')}${esc(r.first)}!</div><div class="sm mu" style="line-height:1.5">${esc(e.name)}<br>${esc(when(e))}${e.place ? `<br><a class="pl" href="${mapUrl(e)}" target="_blank" rel="noopener">${esc(e.place)}</a>` : ''}</div></div>
+    ${ask ? `${e.askFriend ? `<div class="field"><div class="lbl">${tr('Приведёшь друга?', 'Bringing a friend?')}</div><div class="seg" style="grid-template-columns:repeat(4,1fr)">${[0, 1, 2, 3].map(n => `<button class="${(+S.f.friends || 0) === n ? 'on' : ''}" data-a="fr" data-x="${n}" aria-pressed="${(+S.f.friends || 0) === n}">${n ? '+' + n : tr('Нет', 'No')}</button>`).join('')}</div></div>` : ''}${e.askBring ? fld('bring', tr('Что принесёшь?', 'What will you bring?'), 'text', tr('Например, пирог', 'E.g. a pie')) : ''}${errB()}<button class="btn" data-a="evDone">${tr('Готово', 'Done')}</button>`
+      : `${r.inviter ? `<div class="sm mu" style="text-align:center">${esc(r.inviter)}${tr(' увидит, что ты записался, и получит баллы, когда ты придёшь.', ' will see that you signed up and will get points when you come.')}</div>` : ''}<div style="display:flex;flex-direction:column;gap:8px">${act(gcal(e), tr('Добавить в календарь', 'Add to calendar'), tr('чтобы не забыть', 'so you don’t forget'))}${e.place ? act(mapUrl(e), tr('Как добраться', 'Directions'), tr('открыть адрес на карте', 'open the address on a map')) : ''}${act(TG, tr('Вступить в чат подростков', 'Join the teens chat'), tr('Telegram · новости и фото', 'Telegram · news and photos'))}${act('../me/', tr('Открыть приложение', 'Open the app'), tr('баллы, задания и стих дня', 'points, tasks and verse of the day'))}${r.id ? act('', tr('Позвать друга', 'Invite a friend'), tr('отправить ссылку на это событие', 'send the link to this event'), 'evInvite') : ''}</div>`}</div>`; return; }
+}
+async function evSubmit(known) {
+  const f = S.f, ans = { friends: f.friends || 0, bring: f.bring || '' };
+  const r = known ? await call('evJoinKnown', EID, S.me.k, Object.assign({ consent: !!f.consent, pFirst: f.pFirst, pLast: f.pLast, pPhone: f.pPhone }, ans))
+    : await call('evJoinNew', EID, Object.assign({ first: f.first, last: f.last, age: f.age, phone: f.phone, noPhone: !!f.noPhone, pFirst: f.pFirst, pLast: f.pLast, pPhone: f.pPhone, consent: !!f.consent }, ans), BY);
+  S.res = Object.assign(S.res || {}, r); return r;
+}
+
+// ---------- приглашение без события ----------
 function renderInvite() {
   const v = S.inviter || {};
-  if (S.step === 'inv') { $.innerHTML = `<div class="w"><div class="k">SOL 3:16 TEENS</div><h1 class="h1">${esc(v.first || 'Друг')} зовёт тебя на встречу</h1><div class="mu" style="font-size:16px;line-height:1.5">${v.when ? 'Ближайшая: ' + esc(v.when) + '. ' : ''}Познакомимся, поиграем и поговорим о важном.</div>
-    ${fld('first', 'Имя', 'text', 'Дима')}${fld('last', 'Фамилия', 'text', 'Петров')}${fld('phone', 'Твой телефон', 'tel', '(916) 123-4567')}
-    ${S.err ? `<div class="err">${esc(S.err)}</div>` : ''}<button class="btn" data-a="invSend" style="margin-top:6px">Я приду</button>
-    <div class="mu" style="font-size:13px;line-height:1.45">Телефон нужен, чтобы отметить тебя на встрече. Никакой рекламы.</div></div>`; return true; }
-  if (S.step === 'invOk') { const r = S.res; $.innerHTML = `<div class="w" style="align-items:stretch;text-align:center;padding-top:56px"><div class="ok">${ico('M5 12l5 5L19 7', '#0E0F12', 52, 3)}</div>
-    <h1 class="h1" style="font-size:26px">Ждём тебя, ${esc(r.first)}!</h1>${r.when ? `<div class="mu">${esc(r.when)}</div>` : ''}
-    <div class="card" style="text-align:left;font-size:15px;line-height:1.5">Когда придёшь, отсканируй QR у входа и отметься с этим же телефоном. ${esc(r.inviter || 'Твой друг')} будет тебя ждать!</div>
-    <a class="btn2" style="display:flex;align-items:center;justify-content:center;text-decoration:none;height:54px;font-size:15px" href="https://www.instagram.com/sol316teens/" target="_blank" rel="noopener">Instagram @sol316teens</a></div>`; return true; }
-  if (S.step === 'invKnown') { $.innerHTML = `<div class="w" style="align-items:stretch;padding-top:56px"><div class="k">SOL 3:16 TEENS</div><h1 class="h1" style="font-size:26px">Ты уже с нами${S.res && S.res.first ? ', ' + esc(S.res.first) : ''}</h1>
-    <div class="card" style="font-size:15px;line-height:1.5">Похоже, мы уже знакомы — записываться заново не нужно. Мы тебе рады, приходи!</div>
-    <a class="btn" style="display:flex;align-items:center;justify-content:center;text-decoration:none" href="../me/">Открыть приложение</a></div>`; return true; }
+  if (S.step === 'inv') { $.innerHTML = `<div class="w">${topBar()}<h1 class="h1">${tr(esc(v.first || 'Друг') + ' зовёт тебя на встречу', esc(v.first || 'A friend') + ' invites you to a meeting')}</h1><div class="mu" style="font-size:16px;line-height:1.5">${v.when && S.lang !== 'en' ? 'Ближайшая: ' + esc(v.when) + '. ' : ''}${tr('Познакомимся, поиграем и поговорим о важном.', 'We will meet, play and talk about things that matter.')}</div>
+    ${fld('first', tr('Имя', 'First name'), 'text', '')}${fld('last', tr('Фамилия', 'Last name'), 'text', '')}${fld('phone', tr('Твой телефон', 'Your phone'), 'tel', '(916) 555-0100')}
+    ${errB()}<button class="btn" data-a="invSend" style="margin-top:6px">${tr('Я приду', 'I’ll come')}</button>
+    <div class="mu" style="font-size:13px;line-height:1.45">${tr('Телефон нужен, чтобы отметить тебя на встрече. Никакой рекламы.', 'We need the phone to check you in at the meeting. No ads.')}</div></div>`; return true; }
+  if (S.step === 'invOk') { const r = S.res; $.innerHTML = `<div class="w" style="align-items:stretch;text-align:center">${topBar()}<div class="ok" style="margin-top:20px">${ico(I.ck, '#0E0F12', 48, 3)}</div>
+    <h1 class="h1" style="font-size:26px">${tr('Ждём тебя, ', 'See you there, ')}${esc(r.first)}!</h1>${r.when && S.lang !== 'en' ? `<div class="mu">${esc(r.when)}</div>` : ''}
+    <div class="card" style="text-align:left;font-size:15px;line-height:1.5">${tr('Когда придёшь, отсканируй QR у входа и отметься с этим же телефоном. ' + esc(r.inviter || 'Твой друг') + ' будет тебя ждать!', 'When you arrive, scan the QR at the entrance and check in with the same phone. ' + esc(r.inviter || 'Your friend') + ' will be waiting for you!')}</div>
+    <a class="btn2" style="min-height:54px;font-size:15px" href="${IG}" target="_blank" rel="noopener">Instagram @sol316teens</a></div>`; return true; }
+  if (S.step === 'invKnown') { $.innerHTML = `<div class="w" style="align-items:stretch">${topBar()}<h1 class="h1" style="font-size:26px">${tr('Ты уже с нами', 'You are already with us')}${S.res && S.res.first ? ', ' + esc(S.res.first) : ''}</h1>
+    <div class="card" style="font-size:15px;line-height:1.5">${tr('Похоже, мы уже знакомы — записываться заново не нужно. Мы тебе рады, приходи!', 'Looks like we already know you — no need to sign up again. We are glad to have you, come along!')}</div>
+    <a class="btn" href="../me/">${tr('Открыть приложение', 'Open the app')}</a></div>`; return true; }
   return false;
 }
+
+// ---------- отметка на встрече ----------
 function render() {
-  if (renderInvite()) return;
+  document.documentElement.lang = S.lang;
+  if (S.step.indexOf('ev') === 0) { renderEvent(); busy(); return; }
+  if (renderInvite()) { busy(); return; }
   const m = S.meet;
-  if (S.step === 'load') { $.innerHTML = `<div class="w"><div class="k">SOL 3:16 TEENS</div><div class="mu">Загрузка…</div></div>`; return; }
-  if (S.step === 'none') { $.innerHTML = `<div class="w"><div class="k">SOL 3:16 TEENS</div><h1 class="h1">Сейчас нет встречи</h1><div class="mu" style="font-size:16px;line-height:1.5">Отметиться можно во время встречи — приходи! А пока заглядывай в наш Instagram <a href="https://www.instagram.com/sol316teens/" target="_blank" rel="noopener" style="color:var(--acc)">@sol316teens</a>.</div></div>`; return; }
-  if (S.step === 'start') { $.innerHTML = `<div class="w"><div class="k">SOL 3:16 TEENS</div><h1 class="h1">Привет! Ты на ${esc(m.label)}</h1><div class="mu" style="font-size:16px;line-height:1.45">Отметься, чтобы мы знали, что ты пришёл.${m.test ? '<br><span style="color:var(--acc2)">Тестовый режим</span>' : ''}</div><div class="sp"></div><button class="btn" data-a="goNew">Я здесь впервые</button><button class="btn2" data-a="goKnown">Я уже был в SOL</button></div>`; return; }
-  if (S.step === 'known') { $.innerHTML = `<div class="w">${BACK}<h1 class="h2">Введи свой телефон</h1>${fld('phone', 'Телефон', 'tel', '(916) 123-4567').replace(/j_phone/g, 'kp')}
-    ${S.notFound ? `<div class="card" style="display:flex;flex-direction:column;gap:10px"><div style="font-weight:600">Не нашли такой номер</div><div class="mu" style="font-size:14px;line-height:1.45">Возможно, тебя записали без телефона. Зарегистрируйся — если ты уже есть в базе, лидер объединит записи.</div><button class="btn2" style="height:48px;font-size:15px;border-color:var(--acc);color:var(--acc)" data-a="goNew">Зарегистрироваться</button></div>` : ''}
-    ${S.err ? `<div class="err">${esc(S.err)}</div>` : ''}<div class="sp"></div><button class="btn" data-a="checkKnown">Отметиться</button></div>`; return; }
-  if (S.step === 'form') { $.innerHTML = `<div class="w"><div style="display:flex;align-items:center;gap:10px">${BACK}<h1 class="h2">Давай знакомиться</h1></div>
-    ${fld('first', 'Имя', 'text', 'Дима')}${fld('last', 'Фамилия', 'text', 'Петров')}${fld('phone', 'Твой телефон', 'tel', '(916) 123-4567')}${fld('birth', 'Дата рождения', 'date')}
-    <div class="field"><label class="lbl" for="j_inv">Кто тебя пригласил? (необязательно)</label>
-    ${S.inv ? `<div class="sel"><span>${esc(S.inv.name)}</span><button class="back" style="background:transparent" data-a="clearInv" aria-label="Убрать">${ico('M6 6l12 12M18 6L6 18', '#A1A1AA', 18)}</button></div>`
-      : `<input class="inp" id="j_inv" data-b="invQ" data-live="inv" value="${esc(S.f.invQ || '')}" placeholder="Начни вводить имя друга"><div id="hits" style="display:flex;flex-direction:column;gap:6px">${hitsHtml()}</div>`}</div>
-    <div class="sec" style="padding-top:6px">РОДИТЕЛЬ</div>${fld('pFirst', 'Имя и фамилия родителя', 'text', 'Ольга Петрова')}${fld('pPhone', 'Телефон родителя', 'tel', '(916) 765-4321')}
-    ${S.err ? `<div class="err">${esc(S.err)}</div>` : ''}<button class="btn" data-a="submit" style="margin-top:6px">Готово</button></div>`; return; }
-  if (S.step === 'dup') { $.innerHTML = `<div class="w" style="justify-content:center"><h1 class="h2">Кажется, мы уже знакомы</h1><div class="card" style="display:flex;align-items:center;gap:14px"><div style="width:52px;height:52px;border-radius:999px;background:#2A2D35;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:17px">${esc(S.dup.name.charAt(0))}</div><div style="display:flex;flex-direction:column;gap:3px"><div style="font-size:17px;font-weight:700">${esc(S.dup.name)}</div><div class="mu" style="font-size:13px">уже есть в SOL 3:16 Teens</div></div></div><button class="btn" data-a="dupYes">Да, это я</button><button class="btn2" data-a="dupNo">Нет, я другой человек</button></div>`; return; }
-  if (S.step === 'done') { const r = S.res; $.innerHTML = `<div class="w" style="align-items:stretch;text-align:center;padding-top:56px"><div class="ok">${ico('M5 12l5 5L19 7', '#0E0F12', 52, 3)}</div>
-    <h1 class="h1" style="font-size:26px">${r.already ? esc(r.first) + ', ты уже отмечен!' : r.isNew ? 'Добро пожаловать, ' + esc(r.first) + '!' : esc(r.first) + ', ты на месте!'}</h1>
-    <div class="mu">${esc(r.meet.label)} · сегодня</div>
-    ${r.isNew ? `<div class="card" style="text-align:left;font-size:15px;line-height:1.5">Рады, что ты с нами! Лидер увидит твою анкету. Скоро здесь появится приложение SOL 3:16 Teens — с заданиями, ачивками и рейтингом.</div>` : ''}
-    <a class="btn2" style="display:flex;align-items:center;justify-content:center;text-decoration:none;height:54px;font-size:15px" href="https://t.me/+Q9dPL22CL5owNTUy" target="_blank" rel="noopener">Вступить в Telegram-чат SOL 3:16 Teens</a>
-    <a class="btn2" style="display:flex;align-items:center;justify-content:center;text-decoration:none;height:54px;font-size:15px" href="https://www.instagram.com/sol316teens/" target="_blank" rel="noopener">Instagram @sol316teens</a>
-    <button data-a="restart" style="background:none;border:none;color:var(--mu2);font-size:14px;min-height:44px">Отметить ещё одного человека</button></div>`; return; }
+  if (S.step === 'load') { $.innerHTML = `<div class="w">${topBar()}<div class="mu">${tr('Загрузка…', 'Loading…')}</div></div>`; return; }
+  if (S.step === 'none') { $.innerHTML = `<div class="w">${topBar()}<h1 class="h1">${tr('Сейчас нет встречи', 'No meeting right now')}</h1><div class="mu" style="font-size:16px;line-height:1.5">${tr('Отметиться можно во время встречи — приходи! А пока заглядывай в наш Instagram', 'You can check in during a meeting — come along! Meanwhile, see our Instagram')} <a href="${IG}" target="_blank" rel="noopener" style="color:var(--acc)">@sol316teens</a>.</div></div>`; }
+  else if (S.step === 'start') { $.innerHTML = `<div class="w">${topBar()}<h1 class="h1">${tr('Привет! Ты на ', 'Hi! You are at ')}${esc(m.label)}</h1><div class="mu" style="font-size:16px;line-height:1.45">${tr('Отметься, чтобы мы знали, что ты пришёл.', 'Check in so we know you are here.')}${m.test ? `<br><span style="color:var(--acc2)">${tr('Тестовый режим', 'Test mode')}</span>` : ''}</div><div class="sp"></div><button class="btn" data-a="goNew">${tr('Я здесь впервые', 'I’m new here')}</button><button class="btn2" data-a="goKnown">${tr('Я уже был в SOL', 'I’ve been to SOL before')}</button></div>`; }
+  else if (S.step === 'known') { $.innerHTML = `<div class="w">${topBar('goStart')}<div><h1 class="h2">${tr('Найдём тебя', 'Let’s find you')}</h1><div class="sm mu" style="margin-top:6px;line-height:1.45">${tr('Номер и день рождения — чтобы никто не отметился за другого.', 'Number and birthday — so nobody checks in for someone else.')}</div></div>${whoFields()}
+    ${S.notFound ? `<div class="card" style="display:flex;flex-direction:column;gap:10px"><div style="font-weight:600">${tr('Не нашли тебя', 'We couldn’t find you')}</div><div class="mu" style="font-size:14px;line-height:1.45">${tr('Проверь номер и день рождения. Если тебя записали с другим номером или без даты — зарегистрируйся, лидер потом объединит записи.', 'Check the number and birthday. If you were added with another number or without a date, register and a leader will merge the records later.')}</div><button class="btn2" style="min-height:48px;font-size:15px;border-color:var(--acc);color:var(--acc)" data-a="goNew">${tr('Зарегистрироваться', 'Register')}</button></div>` : ''}
+    ${errB()}<div class="sp"></div><button class="btn" data-a="checkKnown">${tr('Отметиться', 'Check in')}</button></div>`; }
+  else if (S.step === 'pick') { $.innerHTML = `<div class="w">${topBar('goKnown')}<div><h1 class="h2">${tr('Кто из вас ты?', 'Which one are you?')}</h1><div class="sm mu" style="margin-top:6px;line-height:1.45">${tr('По этому номеру и дню рождения нашлось несколько человек. Выбери себя.', 'Several people match this number and birthday. Pick yourself.')}</div></div>
+    <div style="display:flex;flex-direction:column;gap:8px">${S.cands.map((c, i) => `<button class="row" data-a="pickMe" data-x="${i}"><span class="av" style="width:36px;height:36px;font-size:13px">${esc(c.first.charAt(0))}</span><span style="flex:1;font-size:16px;font-weight:600">${esc(c.first)}</span>${ico(I.right, '#5F626B', 18, 2.5)}</button>`).join('')}</div>${errB()}</div>`; }
+  else if (S.step === 'form') { $.innerHTML = `<div class="w">${topBar('goStart')}<h1 class="h2">${tr('Давай знакомиться', 'Let’s get to know you')}</h1>
+    ${fld('first', tr('Имя', 'First name'), 'text', '')}${fld('last', tr('Фамилия', 'Last name'), 'text', '')}${phoneBlock()}${fld('birth', tr('Дата рождения', 'Date of birth'), 'date')}
+    <div class="field"><label class="lbl" for="j_inv">${tr('Кто тебя пригласил? (необязательно)', 'Who invited you? (optional)')}</label>
+    ${S.inv ? `<div class="sel"><span>${esc(S.inv.name)}</span><button class="back" style="background:transparent" data-a="clearInv" aria-label="${tr('Убрать', 'Remove')}">${ico(I.x, '#A1A1AA', 18)}</button></div>`
+      : `<input class="inp" id="j_inv" data-b="invQ" data-live="inv" value="${esc(S.f.invQ || '')}" placeholder="${tr('Начни вводить имя друга', 'Start typing your friend’s name')}"><div id="hits" style="display:flex;flex-direction:column;gap:6px">${hitsHtml()}</div>`}</div>
+    ${parentBlock()}${errB()}<button class="btn" data-a="submit" style="margin-top:6px">${tr('Готово', 'Done')}</button></div>`; }
+  else if (S.step === 'dup') { $.innerHTML = `<div class="w">${topBar('goNew')}<div class="sp"></div><h1 class="h2">${tr('Кажется, мы уже знакомы', 'Looks like we already know you')}</h1><div class="card sm mu" style="line-height:1.5">${tr('Человек с таким именем или телефоном уже есть в SOL 3:16 Teens. Если это ты — найди себя по номеру и дню рождения.', 'Someone with this name or phone is already in SOL 3:16 Teens. If that is you, find yourself by number and birthday.')}</div><button class="btn" data-a="goKnown">${tr('Это я — найти себя', 'That’s me — find me')}</button><button class="btn2" data-a="dupNo">${tr('Нет, я другой человек', 'No, I’m someone else')}</button><div class="sp"></div></div>`; }
+  else if (S.step === 'done') { const r = S.res; $.innerHTML = `<div class="w" style="align-items:stretch;text-align:center">${topBar()}<div class="ok" style="margin-top:20px">${ico(I.ck, '#0E0F12', 48, 3)}</div>
+    <h1 class="h1" style="font-size:26px">${r.already ? esc(r.first) + tr(', ты уже отмечен!', ', you are already checked in!') : r.isNew ? tr('Добро пожаловать, ', 'Welcome, ') + esc(r.first) + '!' : esc(r.first) + tr(', ты на месте!', ', you are checked in!')}</h1>
+    <div class="mu">${esc(r.meet.label)} · ${tr('сегодня', 'today')}</div>
+    ${r.isNew ? `<div class="card" style="text-align:left;font-size:15px;line-height:1.5">${tr('Рады, что ты с нами! Лидер увидит твою анкету.', 'Glad you are with us! A leader will see your form.')}</div>` : ''}
+    <a class="btn2" style="min-height:54px;font-size:15px" href="${TG}" target="_blank" rel="noopener">${tr('Вступить в Telegram-чат SOL 3:16 Teens', 'Join the SOL 3:16 Teens Telegram chat')}</a>
+    <a class="btn2" style="min-height:54px;font-size:15px" href="${IG}" target="_blank" rel="noopener">Instagram @sol316teens</a>
+    <button data-a="restart" style="background:none;border:none;color:var(--mu2);font-size:14px;min-height:44px">${tr('Отметить ещё одного человека', 'Check in another person')}</button></div>`; }
+  busy();
 }
-function hitsHtml() { return S.hits.map(h => `<button class="hit" data-a="pickInv" data-x="${esc(h.id)}" data-n="${esc(h.name)}">${esc(h.name)}</button>`).join(''); }
 
 let invT;
 document.addEventListener('input', e => {
   const b = e.target.getAttribute && e.target.getAttribute('data-b'); if (!b) return;
-  S.f[b] = e.target.value; S.err = '';
+  S.f[b] = e.target.value; if (S.err) { S.err = ''; const er = document.querySelector('.err'); if (er) er.remove(); }
   if (e.target.getAttribute('data-live') === 'inv') {
     clearTimeout(invT); const q = e.target.value;
     invT = setTimeout(async () => { if (q.trim().length < 2) { S.hits = []; } else { try { S.hits = await call('joinFriends', q); } catch (_) { S.hits = []; } } const h = document.getElementById('hits'); if (h) h.innerHTML = hitsHtml(); }, 250);
@@ -118,32 +242,85 @@ document.addEventListener('input', e => {
 document.addEventListener('click', e => {
   const p = e.target.closest('[data-picker]'); if (p && p.showPicker) { try { p.showPicker(); } catch (_) {} }
   const a = e.target.closest('[data-a]'); if (!a) return; e.preventDefault();
+  if (S.busy > 0 && a.classList.contains('btn')) return;
   const fn = H[a.getAttribute('data-a')]; if (fn) fn(a);
 });
+const go = (step, keepErr) => { S.step = step; if (!keepErr) S.err = ''; render(); window.scrollTo(0, 0); };
+const fail = e => { S.err = errT(e); render(); const er = document.querySelector('.err'); if (er && er.scrollIntoView) er.scrollIntoView({ block: 'center' }); };
 const H = {
-  goStart() { S.step = 'start'; S.err = ''; S.notFound = false; render(); },
-  goNew() { S.step = 'form'; S.err = ''; render(); },
-  goKnown() { S.step = 'known'; S.err = ''; S.notFound = false; render(); },
+  lang(a) { S.lang = a.getAttribute('data-x'); LS.set('sol_lang', S.lang); if (S.err) S.err = ''; render(); },
+  noPhone() { S.f.noPhone = !S.f.noPhone; if (S.f.noPhone) S.f.phone = ''; S.err = ''; render(); },
+  consent() { S.f.consent = !S.f.consent; S.err = ''; render(); },
+  age(a) { S.f.age = +a.getAttribute('data-x'); S.err = ''; render(); },
+  fr(a) { S.f.friends = +a.getAttribute('data-x'); render(); },
+  // отметка
+  goStart() { S.notFound = false; go('start'); },
+  goNew() { go('form'); },
+  goKnown() { S.notFound = false; go('known'); },
   clearInv() { S.inv = null; S.f.invQ = ''; S.hits = []; render(); },
   pickInv(a) { S.inv = { id: a.getAttribute('data-x'), name: a.getAttribute('data-n') }; S.hits = []; render(); },
   async checkKnown() {
-    try { const r = await call('joinKnown', S.f.phone); if (!r.found) { S.notFound = true; render(); return; } S.res = { first: r.first, meet: r.meet, already: r.already, isNew: false }; S.step = 'done'; render(); }
-    catch (e) { S.err = errT(e); if (e.message === 'no_meeting') S.step = 'none'; render(); }
+    S.err = whoErr(); if (S.err) return render();
+    try { const r = await call('joinKnown', S.f.phone, +S.f.bd, +S.f.bm); if (!r.found) { S.notFound = true; render(); return; } if (r.pick) { S.cands = r.pick; return go('pick'); } S.res = { first: r.first, meet: r.meet, already: r.already, isNew: false }; go('done'); }
+    catch (e) { if (e.message === 'no_meeting') return go('none'); fail(e); }
   },
+  async pickMe(a) { try { const r = await call('joinPick', S.cands[+a.getAttribute('data-x')].k); S.res = { first: r.first, meet: r.meet, already: r.already, isNew: false }; go('done'); } catch (e) { if (e.message === 'no_meeting') return go('none'); if (e.message === 'expired') { S.err = errT(e); return go('known', true); } fail(e); } },
   async submit(_, force) {
-    const f = Object.assign({}, S.f, { invitedBy: S.inv ? S.inv.id : '', forceNew: !!force });
-    try { const r = await call('joinNew', f, null); if (r.dup) { S.dup = r.dup; S.step = 'dup'; render(); return; } S.res = r; S.step = 'done'; render(); }
-    catch (e) { S.err = errT(e); if (e.message === 'no_meeting') S.step = 'none'; else S.step = 'form'; render(); }
+    const s = S.f; if (!String(s.first || '').trim() || !String(s.last || '').trim()) { S.err = ERR().need_name; return render(); }
+    if (!s.noPhone && dg(s.phone).length < 10) { S.err = ERR().need_phone; return render(); }
+    S.err = parentErr(); if (S.err) return render();
+    const f = Object.assign({}, s, { phone: s.noPhone ? s.pPhone : s.phone, invitedBy: S.inv ? S.inv.id : '', forceNew: !!force });
+    try { const r = await call('joinNew', f, null); if (r.dup) { S.dup = r.dup; return go('dup'); } S.res = r; go('done'); }
+    catch (e) { if (e.message === 'no_meeting') return go('none'); S.step = 'form'; fail(e); }
   },
-  async dupYes() { try { const r = await call('joinNew', null, S.dup.id); S.res = r; S.step = 'done'; render(); } catch (e) { S.err = errT(e); S.step = 'form'; render(); } },
   dupNo() { H.submit(null, true); },
   async invSend() {
-    try { const r = await call('inviteJoin', BY, { first: S.f.first, last: S.f.last, phone: S.f.phone }); S.res = r; S.step = r.known ? 'invKnown' : 'invOk'; S.err = ''; render(); }
-    catch (e) { S.err = e.message === 'too_many' ? 'Сегодня по этой ссылке записалось слишком много людей. Попробуй завтра.' : errT(e); render(); }
+    try { const r = await call('inviteJoin', BY, { first: S.f.first, last: S.f.last, phone: S.f.phone }); S.res = r; go(r.known ? 'invKnown' : 'invOk'); }
+    catch (e) { S.err = e.message === 'too_many' ? tr('Сегодня по этой ссылке записалось слишком много людей. Попробуй завтра.', 'Too many people signed up through this link today. Try tomorrow.') : errT(e); render(); }
   },
-  restart() { S = Object.assign(S, { step: 'start', f: {}, err: '', hits: [], inv: null, dup: null, res: null, notFound: false }); render(); }
+  restart() { S = Object.assign(S, { step: 'start', f: {}, err: '', hits: [], inv: null, dup: null, res: null, notFound: false, cands: [] }); render(); },
+  // событие
+  evBack() { go('evLand'); },
+  evGoFind() { S.me = null; go('evFind'); },
+  evGoNew() { go('evNew'); },
+  evMissNew() { S.f.noPhone = false; go('evNew'); },
+  async evLookup() {
+    S.err = whoErr(); if (S.err) return render();
+    try { const r = await call('evLookup', EID, S.f.phone, +S.f.bd, +S.f.bm); if (!r.found) return go('evMiss'); S.cands = r.cands; if (r.cands.length > 1) return go('evPick'); S.me = r.cands[0]; go('evHit'); }
+    catch (e) { if (e.message === 'closed') { S.ev.open = false; return go('evClosed'); } fail(e); }
+  },
+  evPickMe(a) { S.me = S.cands[+a.getAttribute('data-x')]; go('evHit'); },
+  evHitYes() { S.f.consent = false; go('evPar'); },
+  async evJoin() {
+    if (S.me.needPar) { S.err = parentErr(); if (S.err) return render(); }
+    if (!S.f.consent) { S.err = ERR().need_consent; return render(); }
+    try { S.res = null; S.answered = false; await evSubmit(true); go('evOk'); }
+    catch (e) { if (e.message === 'expired') { S.err = errT(e); return go('evFind', true); } if (e.message === 'closed') return go('evClosed'); fail(e); }
+  },
+  async evSign() {
+    const s = S.f; let er = '';
+    if (!String(s.first || '').trim() || !String(s.last || '').trim()) er = ERR().need_name; else if (!s.age) er = ERR().need_age; else if (!s.noPhone && dg(s.phone).length < 10) er = ERR().need_phone; else er = parentErr() || (s.consent ? '' : ERR().need_consent);
+    if (er) { S.err = er; return fail({ message: '' }), S.err = er, render(); }
+    try { S.res = null; S.answered = false; S.newcomer = true; await evSubmit(false); go('evOk'); }
+    catch (e) { if (e.message === 'closed') return go('evClosed'); fail(e); }
+  },
+  async evDone() {
+    if ((+S.f.friends || 0) || String(S.f.bring || '').trim()) { try { await evSubmit(!S.newcomer); } catch (e) { return fail(e); } }
+    S.answered = true; go('evOk');
+  },
+  async evInvite() {
+    const url = location.origin + location.pathname + '?e=' + encodeURIComponent(EID) + '&by=' + encodeURIComponent(S.res.id), text = tr('Пойдём вместе: ', 'Come with me: ') + S.ev.name;
+    if (navigator.share) { try { await navigator.share({ title: S.ev.name, text, url }); } catch (_) {} return; }
+    try { await navigator.clipboard.writeText(url); S.err = ''; alertLine(tr('Ссылка скопирована — отправь её другу', 'Link copied — send it to your friend')); } catch (_) { alertLine(url); }
+  }
 };
-(async () => { render(); if (BY) { try { S.inviter = await call('inviteInfo', BY); S.step = 'inv'; render(); return; } catch (e) {} } try { const r = await call('joinInfo'); S.meet = r.meet; S.step = r.meet ? 'start' : 'none'; } catch (e) { S.step = 'none'; } render(); })();
+function alertLine(t) { let n = document.getElementById('note'); if (!n) { n = document.createElement('div'); n.id = 'note'; n.setAttribute('role', 'status'); n.style.cssText = 'position:fixed;left:16px;right:16px;bottom:calc(20px + env(safe-area-inset-bottom));max-width:408px;margin:0 auto;background:#26282F;border:1px solid #3A3D46;border-radius:14px;padding:12px 14px;font-size:14px;text-align:center;z-index:5'; document.body.appendChild(n); } n.textContent = t; clearTimeout(alertLine.t); alertLine.t = setTimeout(() => n.remove(), 3200); }
+(async () => {
+  render();
+  if (EID) { try { S.ev = await call('evInfo', EID, BY); document.title = S.ev.name + ' — SOL 3:16 Teens'; S.step = !S.ev.open || S.ev.past ? 'evClosed' : BY && S.ev.inviter ? 'evLand' : 'evFind'; } catch (e) { S.step = 'evNone'; } render(); return; }
+  if (BY) { try { S.inviter = await call('inviteInfo', BY); S.step = 'inv'; render(); return; } catch (e) {} }
+  try { const r = await call('joinInfo'); S.meet = r.meet; S.step = r.meet ? 'start' : 'none'; } catch (e) { S.step = 'none'; } render();
+})();
 </script>
 </body>
 </html>

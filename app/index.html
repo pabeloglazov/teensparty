@@ -165,6 +165,15 @@ select.inp{-webkit-appearance:none;appearance:none;padding:0 40px 0 16px;text-ov
   .toast{bottom:32px}
   .teens2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 }
+.evtg{width:46px;height:28px;border-radius:999px;background:var(--line3);position:relative;flex-shrink:0;transition:background .15s}.evtg i{position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:999px;background:#fff;transition:left .15s}.evtg.on{background:var(--acc)}.evtg.on i{left:21px}
+.evdrop{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:150px;padding:18px;border-radius:16px;border:1.5px dashed var(--line3);background:var(--card2);text-align:center;cursor:pointer;transition:border-color .15s,background .15s}.evdrop.over{border-color:var(--acc);background:var(--accbg)}
+.evcover{position:relative;border-radius:16px;overflow:hidden;border:1px solid var(--line2)}.evcover.over{outline:2px solid var(--acc)}.evcover img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover}.evcover .cb2{position:absolute;right:10px;bottom:10px;display:flex;gap:8px}.evcover .cb2>*{height:44px;padding:0 14px;border-radius:12px;border:none;background:rgba(14,15,18,.82);color:#F4F4F5;font-size:13px;font-weight:600;font-family:inherit;display:flex;align-items:center;cursor:pointer}
+.evpick{position:relative;display:flex;align-items:center;gap:10px;height:52px;border-radius:14px;border:1px solid var(--line2);background:var(--card2);padding:0 14px;font-size:16px;cursor:pointer;overflow:hidden}.evpick:focus-within{border-color:var(--acc)}.evpick input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;border:0;padding:0;margin:0}.evpick input::-webkit-calendar-picker-indicator{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;opacity:0;cursor:pointer}
+.evform{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px dashed var(--line3);background:transparent;cursor:pointer}.evform.on{border:1px solid transparent;background:var(--accbg)}
+.evstats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.evstats>div{background:var(--card);border:1px solid var(--line2);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:2px;min-width:0}.evstats b{font-family:Unbounded,sans-serif;font-size:20px}
+.evta{width:100%;height:104px;border-radius:14px;border:1px solid var(--line2);background:var(--card2);color:var(--tx);padding:12px 14px;font:inherit;font-size:16px;line-height:1.4;resize:none;outline:none}.evta:focus{border-color:var(--acc)}
+.evrow{display:flex;align-items:center;gap:12px;width:100%;min-height:60px;padding:8px 12px;border-radius:16px;border:1px solid var(--line2);background:var(--card);text-align:left;color:inherit;font:inherit;cursor:pointer}.evrow.on{border-color:var(--acc);background:var(--accbg)}
+.agecol{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end;background:none;border:0;padding:0;color:inherit;font:inherit;cursor:pointer}
 @media print{.nav,.noprint{display:none!important}.qrbox{border:none}}
 </style>
 </head>
@@ -388,6 +397,7 @@ function render() {
   const ov2 = document.querySelector(ovq); if (ov2 && ovSig && ovSig === S.ovSig) ov2.scrollTop = ovTop; S.ovSig = ovSig;
   syncUrl();
   if (S.tab === 'more' && S.more === 'qr') drawQR();
+  if (S.ov && S.ov.type === 'evShare') drawEvQR();
 }
 function rerender() { S.keepScroll = true; render(); }
 
@@ -519,7 +529,51 @@ function ageCard() {
   const ages = Object.keys(by).map(Number).sort((a, b) => a - b), mx = Math.max(1, ...Object.values(by));
   const avg = known.length ? (known.reduce((x, t) => x + ageOf(t), 0) / known.length) : 0;
   
-  return ageBody(known, none, by, ages, mx, avg);
+  return ageCardDyn(known, none, by, ages, mx, avg);
+}
+// ---------- ДИНАМИКА ВОЗРАСТА ----------
+const AGC = ['#6FA8FF', '#FF8A3D', '#4ADE80'], AGL = () => [tr('до 12 лет', 'up to 12'), tr('13–14 лет', '13–14'), tr('15 и старше', '15 and up')];
+const ageGrp = a => a <= 12 ? 0 : a <= 14 ? 1 : 2;
+const MSH = () => L() ? ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] : ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
+const dec1 = v => v.toFixed(1).replace('.', L() ? '.' : ',');
+// возраст человека на дату d: по дате рождения, а если её нет — от возраста «со слов»
+function ageAt(t, d) { const b = bDate(t); let a; if (b && !isNaN(b)) { a = d.getFullYear() - b.getFullYear(); if (d.getMonth() < b.getMonth() || (d.getMonth() === b.getMonth() && d.getDate() < b.getDate())) a--; } else { const now = ageOf(t); if (now == null) return null; a = now - Math.floor((todayD() - d) / (365.25 * 864e5)); } return a >= 5 && a <= 30 ? a : null; }
+// кто приходил в каждом из последних n месяцев, по возрастным группам (лидеры не считаются)
+function ageMonths(n) {
+  const td = todayD(), who = {}, out = []; D.att.forEach(a => { const k = String(a[0]).slice(0, 7); (who[k] = who[k] || {})[a[3]] = 1; });
+  for (let i = n - 1; i >= 0; i--) { const d = new Date(td.getFullYear(), td.getMonth() - i, 15), k = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'), g = [0, 0, 0]; let sum = 0, cnt = 0, unk = 0;
+    Object.keys(who[k] || {}).forEach(id => { const t = IDX.teen[id]; if (!t || t.isLeader) return; const a = ageAt(t, d); if (a == null) { unk++; return; } g[ageGrp(a)]++; sum += a; cnt++; });
+    out.push({ k, m: d.getMonth(), g, cnt, unk, avg: cnt ? sum / cnt : null }); }
+  return out;
+}
+function ageTrend(n) { const M = ageMonths(n).filter(x => x.avg != null); if (M.length < 2) return null; return { diff: M[M.length - 1].avg - M[0].avg, from: M[0].m, months: M.length }; }
+function ageTrendText(n) { const t = ageTrend(n); if (!t) return ''; const since = tr('с ' + ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'][t.from], 'since ' + MSH()[t.from]);
+  if (Math.abs(t.diff) < 0.05) return tr('Средний возраст тех, кто приходит, ' + since + ' не изменился', 'Average age of attendees has not changed ' + since);
+  return tr('Средний возраст тех, кто приходит, ' + since + (t.diff > 0 ? ' вырос на ' : ' снизился на ') + dec1(Math.abs(t.diff)) + ' года', 'Average age of attendees is ' + (t.diff > 0 ? 'up ' : 'down ') + dec1(Math.abs(t.diff)) + ' years ' + since); }
+function ageCardDyn(known, none, by, ages, mx, avg) {
+  const gt = [0, 0, 0]; ages.forEach(a => { gt[ageGrp(a)] += by[a]; }); const tt = ageTrendText(6);
+  return `<div class="card" style="display:flex;flex-direction:column;gap:14px">
+    <button data-a="ageDyn" style="display:flex;align-items:center;gap:10px;background:none;border:0;padding:0;color:inherit;font:inherit;cursor:pointer;text-align:left;min-height:44px"><span style="flex:1;font-size:16px;font-weight:700">${tr('Возраст', 'Ages')}</span>${known.length ? `<span class="xs mut">${tr('средний', 'average')}</span><span style="font-size:20px;font-weight:700;color:var(--acc)">${dec1(avg)}</span>` : ''}${svg(IC.right, '#5F626B', 18, 2.5)}</button>
+    ${ages.length ? `<div style="display:flex;align-items:flex-end;gap:6px;height:104px">${ages.map(a => `<button class="agecol" data-a="ageList" data-x="${a}" aria-label="${a} ${yrs(a)}: ${by[a]}"><b style="font-size:12px">${by[a]}</b><span style="width:100%;height:${Math.max(4, Math.round(by[a] / mx * 64))}px;border-radius:7px 7px 3px 3px;background:${AGC[ageGrp(a)]}"></span><span class="xs mut">${a}</span></button>`).join('')}</div>
+    <div class="xs mut" style="display:flex;gap:14px;flex-wrap:wrap">${AGL().map((l, i) => gt[i] ? `<span><b style="color:${AGC[i]}">${gt[i]}</b> · ${l}</span>` : '').join('')}</div>` : `<div class="xs mut">${tr('Пока ни у кого не указана дата рождения', 'No birth dates yet')}</div>`}
+    ${tt ? `<div class="xs" style="color:var(--acc2,#FFB27A);line-height:1.45">${tt}</div>` : ''}
+    ${none ? `<button class="agebar" style="grid-template-columns:1fr auto;color:var(--tx2);border-top:1px solid var(--line2);padding-top:10px" data-a="ageList" data-x="none"><span>${tr('Без даты рождения', 'No birth date')}</span><b>${none} ›</b></button>` : ''}
+  </div>`;
+}
+function ageDynOverlay(o) {
+  const n = o.n || 6, M = ageMonths(n), mx = Math.max(1, ...M.map(x => x.cnt)), unk = M.length ? M[M.length - 1].unk : 0;
+  const known = D.teens.filter(t => ageOf(t) != null), by = {}, nw = {}; const start = new Date(todayD().getFullYear(), todayD().getMonth() - n + 1, 1);
+  known.forEach(t => { const a = ageOf(t); by[a] = (by[a] || 0) + 1; if (/^\d{4}-\d{2}-\d{2}$/.test(t.createdAt || '') && parse(t.createdAt) >= start) nw[a] = (nw[a] || 0) + 1; });
+  const ages = Object.keys(by).map(Number).sort((a, b) => a - b), bm = Math.max(1, ...Object.values(by)), avg = known.length ? known.reduce((x, t) => x + ageOf(t), 0) / known.length : 0;
+  const tr0 = ageTrend(n), top = ages.slice().sort((a, b) => by[b] - by[a])[0], H = 128;
+  return full(tr('Возраст', 'Ages'), `
+    <div class="seg" style="grid-template-columns:repeat(3,minmax(0,1fr))">${[[3, tr('3 мес', '3 mo')], [6, tr('6 мес', '6 mo')], [12, tr('Год', 'Year')]].map(x => `<button class="${n === x[0] ? 'on' : ''}" data-a="ageN" data-x="${x[0]}">${x[1]}</button>`).join('')}</div>
+    <div class="card" style="display:flex;flex-direction:column;gap:14px"><div style="display:flex;align-items:baseline;gap:10px"><span style="flex:1;font-size:15px;font-weight:700">${tr('Кто приходил, по месяцам', 'Who came, by month')}</span><span class="xs mut">${tr('человек', 'people')}</span></div>
+      <div style="display:flex;align-items:flex-end;gap:${n > 6 ? 4 : 10}px;height:${H + 44}px">${M.map((m, i) => `<div style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end"><b style="font-size:${n > 6 ? 10 : 12}px;${i === M.length - 1 ? 'color:var(--acc)' : ''}">${m.cnt || ''}</b><div style="width:100%;display:flex;flex-direction:column-reverse;gap:2px">${m.g.map((v, j) => v ? `<span style="height:${Math.max(3, Math.round(v / mx * H))}px;background:${AGC[j]};border-radius:${m.g.slice(j + 1).some(Boolean) ? '2px' : '7px 7px 2px 2px'}"></span>` : '').join('') || '<span style="height:3px;background:var(--line2);border-radius:2px"></span>'}</div><span class="xs mut" style="font-size:${n > 6 ? 10 : 12}px">${MSH()[m.m]}</span></div>`).join('')}</div>
+      <div class="xs mut" style="display:flex;gap:14px;flex-wrap:wrap">${AGL().map((l, i) => `<span style="display:inline-flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:3px;background:${AGC[i]}"></span>${l}</span>`).join('')}</div></div>
+    <div class="evstats">${[[known.length ? dec1(avg) : '—', tr('средний возраст', 'average age')], [tr0 ? (tr0.diff >= 0.05 ? '+' : tr0.diff <= -0.05 ? '−' : '') + dec1(Math.abs(tr0.diff)) : '—', tr('за период', 'over the period')], [top != null ? top : '—', tr('самый частый', 'most common')]].map(x => `<div><b>${x[0]}</b><span class="xs mut">${x[1]}</span></div>`).join('')}</div>
+    <div style="display:flex;flex-direction:column;gap:6px"><div class="sec">${tr('ПО ВОЗРАСТУ СЕЙЧАС', 'BY AGE NOW')}</div>${ages.map(a => `<button class="row" style="min-height:52px" data-a="ageList" data-x="${a}"><span style="width:34px;font-size:15px;font-weight:700">${a}</span><span style="flex:1;height:10px;border-radius:999px;background:var(--card2);overflow:hidden"><span style="display:block;height:100%;width:${Math.round(by[a] / bm * 100)}%;background:${AGC[ageGrp(a)]};border-radius:999px"></span></span><span style="width:26px;text-align:right;font-size:15px;font-weight:700">${by[a]}</span><span class="xs" style="width:30px;text-align:right;color:${nw[a] ? '#4ADE80' : 'var(--mu2)'}">${nw[a] ? '+' + nw[a] : '0'}</span>${svg(IC.right, '#5F626B', 16, 2.5)}</button>`).join('') || `<div class="empty">${tr('Пока ни у кого не указан возраст', 'No ages yet')}</div>`}</div>
+    <div class="xs mut" style="line-height:1.45">${tr('В графике считаются те, кто был хотя бы на одной встрече за месяц; лидеры не входят. Зелёное число — сколько человек этого возраста появилось в базе за выбранный период.', 'The chart counts people who came to at least one meeting that month; leaders are excluded. The green number is how many people of that age joined the list during the selected period.')}${unk ? ' ' + tr('В этом месяце приходили ' + unk + ' без возраста — они в подсчёт не входят.', unk + ' people without an age came this month — they are not counted.') : ''}</div>`, '');
 }
 function bdayCard() {
   if (!D.teens.some(t => 'birth' in t)) return '';
@@ -569,6 +623,8 @@ function logItems(o) {
     else if (A === 'addEvent') { e.cat = 'meet'; V('создал(а) событие', 'created an event'); e.obj = (d.n || '') + (d.d ? ' · ' + human(d.d) : ''); }
     else if (A === 'editEvent') { e.cat = 'meet'; V('изменил(а) событие', 'edited an event'); e.obj = (d.n || '') + (d.d ? ' · ' + human(d.d) : ''); }
     else if (A === 'delEvent') { e.cat = 'meet'; V('удалил(а) событие', 'deleted an event'); e.obj = ''; }
+    else if (A === 'evReg') { e.cat = 'meet'; e.by = nm; e.ini = ini(nm); e.role = tr('подросток', 'teen'); V(d.isNew ? 'записался(ась) на событие впервые' : d.again ? 'обновил(а) запись на событие' : 'записался(ась) на событие', d.isNew ? 'signed up for an event (new)' : d.again ? 'updated an event sign-up' : 'signed up for an event'); e.obj = (d.n || '') + (d.d ? ' · ' + human(d.d) : ''); }
+    else if (A === 'evUnreg') { e.cat = 'meet'; V('снял(а) запись на событие', 'removed an event sign-up'); e.obj = nm; }
     else if (A === 'saveGroup') { e.cat = 'set'; V(d.isNew ? 'создал(а) группу' : 'изменил(а) группу', d.isNew ? 'created a group' : 'edited a group'); e.obj = d.n || ''; }
     else if (A === 'saveSettings') { e.cat = 'set'; const ks = d.keys || []; const rules = ks.some(k => ['win', 'reg', 'gone'].indexOf(k) >= 0); V(rules ? 'изменил(а) правила списков' : ks.indexOf('meetings') >= 0 ? 'изменил(а) расписание встреч' : 'изменил(а) настройки', rules ? 'changed list rules' : ks.indexOf('meetings') >= 0 ? 'changed the meeting schedule' : 'changed settings'); e.obj = ''; }
     else if (A === 'invite') { e.cat = 'set'; V('пригласил(а) в команду', 'invited to the team'); e.obj = (d.n || '') + (rl(d.role) ? ' · ' + rl(d.role) : ''); }
@@ -891,6 +947,96 @@ function viewMore() {
   <button class="row" data-a="logout" style="gap:14px;min-height:68px">${moreSq('out', '#F87171')}<span style="flex:1;text-align:left;font-size:16px;font-weight:600">${tr('Выйти', 'Sign out')}</span></button>`;
 }
 const subHead = (title, back) => `<div style="display:flex;align-items:center;gap:10px"><button class="icb" data-a="${back || 'moreRoot'}" aria-label="${tr('Назад', 'Back')}">${svg(IC.back, '#F4F4F5', 20, 2.5)}</button><h1 class="h2">${title}</h1></div>`;
+// ---------- СОБЫТИЯ С РЕГИСТРАЦИЕЙ ----------
+const EIC = { form: 'M9 4h6a1 1 0 0 1 1 1v1H8V5a1 1 0 0 1 1-1zM8 5H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M8 12h8M8 16h5', img: 'M5 4h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM3 16l5-5 4 4 3-3 6 6M15.5 9.5a1.5 1.5 0 1 0 0-3a1.5 1.5 0 0 0 0 3z',
+  cal: 'M7 3v3M17 3v3M4 9h16M6 5h12a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z', clk: 'M12 21a9 9 0 1 0 0-18a9 9 0 0 0 0 18zM12 7v5l3 2' };
+const EVIMG = {}; // id события → полное фото (подгружается, когда нужно)
+const evById = id => D.events.find(x => x.id === id);
+const evRegs = id => (D.regs || []).filter(r => r[0] === id);
+const evPrice = e => !e.paid ? tr('Бесплатно', 'Free') : e.price ? (/^\d/.test(e.price) ? '$' + e.price : e.price) : tr('Платно', 'Paid');
+const evDate = iso => { if (!/^\d{4}-\d{2}-\d{2}$/.test(iso || '')) return ''; const d = parse(iso); return (L() ? ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] : ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'])[d.getDay()] + ', ' + human(iso); };
+const evWhen = e => evDate(e.date) + (e.time ? ' · ' + t12(e.time) : '');
+const evUrl = id => APP + 'join/?e=' + encodeURIComponent(id);
+const evMap = e => 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(e.place);
+const evCame = (e, tid) => D.att.some(a => a[0] === e.date && a[1] === 'event' && a[2] === e.id && a[3] === tid);
+const evTgRow = (k, on, t, s) => `<button class="row" data-a="evTg" data-x="${k}" role="switch" aria-checked="${!!on}"><span style="flex:1;display:flex;flex-direction:column;gap:2px;text-align:left"><span style="font-size:15px;font-weight:600">${t}</span><span class="xs mut">${s}</span></span><span class="evtg ${on ? 'on' : ''}"><i></i></span></button>`;
+const evPickFld = (k, label, type, ic, shown) => `<div class="field"><div class="lbl">${label}</div><label class="evpick">${svg(ic, ACC, 18, 2)}<span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:${shown ? 'var(--tx)' : 'var(--mu2)'}">${esc(shown || '—')}</span><input type="${type}" data-change="evPick" data-k="${k}" value="${esc(S.ov.f[k] || '')}" data-picker="1" aria-label="${label}"></label></div>`;
+function evEditOverlay(o) {
+  const F = o.f, e = o.id ? evById(o.id) : null, img = F.img != null ? F.img : (o.id && EVIMG[o.id]) || '', wait = !img && F.img == null && e && e.img;
+  const cover = img ? `<div class="evcover" id="evdrop"><img src="${img}" alt=""><div class="cb2"><label for="evimgf">${tr('Заменить', 'Replace')}</label><button data-a="evImgDel">${tr('Удалить', 'Remove')}</button></div></div>`
+    : `<label class="evdrop" id="evdrop" for="evimgf"><span style="width:44px;height:44px;border-radius:13px;background:var(--accbg);display:flex;align-items:center;justify-content:center">${svg(EIC.img, ACC, 22, 2)}</span><span style="font-size:15px;font-weight:600">${wait ? tr('Загружаю фото…', 'Loading the photo…') : tr('Перетащи фото сюда', 'Drag a photo here')}</span><span class="xs mut">${tr('или нажми, чтобы выбрать с устройства', 'or tap to choose from your device')}</span></label>`;
+  return full(o.id ? tr('Редактировать событие', 'Edit event') : tr('Новое событие', 'New event'), `
+    <div class="field"><div class="lbl">${tr('Фото события', 'Event photo')}</div>${cover}<input type="file" id="evimgf" accept="image/*" data-change="evImg" aria-label="${tr('Выбрать фото', 'Choose a photo')}" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none"></div>
+    ${fld('ov.f.name', tr('Название', 'Name'), F.name, 'text', tr('Например, TEENS PARTY', 'e.g. TEENS PARTY'))}
+    ${evTgRow('descOn', F.descOn, tr('Описание', 'Description'), tr('покажем под названием в форме', 'shown under the title on the form'))}
+    ${F.descOn ? `<textarea class="evta" data-b="ov.f.desc" aria-label="${tr('Описание', 'Description')}" placeholder="${tr('Что будет, что взять с собой, во что одеться', 'What will happen, what to bring, what to wear')}">${esc(F.desc || '')}</textarea>` : ''}
+    <div style="display:grid;grid-template-columns:1.25fr 1fr;gap:10px">${evPickFld('date', tr('Дата', 'Date'), 'date', EIC.cal, evDate(F.date))}${evPickFld('time', tr('Время', 'Time'), 'time', EIC.clk, t12(F.time))}</div>
+    ${fld('ov.f.place', tr('Место', 'Place'), F.place, 'text', tr('Адрес — в форме он откроется на карте', 'Address — it opens in maps on the form'))}
+    <div class="sec" style="padding-top:6px">${tr('СТОИМОСТЬ И МЕСТА', 'PRICE AND SPOTS')}</div>
+    ${evTgRow('paid', F.paid, tr('Платное событие', 'Paid event'), tr('цена будет видна в форме регистрации', 'the price is shown on the registration form'))}
+    ${F.paid ? `<div style="display:grid;grid-template-columns:1fr 1.4fr;gap:10px">${fld('ov.f.price', tr('Цена с человека', 'Price per person'), F.price, 'text', '$15')}${fld('ov.f.incl', tr('Что входит', 'What’s included'), F.incl, 'text', tr('Например, коньки', 'E.g. skates'))}</div>` : ''}
+    ${evTgRow('lim', F.lim, tr('Ограничить места', 'Limit spots'), tr('покажем, сколько осталось', 'we show how many are left'))}
+    ${F.lim ? fld('ov.f.cap', tr('Сколько мест', 'How many spots'), F.cap, 'text', '30', 'inputmode="numeric"') : ''}
+    <div class="sec" style="padding-top:6px">${tr('РЕГИСТРАЦИЯ', 'REGISTRATION')}</div>
+    ${evTgRow('open', F.open, tr('Открыть регистрацию', 'Open registration'), tr('ссылка и QR появятся сразу', 'the link and QR appear right away'))}
+    ${F.open ? evTgRow('askFriend', F.askFriend, tr('Спросить: приведу друга', 'Ask: bringing a friend'), tr('сколько человек с собой', 'how many people they bring')) + evTgRow('askBring', F.askBring, tr('Спросить: что принесу', 'Ask: what I will bring'), tr('свободный ответ', 'free-text answer'))
+      + `<div class="row" style="cursor:default"><span style="flex:1;display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:600">${tr('Данные и согласие родителей', 'Parent details and consent')}</span><span class="xs mut">${tr('спрашиваем всегда: телефон, родитель и галочка «не против»', 'always asked: phone, parent and the “okay with it” checkbox')}</span></span>${svg(IC.check, '#4ADE80', 18, 3)}</div>` : ''}
+    ${o.id && evCount(o.id) ? `<div class="xs mut" style="line-height:1.45">${tr('Если поменять дату, отметки пришедших переедут на новую дату.', 'Changing the date moves the attendance to the new date.')}</div>` : ''}
+    ${o.id && isAdmin() ? `<button class="btn2" style="color:#F87171" data-a="delEv" data-x="${o.id}">${tr('Удалить событие', 'Delete event')}</button>` : ''}
+    ${o.err ? `<div class="err">${esc(o.err)}</div>` : ''}`,
+    `<button class="btn" data-a="saveEv">${o.id ? tr('Сохранить', 'Save') : F.open ? tr('Создать и поделиться', 'Create and share') : tr('Создать событие', 'Create event')}</button>`);
+}
+function evShareOverlay(o) {
+  const e = evById(o.id); if (!e) return '';
+  const rg = evRegs(e.id), nw = rg.filter(r => r[4]).length, fr = rg.reduce((a, r) => a + (r[2] || 0), 0), img = EVIMG[e.id] || '';
+  return full(esc(e.name), `
+    ${e.open ? '' : `<div class="card" style="display:flex;flex-direction:column;gap:10px"><div style="font-size:15px;font-weight:600">${tr('Регистрация закрыта', 'Registration is closed')}</div><div class="sm mut" style="line-height:1.45">${tr('Ссылка откроется, но записаться по ней нельзя.', 'The link opens, but nobody can sign up.')}</div><button class="btn" data-a="evOpenReg" data-x="${e.id}">${tr('Открыть регистрацию', 'Open registration')}</button></div>`}
+    <div style="background:#fff;border-radius:20px;padding:18px 16px;display:flex;flex-direction:column;align-items:center;gap:10px;color:#0E0F12">${img ? `<img src="${img}" alt="" style="display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:12px">` : ''}<div style="font-family:Unbounded,sans-serif;font-size:18px;font-weight:700;text-align:center">${esc(e.name)}</div><div id="evqr" style="line-height:0"></div><div style="font-size:13px;font-weight:600;text-align:center">${esc(evWhen(e))} · ${esc(evPrice(e))}</div>${e.place ? `<a href="${evMap(e)}" target="_blank" rel="noopener" style="font-size:13px;color:#B4530B;text-decoration:underline;text-underline-offset:3px;text-align:center">${esc(e.place)}</a>` : ''}<div style="font-size:12px;color:#5B6070">${tr('Наведи камеру, чтобы записаться', 'Point your camera to sign up')}</div></div>
+    <button class="row" data-a="evCopy" data-x="${e.id}"><span style="flex:1;min-width:0;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(evUrl(e.id).replace(/^https?:\/\//, ''))}</span><span class="xs" style="color:var(--acc);font-weight:700">${tr('Скопировать', 'Copy')}</span></button>
+    <button class="btn" data-a="evShareDo" data-x="${e.id}">${tr('Поделиться', 'Share')}</button>
+    <button class="btn2" data-a="evPoster" data-x="${e.id}">${tr('Скачать QR-плакат', 'Download QR poster')}</button>
+    <a class="btn2" style="display:flex;align-items:center;justify-content:center;text-decoration:none" href="${evUrl(e.id)}" target="_blank" rel="noopener">${tr('Посмотреть форму как подросток', 'Preview the form as a teen')}</a>
+    <div class="evstats">${[[rg.length, tr('записались', 'signed up')], [nw, tr('новых', 'new')], ['+' + fr, tr('друзей', 'friends')]].map(x => `<div><b>${x[0]}</b><span class="xs mut">${x[1]}</span></div>`).join('')}</div>`,
+    `<div style="display:flex;flex-direction:column;gap:8px"><button class="btn2" data-a="evPeople" data-x="${e.id}">${tr('Список записавшихся', 'Sign-ups')} · ${rg.length}</button><button class="btn2" data-a="editEv" data-x="${e.id}">${tr('Редактировать событие', 'Edit event')}</button></div>`);
+}
+function evRegsOverlay(o) {
+  const e = evById(o.id); if (!e) return '';
+  const rg = evRegs(e.id), byId = {}; rg.forEach(r => { byId[r[1]] = r; });
+  const cameIds = {}; D.att.forEach(a => { if (a[1] === 'event' && a[2] === e.id) cameIds[a[3]] = 1; });
+  const ids = rg.map(r => r[1]).concat(Object.keys(cameIds).filter(id => !byId[id]));
+  const tab = o.tab || 'reg', tabs = [['reg', tr('Все', 'All'), rg.length], ['came', tr('Пришли', 'Came'), Object.keys(cameIds).length], ['new', tr('Новые', 'New'), rg.filter(r => r[4]).length]];
+  const list = ids.filter(id => tab === 'came' ? cameIds[id] : tab === 'new' ? byId[id] && byId[id][4] : byId[id]);
+  const nm = id => IDX.teen[id] ? tname(IDX.teen[id]) : tr('Карточка скрыта', 'Hidden card');
+  list.sort((a, b) => nm(a).localeCompare(nm(b)));
+  const row = id => { const r = byId[id], t = IDX.teen[id] || {}, came = !!cameIds[id], a = ageOf(t), inv = r && r[5] && IDX.teen[r[5]];
+    const sub = [r && r[4] ? tr('новый', 'new') : '', a != null ? a + ' ' + yrs(a) : '', r && r[4] && t.phone ? t.phone : '', inv ? tr('позвал(а) ', 'invited by ') + tname(inv) : '', r && (r[4] || r[6]) && t.pFirst ? tr('родитель: ', 'parent: ') + [t.pFirst, t.pLast, t.pPhone].filter(Boolean).join(' ') : '', r && r[2] ? tr('приведёт ', 'bringing ') + r[2] + (L() ? (r[2] === 1 ? ' friend' : ' friends') : ' ' + plural(r[2], 'друга', 'друзей', 'друзей')) : '', r && r[3] ? tr('принесёт: ', 'will bring: ') + r[3] : '', !r ? tr('без записи', 'not signed up') : ''].filter(Boolean).join(' · ') || tr('без ответов', 'no answers');
+    return `<button class="evrow ${came ? 'on' : ''}" data-a="evCameTg" data-x="${id}" aria-pressed="${came}"><div class="av ${t.isLeader ? 'ldr' : ''}" style="width:36px;height:36px;font-size:13px;flex-shrink:0">${esc(ini(nm(id)))}</div><span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(nm(id))}</span><span class="xs mut" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(sub)}</span></span><span style="width:26px;height:26px;border-radius:999px;border:2px solid ${came ? 'var(--acc)' : 'var(--line3)'};background:${came ? 'var(--acc)' : 'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0">${came ? svg(IC.check, '#0E0F12', 14, 3.2) : ''}</span></button>`; };
+  return full(esc(e.name), `
+    <div class="xs mut">${esc(evDate(e.date))} ${String(e.date || '').slice(0, 4)}${e.time ? ' · ' + esc(t12(e.time)) : ''}${e.reg ? ' · ' + tr('регистраций раньше ', 'earlier registrations ') + e.reg : ''}</div>
+    <div class="seg" style="grid-template-columns:repeat(3,minmax(0,1fr))">${tabs.map(t => `<button class="${tab === t[0] ? 'on' : ''}" data-a="evTab" data-x="${t[0]}" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t[1]} · ${t[2]}</button>`).join('')}</div>
+    <div style="display:flex;flex-direction:column;gap:6px">${list.map(row).join('') || `<div class="empty">${tr('Здесь пока никого', 'Nobody here yet')}</div>`}</div>
+    <div class="xs mut" style="line-height:1.45">${canMark() ? tr('Нажмите на человека — он отмечается как пришедший. Это та же отметка, что и на вкладке «Отметка».', 'Tap a person to mark them as present. It is the same mark as on the Check-in tab.') : ''}</div>`,
+    `<div style="display:flex;flex-direction:column;gap:8px">${canMark() ? `<button class="btn" data-a="evMark" data-x="${e.id}">${tr('Отметить тех, кто не записывался', 'Mark people who did not sign up')}</button>` : ''}${canEv() ? `<button class="btn2" data-a="evShareOpen" data-x="${e.id}">${tr('Ссылка и QR', 'Link and QR')}</button>` : ''}</div>`);
+}
+const canMark = () => ['admin', 'leader', 'mod'].indexOf(myRole()) >= 0, canEv = () => ['admin', 'leader'].indexOf(myRole()) >= 0;
+function drawEvQR() { const el = document.getElementById('evqr'); if (!el || !window.QRCode || !S.ov) return; el.innerHTML = ''; new QRCode(el, { text: evUrl(S.ov.id), width: 200, height: 200, colorDark: '#0E0F12', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M }); }
+function evLoadImg(id) { const e = evById(id); if (!e || !e.img || EVIMG[id]) return; call('evInfo', id).then(r => { EVIMG[id] = r.img || ''; if (S.ov && S.ov.id === id && (S.ov.type === 'ev' || S.ov.type === 'evShare')) { syncForm(); rerender(); } }).catch(() => {}); }
+// фото сжимаем на телефоне: длинная сторона до 1100 px, чтобы форма открывалась быстро
+function evLoadFile(f) {
+  if (!f || !S.ov || S.ov.type !== 'ev') return; if (!/^image\//.test(f.type)) return toast(tr('Это не картинка — выбери фото', 'That is not an image — choose a photo'));
+  const rd = new FileReader();
+  rd.onload = () => { const im = new Image();
+    im.onload = () => { const draw = (mx, q) => { const k = Math.min(1, mx / Math.max(im.width, im.height)), c = document.createElement('canvas'); c.width = Math.round(im.width * k); c.height = Math.round(im.height * k); const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height); x.drawImage(im, 0, 0, c.width, c.height); return c.toDataURL('image/jpeg', q); };
+      let d = draw(1100, .8); if (d.length > 380000) d = draw(900, .7); if (d.length > 380000) d = draw(700, .6);
+      const s = Math.min(im.width, im.height), tc = document.createElement('canvas'); tc.width = tc.height = 96; tc.getContext('2d').drawImage(im, (im.width - s) / 2, (im.height - s) / 2, s, s, 0, 0, 96, 96);
+      if (!S.ov || S.ov.type !== 'ev') return; syncForm(); S.ov.f.img = d; S.ov.f.thumb = tc.toDataURL('image/jpeg', .7); rerender(); toast(tr('Фото добавлено', 'Photo added')); };
+    im.onerror = () => toast(tr('Не получилось открыть фото', 'Could not open the photo')); im.src = rd.result; };
+  rd.readAsDataURL(f);
+}
+['dragenter', 'dragover'].forEach(n => document.addEventListener(n, e => { const d = document.getElementById('evdrop'); if (!d) return; e.preventDefault(); d.classList.toggle('over', !!(e.target.closest && e.target.closest('#evdrop'))); }));
+document.addEventListener('dragleave', e => { const d = document.getElementById('evdrop'); if (d && !e.relatedTarget) d.classList.remove('over'); });
+document.addEventListener('drop', e => { const d = document.getElementById('evdrop'); if (!d) return; e.preventDefault(); d.classList.remove('over'); if (e.target.closest && e.target.closest('#evdrop')) evLoadFile(e.dataTransfer.files[0]); else toast(tr('Перетащи фото в рамку «Фото события»', 'Drop the photo into the “Event photo” box')); });
+
 function viewGroups() {
   return `${subHead(tr('Группы и встречи', 'Groups & meetings'))}
   <div class="sec" style="padding:8px 4px 0">${tr('ОБЩИЕ ВСТРЕЧИ ДЛЯ ВСЕХ', 'MEETINGS FOR EVERYONE')}</div>
@@ -900,7 +1046,7 @@ function viewGroups() {
   ${D.groups.map(g => `<button class="row" data-a="editGroup" data-x="${g.id}"><div style="flex:1;display:flex;flex-direction:column;gap:3px"><span style="font-size:15px;font-weight:600">${esc(g.name)}</span><span class="xs mut">${tr('Лидер: ', 'Leader: ')}${esc(g.leader || '—')} · ${DLONG()[g.day]} ${esc(t12(g.time))}${g.addr ? ' · ' + esc(g.addr) : ''}</span></div><span class="sm" style="color:var(--acc);font-weight:600">${members(g.id).length}${tr(' чел.', ' people')}</span></button>`).join('') || `<div class="xs mut" style="padding:0 4px">${tr('Пока нет групп', 'No groups yet')}</div>`}
   <button class="btn2" style="border:2px dashed var(--line3);color:var(--acc)" data-a="editGroup" data-x="">+ ${tr('Новая группа', 'New group')}</button>
   <div class="sec" style="padding:12px 4px 0">${tr('СОБЫТИЯ', 'EVENTS')}</div>
-  ${D.events.slice().sort((a, b) => b.date.localeCompare(a.date)).map(e => { const n = evCount(e.id); return `<div class="row" style="cursor:default;gap:8px"><button style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;text-align:left;background:none;border:0;color:inherit;padding:0;font:inherit;cursor:pointer" data-a="evPeople" data-x="${e.id}"><span style="font-size:15px;font-weight:600">${esc(e.name)}</span><span class="xs mut">${esc(human(e.date))} ${e.date.slice(0, 4)}${e.reg ? ' · ' + tr('регистраций ', 'registered ') + e.reg : ''}</span></button><button class="evadd" data-a="evMark" data-x="${e.id}" aria-label="${tr('Отметить подростков', 'Mark teens')}">${svg(IC.plus, ACC, 16, 2.6)}<b>${n}</b></button><button class="icb" data-a="editEv" data-x="${e.id}" aria-label="${tr('Изменить', 'Edit')}">${svg(IC.pen, '#F4F4F5', 18, 2.2)}</button><button class="icb" data-a="delEv" data-x="${e.id}" aria-label="${tr('Удалить', 'Delete')}">${svg(IC.trash, '#F87171', 18, 2.2)}</button></div>`; }).join('') || `<div class="xs mut" style="padding:0 4px">${tr('Пока нет событий', 'No events yet')}</div>`}
+  ${D.events.slice().sort((a, b) => b.date.localeCompare(a.date)).map(e => { const n = evCount(e.id); return `<div class="row" style="cursor:default;gap:8px;flex-wrap:wrap">${e.thumb ? `<img src="${e.thumb}" alt="" width="44" height="44" style="border-radius:12px;object-fit:cover;flex-shrink:0">` : ''}<button style="flex:1;min-width:170px;min-height:44px;justify-content:center;display:flex;flex-direction:column;gap:3px;text-align:left;background:none;border:0;color:inherit;padding:0;font:inherit;cursor:pointer" data-a="evPeople" data-x="${e.id}"><span style="font-size:15px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(e.name)}</span><span class="xs mut">${esc(evDate(e.date))} ${e.date.slice(0, 4)}${e.time ? ' · ' + esc(t12(e.time)) : ''}${e.paid ? ' · ' + esc(evPrice(e)) : ''}${e.reg ? ' · ' + tr('регистраций ', 'registered ') + e.reg : ''}</span>${e.open ? `<span class="xs" style="color:var(--acc)">${tr('регистрация открыта · записались ', 'registration open · signed up ')}${evRegs(e.id).length}</span>` : ''}</button><span style="display:flex;gap:8px;margin-left:auto"><button class="evadd" data-a="evMark" data-x="${e.id}" aria-label="${tr('Отметить подростков', 'Mark teens')}">${svg(IC.plus, ACC, 16, 2.6)}<b>${n}</b></button>${canEv() ? `<button class="evform ${e.open ? 'on' : ''}" data-a="evFormBtn" data-x="${e.id}" aria-label="${e.open ? tr('Регистрация: ссылка и QR', 'Registration: link and QR') : tr('Открыть регистрацию', 'Open registration')}">${svg(EIC.form, e.open ? ACC : '#A1A1AA', 20, 2)}</button><button class="icb" data-a="editEv" data-x="${e.id}" aria-label="${tr('Изменить', 'Edit')}">${svg(IC.pen, '#F4F4F5', 18, 2.2)}</button>` : ''}</span></div>`; }).join('') || `<div class="xs mut" style="padding:0 4px">${tr('Пока нет событий', 'No events yet')}</div>`}
   <button class="btn2" style="border:2px dashed var(--line3);color:var(--acc)" data-a="editEv" data-x="">+ ${tr('Новое событие', 'New event')}</button>`;
 }
 function viewRules() {
@@ -1075,13 +1221,10 @@ function viewOverlay() {
       ${o.cnt ? `<div class="err" style="color:var(--acc2)">${tr('На встрече уже отмечено: ' + o.cnt + '. При сохранении эти отметки снимутся.', o.cnt + ' already checked in. Saving will remove these check-ins.')}</div>` : ''}
       <div class="xs mut" style="line-height:1.45">${tr('Этот день не считается пропуском: подростки не попадают в «Не пришли», регулярность не страдает.', 'This day is not counted as a miss: teens do not land in “Absent” and regularity is not affected.')}</div>
       ${o.err ? `<div class="err">${esc(o.err)}</div>` : ''}`, `<button class="btn" data-a="offSave">${tr('Сохранить', 'Save')}</button>`); }
-  if (o.type === 'ev') {
-    return sheet(o.id ? tr('Событие', 'Event') : tr('Новое событие', 'New event'), `
-      ${fld('ov.f.name', tr('Название', 'Name'), F.name, 'text', tr('Например, TEENS PARTY', 'e.g. TEENS PARTY'))}
-      ${fld('ov.f.date', tr('Дата', 'Date'), F.date, 'date')}
-      ${o.id && evCount(o.id) ? `<div class="xs mut" style="line-height:1.45">${tr('Если поменять дату, отметки пришедших переедут на новую дату.', 'Changing the date moves the attendance to the new date.')}</div>` : ''}
-      ${o.err ? `<div class="err">${esc(o.err)}</div>` : ''}`, `<button class="btn" data-a="saveEv">${o.id ? tr('Сохранить', 'Save') : tr('Добавить событие', 'Add event')}</button>`);
-  }
+  if (o.type === 'ageDyn') return ageDynOverlay(o);
+  if (o.type === 'ev') return evEditOverlay(o);
+  if (o.type === 'evShare') return evShareOverlay(o);
+  if (o.type === 'evRegs') return evRegsOverlay(o);
   if (o.type === 'evDel') {
     const e = D.events.find(x => x.id === o.id) || {}; const n = evCount(o.id);
     return sheet(tr('Удалить событие?', 'Delete event?'), `
@@ -1168,6 +1311,8 @@ document.addEventListener('change', e => {
   if (el.getAttribute('data-save') === 'settings') { const k = el.getAttribute('data-b').slice(4); api('saveSettings', { [k]: el.value }).then(() => toast(tr('Сохранено', 'Saved'))).catch(err => toast(errText(err))); }
   if (el.getAttribute('data-change') === 'logFilter' && S.ov && S.ov.type === 'log') { const k = el.getAttribute('data-k'); S.ov[k] = k === 'days' ? +el.value : el.value; S.ov.lim = 60; rerender(); }
   if (el.getAttribute('data-change') === 'goneNote' && S.ov && S.ov.type === 'gone') { S.ov.note = el.value; H.goneNote(); }
+  if (el.getAttribute('data-change') === 'evPick' && S.ov && S.ov.type === 'ev') { syncForm(); S.ov.f[el.getAttribute('data-k')] = el.value; rerender(); }
+  if (el.getAttribute('data-change') === 'evImg') { const f = el.files && el.files[0]; el.value = ''; evLoadFile(f); }
   if (el.getAttribute('data-change') === 'otherDate' && el.value) { S.meet = Object.assign({}, meet(), { date: el.value }); S.ov = null; render(); }
 });
 document.addEventListener('click', e => {
@@ -1396,15 +1541,55 @@ const H = {
   async viewAs(id) { setHash(''); S.as = { as: id }; S.ov = null; S.tab = ''; S.more = 'root'; D = null; render(); await load(); },
   async viewAsRole(r) { setHash(''); S.as = { asRole: r }; S.ov = null; S.tab = ''; S.more = 'root'; D = null; render(); await load(); },
   async exitAs() { setHash('#/more/access'); S.as = null; S.ov = null; S.tab = 'more'; S.more = 'access'; D = null; render(); await load(); },
-  evPeople(id) { S.ov = { type: 'evPeople', id }; rerender(); },
+  evPeople(id) { S.ov = { type: 'evRegs', id, tab: evRegs(id).length ? 'reg' : 'came' }; rerender(); },
+  evTab(x) { S.ov.tab = x; rerender(); },
+  evShareOpen(id) { S.ov = { type: 'evShare', id }; rerender(); evLoadImg(id); },
+  async evFormBtn(id) { const e = evById(id); if (!e) return; if (!e.open) { try { await api('editEvent', { id, name: e.name, date: e.date, open: true, askFriend: true }); e.open = true; e.askFriend = true; toast(tr('Регистрация открыта — отправь ссылку или QR', 'Registration is open — send the link or QR')); } catch (err) { return toast(errText(err)); } } H.evShareOpen(id); },
+  evOpenReg(id) { H.evFormBtn(id); },
+  evTg(k) { syncForm(); S.ov.f[k] = !S.ov.f[k]; rerender(); },
+  evImgDel() { syncForm(); S.ov.f.img = ''; S.ov.f.thumb = ''; rerender(); },
+  evCopy(id) { copy(evUrl(id)); },
+  async evShareDo(id) { const e = evById(id), url = evUrl(id); if (navigator.share) { try { await navigator.share({ title: e.name, text: e.name + ' · ' + evWhen(e), url }); } catch (_) {} } else copy(url); },
+  async evCameTg(tid) { if (!canMark()) return; const e = evById(S.ov.id), on = !evCame(e, tid), row = [e.date, 'event', e.id, tid];
+    if (on) D.att.push(row); else D.att = D.att.filter(a => !(a[0] === e.date && a[1] === 'event' && a[2] === e.id && a[3] === tid)); buildIdx(); rerender();
+    try { await api('mark', { date: e.date, kind: 'event', meetId: e.id, teenId: tid, on }); }
+    catch (err) { if (on) D.att = D.att.filter(a => a !== row); else D.att.push(row); buildIdx(); rerender(); toast(errText(err)); } },
+  async evPoster(id) {
+    const e = evById(id); if (!e) return; try { await document.fonts.load('700 64px Unbounded'); } catch (_) {}
+    const src = EVIMG[id] || '', W = 1080, PH = src ? 608 : 0, H0 = 1500 + PH, c = document.createElement('canvas'); c.width = W; c.height = H0; const x = c.getContext('2d');
+    x.fillStyle = '#fff'; x.fillRect(0, 0, W, H0);
+    if (src) { const im = await new Promise(res => { const i = new Image(); i.onload = () => res(i); i.onerror = () => res(null); i.src = src; }); if (im) { const k = Math.max(W / im.width, PH / im.height), w = im.width * k, h = im.height * k; x.save(); x.beginPath(); x.rect(0, 0, W, PH); x.clip(); x.drawImage(im, (W - w) / 2, (PH - h) / 2, w, h); x.restore(); } }
+    x.fillStyle = '#0E0F12'; x.textAlign = 'center';
+    let fs = 68; x.font = '700 ' + fs + 'px Unbounded, Inter, sans-serif'; while (x.measureText(e.name).width > W - 120 && fs > 34) { fs -= 4; x.font = '700 ' + fs + 'px Unbounded, Inter, sans-serif'; }
+    x.fillText(e.name, W / 2, PH + 150);
+    x.font = '600 42px Inter, sans-serif'; x.fillText(evWhen(e) + ' · ' + evPrice(e), W / 2, PH + 230);
+    if (e.place) { x.fillStyle = '#5B6070'; x.font = '500 36px Inter, sans-serif'; x.fillText(e.place.length > 48 ? e.place.slice(0, 47) + '…' : e.place, W / 2, PH + 290); }
+    const big = document.createElement('div'); new QRCode(big, { text: evUrl(id), width: 760, height: 760, colorDark: '#0E0F12', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
+    x.imageSmoothingEnabled = false; x.drawImage(big.querySelector('canvas'), (W - 760) / 2, PH + 360, 760, 760);
+    x.fillStyle = '#0E0F12'; x.font = '700 44px Inter, sans-serif'; x.fillText(tr('Наведи камеру, чтобы записаться', 'Point your camera to sign up'), W / 2, PH + 1210);
+    x.fillStyle = '#FF8A3D'; x.font = '700 34px Inter, sans-serif'; x.fillText('SOL 3:16 TEENS', W / 2, PH + 1300);
+    c.toBlob(async blob => { const file = new File([blob], 'sol316-event.png', { type: 'image/png' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) { try { await navigator.share({ files: [file] }); } catch (_) {} return; }
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'sol316-event.png'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 5000); }, 'image/png');
+  },
   evMark(id) { const e = D.events.find(x => x.id === id); if (!e) return; S.meet = { kind: 'event', meetId: e.id, label: e.name, date: e.date }; S.ov = null; S.q = ''; S.closed = {}; S.tab = 'mark'; render(); syncMarks(); },
-  editEv(id) { const e = D.events.find(x => x.id === id); S.ov = { type: 'ev', id: id || '', f: e ? { name: e.name, date: e.date } : { name: '', date: D.today } }; rerender(); },
+  editEv(id) { const e = D.events.find(x => x.id === id);
+    S.ov = { type: 'ev', id: id || '', f: e ? { name: e.name, date: e.date, time: e.time || '', place: e.place || '', desc: e.desc || '', descOn: !!e.descOn, paid: !!e.paid, price: e.price || '', incl: e.incl || '', lim: !!e.cap, cap: e.cap ? String(e.cap) : '', open: !!e.open, askFriend: !!e.askFriend, askBring: !!e.askBring }
+      : { name: '', date: D.today, time: '18:00', place: '', desc: '', descOn: false, paid: false, price: '', incl: '', lim: false, cap: '', open: true, askFriend: true, askBring: false } };
+    rerender(); if (id) evLoadImg(id); },
   delEv(id) { S.ov = { type: 'evDel', id }; rerender(); },
-  async saveEv() { const F = S.ov.f, id = S.ov.id; const name = (F.name || '').trim(); if (!name) { S.ov.err = tr('Введите название', 'Enter a name'); return rerender(); }
+  async saveEv() { syncForm(); const F = S.ov.f, id = S.ov.id; const name = (F.name || '').trim(); if (!name) { S.ov.err = tr('Введите название', 'Enter a name'); return rerender(); }
     if (!/^\d{4}-\d{2}-\d{2}$/.test(F.date || '')) { S.ov.err = tr('Укажите дату', 'Set a date'); return rerender(); }
-    try { if (id) await api('editEvent', { id, name, date: F.date }); else await api('addEvent', { name, date: F.date }); S.ov = null; await load(); toast(tr('Сохранено', 'Saved')); } catch (e) { S.ov.err = errText(e); rerender(); } },
+    if (F.lim && !(parseInt(F.cap, 10) > 0)) { S.ov.err = tr('Укажите, сколько мест', 'Set how many spots'); return rerender(); }
+    const p = { name, date: F.date, time: F.time || '', place: F.place || '', desc: F.desc || '', descOn: !!(F.descOn && String(F.desc || '').trim()), paid: !!F.paid, price: F.paid ? F.price || '' : '', incl: F.paid ? F.incl || '' : '', cap: F.lim ? F.cap : '', open: !!F.open, askFriend: !!(F.open && F.askFriend), askBring: !!(F.open && F.askBring) };
+    if (F.img != null) { p.img = F.img; p.thumb = F.thumb || ''; }
+    try { const ev = id ? await api('editEvent', Object.assign({ id }, p)) : await api('addEvent', p); if (F.img != null) EVIMG[ev.id] = F.img;
+      S.ov = null; await load(); toast(id ? tr('Изменения сохранены', 'Changes saved') : tr('Событие создано', 'Event created')); if (ev.open) H.evShareOpen(ev.id); }
+    catch (e) { if (S.ov) { S.ov.err = e && e.message === 'bad_image' ? tr('Фото слишком большое или не того формата. Выберите другое.', 'The photo is too large or in the wrong format. Choose another.') : errText(e); rerender(); } } },
   async delEvOk() { const id = S.ov.id; try { await api('delEvent', { id }); S.ov = null; await load(); toast(tr('Удалено', 'Deleted')); } catch (e) { toast(errText(e)); } },
   ageList(x) { S.ov = { type: 'ages', age: x }; rerender(); },
+  ageDyn() { S.ov = { type: 'ageDyn', n: 6 }; rerender(); },
+  ageN(x) { S.ov.n = +x; rerender(); },
   editLeader(id) { const l = (D.leaders || []).find(x => x.id === id); if (!l || l.me) return; S.ov = { type: 'leader', id, f: { name: l.name, email: l.email, role: l.role, groups: l.groups.slice() } }; rerender(); },
   leadG(g) { const a = S.ov.f.groups; const i = a.indexOf(g); i >= 0 ? a.splice(i, 1) : a.push(g); rerender(); },
   async sendInvite() { const F = S.ov.f; S.ov.err = '';
