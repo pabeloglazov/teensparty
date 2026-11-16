@@ -66,6 +66,7 @@ a.ir:active{background:var(--accbg2)}
 .busy{position:fixed;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--acc),transparent);background-size:200% 100%;animation:b 1s linear infinite}
 @keyframes b{from{background-position:200% 0}to{background-position:-200% 0}}
 @media (prefers-reduced-motion:reduce){.busy{animation:none}}
+.qk{display:flex;flex-wrap:wrap;gap:6px;margin-top:-6px}.qk button{font-size:13px;font-weight:600;min-height:36px;padding:0 12px;border-radius:999px;border:1px solid var(--line2);background:var(--card);color:var(--tx2)}.qk button.on{background:var(--acc);border-color:var(--acc);color:#0E0F12}
 /* отклик на наведение мышки (только там, где есть мышь) */
 button,a.btn,a.btn2,a.row,.evacts>*{transition:filter .12s ease,background-color .12s ease,border-color .12s ease,color .12s ease,transform .08s ease}
 @media (hover:hover){
@@ -117,11 +118,16 @@ const ERR = () => ({
   need_age: tr('Выбери возраст', 'Choose your age'),
   need_phone: tr('Напиши свой телефон — 10 цифр или отметь, что номера нет', 'Enter your phone — 10 digits, or tick that you have no number'),
   need_parent: tr('Напиши имя, фамилию и телефон родителя (10 цифр)', 'Enter your parent’s first name, last name and phone (10 digits)'),
+  need_bring: tr('Напиши, что принесёшь, или выбери «пока не знаю»', 'Tell us what you will bring, or pick “not sure yet”'),
   need_consent: tr('Отметь, что родители знают и не против', 'Tick that your parents know and are okay with it'),
   network: tr('Нет связи. Проверь интернет и попробуй ещё раз.', 'No connection. Check the internet and try again.')
 });
 const errT = e => ERR()[e && e.message] || tr('Что-то пошло не так. Попробуй ещё раз или подойди к лидеру.', 'Something went wrong. Try again or ask a leader.');
 const dg = v => String(v || '').replace(/\D/g, '');
+const hasQ = () => !!(S.ev && (S.ev.askFriend || S.ev.askBring));
+const BQ = () => [tr('пока не знаю', 'not sure yet'), tr('напиток', 'a drink'), tr('десерт', 'dessert'), tr('снеки', 'snacks')];
+const ansBlock = () => { const e = S.ev; return `${e.askFriend ? `<div class="field"><div class="lbl">${tr('Приведёшь друга?', 'Bringing a friend?')}</div><div class="seg" style="grid-template-columns:repeat(4,1fr)">${[0, 1, 2, 3].map(n => `<button class="${(+S.f.friends || 0) === n ? 'on' : ''}" data-a="fr" data-x="${n}" aria-pressed="${(+S.f.friends || 0) === n}">${n ? '+' + n : tr('Нет', 'No')}</button>`).join('')}</div></div>` : ''}${e.askBring ? fld('bring', tr('Что принесёшь?', 'What will you bring?'), 'text', tr('Например, пирог', 'E.g. a pie')) + `<div class="qk">${BQ().map(t => `<button data-a="bq" data-x="${esc(t)}">${esc(t)}</button>`).join('')}</div>` : ''}`; };
+const ansErr = () => S.ev.askBring && !String(S.f.bring || '').trim() ? ERR().need_bring : '';
 const fld = (k, label, type, ph, id) => `<div class="field"><label class="lbl" for="${id || 'j_' + k}">${label}</label><input class="inp" id="${id || 'j_' + k}" type="${type || 'text'}" data-b="${k}" value="${esc(S.f[k] || '')}" placeholder="${esc(ph || '')}" ${type === 'date' ? 'data-picker="1"' : ''} ${type === 'tel' ? 'inputmode="tel" autocomplete="tel"' : ''}></div>`;
 const lg = () => `<div class="lg" role="group" aria-label="${tr('Язык', 'Language')}"><button data-a="lang" data-x="ru" class="${S.lang === 'ru' ? 'on' : ''}" aria-pressed="${S.lang === 'ru'}">RU</button><button data-a="lang" data-x="en" class="${S.lang === 'en' ? 'on' : ''}" aria-pressed="${S.lang === 'en'}">EN</button></div>`;
 const topBar = back => `<div class="top">${back ? `<button class="back" data-a="${back}" aria-label="${tr('Назад', 'Back')}">${ico(I.back, '#F4F4F5')}</button>` : '<div class="k">SOL 3:16 TEENS</div>'}${lg()}</div>`;
@@ -175,18 +181,18 @@ function renderEvent() {
     <div style="display:flex;flex-direction:column;gap:8px">${S.cands.map((c, i) => `<button class="row" data-a="evPickMe" data-x="${i}"><span class="av" style="width:36px;height:36px;font-size:13px">${esc(c.first.charAt(0))}</span><span style="flex:1;font-size:16px;font-weight:600">${esc(c.first)}</span>${ico(I.right, '#5F626B', 18, 2.5)}</button>`).join('')}</div><div class="sp"></div><button class="btn2" data-a="evGoFind">${tr('Меня здесь нет', 'I’m not here')}</button></div>`; return; }
   if (st === 'evHit') { const c = S.me; $.innerHTML = `<div class="w">${topBar('evGoFind')}${hero()}<div class="card" style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:22px 18px;text-align:center"><span class="av" style="width:56px;height:56px;font-size:18px">${esc(c.first.charAt(0))}</span><div style="font-size:20px;font-weight:700">${tr('Привет, ', 'Hi, ')}${esc(c.first)}!</div><div class="sm mu">${c.already ? tr('Ты уже в списке на это событие', 'You are already on the list for this event') : tr('Нашли тебя в списке SOL 3:16 Teens', 'Found you on the SOL 3:16 Teens list')}</div></div>
     ${errB()}<div class="sp"></div><button class="btn" data-a="evHitYes">${tr('Это я — дальше', 'That’s me — continue')}</button><button class="btn2" data-a="evGoFind">${tr('Это не я', 'That’s not me')}</button></div>`; return; }
-  if (st === 'evPar') { const c = S.me; $.innerHTML = `<div class="w">${topBar('evGoFind')}${hero()}${c.needPar ? `<div><h1 class="h2" style="font-size:20px">${tr('Добавь данные родителей', 'Add your parents’ details')}</h1><div class="sm mu" style="margin-top:6px;line-height:1.45">${esc(c.first)}${tr(', у нас нет контакта твоих родителей. Заполни один раз — больше спрашивать не будем.', ', we don’t have your parents’ contact. Fill it in once and we won’t ask again.')}</div></div>${fld('pFirst', tr('Имя родителя', 'Parent’s first name'), 'text', '')}${fld('pLast', tr('Фамилия родителя', 'Parent’s last name'), 'text', '')}${fld('pPhone', tr('Телефон родителя', 'Parent’s phone'), 'tel', '(916) 555-0100')}` : `<div><h1 class="h2" style="font-size:20px">${tr('Родители в курсе?', 'Do your parents know?')}</h1><div class="sm mu" style="margin-top:6px;line-height:1.45">${esc(c.first)}${tr(', осталась одна галочка.', ', just one checkbox left.')}</div></div>`}
-    ${consent()}${errB()}<div class="sp"></div><button class="btn" data-a="evJoin">${tr('Записаться', 'Sign up')}</button></div>`; return; }
+  if (st === 'evPar') { const c = S.me; $.innerHTML = `<div class="w">${topBar('evGoFind')}${hero()}${c.needPar ? `<div><h1 class="h2" style="font-size:20px">${tr('Добавь данные родителей', 'Add your parents’ details')}</h1><div class="sm mu" style="margin-top:6px;line-height:1.45">${esc(c.first)}${tr(', у нас нет контакта твоих родителей. Заполни один раз — больше спрашивать не будем.', ', we don’t have your parents’ contact. Fill it in once and we won’t ask again.')}</div></div>${fld('pFirst', tr('Имя родителя', 'Parent’s first name'), 'text', '')}${fld('pLast', tr('Фамилия родителя', 'Parent’s last name'), 'text', '')}${fld('pPhone', tr('Телефон родителя', 'Parent’s phone'), 'tel', '(916) 555-0100')}` : hasQ() ? `<div><h1 class="h2" style="font-size:20px">${c.already ? tr('Твои ответы, ', 'Your answers, ') : tr('Пара вопросов, ', 'A couple of questions, ')}${esc(c.first)}</h1><div class="sm mu" style="margin-top:6px;line-height:1.45">${tr('Чтобы мы понимали, сколько нас будет и что на столе.', 'So we know how many of us there will be and what is on the table.')}</div></div>` : `<div><h1 class="h2" style="font-size:20px">${tr('Родители в курсе?', 'Do your parents know?')}</h1><div class="sm mu" style="margin-top:6px;line-height:1.45">${esc(c.first)}${tr(', осталась одна галочка.', ', just one checkbox left.')}</div></div>`}
+    ${hasQ() ? ansBlock() : ''}${c.lead ? '' : consent()}${errB()}<div class="sp"></div><button class="btn" data-a="evJoin">${c.already ? tr('Сохранить', 'Save') : tr('Записаться', 'Sign up')}</button></div>`; return; }
   if (st === 'evNew') { $.innerHTML = `<div class="w">${topBar(BY ? 'evBack' : 'evGoFind')}${BY ? intro() : ''}${hero()}<div><h1 class="h2" style="font-size:20px">${BY ? tr('Как тебя записать?', 'How should we sign you up?') : tr('Первый раз у нас?', 'First time with us?')}</h1><div class="sm mu" style="margin-top:6px">${tr('Про тебя и одного из родителей — займёт минуту.', 'About you and one parent — takes a minute.')}</div></div>
     ${fld('first', tr('Имя', 'First name'), 'text', '')}${fld('last', tr('Фамилия', 'Last name'), 'text', '')}
     <div class="field"><div class="lbl">${tr('Сколько тебе лет', 'How old are you')}</div><div class="chips">${[11, 12, 13, 14, 15, 16, 17].map(a => `<button class="chip ${+S.f.age === a ? 'on' : ''}" data-a="age" data-x="${a}" aria-pressed="${+S.f.age === a}">${a}</button>`).join('')}</div></div>
-    ${phoneBlock()}${parentBlock()}${consent()}${errB()}
+    ${phoneBlock()}${parentBlock()}${hasQ() ? ansBlock() : ''}${consent()}${errB()}
     <div class="xs mu" style="line-height:1.45">${tr('Телефон родителя нужен, чтобы лидер мог связаться, если что-то случится. Данные увидят только лидеры служения.', 'We need a parent’s phone so a leader can reach them if anything happens. Only the ministry leaders see this information.')}</div>
     <button class="btn" data-a="evSign">${tr('Записаться', 'Sign up')}</button></div>`; return; }
-  if (st === 'evOk') { const r = S.res, ask = (e.askFriend || e.askBring) && !S.answered;
+  if (st === 'evOk') { const r = S.res, fn = +S.f.friends || 0, br = String(S.f.bring || '').trim();
+    const sum = (e.askFriend && fn) || (e.askBring && br) ? `<div class="card" style="padding:12px 14px;font-size:14px;line-height:1.6">${e.askFriend && fn ? `<span class="mu">${tr('Приведёшь: ', 'Bringing: ')}</span><b style="color:var(--acc2)">+${fn}</b><br>` : ''}${e.askBring && br ? `<span class="mu">${tr('Принесёшь: ', 'You will bring: ')}</span><b style="color:var(--acc2)">${esc(br)}</b>` : ''}</div>` : '';
     $.innerHTML = `<div class="w">${topBar()}<div class="card" style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:24px 18px;text-align:center"><span style="width:64px;height:64px;border-radius:999px;background:#12251A;display:flex;align-items:center;justify-content:center">${ico(I.ck, '#4ADE80', 30, 3)}</span><div style="font-size:20px;font-weight:700">${r.isNew ? tr('Ждём тебя, ', 'See you there, ') : tr('Ты в списке, ', 'You’re on the list, ')}${esc(r.first)}!</div><div class="sm mu" style="line-height:1.5">${esc(e.name)}<br>${esc(when(e))}${e.place ? `<br><a class="pl" href="${mapUrl(e)}" target="_blank" rel="noopener">${esc(e.place)}</a>` : ''}</div></div>
-    ${ask ? `${e.askFriend ? `<div class="field"><div class="lbl">${tr('Приведёшь друга?', 'Bringing a friend?')}</div><div class="seg" style="grid-template-columns:repeat(4,1fr)">${[0, 1, 2, 3].map(n => `<button class="${(+S.f.friends || 0) === n ? 'on' : ''}" data-a="fr" data-x="${n}" aria-pressed="${(+S.f.friends || 0) === n}">${n ? '+' + n : tr('Нет', 'No')}</button>`).join('')}</div></div>` : ''}${e.askBring ? fld('bring', tr('Что принесёшь?', 'What will you bring?'), 'text', tr('Например, пирог', 'E.g. a pie')) : ''}${errB()}<button class="btn" data-a="evDone">${tr('Готово', 'Done')}</button>`
-      : `${r.inviter ? `<div class="sm mu" style="text-align:center">${esc(r.inviter)}${tr(' увидит, что ты записался, и получит баллы, когда ты придёшь.', ' will see that you signed up and will get points when you come.')}</div>` : ''}<div style="display:flex;flex-direction:column;gap:8px">${act(gcal(e), tr('Добавить в календарь', 'Add to calendar'), tr('чтобы не забыть', 'so you don’t forget'))}${e.place ? act(mapUrl(e), tr('Как добраться', 'Directions'), tr('открыть адрес на карте', 'open the address on a map')) : ''}${act(TG, tr('Вступить в чат подростков', 'Join the teens chat'), tr('Telegram · новости и фото', 'Telegram · news and photos'))}${act('../me/', tr('Открыть приложение', 'Open the app'), tr('баллы, задания и стих дня', 'points, tasks and verse of the day'))}${r.id ? act('', tr('Позвать друга', 'Invite a friend'), tr('отправить ссылку на это событие', 'send the link to this event'), 'evInvite') : ''}</div>`}</div>`; return; }
+    ${`${sum}${r.inviter ? `<div class="sm mu" style="text-align:center">${esc(r.inviter)}${tr(' увидит, что ты записался, и получит баллы, когда ты придёшь.', ' will see that you signed up and will get points when you come.')}</div>` : ''}<div style="display:flex;flex-direction:column;gap:8px">${act(gcal(e), tr('Добавить в календарь', 'Add to calendar'), tr('чтобы не забыть', 'so you don’t forget'))}${e.place ? act(mapUrl(e), tr('Как добраться', 'Directions'), tr('открыть адрес на карте', 'open the address on a map')) : ''}${act(TG, tr('Вступить в чат подростков', 'Join the teens chat'), tr('Telegram · новости и фото', 'Telegram · news and photos'))}${act('../me/', tr('Открыть приложение', 'Open the app'), tr('баллы, задания и стих дня', 'points, tasks and verse of the day'))}${r.id ? act('', tr('Позвать друга', 'Invite a friend'), tr('отправить ссылку на это событие', 'send the link to this event'), 'evInvite') : ''}</div>`}</div>`; return; }
 }
 async function evSubmit(known) {
   const f = S.f, ans = { friends: f.friends || 0, bring: f.bring || '' };
@@ -265,7 +271,8 @@ const H = {
   noPhone() { S.f.noPhone = !S.f.noPhone; if (S.f.noPhone) S.f.phone = ''; S.err = ''; render(); },
   consent() { S.f.consent = !S.f.consent; S.err = ''; render(); },
   age(a) { S.f.age = +a.getAttribute('data-x'); S.err = ''; render(); },
-  fr(a) { S.f.friends = +a.getAttribute('data-x'); render(); },
+  fr(a) { S.f.friends = +a.getAttribute('data-x'); S.err = ''; render(); },
+  bq(a) { S.f.bring = a.getAttribute('data-x'); S.err = ''; render(); },
   // отметка
   goStart() { S.notFound = false; go('start'); },
   goNew() { go('form'); },
@@ -303,25 +310,22 @@ const H = {
     catch (e) { if (e.message === 'closed') { S.ev.open = false; return go('evClosed'); } fail(e); }
   },
   evPickMe(a) { S.me = S.cands[+a.getAttribute('data-x')]; go('evHit'); },
-  evHitYes() { S.f.consent = false; if (S.me.lead) return H.evJoin(); go('evPar'); },
+  evHitYes() { S.f.consent = false; S.f.friends = S.me.already ? +S.me.friends || 0 : 0; S.f.bring = S.me.already ? S.me.bring || '' : ''; if (S.me.lead && !hasQ()) return H.evJoin(); go('evPar'); },
   async evJoin() {
     if (!S.me.lead) {
       if (S.me.needPar) { S.err = parentErr(); if (S.err) return render(); }
-      if (!S.f.consent) { S.err = ERR().need_consent; return render(); }
+      if (!S.f.consent && !ansErr()) { S.err = ERR().need_consent; return render(); }
     }
+    S.err = ansErr(); if (S.err) return render();
     try { S.res = null; S.answered = false; await evSubmit(true); go('evOk'); }
     catch (e) { if (e.message === 'expired') { S.err = errT(e); return go('evFind', true); } if (e.message === 'closed') return go('evClosed'); fail(e); }
   },
   async evSign() {
     const s = S.f; let er = '';
-    if (!String(s.first || '').trim() || !String(s.last || '').trim()) er = ERR().need_name; else if (!s.age) er = ERR().need_age; else if (!s.noPhone && dg(s.phone).length < 10) er = ERR().need_phone; else er = parentErr() || (s.consent ? '' : ERR().need_consent);
+    if (!String(s.first || '').trim() || !String(s.last || '').trim()) er = ERR().need_name; else if (!s.age) er = ERR().need_age; else if (!s.noPhone && dg(s.phone).length < 10) er = ERR().need_phone; else er = parentErr() || ansErr() || (s.consent ? '' : ERR().need_consent);
     if (er) { S.err = er; return fail({ message: '' }), S.err = er, render(); }
     try { S.res = null; S.answered = false; S.newcomer = true; await evSubmit(false); go('evOk'); }
     catch (e) { if (e.message === 'closed') return go('evClosed'); fail(e); }
-  },
-  async evDone() {
-    if ((+S.f.friends || 0) || String(S.f.bring || '').trim()) { try { await evSubmit(!S.newcomer); } catch (e) { return fail(e); } }
-    S.answered = true; go('evOk');
   },
   async evInvite() {
     const url = location.origin + location.pathname + '?e=' + encodeURIComponent(EID) + '&by=' + encodeURIComponent(S.res.id), text = tr('Пойдём вместе: ', 'Come with me: ') + S.ev.name;
