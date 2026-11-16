@@ -398,6 +398,7 @@ function render() {
   syncUrl();
   if (S.tab === 'more' && S.more === 'qr') drawQR();
   if (S.ov && S.ov.type === 'evShare') drawEvQR();
+  const ams = document.getElementById('agems'); if (ams) { const on = ams.querySelector('.on'); if (on) ams.scrollLeft = on.offsetLeft - ams.clientWidth / 2; }
 }
 function rerender() { S.keepScroll = true; render(); }
 
@@ -529,7 +530,7 @@ function ageCard() {
   const ages = Object.keys(by).map(Number).sort((a, b) => a - b), mx = Math.max(1, ...Object.values(by));
   const avg = known.length ? (known.reduce((x, t) => x + ageOf(t), 0) / known.length) : 0;
   
-  return ageCardDyn(known, none, by, ages, mx, avg);
+  return ageCardRows(known, none, by, ages, mx, avg);
 }
 // ---------- ДИНАМИКА ВОЗРАСТА ----------
 const AGC = ['#6FA8FF', '#FF8A3D', '#4ADE80'], AGL = () => [tr('до 12 лет', 'up to 12'), tr('13–14 лет', '13–14'), tr('15 и старше', '15 and up')];
@@ -538,42 +539,54 @@ const MSH = () => L() ? ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug',
 const dec1 = v => v.toFixed(1).replace('.', L() ? '.' : ',');
 // возраст человека на дату d: по дате рождения, а если её нет — от возраста «со слов»
 function ageAt(t, d) { const b = bDate(t); let a; if (b && !isNaN(b)) { a = d.getFullYear() - b.getFullYear(); if (d.getMonth() < b.getMonth() || (d.getMonth() === b.getMonth() && d.getDate() < b.getDate())) a--; } else { const now = ageOf(t); if (now == null) return null; a = now - Math.floor((todayD() - d) / (365.25 * 864e5)); } return a >= 5 && a <= 30 ? a : null; }
-// кто приходил в каждом из последних n месяцев, по возрастным группам (лидеры не считаются)
-function ageMonths(n) {
-  const td = todayD(), who = {}, out = []; D.att.forEach(a => { const k = String(a[0]).slice(0, 7); (who[k] = who[k] || {})[a[3]] = 1; });
-  for (let i = n - 1; i >= 0; i--) { const d = new Date(td.getFullYear(), td.getMonth() - i, 15), k = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'), g = [0, 0, 0]; let sum = 0, cnt = 0, unk = 0;
-    Object.keys(who[k] || {}).forEach(id => { const t = IDX.teen[id]; if (!t || t.isLeader) return; const a = ageAt(t, d); if (a == null) { unk++; return; } g[ageGrp(a)]++; sum += a; cnt++; });
-    out.push({ k, m: d.getMonth(), g, cnt, unk, avg: cnt ? sum / cnt : null }); }
-  return out;
+const AIC = { up: 'M4 17l6-6 4 4 6-7M14 8h6v6', bulb: 'M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.3 1 2.1h5c0-.8.4-1.6 1-2.1A6 6 0 0 0 12 3z', info: 'M12 21a9 9 0 1 0 0-18a9 9 0 0 0 0 18zM12 11v6M12 7.5v.5' };
+const MPREP = () => L() ? ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'] : ['январе', 'феврале', 'марте', 'апреле', 'мае', 'июне', 'июле', 'августе', 'сентябре', 'октябре', 'ноябре', 'декабре'];
+const MNOM = () => L() ? MPREP() : ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'];
+const tipRow = (ic, html, col) => `<div style="display:flex;gap:10px;font-size:13px;line-height:1.4;color:${col || 'var(--tx)'}"><span style="flex-shrink:0;display:flex;margin-top:1px">${svg(ic, col === 'var(--mu)' ? '#A1A1AA' : '#FFB27A', 16, 2.2)}</span><span>${html}</span></div>`;
+const ageKeys = n => { const td = todayD(), out = []; for (let i = n - 1; i >= 0; i--) { const d = new Date(td.getFullYear(), td.getMonth() - i, 15); out.push(d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0')); } return out; };
+// кто приходил за месяц k (ГГГГ-ММ): люди по возрасту на тот момент, число встреч у каждого; лидеры не считаются
+function ageMonthData(k) {
+  const d = new Date(+k.slice(0, 4), +k.slice(5, 7) - 1, 15), vis = {}, by = {}; let sum = 0, cnt = 0, unk = 0;
+  D.att.forEach(a => { if (String(a[0]).slice(0, 7) === k) vis[a[3]] = (vis[a[3]] || 0) + 1; });
+  Object.keys(vis).forEach(id => { const t = IDX.teen[id]; if (!t || t.isLeader) return; const a = ageAt(t, d); if (a == null) { unk++; return; } (by[a] = by[a] || []).push(id); sum += a; cnt++; });
+  return { k, m: d.getMonth(), by, cnt, unk, avg: cnt ? sum / cnt : null, vis };
 }
-function ageTrend(n) { const M = ageMonths(n).filter(x => x.avg != null); if (M.length < 2) return null; return { diff: M[M.length - 1].avg - M[0].avg, from: M[0].m, months: M.length }; }
-function ageTrendText(n) { const t = ageTrend(n); if (!t) return ''; const since = tr('с ' + ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'][t.from], 'since ' + MSH()[t.from]);
-  if (Math.abs(t.diff) < 0.05) return tr('Средний возраст тех, кто приходит, ' + since + ' не изменился', 'Average age of attendees has not changed ' + since);
-  return tr('Средний возраст тех, кто приходит, ' + since + (t.diff > 0 ? ' вырос на ' : ' снизился на ') + dec1(Math.abs(t.diff)) + ' года', 'Average age of attendees is ' + (t.diff > 0 ? 'up ' : 'down ') + dec1(Math.abs(t.diff)) + ' years ' + since); }
-function ageCardDyn(known, none, by, ages, mx, avg) {
-  const gt = [0, 0, 0]; ages.forEach(a => { gt[ageGrp(a)] += by[a]; }); const tt = ageTrendText(6);
-  return `<div class="card" style="display:flex;flex-direction:column;gap:14px">
-    <button data-a="ageDyn" style="display:flex;align-items:center;gap:10px;background:none;border:0;padding:0;color:inherit;font:inherit;cursor:pointer;text-align:left;min-height:44px"><span style="flex:1;font-size:16px;font-weight:700">${tr('Возраст', 'Ages')}</span>${known.length ? `<span class="xs mut">${tr('средний', 'average')}</span><span style="font-size:20px;font-weight:700;color:var(--acc)">${dec1(avg)}</span>` : ''}${svg(IC.right, '#5F626B', 18, 2.5)}</button>
-    ${ages.length ? `<div style="display:flex;align-items:flex-end;gap:6px;height:104px">${ages.map(a => `<button class="agecol" data-a="ageList" data-x="${a}" aria-label="${a} ${yrs(a)}: ${by[a]}"><b style="font-size:12px">${by[a]}</b><span style="width:100%;height:${Math.max(4, Math.round(by[a] / mx * 64))}px;border-radius:7px 7px 3px 3px;background:${AGC[ageGrp(a)]}"></span><span class="xs mut">${a}</span></button>`).join('')}</div>
-    <div class="xs mut" style="display:flex;gap:14px;flex-wrap:wrap">${AGL().map((l, i) => gt[i] ? `<span><b style="color:${AGC[i]}">${gt[i]}</b> · ${l}</span>` : '').join('')}</div>` : `<div class="xs mut">${tr('Пока ни у кого не указана дата рождения', 'No birth dates yet')}</div>`}
-    ${tt ? `<div class="xs" style="color:var(--acc2,#FFB27A);line-height:1.45">${tt}</div>` : ''}
+function ageCardRows(known, none, by, ages, mx, avg) {
+  return `<div class="card" style="display:flex;flex-direction:column;gap:12px">
+    <button data-a="ageDyn" style="display:flex;align-items:baseline;gap:8px;background:none;border:0;padding:0;color:inherit;font:inherit;cursor:pointer;text-align:left;min-height:32px"><span style="flex:1;font-size:14px;font-weight:600">${tr('Возраст', 'Ages')}</span>${known.length ? `<span class="xs mut">${tr('средний ', 'average ')}<b style="color:var(--tx);font-size:14px">${dec1(avg)}</b></span>` : ''}<span style="align-self:center;display:flex">${svg(IC.right, '#5F626B', 18, 2.5)}</span></button>
+    ${ages.length ? `<div style="display:flex;flex-direction:column;gap:4px">${ages.map(a => `<button class="agebar" data-a="ageList" data-x="${a}"><span>${a} ${yrs(a)}</span><span class="tr"><i style="width:${Math.round(by[a] / mx * 100)}%"></i></span><b style="text-align:right">${by[a]}</b></button>`).join('')}</div>` : `<div class="xs mut">${tr('Пока ни у кого не указана дата рождения', 'No birth dates yet')}</div>`}
     ${none ? `<button class="agebar" style="grid-template-columns:1fr auto;color:var(--tx2);border-top:1px solid var(--line2);padding-top:10px" data-a="ageList" data-x="none"><span>${tr('Без даты рождения', 'No birth date')}</span><b>${none} ›</b></button>` : ''}
+    <button data-a="ageDyn" style="background:none;border:0;padding:0;font:inherit;cursor:pointer;text-align:left;min-height:28px">${tipRow(AIC.bulb, tr('Кто приходил по месяцам — нажми «Возраст»', 'Who came each month — tap “Ages”'), 'var(--acc2,#FFB27A)')}</button>
   </div>`;
 }
 function ageDynOverlay(o) {
-  const n = o.n || 6, M = ageMonths(n), mx = Math.max(1, ...M.map(x => x.cnt)), unk = M.length ? M[M.length - 1].unk : 0;
-  const known = D.teens.filter(t => ageOf(t) != null), by = {}, nw = {}; const start = new Date(todayD().getFullYear(), todayD().getMonth() - n + 1, 1);
-  known.forEach(t => { const a = ageOf(t); by[a] = (by[a] || 0) + 1; if (/^\d{4}-\d{2}-\d{2}$/.test(t.createdAt || '') && parse(t.createdAt) >= start) nw[a] = (nw[a] || 0) + 1; });
-  const ages = Object.keys(by).map(Number).sort((a, b) => a - b), bm = Math.max(1, ...Object.values(by)), avg = known.length ? known.reduce((x, t) => x + ageOf(t), 0) / known.length : 0;
-  const tr0 = ageTrend(n), top = ages.slice().sort((a, b) => by[b] - by[a])[0], H = 128;
-  return full(tr('Возраст', 'Ages'), `
-    <div class="seg" style="grid-template-columns:repeat(3,minmax(0,1fr))">${[[3, tr('3 мес', '3 mo')], [6, tr('6 мес', '6 mo')], [12, tr('Год', 'Year')]].map(x => `<button class="${n === x[0] ? 'on' : ''}" data-a="ageN" data-x="${x[0]}">${x[1]}</button>`).join('')}</div>
-    <div class="card" style="display:flex;flex-direction:column;gap:14px"><div style="display:flex;align-items:baseline;gap:10px"><span style="flex:1;font-size:15px;font-weight:700">${tr('Кто приходил, по месяцам', 'Who came, by month')}</span><span class="xs mut">${tr('человек', 'people')}</span></div>
-      <div style="display:flex;align-items:flex-end;gap:${n > 6 ? 4 : 10}px;height:${H + 44}px">${M.map((m, i) => `<div style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end"><b style="font-size:${n > 6 ? 10 : 12}px;${i === M.length - 1 ? 'color:var(--acc)' : ''}">${m.cnt || ''}</b><div style="width:100%;display:flex;flex-direction:column-reverse;gap:2px">${m.g.map((v, j) => v ? `<span style="height:${Math.max(3, Math.round(v / mx * H))}px;background:${AGC[j]};border-radius:${m.g.slice(j + 1).some(Boolean) ? '2px' : '7px 7px 2px 2px'}"></span>` : '').join('') || '<span style="height:3px;background:var(--line2);border-radius:2px"></span>'}</div><span class="xs mut" style="font-size:${n > 6 ? 10 : 12}px">${MSH()[m.m]}</span></div>`).join('')}</div>
-      <div class="xs mut" style="display:flex;gap:14px;flex-wrap:wrap">${AGL().map((l, i) => `<span style="display:inline-flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:3px;background:${AGC[i]}"></span>${l}</span>`).join('')}</div></div>
-    <div class="evstats">${[[known.length ? dec1(avg) : '—', tr('средний возраст', 'average age')], [tr0 ? (tr0.diff >= 0.05 ? '+' : tr0.diff <= -0.05 ? '−' : '') + dec1(Math.abs(tr0.diff)) : '—', tr('за период', 'over the period')], [top != null ? top : '—', tr('самый частый', 'most common')]].map(x => `<div><b>${x[0]}</b><span class="xs mut">${x[1]}</span></div>`).join('')}</div>
-    <div style="display:flex;flex-direction:column;gap:6px"><div class="sec">${tr('ПО ВОЗРАСТУ СЕЙЧАС', 'BY AGE NOW')}</div>${ages.map(a => `<button class="row" style="min-height:52px" data-a="ageList" data-x="${a}"><span style="width:34px;font-size:15px;font-weight:700">${a}</span><span style="flex:1;height:10px;border-radius:999px;background:var(--card2);overflow:hidden"><span style="display:block;height:100%;width:${Math.round(by[a] / bm * 100)}%;background:${AGC[ageGrp(a)]};border-radius:999px"></span></span><span style="width:26px;text-align:right;font-size:15px;font-weight:700">${by[a]}</span><span class="xs" style="width:30px;text-align:right;color:${nw[a] ? '#4ADE80' : 'var(--mu2)'}">${nw[a] ? '+' + nw[a] : '0'}</span>${svg(IC.right, '#5F626B', 16, 2.5)}</button>`).join('') || `<div class="empty">${tr('Пока ни у кого не указан возраст', 'No ages yet')}</div>`}</div>
-    <div class="xs mut" style="line-height:1.45">${tr('В графике считаются те, кто был хотя бы на одной встрече за месяц; лидеры не входят. Зелёное число — сколько человек этого возраста появилось в базе за выбранный период.', 'The chart counts people who came to at least one meeting that month; leaders are excluded. The green number is how many people of that age joined the list during the selected period.')}${unk ? ' ' + tr('В этом месяце приходили ' + unk + ' без возраста — они в подсчёт не входят.', unk + ' people without an age came this month — they are not counted.') : ''}</div>`, '');
+  const n = o.n || 6, view = o.view || 'came', keys = ageKeys(n), cur = keys.indexOf(o.m) >= 0 ? o.m : keys[keys.length - 1];
+  const seg = (items, on, a, cols) => `<div class="seg" style="grid-template-columns:repeat(${cols},minmax(0,1fr));background:var(--card);border:1px solid var(--line2)">${items.map(x => `<button class="${on === x[0] ? 'on' : ''}" data-a="${a}" data-x="${x[0]}">${x[1]}</button>`).join('')}</div>`;
+  const head = seg([['base', tr('Все в базе', 'Everyone')], ['came', tr('Кто приходил', 'Who came')]], view, 'ageV', 2) + seg([[3, tr('3 мес', '3 mo')], [6, tr('6 мес', '6 mo')], [12, tr('Год', 'Year')]], n, 'ageN', 3);
+  const row = (a, cnt, mx, d, isNew) => `<button class="evrow ${o.age === a ? 'on' : ''}" style="min-height:52px;display:grid;grid-template-columns:58px minmax(0,1fr) 26px 34px 16px;gap:10px" data-a="ageRow" data-x="${a}"><span style="font-size:15px;font-weight:600;white-space:nowrap">${a} ${yrs(a)}</span><span style="height:10px;border-radius:999px;background:var(--card2);overflow:hidden"><span style="display:block;height:100%;width:${Math.round(cnt / mx * 100)}%;background:var(--acc);border-radius:999px"></span></span><b style="text-align:right;font-size:15px">${cnt}</b><span class="xs" style="text-align:right;font-weight:600;color:${d > 0 ? '#4ADE80' : d < 0 ? '#F87171' : 'var(--mu2)'}">${d > 0 ? '+' + d : d < 0 ? '−' + (-d) : '0'}</span>${svg(IC.right, '#5F626B', 16, 2.5)}</button>`;
+  const insight = (big, t1, t2, pill, lines) => `<div class="card" style="display:flex;flex-direction:column;gap:12px;border-color:#3A2414;background:var(--accbg)"><div style="display:flex;align-items:center;gap:14px"><span style="font-family:Unbounded,sans-serif;font-weight:700;font-size:34px;color:var(--acc);line-height:1">${big}</span><span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:700">${t1}</span>${t2 ? `<span class="xs mut">${t2}</span>` : ''}</span>${pill ? `<span style="height:28px;padding:0 10px;border-radius:999px;background:${pill[0] === '+' ? '#12251A' : '#2A1616'};color:${pill[0] === '+' ? '#4ADE80' : '#F87171'};font-size:13px;font-weight:700;display:flex;align-items:center;flex-shrink:0">${pill}</span>` : ''}</div>${lines.length ? `<div style="height:1px;background:#3A2414"></div>${lines.join('')}` : ''}</div>`;
+  const people = (title, sub, ids, subOf) => sheet(title, `<div class="sm mut">${sub}</div><div style="display:flex;flex-direction:column;gap:6px">${ids.map(id => { const t = IDX.teen[id]; return `<button class="row" data-a="openProf" data-x="${id}" style="min-height:52px"><div class="av" style="width:34px;height:34px;font-size:12px">${esc(ini(tname(t)))}</div><span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;text-align:left"><span style="font-size:15px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(tname(t))}</span><span class="xs mut">${subOf(t)}</span></span>${svg(IC.right, '#5F626B', 16, 2.5)}</button>`; }).join('')}</div>`, '');
+  const start = new Date(todayD().getFullYear(), todayD().getMonth() - n + 1, 1), isNewIn = (t, from, to) => /^\d{4}-\d{2}-\d{2}$/.test(t.createdAt || '') && parse(t.createdAt) >= from && (!to || parse(t.createdAt) < to);
+  if (view === 'base') {
+    const known = D.teens.filter(t => ageOf(t) != null), by = {}, nw = {}; let nwAll = 0;
+    known.forEach(t => { const a = ageOf(t); (by[a] = by[a] || []).push(t.id); if (isNewIn(t, start)) { nw[a] = (nw[a] || 0) + 1; nwAll++; } });
+    const ages = Object.keys(by).map(Number).sort((a, b) => a - b), mx = Math.max(1, ...ages.map(a => by[a].length)), avg = known.length ? known.reduce((x, t) => x + ageOf(t), 0) / known.length : 0, none = D.teens.length - known.length;
+    const body = `${head}${insight(known.length, tr('в базе с возрастом', 'on the list with an age'), none ? tr('без даты рождения: ', 'no birth date: ') + none : '', nwAll ? '+' + nwAll : '', known.length ? [tipRow(AIC.up, tr('Средний возраст <b>' + dec1(avg) + '</b>', 'Average age <b>' + dec1(avg) + '</b>')), tipRow(AIC.bulb, tr('За ' + (n === 12 ? 'год' : n + ' ' + plural(n, 'месяц', 'месяца', 'месяцев')) + ' в базе появилось: <b>' + nwAll + '</b>', 'Joined the list over ' + (n === 12 ? 'the year' : n + ' months') + ': <b>' + nwAll + '</b>'))] : [])}
+      <div style="display:flex;flex-direction:column;gap:6px">${ages.map(a => row(a, by[a].length, mx, nw[a] || 0)).join('') || `<div class="empty">${tr('Пока ни у кого не указан возраст', 'No ages yet')}</div>`}</div>
+      ${tipRow(AIC.info, tr('Зелёное число — сколько человек этого возраста появилось в базе за выбранный период. Нажми на возраст, чтобы увидеть имена.', 'The green number is how many people of that age joined during the selected period. Tap an age to see the names.'), 'var(--mu)')}`;
+    return full(tr('Возраст', 'Ages'), body, '') + (o.age != null && by[o.age] ? people(o.age + ' ' + yrs(o.age) + ' · ' + tr('в базе', 'on the list'), by[o.age].length + ' ' + (L() ? 'people' : plural(by[o.age].length, 'человек', 'человека', 'человек')), by[o.age].slice().sort((a, b) => tname(IDX.teen[a]).localeCompare(tname(IDX.teen[b]))), t => isNewIn(t, start) ? tr('новый за период', 'new in the period') : (t.birth ? tr('дата рождения указана', 'birth date on file') : tr('возраст со слов', 'age as stated'))) : '');
+  }
+  const M = ageMonthData(cur), pi = keys.indexOf(cur), pk = pi > 0 ? keys[pi - 1] : ageKeys(n + 1)[0], P = ageMonthData(pk), all = keys.map(ageMonthData).filter(x => x.avg != null);
+  const ages = Array.from(new Set(Object.keys(M.by).concat(Object.keys(P.by)).map(Number))).sort((a, b) => a - b), cntOf = (X, a) => (X.by[a] || []).length, mx = Math.max(1, ...ages.map(a => cntOf(M, a)));
+  const diff = M.cnt - P.cnt, lines = [];
+  if (M.avg != null) lines.push(tipRow(AIC.up, tr('Средний возраст <b>' + dec1(M.avg) + '</b>' + (P.avg != null ? ' — в ' + MPREP()[P.m] + ' был ' + dec1(P.avg) : ''), 'Average age <b>' + dec1(M.avg) + '</b>' + (P.avg != null ? ' — it was ' + dec1(P.avg) + ' in ' + MPREP()[P.m] : ''))));
+  if (all.length >= 2) { const a0 = all[0].avg, a1 = all[all.length - 1].avg, per = n === 12 ? tr('За год', 'Over the year') : tr('За ' + n + ' ' + plural(n, 'месяц', 'месяца', 'месяцев'), 'Over ' + n + ' months'); lines.push(tipRow(AIC.bulb, Math.abs(a1 - a0) < 0.05 ? per + tr(' средний возраст не изменился: <b>', ' the average age did not change: <b>') + dec1(a1) + '</b>' : per + tr(' средний возраст ' + (a1 > a0 ? 'вырос' : 'снизился') + ' с ' + dec1(a0) + ' до <b>' + dec1(a1) + '</b>', ' the average age went ' + (a1 > a0 ? 'up' : 'down') + ' from ' + dec1(a0) + ' to <b>' + dec1(a1) + '</b>'))); }
+  const body = `${head}<div id="agems" style="display:flex;gap:6px;overflow-x:auto;margin:0 -2px;padding:0 2px 2px">${keys.map(k => `<button class="chip ${k === cur ? 'on' : ''}" style="flex:1;min-width:46px;padding:0 8px;${k === cur ? 'background:var(--acc);border-color:var(--acc);color:#0E0F12' : ''}" data-a="ageM" data-x="${k}" aria-pressed="${k === cur}">${MSH()[+k.slice(5, 7) - 1]}</button>`).join('')}</div>
+    ${insight(M.cnt, tr('приходили в ' + MPREP()[M.m], 'came in ' + MPREP()[M.m]), tr('в ' + MPREP()[P.m] + ' было ' + P.cnt, P.cnt + ' in ' + MPREP()[P.m]), diff > 0 ? '+' + diff : diff < 0 ? '−' + (-diff) : '', lines)}
+    <div style="display:flex;flex-direction:column;gap:6px">${ages.map(a => row(a, cntOf(M, a), mx, cntOf(M, a) - cntOf(P, a))).join('') || `<div class="empty">${tr('В этом месяце отметок нет', 'No check-ins this month')}</div>`}</div>
+    ${tipRow(AIC.info, tr('Зелёное и красное число — разница с ' + ['январём', 'февралём', 'мартом', 'апрелем', 'маем', 'июнем', 'июлем', 'августом', 'сентябрём', 'октябрём', 'ноябрём', 'декабрём'][P.m] + '. Нажми на возраст, чтобы увидеть имена. Лидеры не считаются.', 'Green and red numbers are the difference from ' + MPREP()[P.m] + '. Tap an age to see the names. Leaders are not counted.') + (M.unk ? ' ' + tr('Без возраста приходили: ' + M.unk + '.', 'Came without an age: ' + M.unk + '.') : ''), 'var(--mu)')}`;
+  const mFrom = new Date(+cur.slice(0, 4), +cur.slice(5, 7) - 1, 1), mTo = new Date(+cur.slice(0, 4), +cur.slice(5, 7), 1), ids = o.age != null ? (M.by[o.age] || []).slice().sort((a, b) => M.vis[b] - M.vis[a] || tname(IDX.teen[a]).localeCompare(tname(IDX.teen[b]))) : [];
+  return full(tr('Возраст', 'Ages'), body, '') + (o.age != null ? people(o.age + ' ' + yrs(o.age) + ' · ' + MNOM()[M.m], tr('приходили: ' + ids.length + ', в ' + MPREP()[P.m] + ': ' + cntOf(P, o.age), 'came: ' + ids.length + ', in ' + MPREP()[P.m] + ': ' + cntOf(P, o.age)), ids, t => M.vis[t.id] + ' ' + (L() ? (M.vis[t.id] === 1 ? 'meeting' : 'meetings') : plural(M.vis[t.id], 'встреча', 'встречи', 'встреч')) + (isNewIn(t, mFrom, mTo) ? tr(' · новый', ' · new') : '')) : '');
 }
 function bdayCard() {
   if (!D.teens.some(t => 'birth' in t)) return '';
@@ -583,13 +596,6 @@ function bdayCard() {
     <div style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600">${svg(IC.cake, ACC, 18, 2)} ${tr('Ближайшие дни рождения', 'Upcoming birthdays')}</div>
     ${soon.length ? soon.map(x => `<button class="agebar" style="grid-template-columns:1fr auto;gap:12px" data-a="openProf" data-x="${x.t.id}"><span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(tname(x.t))}</span><span class="xs mut">${tr('исполнится ', 'turns ')}${x.n.turns}</span></span><span style="display:flex;flex-direction:column;align-items:flex-end;gap:2px"><span style="font-size:13px;font-weight:600">${human(bIso(x.t))}</span><span class="xs" style="color:${x.n.days <= 7 ? 'var(--acc)' : 'var(--tx2)'}">${when(x.n.days)}</span></span></button>`).join('') : `<div class="sm mut" style="line-height:1.45">${tr('Пока ни у кого не указана дата рождения.', 'No birth dates yet.')}</div>`}
     ${noB ? `<button class="agebar" style="grid-template-columns:1fr auto;color:var(--tx2);border-top:1px solid var(--line2);padding-top:10px" data-a="ageList" data-x="nobirth"><span>${tr('Нет даты рождения — добавить', 'No birth date — add')}</span><b>${noB} ›</b></button>` : ''}
-  </div>`;
-}
-function ageBody(known, none, by, ages, mx, avg) {
-  return `<div class="card" style="display:flex;flex-direction:column;gap:12px">
-    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><div style="font-size:14px;font-weight:600">${tr('Возраст', 'Ages')}</div>${known.length ? `<div class="xs mut">${tr('средний ', 'average ')}<b style="color:var(--tx);font-size:14px">${avg.toFixed(1).replace('.', L() ? '.' : ',')}</b></div>` : ''}</div>
-    ${ages.length ? `<div style="display:flex;flex-direction:column;gap:4px">${ages.map(a => `<button class="agebar" data-a="ageList" data-x="${a}"><span>${a} ${yrs(a)}</span><span class="tr"><i style="width:${Math.round(by[a] / mx * 100)}%"></i></span><b style="text-align:right">${by[a]}</b></button>`).join('')}</div>` : `<div class="xs mut">${tr('Пока ни у кого не указана дата рождения', 'No birth dates yet')}</div>`}
-    ${none ? `<button class="agebar" style="grid-template-columns:1fr auto;color:var(--tx2)" data-a="ageList" data-x="none"><span>${tr('Без даты рождения', 'No birth date')}</span><b>${none}</b></button>` : ''}
   </div>`;
 }
 // ---------- ЖУРНАЛ ДЕЙСТВИЙ ----------
@@ -1366,7 +1372,7 @@ const H = {
   // навигация
   tab(x) { S.tab = x; S.more = 'root'; S.ov = null; render(); if (x === 'mark') syncMarks(); },
   moreRoot() { S.more = 'root'; render(); }, goGroups() { S.more = 'groups'; render(); }, goRules() { S.more = 'rules'; render(); }, goAccess() { S.more = 'access'; render(); }, goQR() { S.more = 'qr'; render(); },
-  close() { if (S.ov && S.ov.type === 'prof' && S.ov.menu) { S.ov.menu = null; return rerender(); } if (S.ov && S.ov.type === 'gone' && S.ov.pid) { S.ov.pid = null; return rerender(); } if (S.ov && S.ov.type === 'log' && S.ov.sel != null) { S.ov.sel = null; return rerender(); } S.ov = null; rerender(); },
+  close() { if (S.ov && S.ov.type === 'ageDyn' && S.ov.age != null) { S.ov.age = null; return rerender(); } if (S.ov && S.ov.type === 'prof' && S.ov.menu) { S.ov.menu = null; return rerender(); } if (S.ov && S.ov.type === 'gone' && S.ov.pid) { S.ov.pid = null; return rerender(); } if (S.ov && S.ov.type === 'log' && S.ov.sel != null) { S.ov.sel = null; return rerender(); } S.ov = null; rerender(); },
   ovToggle(x) { S.ov[x] = !S.ov[x]; rerender(); },
   async teenCode() { const ov = S.ov; try { const r = await api('teenCode', { teenId: ov.id }); if (S.ov === ov) { ov.code = r.code; rerender(); } } catch (e) { toast(errText(e)); } },
   sameAddr() { syncForm(); const ov = S.ov, F = ov.f; if (!ov.sameAddr) { if (!String(F.addr || '').trim()) return toast(tr('Сначала введите адрес подростка', 'Enter the teen’s address first')); ov.sameAddr = true; F.pAddr = F.addr; } else { ov.sameAddr = false; F.pAddr = ''; } rerender(); },
@@ -1588,8 +1594,11 @@ const H = {
     catch (e) { if (S.ov) { S.ov.err = e && e.message === 'bad_image' ? tr('Фото слишком большое или не того формата. Выберите другое.', 'The photo is too large or in the wrong format. Choose another.') : errText(e); rerender(); } } },
   async delEvOk() { const id = S.ov.id; try { await api('delEvent', { id }); S.ov = null; await load(); toast(tr('Удалено', 'Deleted')); } catch (e) { toast(errText(e)); } },
   ageList(x) { S.ov = { type: 'ages', age: x }; rerender(); },
-  ageDyn() { S.ov = { type: 'ageDyn', n: 6 }; rerender(); },
-  ageN(x) { S.ov.n = +x; rerender(); },
+  ageDyn() { S.ov = { type: 'ageDyn', n: 6, view: 'came', m: null, age: null }; rerender(); },
+  ageN(x) { S.ov.n = +x; S.ov.m = null; rerender(); },
+  ageV(x) { S.ov.view = x; S.ov.age = null; rerender(); },
+  ageM(x) { S.ov.m = x; rerender(); },
+  ageRow(x) { S.ov.age = +x; rerender(); },
   editLeader(id) { const l = (D.leaders || []).find(x => x.id === id); if (!l || l.me) return; S.ov = { type: 'leader', id, f: { name: l.name, email: l.email, role: l.role, groups: l.groups.slice() } }; rerender(); },
   leadG(g) { const a = S.ov.f.groups; const i = a.indexOf(g); i >= 0 ? a.splice(i, 1) : a.push(g); rerender(); },
   async sendInvite() { const F = S.ov.f; S.ov.err = '';
