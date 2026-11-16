@@ -748,7 +748,7 @@ function viewDash() {
   const label = fk.find(x => x[0] === S.dash)[1];
   return `<h1 class="h1">${tr('Дашборд', 'Dashboard')}</h1>
   <div id="dchips" style="display:flex;gap:6px;overflow-x:auto;padding:4px 0">${fk.map(([k, l]) => `<button class="chip ${k === S.dash ? 'on' : ''}" data-a="dash" data-x="${k}">${esc(l)}</button>`).join('')}</div>
-  <div class="stats3"><div class="stat acc"><b>${last}</b><span class="xs mut">${tr('последняя', 'latest')}</span></div><div class="stat"><b>${avg}</b><span class="xs mut">${tr('в среднем', 'average')}</span></div><div class="stat"><b>${S.dash === 'all' ? rec : Math.max(0, ...vals)}</b><span class="xs mut">${tr('рекорд', 'record')}</span></div></div>
+  <div class="stats3"><div class="stat"><b>${last}</b><span class="xs mut">${tr('последняя', 'latest')}</span></div><div class="stat"><b>${avg}</b><span class="xs mut">${tr('в среднем', 'average')}</span></div><div class="stat"><b>${S.dash === 'all' ? rec : Math.max(0, ...vals)}</b><span class="xs mut">${tr('рекорд', 'record')}</span></div></div>
   ${goneCard()}
   <div class="dashgrid">
   <div class="card" style="display:flex;flex-direction:column;gap:12px"><div style="font-size:14px;font-weight:600">${tr('Посещаемость · ', 'Attendance · ')}${esc(label)}${tr(' · последние встречи', ' · recent meetings')}</div>
