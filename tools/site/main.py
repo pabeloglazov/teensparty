@@ -85,6 +85,7 @@ def sg(day,time,leader,msg,tel,ext):
 i=b.index('<div style="flex: 1 1 260px; min-width: 0; height: 300px; perspective: 1200px">'); j=b.index('<div style="flex: 1 1 260px; min-width: 0; background: #1C140F; border: 1px solid #FF8A3D;')
 b=b[:i]+sg('СРЕДА','6:00 PM','Tima','sms:+19165595882','+19165595882',0)+sg('ПЯТНИЦА','7:00 PM','Pasha','https://t.me/pabeloglazov','+12797592990',1)+b[j:]
 assert 'data-flip' not in b
+rep('Подростковое служение русскоязычного потока SOL Church','Подростковое служение SOL RU')
 b=b.replace('OCT 20','OCT 17')  # дата поездки в Стенфорд — как в Check-in (2026-10-17)
 rep('line-height: 0.86; letter-spacing: -0.04em">3:16<br><span style="color: #0E0F12; -webkit-text-stroke: 2px #F4F4F5">TEENS</span></h1>','line-height: 0.86; letter-spacing: -0.04em" class="hero" aria-label="3:16 TEENS"><span class="hl1" aria-hidden="true"><i>3</i><i>:</i><i>1</i><i>6</i></span><span class="hl2" aria-hidden="true">TEENS</span></h1>')
 rep('font-size: clamp(64px, 12vw, 168px); line-height: 0.86; letter-spacing: -0.04em" class="hero"','font-size: 0; line-height: 0" class="hero"')
@@ -129,7 +130,7 @@ css=''':root{--cw:min(78%,860px);--gw:min(70%,520px);--ar:9 / 4}
 @media (prefers-reduced-motion:reduce){.hero .hl1 i{transform:none}.hero .hl2{opacity:1}}
 @media (max-width:720px){.nav{grid-template-columns:1fr auto}.xban{align-items:start}.xcal{border-radius:14px}.xbtn{height:58px;font-size:17px}.xtag{font-size:11px;padding:8px 12px}.herobtns a{flex:1 1 100%;min-width:0}.hero .hl1,.hero .hl2{display:block;width:max-content}.hero .hl1{font-size:36vw;margin-right:0}.hero .hl2{font-size:21.5vw;margin-top:.06em}.lead{font-size:17px!important;min-height:3em}[data-move]{display:none!important}.chips{flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none;margin:0 -24px;padding:0 24px;-webkit-overflow-scrolling:touch}.chips::-webkit-scrollbar{display:none}}'''
 TR={
-'Подростковое служение русскоязычного потока SOL Church':['Youth ministry of the Russian-speaking stream of SOL Church','Підліткове служіння російськомовного потоку SOL Church'],
+'Подростковое служение SOL RU':['SOL RU youth ministry','Підліткове служіння SOL RU'],
 'События':['Events','Події'],'Встречи':['Meetings','Зустрічі'],'Фото':['Photos','Фото'],'Контакты':['Contacts','Контакти'],
 'Ближайшее событие':['Next event','Найближча подія'],'Наши встречи':['Our events','Наші зустрічі'],'Скоро':['Coming up','Незабаром'],
 'Зарегистрироваться':['Register','Зареєструватися'],'Каждую неделю':['Every week','Щотижня'],
@@ -189,6 +190,6 @@ js='''
 })();
 '''
 LB='<div class="lb" id="lb" aria-hidden="true"><img id="lbImg" alt=""><button type="button" class="x" aria-label="Close">×</button><button type="button" class="pv" aria-label="Previous">‹</button><button type="button" class="nx" aria-label="Next">›</button><div class="cnt" id="lbC"></div></div>'
-html=HEAD%dict(title='3:16 TEENS · SOL Church',desc='3:16 TEENS — подростковое служение русскоязычного потока SOL Church: TEENS PARTY, small groups, фото.',extra='',bg='#0E0F12',css=css)+b+'\n'+LB+'\n<script>'+js+i18n(TR)+'</script>\n</body>\n</html>\n'
+html=HEAD%dict(title='3:16 TEENS · SOL Church',desc='3:16 TEENS — подростковое служение SOL RU: TEENS PARTY, small groups, фото.',extra='',bg='#0E0F12',css=css)+b+'\n'+LB+'\n<script>'+js+i18n(TR)+'</script>\n</body>\n</html>\n'
 html=html.replace('href="sms:+19165595882" target="_blank" rel="noopener"','href="sms:+19165595882"')
 open('/home/claude/teensparty/index.html','w').write(html); print(len(html))
