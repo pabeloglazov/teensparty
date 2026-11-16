@@ -1092,7 +1092,7 @@ function evLookup(eid, phone, d, m) {
     if (!(+d >= 1 && +d <= 31 && +m >= 1 && +m <= 12)) throw new Error('need_birth');
     const pool = whoAmI_(phone, d, m, rows_('Подростки'));
     if (!pool.length) return { found: false };
-    return { found: true, cands: pool.map(t => ({ k: keyFor_(t.id), first: t.first, lead: t.isLeader === '1', needPar: t.isLeader !== '1' && !(String(t.pFirst || '').trim() && digits_(t.pPhone).length >= 10), already: rg.some(r => r.teenId === t.id) })) };
+    return { found: true, cands: pool.map(t => { const c = { k: keyFor_(t.id), first: t.first, lead: t.isLeader === '1', needPar: t.isLeader !== '1' && !(String(t.pFirst || '').trim() && digits_(t.pPhone).length >= 10), already: rg.some(r => r.teenId === t.id) }; const mine = rg.find(r => r.teenId === t.id); if (mine) { c.friends = +mine.friends || 0; c.bring = mine.bring || ''; } return c; }) };
   });
 }
 function evAns_(e, f) { const n = parseInt(f && f.friends, 10); return { friends: e.askFriend === '1' && n >= 1 && n <= 3 ? String(n) : '', bring: e.askBring === '1' ? String((f && f.bring) || '').replace(/\s+/g, ' ').trim().slice(0, 80) : '' }; }
