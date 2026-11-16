@@ -537,18 +537,90 @@ function ageBody(known, none, by, ages, mx, avg) {
     ${none ? `<button class="agebar" style="grid-template-columns:1fr auto;color:var(--tx2)" data-a="ageList" data-x="none"><span>${tr('Без даты рождения', 'No birth date')}</span><b>${none}</b></button>` : ''}
   </div>`;
 }
+// ---------- ЖУРНАЛ ДЕЙСТВИЙ ----------
+const LIK = { mark: 'M5 12l5 5L19 7', teen: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 3a4 4 0 1 1 0 8a4 4 0 0 1 0-8M19 8v6M22 11h-6', meet: 'M12 2a10 10 0 1 0 0 20a10 10 0 0 0 0-20zM12 6v6l4 2', set: 'M4 6h16M4 12h16M4 18h10', task: 'M4 4h16v16H4zM8 12l3 3 5-6' };
+const LCAT = () => [['all', tr('Все', 'All')], ['mark', tr('Отметки', 'Check-ins')], ['teen', tr('Подростки', 'Teens')], ['meet', tr('Встречи', 'Meetings')], ['task', tr('Задания', 'Tasks')], ['set', tr('Настройки', 'Settings')]];
+const logDay = ts => { const d = new Date(ts); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+const logTime = ts => { const d = new Date(ts); return t12(d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0')); };
+// сырые строки журнала → записи для ленты; отметки одного человека на одной встрече за день склеиваются
+function logItems(o) {
+  if (o._it && o._src === o.rows) return o._it;
+  const who = o.who || {}, out = [], open = {};
+  const tn = id => IDX.teen[id] ? tname(IDX.teen[id]) : '', rl = r => (ROLES().find(x => x[0] === r) || [])[1] || '';
+  (o.rows || []).forEach(r => { let d = {}; try { d = JSON.parse(r[4] || '{}') || {}; } catch (e) {}
+    const em = String(r[1] || '').toLowerCase(), w = who[em] || [], self = em === String(D.me.email || '').toLowerCase();
+    const e = { ts: r[0], em, by: self ? tr('Вы', 'You') : (w[0] || r[1]), role: rl(w[1]), ini: ini(w[0] || r[1] || '?'), teen: r[3], det: [] };
+    const A = r[2], nm = tn(r[3]) || d.n || tr('подросток', 'a teen'), V = (ru, en) => { e.verb = tr(ru, en); };
+    if (A === 'mark') { const k = em + '|' + d.d + '|' + d.k + '|' + d.m + '|' + (d.on ? 1 : 0) + '|' + logDay(r[0]), g = open[k];
+      if (g) { g.ts = r[0]; if (g.ids.indexOf(r[3]) < 0) g.ids.push(r[3]); return; }
+      e.cat = 'mark'; e.on = d.on; e.ids = [r[3]]; e.meet = meetName(d.k, d.m) + (d.d && d.d !== logDay(r[0]) ? ' · ' + human(d.d) : ''); open[k] = e; return out.push(e); }
+    if (A === 'addTeen') { e.cat = 'teen'; V('добавил(а) подростка', 'added a teen'); e.obj = nm; }
+    else if (A === 'updateTeen') { e.cat = 'teen'; V('изменил(а) профиль', 'edited a profile'); e.obj = nm; }
+    else if (A === 'mergeTeens') { e.cat = 'teen'; V('объединил(а) профили', 'merged profiles'); e.obj = (d.drop || '?') + ' → ' + (d.keep || nm); e.det = [[tr('Основной профиль', 'Main profile'), d.keep || nm], [tr('Влит профиль', 'Merged in'), d.drop || ''], [tr('Посещений перенесено', 'Visits moved'), String(d.moved == null ? '' : d.moved)]]; }
+    else if (A === 'teenCode') { e.cat = 'teen'; V('выдал(а) код входа', 'issued a login code'); e.obj = nm; }
+    else if (A === 'contact') { e.cat = 'teen'; V(d.on === true ? 'отметил(а) «связались»' : d.on === false ? 'снял(а) «связались»' : 'оставил(а) заметку', d.on === true ? 'marked as contacted' : d.on === false ? 'removed “contacted”' : 'left a note'); e.obj = nm + (d.note ? ' · «' + d.note + '»' : ''); if (d.note) e.det = [[tr('Заметка', 'Note'), d.note]]; }
+    else if (A === 'igReview') { e.cat = 'teen'; V(d.ok ? 'подтвердил(а) Instagram' : 'отклонил(а) Instagram', d.ok ? 'approved Instagram' : 'rejected Instagram'); e.obj = nm; }
+    else if (A === 'groupReq') { e.cat = 'teen'; V(d.ok ? 'принял(а) заявку в группу' : 'отклонил(а) заявку в группу', d.ok ? 'approved a group request' : 'declined a group request'); e.obj = ''; }
+    else if (A === 'meetOff') { e.cat = 'meet'; V(d.on ? 'отметил(а): встречи не было' : 'вернул(а) встречу', d.on ? 'marked: no meeting' : 'restored a meeting'); e.obj = meetName(d.k, d.m) + ' · ' + human(d.d) + (d.on && d.r ? ' · ' + offLabel(d.r) : ''); e.det = [[tr('Встреча', 'Meeting'), meetName(d.k, d.m)], [tr('Дата', 'Date'), human(d.d)]].concat(d.on ? [[tr('Причина', 'Reason'), offLabel(d.r || '')]] : []).concat(d.clear ? [[tr('Отметки', 'Check-ins'), tr('сняты', 'removed')]] : []); }
+    else if (A === 'addEvent') { e.cat = 'meet'; V('создал(а) событие', 'created an event'); e.obj = (d.n || '') + (d.d ? ' · ' + human(d.d) : ''); }
+    else if (A === 'editEvent') { e.cat = 'meet'; V('изменил(а) событие', 'edited an event'); e.obj = (d.n || '') + (d.d ? ' · ' + human(d.d) : ''); }
+    else if (A === 'delEvent') { e.cat = 'meet'; V('удалил(а) событие', 'deleted an event'); e.obj = ''; }
+    else if (A === 'saveGroup') { e.cat = 'set'; V(d.isNew ? 'создал(а) группу' : 'изменил(а) группу', d.isNew ? 'created a group' : 'edited a group'); e.obj = d.n || ''; }
+    else if (A === 'saveSettings') { e.cat = 'set'; const ks = d.keys || []; const rules = ks.some(k => ['win', 'reg', 'gone'].indexOf(k) >= 0); V(rules ? 'изменил(а) правила списков' : ks.indexOf('meetings') >= 0 ? 'изменил(а) расписание встреч' : 'изменил(а) настройки', rules ? 'changed list rules' : ks.indexOf('meetings') >= 0 ? 'changed the meeting schedule' : 'changed settings'); e.obj = ''; }
+    else if (A === 'invite') { e.cat = 'set'; V('пригласил(а) в команду', 'invited to the team'); e.obj = (d.n || '') + (rl(d.role) ? ' · ' + rl(d.role) : ''); }
+    else if (A === 'updateLeader') { e.cat = 'set'; V('изменил(а) доступ', 'changed access'); const l = (D.leaders || []).find(x => x.id === d.id); e.obj = (l ? l.name : '') + (rl(d.role) ? ' · ' + rl(d.role) : ''); }
+    else if (A === 'removeLeader') { e.cat = 'set'; V('убрал(а) из команды', 'removed from the team'); e.obj = ''; }
+    else if (A === 'savePlanWeek') { e.cat = 'task'; V('изменил(а) план недели', 'edited a week plan'); e.obj = tr('Неделя ', 'Week ') + ((+d.idx || 0) + 1); }
+    else if (A === 'delVcom') { e.cat = 'task'; V('удалил(а) комментарий к стиху', 'deleted a verse comment'); e.obj = ''; }
+    else if (A === 'confirmTask') { e.cat = 'task'; V(d.ok ? 'засчитал(а) задание' : 'не засчитал(а) задание', d.ok ? 'approved a task' : 'rejected a task'); e.obj = nm; }
+    else if (A === 'addTask') { e.cat = 'task'; V('создал(а) задание', 'created a task'); e.obj = d.n || ''; }
+    else if (A === 'taskDone') { e.cat = 'task'; V(d.on ? 'засчитал(а) задание' : 'снял(а) выполнение задания', d.on ? 'marked a task done' : 'unmarked a task'); e.obj = nm; }
+    else if (A === 'remind') { e.cat = 'task'; V('напомнил(а) о задании', 'sent a task reminder'); e.obj = (d.cnt || 0) + ' ' + tr(plur(d.cnt || 0, 'подростку', 'подросткам', 'подросткам'), 'teens'); }
+    else if (A === 'award') { e.cat = 'task'; const m = (typeof MANUAL === 'function' ? MANUAL() : []).find(x => x[0] === d.badge); V('выдал(а) ачивку', 'awarded a badge'); e.obj = (m ? '«' + m[1] + '» · ' : '') + (d.cnt || 0) + ' ' + tr(plur(d.cnt || 0, 'подростку', 'подросткам', 'подросткам'), 'teens'); e.ids = d.ids || []; }
+    else return;
+    out.push(e); });
+  out.forEach(e => { if (e.cat === 'mark') { const n = e.ids.length; e.verb = e.on ? tr('отметил(а) ' + n + ' ' + plur(n, 'подростка', 'подростков', 'подростков'), 'checked in ' + n) : tr('снял(а) отметку у ' + n, 'unchecked ' + n); e.obj = e.meet; if (n === 1) e.teen = e.ids[0]; } });
+  out.forEach(e => { const w = (who[e.em] || [])[0] || '', fem = /[аяАЯ]$/.test(String(w).trim().split(/\s+/)[0] || ''); e.verb = L() ? e.verb : e.verb.replace(/л\(а\)/g, e.em === String(D.me.email || '').toLowerCase() ? 'ли' : fem ? 'ла' : 'л'); });
+  out.sort((a, b) => b.ts - a.ts); o._it = out; o._src = o.rows; return out;
+}
+function logOverlay(o) {
+  if (!o.rows) return full(tr('Журнал действий', 'Activity log'), o.err ? `<div class="err">${esc(o.err)}</div><button class="btn2" data-a="logOpen">${tr('Попробовать ещё раз', 'Try again')}</button>` : `<div class="empty">${tr('Загружаю…', 'Loading…')}</div>`, '');
+  const all = logItems(o), people = []; all.forEach(e => { if (!people.find(p => p[0] === e.em)) people.push([e.em, e.by]); });
+  const min = Date.now() - (+o.days || 7) * 864e5;
+  const L2 = all.filter(e => e.ts >= min && (o.f === 'all' || e.cat === o.f) && (!o.u || e.em === o.u)), show = L2.slice(0, o.lim || 60);
+  const today = logDay(Date.now()), yest = logDay(Date.now() - 864e5), dl = d => d === today ? tr('СЕГОДНЯ', 'TODAY') : d === yest ? tr('ВЧЕРА', 'YESTERDAY') : (human(d) + ' ' + d.slice(0, 4)).toUpperCase();
+  const days = []; show.forEach(e => { const d = logDay(e.ts); let g = days[days.length - 1]; if (!g || g.d !== d) { g = { d, it: [] }; days.push(g); } g.it.push(e); });
+  const row = e => `<button class="row" data-a="logSel" data-x="${all.indexOf(e)}" style="min-height:68px;align-items:flex-start;padding:12px"><div class="av" style="margin-top:2px">${esc(e.ini)}</div><span style="flex:1;min-width:0;text-align:left;display:flex;flex-direction:column;gap:3px"><span style="font-size:14px;line-height:1.35"><b>${esc(e.by)}</b> <span class="mut">${esc(e.verb)}</span></span>${e.obj ? `<span style="font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(e.obj)}</span>` : ''}<span class="xs mut">${e.role ? esc(e.role) + ' · ' : ''}${logTime(e.ts)}</span></span><span style="width:32px;height:32px;border-radius:10px;background:var(--accbg);display:flex;align-items:center;justify-content:center;flex-shrink:0">${svg(LIK[e.cat], ACC, 16, 2.2)}</span></button>`;
+  const sel = (k, opts, lab) => `<select class="inp" data-change="logFilter" data-k="${k}" aria-label="${lab}" style="height:40px;font-size:13px;font-weight:600;border-radius:999px;padding:0 12px;flex:1;min-width:0">${opts.map(x => `<option value="${esc(x[0])}" ${String(o[k] || '') === String(x[0]) ? 'selected' : ''}>${esc(x[1])}</option>`).join('')}</select>`;
+  const body = `<div style="display:flex;flex-direction:column;gap:8px;margin:-4px 0"><div style="display:flex;gap:8px;overflow-x:auto">${LCAT().map(c => `<button class="chip ${o.f === c[0] ? 'on' : ''}" data-a="logF" data-x="${c[0]}">${c[1]}</button>`).join('')}</div>
+    <div style="display:flex;gap:8px">${sel('u', [['', tr('Кто: все', 'Who: everyone')]].concat(people), tr('Кто', 'Who'))}${sel('days', [[1, tr('Сегодня и вчера', 'Last 24 hours')], [7, tr('7 дней', '7 days')], [30, tr('30 дней', '30 days')], [90, tr('90 дней', '90 days')]], tr('Период', 'Period'))}</div></div>
+    ${days.length ? days.map(g => `<div style="display:flex;flex-direction:column;gap:6px"><div class="sec" style="margin-bottom:2px">${dl(g.d)}</div>${g.it.map(row).join('')}</div>`).join('') : `<div class="empty">${all.length ? tr('За этот период и фильтр записей нет', 'Nothing for this period and filter') : tr('Пока пусто. Журнал пишется с момента включения — новые действия появятся здесь.', 'Nothing yet. The log starts from the day it was turned on.')}</div>`}
+    ${L2.length > show.length ? `<button class="btn2" data-a="logMore">${tr('Показать ещё', 'Show more')} · ${L2.length - show.length}</button>` : ''}
+    <div class="xs mut" style="line-height:1.45">${tr('Журнал только для чтения, хранится 90 дней. Виден только админу.', 'Read-only, kept for 90 days. Visible to admins only.')}</div>`;
+  let sh = '';
+  if (o.sel != null && all[o.sel]) { const e = all[o.sel], ids = (e.ids || []).filter(id => IDX.teen[id]);
+    const det = e.det.slice(); if (e.cat === 'mark') det.unshift([tr('Встреча', 'Meeting'), e.meet]);
+    sh = sheet(esc(e.verb.charAt(0).toUpperCase() + e.verb.slice(1)), `<div style="display:flex;align-items:center;gap:12px"><div class="av">${esc(e.ini)}</div><div style="flex:1;min-width:0"><div style="font-size:15px;font-weight:600">${esc(e.by)}${e.role ? ' · ' + esc(e.role) : ''}</div><div class="xs mut">${esc(human(logDay(e.ts)))} ${logDay(e.ts).slice(0, 4)} · ${logTime(e.ts)}</div></div></div>
+      ${e.obj && !det.length ? `<div style="font-size:15px;font-weight:600;overflow-wrap:anywhere">${esc(e.obj)}</div>` : ''}
+      ${det.length ? `<div class="card" style="display:flex;flex-direction:column;gap:10px"><div class="xs mut" style="font-weight:700;letter-spacing:.04em">${tr('ПОДРОБНОСТИ', 'DETAILS')}</div>${det.map(r => `<div style="display:flex;gap:12px;font-size:14px"><span class="mut" style="flex:1">${esc(r[0])}</span><span style="font-weight:600;text-align:right;overflow-wrap:anywhere;max-width:60%">${esc(r[1])}</span></div>`).join('')}</div>` : ''}
+      ${ids.length > 1 ? `<div style="display:flex;flex-direction:column;gap:6px"><div class="sec">${tr('КТО', 'WHO')} · ${ids.length}</div>${ids.map(id => `<button class="row" data-a="openProf" data-x="${id}" style="min-height:48px"><div class="av" style="width:30px;height:30px;font-size:11px">${esc(ini(tname(IDX.teen[id])))}</div><span style="flex:1;text-align:left;font-size:15px;font-weight:500">${esc(tname(IDX.teen[id]))}</span>${svg(IC.right, '#5F626B', 16, 2.5)}</button>`).join('')}</div>` : ''}`,
+      e.teen && IDX.teen[e.teen] ? `<button class="btn2" data-a="openProf" data-x="${e.teen}">${tr('Открыть профиль подростка', 'Open the teen’s profile')}</button>` : ''); }
+  return full(tr('Журнал действий', 'Activity log'), body, '') + sh;
+}
 // ---------- ДАВНО НЕ БЫЛИ ----------
 const GCOL = ['#F5C451', '#FF8A3D', '#F87171'];
 const GBN = () => [tr('3–4 НЕДЕЛИ', '3–4 WEEKS'), tr('1–2 МЕСЯЦА', '1–2 MONTHS'), tr('3+ МЕСЯЦА', '3+ MONTHS')];
-function goneAll() {
-  if (S._gone && S._gone.src === D.att && S._gone.c === D.contacts && S._gone.as === S.as) return S._gone.list;
-  const last = {}; D.att.forEach(a => { const c = last[a[3]]; if (!c || a[0] > c[0]) last[a[3]] = a; });
-  const r = myRole(), mine = D.me.groups || [], today = parse(D.today);
-  const list = D.teens.filter(t => !t.isLeader && last[t.id] && (r !== 'leader' || t.groups.some(g => mine.indexOf(g) >= 0))).map(t => {
-    const a = last[t.id], days = Math.round((today - parse(a[0])) / 864e5), c = IDX.contact[t.id], ok = c && c.upd >= a[0];
-    return { t, days, last: a[0], lk: a[1], lm: a[2], b: days < 35 ? 0 : days < 91 ? 1 : 2, nw: days < 28, c: ok && c.date ? c : null, note: ok ? c.note : '' };
+function goneAll(sc) {
+  sc = sc || 'any'; const key = sc + '|' + (S.as ? 1 : 0);
+  if (S._gone && S._gone.src === D.att && S._gone.c === D.contacts && S._gone.key === key) return S._gone.list;
+  const any = {}, scoped = {}; const inSc = (a, t) => sc === 'any' || (sc === 'grp' ? a[1] === 'group' : (a[1] === 'service' && a[2] === sc));
+  D.att.forEach(a => { const c = any[a[3]]; if (!c || a[0] > c[0]) any[a[3]] = a; if (inSc(a)) { const q = scoped[a[3]]; if (!q || a[0] > q[0]) scoped[a[3]] = a; } });
+  const r = myRole(), mine = D.me.groups || [], today = parse(D.today), dd = d => Math.round((today - parse(d)) / 864e5);
+  const list = D.teens.filter(t => !t.isLeader && scoped[t.id] && (sc !== 'grp' || t.groups.length) && (r !== 'leader' || t.groups.some(g => mine.indexOf(g) >= 0))).map(t => {
+    const a = scoped[t.id], la = any[t.id], days = dd(a[0]), c = IDX.contact[t.id], ok = c && c.upd >= la[0];
+    return { t, days, last: a[0], lk: a[1], lm: a[2], b: days < 35 ? 0 : days < 91 ? 1 : 2, nw: days < 28, c: ok && c.date ? c : null, note: ok ? c.note : '', other: sc !== 'any' && la[0] > a[0] && dd(la[0]) < 21 ? la : null };
   }).filter(x => x.days >= 21).sort((a, b) => a.days - b.days);
-  S._gone = { src: D.att, c: D.contacts, as: S.as, list }; return list;
+  S._gone = { src: D.att, c: D.contacts, key, list }; return list;
 }
 const goneDur = d => { if (d < 56) { const w = Math.floor(d / 7); return w + ' ' + tr(plur(w, 'неделя', 'недели', 'недель'), w === 1 ? 'week' : 'weeks'); } const m = Math.round(d / 30.4); return m + ' ' + tr(plur(m, 'месяц', 'месяца', 'месяцев'), m === 1 ? 'month' : 'months'); };
 const canContact = () => !S.as && ['admin', 'leader', 'mod'].indexOf(myRole()) >= 0;
@@ -561,18 +633,21 @@ function goneCard() {
   <span class="xs" style="color:var(--acc2)">${nw ? '+' + nw + tr(' ' + plur(nw, 'новый', 'новых', 'новых') + ' на этой неделе · ', ' new this week · ') : ''}${nc ? tr('с ' + nc + ' ещё никто не связался', nc + ' not contacted yet') : tr('со всеми связались', 'everyone contacted')}</span></button>`;
 }
 function goneOverlay(o) {
-  const all = goneAll(), groups = visibleGroups().filter(g => all.some(x => x.t.groups.indexOf(g.id) >= 0));
+  const scs = [['any', tr('Любая встреча', 'Any meeting')], ...SVCS().map(v => [v.id, v.pl]), ...(visibleGroups().length ? [['grp', tr('Малые группы', 'Small groups')]] : [])];
+  if (!scs.find(v => v[0] === o.sc)) o.sc = 'any';
+  const all = goneAll(o.sc), groups = visibleGroups().filter(g => all.some(x => x.t.groups.indexOf(g.id) >= 0));
   const fs = [['all', tr('Все', 'All')], ['nc', tr('Не связались', 'Not contacted')], ['new', tr('Новые', 'New')], ...groups.map(g => [g.id, g.name])];
   const ok = (x, f) => f === 'all' || (f === 'nc' && !x.c) || (f === 'new' && x.nw) || x.t.groups.indexOf(f) >= 0;
   if (!fs.find(f => f[0] === o.f)) o.f = 'all';
   const L2 = all.filter(x => ok(x, o.f));
-  const row = x => { const fem = /[ая]$/i.test(String(x.t.first || '').trim()); return `<button class="row" data-a="goneP" data-x="${x.t.id}" style="min-height:64px"><span style="width:4px;align-self:stretch;border-radius:4px;background:${GCOL[x.b]};flex-shrink:0"></span><div class="av">${esc(ini(tname(x.t)))}</div><span style="flex:1;min-width:0;text-align:left;display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(tname(x.t))}${x.nw ? ` <span class="xs" style="color:var(--acc2);font-weight:600">· ${tr('новый в списке', 'new here')}</span>` : ''}</span><span class="xs mut" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${goneDur(x.days)} · ${tr(fem ? 'была ' : 'был ', 'last ')}${esc(human(x.last))}, ${esc(meetName(x.lk, x.lm))}</span></span>${x.c ? `<span class="xs" style="color:var(--green);white-space:nowrap">${tr('связались', 'contacted')}</span>` : ''}${svg(IC.right, '#5F626B', 18, 2.5)}</button>`; };
-  const body = `<div style="display:flex;gap:8px;overflow-x:auto;margin:-4px 0">${fs.map(f => `<button class="chip ${o.f === f[0] ? 'on' : ''}" data-a="goneF" data-x="${f[0]}">${esc(f[1])} · ${all.filter(x => ok(x, f[0])).length}</button>`).join('')}</div>
+  const row = x => { const fem = /[ая]$/i.test(String(x.t.first || '').trim()); return `<button class="row" data-a="goneP" data-x="${x.t.id}" style="min-height:64px"><span style="width:4px;align-self:stretch;border-radius:4px;background:${GCOL[x.b]};flex-shrink:0"></span><div class="av">${esc(ini(tname(x.t)))}</div><span style="flex:1;min-width:0;text-align:left;display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(tname(x.t))}${x.nw ? ` <span class="xs" style="color:var(--acc2);font-weight:600">· ${tr('новый в списке', 'new here')}</span>` : ''}</span><span class="xs mut" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${o.sc === 'any' ? goneDur(x.days) + ' · ' + tr(fem ? 'была ' : 'был ', 'last ') + esc(human(x.last)) + ', ' + esc(meetName(x.lk, x.lm)) : esc(meetName(x.lk, x.lm)) + ' · ' + tr('нет ', 'away ') + goneDur(x.days)}</span>${x.other ? `<span class="xs" style="color:var(--green);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${tr(fem ? 'но была ' : 'но был ', 'but came ')}${esc(human(x.other[0]))}, ${esc(meetName(x.other[1], x.other[2]))}</span>` : ''}</span>${x.c ? `<span class="xs" style="color:var(--green);white-space:nowrap">${tr('связались', 'contacted')}</span>` : ''}${svg(IC.right, '#5F626B', 18, 2.5)}</button>`; };
+  const body = `<div style="display:flex;flex-direction:column;gap:8px;margin:-4px 0"><div class="xs mut" style="font-weight:700;letter-spacing:.04em">${tr('ГДЕ НЕ БЫЛИ', 'MISSING FROM')}</div><div style="display:flex;gap:8px;overflow-x:auto">${scs.map(v => `<button class="chip ${o.sc === v[0] ? 'on' : ''}" data-a="goneSc" data-x="${v[0]}">${esc(v[1])}</button>`).join('')}</div>
+    <div style="display:flex;gap:8px;overflow-x:auto">${fs.map(f => `<button class="chip" style="min-height:34px;${o.f === f[0] ? 'border-color:var(--acc);color:var(--acc)' : ''}" aria-pressed="${o.f === f[0]}" data-a="goneF" data-x="${f[0]}">${esc(f[1])} · ${all.filter(x => ok(x, f[0])).length}</button>`).join('')}</div></div>
     ${L2.length ? [0, 1, 2].map(b => { const g = L2.filter(x => x.b === b); return g.length ? `<div style="display:flex;flex-direction:column;gap:6px"><div class="sec" style="color:${GCOL[b]};margin-bottom:2px">${GBN()[b]} · ${g.length}</div>${g.map(row).join('')}</div>` : ''; }).join('') : `<div class="empty">${tr('В этом фильтре никого нет', 'No one in this filter')}</div>`}`;
   return full(tr('Давно не были', 'Missing lately') + ' · ' + all.length, body, '') + (o.pid ? gonePerson(o) : '');
 }
 function gonePerson(o) {
-  const x = goneAll().find(y => y.t.id === o.pid), t = x ? x.t : IDX.teen[o.pid]; if (!t) return '';
+  const x = goneAll(o.sc).find(y => y.t.id === o.pid), t = x ? x.t : IDX.teen[o.pid]; if (!t) return '';
   const fem = /[ая]$/i.test(String(t.first || '').trim());
   const dates = Array.from(new Set(D.att.filter(a => a[1] === 'service' && !IDX.off[a[0] + '|' + a[1] + '|' + a[2]]).map(a => a[0]))).sort().slice(-8);
   const mine = {}; D.att.forEach(a => { if (a[3] === t.id) mine[a[0]] = 1; });
@@ -583,7 +658,7 @@ function gonePerson(o) {
   const sms = 'sms:' + tel + (/iPhone|iPad|iPod|Macintosh/.test(navigator.userAgent) ? '&' : '?') + 'body=' + encodeURIComponent(msg);
   const lnk = (href, p, a, b) => tel ? `<a class="row" href="${href}" style="gap:14px;min-height:64px;text-decoration:none;color:var(--tx)">${sq(p)}${txt(a, b)}${svg(IC.right, '#5F626B', 18, 2.5)}</a>` : `<div class="row" style="gap:14px;min-height:64px;cursor:default;opacity:.55">${sq(p, '#8B8B94', 'var(--card2)')}${txt(a, tr('телефон не указан', 'no phone on file'))}</div>`;
   const c = x && x.c;
-  return sheet(esc(tname(t)), `<div class="sm" style="color:${x ? GCOL[x.b] : 'var(--mu)'};font-weight:600">${x ? tr(fem ? 'Не была ' : 'Не был ', 'Away for ') + goneDur(x.days) : tr('Снова приходит', 'Back again')}${t.groups.length ? ' · ' + esc(t.groups.map(g => (IDX.group[g] || {}).name).filter(Boolean).join(', ')) : ''}</div>
+  return sheet(esc(tname(t)), `<div class="sm" style="color:${x ? GCOL[x.b] : 'var(--mu)'};font-weight:600">${x ? (o.sc === 'any' ? '' : esc(meetName(x.lk, x.lm)) + ': ') + tr(fem ? (o.sc === 'any' ? 'Не была ' : 'не была ') : (o.sc === 'any' ? 'Не был ' : 'не был '), 'away for ') + goneDur(x.days) : tr('Снова приходит', 'Back again')}${t.groups.length ? ' · ' + esc(t.groups.map(g => (IDX.group[g] || {}).name).filter(Boolean).join(', ')) : ''}</div>
     <div class="card" style="display:flex;flex-direction:column;gap:10px"><div class="xs mut" style="font-weight:700;letter-spacing:.04em">${tr('ПОСЛЕДНИЕ ' + dates.length + ' ' + plur(dates.length, 'ВСТРЕЧА', 'ВСТРЕЧИ', 'ВСТРЕЧ'), 'LAST ' + dates.length + ' MEETINGS')}</div><div style="display:flex;gap:6px" role="img" aria-label="${tr('Был на ', 'Attended ')}${dates.filter(d => mine[d]).length}${tr(' из ', ' of ')}${dates.length}">${dates.map(d => `<span style="flex:1;height:26px;border-radius:7px;background:${mine[d] ? 'var(--acc)' : 'var(--card2)'};border:1px solid ${mine[d] ? 'var(--acc)' : 'var(--line2)'}"></span>`).join('')}</div><div class="xs mut">${x ? tr('Последний раз: ', 'Last time: ') + esc(human(x.last)) + ' ' + x.last.slice(0, 4) + ', ' + esc(meetName(x.lk, x.lm)) + ' · ' : ''}${tr('всего ', 'total ')}${IDX.total[t.id] || 0} ${tr(plur(IDX.total[t.id] || 0, 'посещение', 'посещения', 'посещений'), 'visits')}</div></div>
     <div style="display:flex;flex-direction:column;gap:6px">${lnk('tel:' + tel, 'M22 16.9v3a2 2 0 0 1-2.2 2A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7l.6 3a2 2 0 0 1-.6 1.9L7.9 9.8a16 16 0 0 0 6.3 6.3l1.2-1.2a2 2 0 0 1 1.9-.6l3 .6a2 2 0 0 1 1.7 2z', tr('Позвонить', 'Call'), esc(t.phone || ''))}${lnk(sms, 'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z', tr('Написать', 'Message'), tr('сообщение с готовым текстом', 'text with a ready message'))}
     ${canContact() ? `<button class="row" data-a="goneMark" style="gap:14px;min-height:64px;${c ? 'border-color:var(--green)' : ''}">${sq(IC.check, c ? '#4ADE80' : ACC, c ? '#12251A' : '')}${txt(c ? tr('Связались', 'Contacted') : tr('Отметить: связались', 'Mark as contacted'), c ? esc(human(c.date)) + (c.by ? ' · ' + esc(c.by) : '') + tr(' · нажмите, чтобы снять', ' · tap to undo') : tr('увидят все лидеры', 'visible to all leaders'))}</button>` : c ? `<div class="row" style="gap:14px;min-height:64px;cursor:default;border-color:var(--green)">${sq(IC.check, '#4ADE80', '#12251A')}${txt(tr('Связались', 'Contacted'), esc(human(c.date)) + (c.by ? ' · ' + esc(c.by) : ''))}</div>` : ''}</div>
@@ -780,6 +855,7 @@ function viewMore() {
   ${r === 'admin' ? moreRow('goGroups', 'gr', tr('Группы и встречи', 'Groups & meetings'), D.groups.length + tr(' групп', ' groups')) : ''}
   ${r === 'admin' ? moreRow('goRules', 'ru', tr('Правила списков', 'List rules'), R().reg + tr(' из ', ' of ') + R().win + ' · ' + R().gone + tr(' подряд', ' in a row')) : ''}
   ${r === 'admin' ? moreRow('goAccess', 'ky', tr('Лидеры и доступ', 'Leaders & access'), (D.leaders || []).length + tr(' в команде', ' in team')) : ''}
+  ${r === 'admin' && !S.as ? moreRow('logOpen', 'ru', tr('Журнал действий', 'Activity log'), tr('кто что сделал', 'who did what')) : ''}
   ${D.ssUrl ? `<a class="row" href="${esc(D.ssUrl)}" target="_blank" rel="noopener" style="text-decoration:none;color:var(--tx);gap:14px;min-height:68px">${moreSq('sh')}<span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span style="font-size:16px;font-weight:600">Google ${tr('Таблица', 'Sheet')}</span><span class="xs mut">${tr('открыть', 'open')}</span></span>${svg(IC.right, '#5F626B', 18, 2.5)}</a>` : ''}
   <div class="row" style="cursor:default;gap:14px;min-height:68px">${moreSq('gl')}<span style="flex:1;font-size:16px;font-weight:600">${tr('Язык', 'Language')}</span><div class="seg" style="grid-template-columns:1fr 1fr;width:120px"><button class="${!L() ? 'on' : ''}" data-a="lang" data-x="ru">RU</button><button class="${L() ? 'on' : ''}" data-a="lang" data-x="en">EN</button></div></div>
   <button class="row" data-a="logout" style="gap:14px;min-height:68px">${moreSq('out', '#F87171')}<span style="flex:1;text-align:left;font-size:16px;font-weight:600">${tr('Выйти', 'Sign out')}</span></button>`;
@@ -958,6 +1034,7 @@ function viewOverlay() {
   if (o.type === 'pw') return planOverlay(o);
   if (o.type === 'day') return dayOverlay(o);
   if (o.type === 'gone') return goneOverlay(o);
+  if (o.type === 'log') return logOverlay(o);
   if (o.type === 'merge') return mergeOverlay(o);
   if (o.type === 'mpick') return mergePickOverlay(o);
   if (o.type === 'off') { const m = meet(), custom = o.reason === '*';
@@ -1059,6 +1136,7 @@ document.addEventListener('input', e => {
 document.addEventListener('change', e => {
   const el = e.target;
   if (el.getAttribute('data-save') === 'settings') { const k = el.getAttribute('data-b').slice(4); api('saveSettings', { [k]: el.value }).then(() => toast(tr('Сохранено', 'Saved'))).catch(err => toast(errText(err))); }
+  if (el.getAttribute('data-change') === 'logFilter' && S.ov && S.ov.type === 'log') { const k = el.getAttribute('data-k'); S.ov[k] = k === 'days' ? +el.value : el.value; S.ov.lim = 60; rerender(); }
   if (el.getAttribute('data-change') === 'goneNote' && S.ov && S.ov.type === 'gone') { S.ov.note = el.value; H.goneNote(); }
   if (el.getAttribute('data-change') === 'otherDate' && el.value) { S.meet = Object.assign({}, meet(), { date: el.value }); S.ov = null; render(); }
 });
@@ -1113,7 +1191,7 @@ const H = {
   // навигация
   tab(x) { S.tab = x; S.more = 'root'; S.ov = null; render(); if (x === 'mark') syncMarks(); },
   moreRoot() { S.more = 'root'; render(); }, goGroups() { S.more = 'groups'; render(); }, goRules() { S.more = 'rules'; render(); }, goAccess() { S.more = 'access'; render(); }, goQR() { S.more = 'qr'; render(); },
-  close() { if (S.ov && S.ov.type === 'gone' && S.ov.pid) { S.ov.pid = null; return rerender(); } S.ov = null; rerender(); },
+  close() { if (S.ov && S.ov.type === 'gone' && S.ov.pid) { S.ov.pid = null; return rerender(); } if (S.ov && S.ov.type === 'log' && S.ov.sel != null) { S.ov.sel = null; return rerender(); } S.ov = null; rerender(); },
   ovToggle(x) { S.ov[x] = !S.ov[x]; rerender(); },
   async teenCode() { const ov = S.ov; try { const r = await api('teenCode', { teenId: ov.id }); if (S.ov === ov) { ov.code = r.code; rerender(); } } catch (e) { toast(errText(e)); } },
   sameAddr() { syncForm(); const ov = S.ov, F = ov.f; if (!ov.sameAddr) { if (!String(F.addr || '').trim()) return toast(tr('Сначала введите адрес подростка', 'Enter the teen’s address first')); ov.sameAddr = true; F.pAddr = F.addr; } else { ov.sameAddr = false; F.pAddr = ''; } rerender(); },
@@ -1172,13 +1250,19 @@ const H = {
   bar(x) { S.bar = x; rerender(); },
   dayEv(k) { S.ov = { type: 'day', key: k, tab: 0 }; rerender(); },
   dayTab(v) { S.ov.tab = +v; rerender(); },
-  goneOpen() { S.ov = { type: 'gone', f: 'all', pid: null }; rerender(); },
+  async logOpen() { const o = S.ov = { type: 'log', f: 'all', u: '', days: 7, lim: 60, sel: null, rows: null }; rerender();
+    try { const r = await api('log', {}); if (S.ov === o) { o.rows = r.rows || []; o.who = r.who || {}; rerender(); } } catch (e) { if (S.ov === o) { o.err = errText(e); rerender(); } } },
+  logF(x) { S.ov.f = x; S.ov.lim = 60; rerender(); },
+  logSel(i) { S.ov.sel = +i; rerender(); },
+  logMore() { S.ov.lim = (S.ov.lim || 60) + 100; rerender(); },
+  goneOpen() { S.ov = { type: 'gone', f: 'all', sc: 'any', pid: null }; rerender(); },
+  goneSc(x) { S.ov.sc = x; rerender(); },
   goneF(x) { S.ov.f = x; rerender(); },
-  goneP(id) { const x = goneAll().find(y => y.t.id === id); S.ov.pid = id; S.ov.note = x ? x.note : ''; rerender(); },
-  async goneMark() { const id = S.ov.pid, x = goneAll().find(y => y.t.id === id), old = D.contacts, on = !(x && x.c);
+  goneP(id) { const x = goneAll(S.ov.sc).find(y => y.t.id === id); S.ov.pid = id; S.ov.note = x ? x.note : ''; rerender(); },
+  async goneMark() { const id = S.ov.pid, x = goneAll(S.ov.sc).find(y => y.t.id === id), old = D.contacts, on = !(x && x.c);
     setContact(id, { date: on ? D.today : '', by: on ? (D.me.name || '') : '', note: S.ov.note || '' }); rerender();
     try { await api('contact', { teenId: id, on, note: S.ov.note || '' }); toast(on ? tr('Отмечено: связались', 'Marked as contacted') : tr('Отметка снята', 'Mark removed')); } catch (e) { D.contacts = old; buildIdx(); rerender(); toast(errText(e)); } },
-  async goneNote() { const id = S.ov.pid, x = goneAll().find(y => y.t.id === id), old = D.contacts, c = x && x.c;
+  async goneNote() { const id = S.ov.pid, x = goneAll(S.ov.sc).find(y => y.t.id === id), old = D.contacts, c = x && x.c;
     setContact(id, { date: c ? c.date : '', by: c ? c.by : '', note: S.ov.note || '' });
     try { await api('contact', { teenId: id, note: S.ov.note || '' }); toast(tr('Заметка сохранена', 'Note saved')); } catch (e) { D.contacts = old; buildIdx(); toast(errText(e)); } },
   cntOpen() { const m = meet(); S.ov = { type: 'day', key: m.date + '|' + m.kind + '|' + m.meetId, tab: 0 }; rerender(); },

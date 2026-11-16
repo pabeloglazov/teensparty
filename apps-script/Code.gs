@@ -22,6 +22,7 @@ const COLS = {
   'Ачивки': [['id','ID'],['badge','Ачивка'],['teenId','Подросток (ID)'],['date','Дата'],['by','Засчитал']],
   'Настройки': [['key','Ключ'],['value','Значение']],
   'Входы': [['teenId','Подросток (ID)'],['date','Дата']],
+  'Журнал': [['ts','Когда (мс)'],['by','Кто'],['act','Действие'],['teenId','Подросток (ID)'],['data','Данные']],
   'Контакты': [['teenId','Подросток (ID)'],['date','Связались'],['by','Кто'],['note','Заметка'],['upd','Обновлено']],
   'Отмены': [['id','ID'],['date','Дата'],['kind','Тип'],['meetId','Встреча (ID)'],['reason','Причина'],['by','Отметил'],['ts','Когда']],
   'Заявки': [['id','ID'],['teenId','Подросток (ID)'],['groupId','Группа (ID)'],['date','Дата'],['status','Статус'],['by','Решил']],
@@ -280,7 +281,7 @@ function logout(token) {
 const CAN = {
   mark: ['admin', 'leader', 'mod'], attNow: ['admin', 'leader', 'mod', 'viewer'], addTeen: ['admin', 'leader', 'mod'], updateTeen: ['admin', 'leader', 'mod'], reviewTeen: ['admin', 'leader', 'mod'],
   addEvent: ['admin', 'leader'], editEvent: ['admin'], delEvent: ['admin'], saveGroup: ['admin'], saveSettings: ['admin'],
-  meetOff: ['admin', 'leader'], mergeTeens: ['admin'], notDup: ['admin'], contact: ['admin', 'leader', 'mod'],
+  meetOff: ['admin', 'leader'], mergeTeens: ['admin'], notDup: ['admin'], contact: ['admin', 'leader', 'mod'], log: ['admin'],
   invite: ['admin'], updateLeader: ['admin'], removeLeader: ['admin'],
   savePlanWeek: ['admin'], delVcom: ['admin', 'leader'], teenCode: ['admin', 'leader'], groupReq: ['admin'], confirmTask: ['admin', 'leader'], addTask: ['admin', 'leader'], taskDone: ['admin', 'leader'], remind: ['admin', 'leader'], award: ['admin', 'leader'], igReview: ['admin', 'leader']
 };
@@ -290,7 +291,7 @@ function api(token, action, payload) {
     if (action !== 'bootstrap' && (!CAN[action] || CAN[action].indexOf(me.role) < 0)) throw new Error('forbidden');
     const fn = A_[action]; if (!fn) throw new Error('unknown_action');
     if (action === 'bootstrap') return fn(asMe_(me, payload || {}), payload || {});
-    return lock_(() => fn(me, payload || {}));
+    return lock_(() => { const res = fn(me, payload || {}); try { logAct_(me, action, payload || {}, res); } catch (e) {} return res; });
   });
 }
 
@@ -370,6 +371,13 @@ const A_ = {
     if (hit.length) delete_('Посещения', hit.map(h => h._row));
     return { on: false };
   },
+  // Журнал действий команды за 90 дней — только админу
+  log(me) {
+    if (!ss_().getSheetByName('Журнал')) return { rows: [], who: {} };
+    const min = Date.now() - 90 * 864e5, who = {};
+    rows_('Лидеры').forEach(l => { who[String(l.email).toLowerCase()] = [l.name, l.role]; });
+    return { rows: rows_('Журнал').filter(r => +r.ts >= min).slice(-2000).map(r => [+r.ts, r.by, r.act, r.teenId, r.data]), who: who };
+  },
   // «Давно не были»: отметка «связались» и заметка — одна строка на подростка
   contact(me, p) {
     const t = rows_('Подростки').find(x => x.id === p.teenId && x.archived !== '1'); if (!t) throw new Error('not_found');
@@ -429,7 +437,7 @@ const A_ = {
     const fresh = rows_('Подростки');
     update_('Подростки', fresh.find(x => x.id === K), patch);
     update_('Подростки', fresh.find(x => x.id === Dp), { archived: '1', review: '', tgId: '', source: 'merged:' + K });
-    return { moved: moved };
+    return { moved: moved, keepName: keepName, dropName: (drop.first + ' ' + drop.last).trim() };
   },
   notDup(me, p) {
     if (!p.a || !p.b) throw new Error('bad_request');
@@ -868,6 +876,41 @@ function dupPairs_(teens, notDup) {
     if (how) res.push([a.id, b.id, how]);
   }
   return res.slice(0, 30);
+}
+// Запись в журнал действий. Пишем только то, что меняет данные; ошибки журнала не ломают действие.
+function logAct_(me, act, p, res) {
+  let teen = '', d = null;
+  const nm = t => ((t.first || '') + ' ' + (t.last || '')).trim();
+  switch (act) {
+    case 'mark': teen = p.teenId; d = { d: p.date, k: p.kind, m: p.meetId, on: !!p.on }; break;
+    case 'addTeen': if (!res || !res.id) return; teen = res.id; d = { n: nm(p.teen || {}) }; break;
+    case 'updateTeen': teen = p.id; d = { n: nm(p.fields || {}) }; break;
+    case 'mergeTeens': teen = p.keepId; d = { keep: res.keepName, drop: res.dropName, moved: res.moved }; break;
+    case 'teenCode': teen = p.teenId; d = {}; break;
+    case 'contact': teen = p.teenId; d = { on: p.on, note: p.note == null ? null : String(p.note).slice(0, 120) }; break;
+    case 'igReview': teen = p.id; d = { ok: !!p.ok }; break;
+    case 'groupReq': if (res && res.gone) return; d = { ok: !!p.ok }; break;
+    case 'meetOff': d = { d: p.date, k: p.kind, m: p.meetId, on: p.on !== false, r: p.reason || '', clear: !!p.clear }; break;
+    case 'addEvent': d = { n: res.name, d: res.date }; break;
+    case 'editEvent': d = { n: p.name, d: p.date, id: p.id }; break;
+    case 'delEvent': d = { id: p.id }; break;
+    case 'saveGroup': d = { n: p.name, isNew: !p.id }; break;
+    case 'saveSettings': { const ks = Object.keys(p).filter(k => k !== 'notDup'); if (!ks.length) return; d = { keys: ks.slice(0, 12) }; break; }
+    case 'invite': d = { n: p.name, role: p.role }; break;
+    case 'updateLeader': d = { id: p.id, role: p.role }; break;
+    case 'removeLeader': d = { id: p.id }; break;
+    case 'savePlanWeek': d = { idx: p.idx }; break;
+    case 'delVcom': d = {}; break;
+    case 'confirmTask': if (res && res.gone) return; teen = p.teenId; d = { task: p.taskId, ok: !!p.ok }; break;
+    case 'addTask': d = { n: p.title }; break;
+    case 'taskDone': teen = p.teenId; d = { task: p.taskId, on: !!p.on }; break;
+    case 'remind': d = { task: p.taskId, cnt: (p.teenIds || []).length }; break;
+    case 'award': d = { badge: p.badge, cnt: (p.teenIds || []).length, ids: (p.teenIds || []).slice(0, 15) }; break;
+    default: return;
+  }
+  ensure_('Журнал');
+  append_('Журнал', { ts: String(Date.now()), by: me.email, act: act, teenId: teen || '', data: JSON.stringify(d).slice(0, 600) });
+  if (Math.random() < 0.03) { const min = Date.now() - 90 * 864e5; const old = rows_('Журнал').filter(r => +r.ts < min); if (old.length) delete_('Журнал', old.map(r => r._row)); }
 }
 function cts_() { return ss_().getSheetByName('Контакты') ? rows_('Контакты') : []; }
 function offs_() { return ss_().getSheetByName('Отмены') ? rows_('Отмены') : []; }
