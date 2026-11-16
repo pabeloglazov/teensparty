@@ -209,7 +209,7 @@ function doGet(e) {
 // JSON-API для приложения на GitHub Pages: POST {fn, args} -> {ok, data|error}
 function doPost(e) {
   if (e && e.parameter && e.parameter.tg) { try { tgWebhook_(e); } catch (err) { Logger.log(err); } return HtmlService.createHtmlOutput('ok'); }
-  const FNS = { requestCode, verifyCode, joinByCode, logout, api, joinInfo, joinKnown, joinPick, joinNew, joinFriends, evInfo, evLookup, evJoinKnown, evJoinNew, evJoinSite, inviteInfo, inviteJoin, tgStart, tgPoll, teenApi, teenByCode };
+  const FNS = { requestCode, verifyCode, joinByCode, logout, api, joinInfo, joinKnown, joinPick, joinNew, joinFriends, evInfo, evLookup, evJoinKnown, evJoinNew, evJoinSite, evTicket, inviteInfo, inviteJoin, tgStart, tgPoll, teenApi, teenByCode };
   let r;
   try {
     const b = JSON.parse(e.postData.contents);
@@ -1093,6 +1093,21 @@ function evLookup(eid, phone, d, m) {
     const pool = whoAmI_(phone, d, m, rows_('Подростки'));
     if (!pool.length) return { found: false };
     return { found: true, cands: pool.map(t => { const c = { k: keyFor_(t.id), first: t.first, lead: t.isLeader === '1', needPar: t.isLeader !== '1' && !(String(t.pFirst || '').trim() && digits_(t.pPhone).length >= 10), already: rg.some(r => r.teenId === t.id) }; const mine = rg.find(r => r.teenId === t.id); if (mine) { c.friends = +mine.friends || 0; c.bring = mine.bring || ''; } return c; }) };
+  });
+}
+// Найти свой билет на сайте: телефон (свой или родителя) + имя. Отдаём только имя, номер записи и число друзей.
+function evTicket(eid, phone, name) {
+  return out_(() => {
+    READS_ONCE_ = true; const e = evGet_(eid), ph = digits_(phone), nm = String(name || '').replace(/\s+/g, ' ').trim().split(' ')[0];
+    if (ph.length < 10) throw new Error('bad_phone');
+    if (!nm) throw new Error('need_name');
+    if (tries_('tk:' + ph) >= 8) throw new Error('too_many');
+    const same = (a, b) => { const x = lat_(a), y = lat_(b); if (!x || !y) return false; if (x === y) return true; const n = nickOf_(a); return n >= 0 && n === nickOf_(b); };
+    const rg = regs_().filter(r => r.eventId === e.id), byId = {}; rows_('Подростки').forEach(t => { byId[t.id] = t; });
+    const out = [];
+    rg.forEach((r, i) => { const t = byId[r.teenId]; if (t && (digits_(t.phone) === ph || digits_(t.pPhone) === ph) && same(nm, t.first)) out.push({ first: t.first, no: i + 1, friends: +r.friends || 0 }); });
+    if (!out.length) { tries_('tk:' + ph, true); return { found: false }; }
+    return { found: true, tickets: out };
   });
 }
 function evAns_(e, f) { const n = parseInt(f && f.friends, 10); return { friends: e.askFriend === '1' && n >= 1 && n <= 3 ? String(n) : '', bring: e.askBring === '1' ? String((f && f.bring) || '').replace(/\s+/g, ' ').trim().slice(0, 80) : '' }; }
