@@ -352,7 +352,23 @@ dialog{border:0;border-radius:24px;box-shadow:0 30px 80px rgba(0,0,0,.5);overflo
 .rgrow{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:54px;padding:8px 14px;border:1.5px solid #E4DDCB;border-radius:12px;background:#fff;color:#0E0F12;font:600 15px var(--body);text-align:left;text-decoration:none;cursor:pointer}
 .rgrow small{display:block;font-weight:400;font-size:12px;color:#52525B}
 .rgrow:hover{border-color:#0E0F12}
-.rgmark{padding:12px 14px;border-radius:12px;background:#E3F3E8;color:#14532D;font-weight:700;font-size:15px;text-align:center}
+.rgmark{min-height:56px;padding:8px 14px;border:0;border-radius:14px;background:#1F7A46;color:#FBF7EE;font:700 17px var(--body);cursor:pointer;transition:filter .15s ease,transform .15s ease}
+.rgmark:hover{filter:brightness(1.1)}.rgmark:active{transform:scale(.98)}
+.ticket.isback>.part{visibility:hidden}
+.tback{position:absolute;inset:14px 0;z-index:2;background:var(--paper);color:#0E0F12;display:flex;flex-direction:column}
+.tbh>span:first-child{white-space:nowrap}
+.tbh{flex:none;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:16px 28px;background:#B91C1C;color:#FBF7EE;font-family:var(--display);font-weight:700;font-size:14px;letter-spacing:.08em}
+.tbb{flex:1;min-height:0;padding:22px 28px 20px;display:flex;flex-direction:column;gap:8px;overflow:auto}
+.tbk{font-weight:700;font-size:11px;letter-spacing:.12em;color:#52525B}
+.tbn{font-family:var(--display);font-weight:900;font-size:clamp(30px,8vw,40px);line-height:1.05;letter-spacing:-.02em;overflow-wrap:anywhere}
+.tbno{font-family:var(--display);font-weight:900;font-size:clamp(44px,12vw,64px);line-height:1;color:#B91C1C;letter-spacing:-.03em}
+.tbi{display:flex;flex-direction:column;gap:4px;margin-top:8px;padding-top:12px;border-top:2px solid #0E0F12;font-size:15px}
+.tbi a{color:#0E0F12;font-weight:700;text-underline-offset:3px}
+.tbr{display:flex;flex-direction:column;gap:2px;margin-top:6px;font-size:14px;font-weight:600}
+.tbb .hint{margin:6px 0 0}
+.tbf{margin-top:auto;padding-top:10px;display:flex;flex-direction:column;gap:10px}
+.tbf .ghost{min-height:50px;border:1.5px solid #14532D;border-radius:14px;background:transparent;color:#14532D;font:700 15px var(--body);cursor:pointer}
+.tbf .ghost:hover{background:#14532D;color:#FBF7EE}
 #rg .q-nav .ghost:disabled,#rg .q-nav .btn:disabled{opacity:.6;cursor:default}
 
 @media (prefers-reduced-motion:reduce){*{animation:none!important}}
@@ -400,6 +416,7 @@ dialog{border:0;border-radius:24px;box-shadow:0 30px 80px rgba(0,0,0,.5);overflo
     </div>
 
     <div class="ticket">
+      <div class="tback" id="tBack" hidden></div>
       <div class="part">
         <div class="head"><span class="hl"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M12 2v20M3.3 7l17.4 10M3.3 17L20.7 7"></path></svg><span data-i="admit">ADMIT ONE</span></span><span class="no"><span class="capn">50</span> <span data-i="spots">SPOTS</span></span></div>
         <div class="bigdate">
@@ -413,7 +430,7 @@ dialog{border:0;border-radius:24px;box-shadow:0 30px 80px rgba(0,0,0,.5);overflo
       <div class="part stub">
         <div class="closedbox" id="closedBox"><span class="k" data-i="closedH">REGISTRATION CLOSED</span><p data-i="closedP">TEENS PARTY is over. Thank you for coming!</p><a class="btn" href="#photos" data-i="photos">SEE THE PHOTOS</a><a class="btn2 tgbtn" href="https://t.me/+P1QV3wSylSQyNDFi" target="_blank" rel="noopener" data-i="tgJoin">JOIN OUR TELEGRAM CHAT</a></div>
         <div class="soonnote" data-i="regSoon">REGISTRATION OPENS IN A FEW DAYS</div>
-        <div class="rgmark" id="rgMark" hidden></div>
+        <button type="button" class="rgmark" id="rgMark" hidden></button>
         <button class="btn" type="button" id="open" data-i="cta">GET MY TICKET</button>
         <button class="btn2" type="button" id="openParent" data-i="parentBtn">I'M A PARENT — REGISTER MY TEEN</button>
         <button class="linkbtn" type="button" id="checkBtn" data-i="check">Already registered? Check my ticket</button>
@@ -682,6 +699,7 @@ ONLY</span></div>
     var sold = left === 0 && !mine;
     $('open').disabled = sold; $('open2').disabled = sold; $('openParent').disabled = sold;
     $('open').textContent = $('open2').textContent = sold ? T[lang].soldout : T[lang].cta;
+    try{ RG.mark(); }catch(e){}
     $('next').disabled = busy;
     $('next').textContent = busy ? T[lang].busy : (step === STEPS - 1 ? T[lang].cta : T[lang].next);
   }
@@ -1029,7 +1047,7 @@ ONLY</span></div>
   /* ===== Запись на событие: лёгкая форма на странице, данные сразу уходят в Check-in (evJoinSite: сервер сам сверяет с базой) ===== */
   var RG = (function(){
     var L = {
-      ru:{who:'Кто регистрируется?',whoT:'Я подросток',whoTs:'записываюсь сам',whoP:'Я родитель',whoPs:'записываю своего подростка',n1:'Как тебя зовут? Имя и фамилия',n1p:'Как зовут подростка? Имя и фамилия',e1:'Напиши имя и фамилию',e1p:'Напишите имя и фамилию подростка',
+      ru:{mine:'Мой билет',inl:'В СПИСКЕ',tk:'БИЛЕТ НА ИМЯ',withf:'Друзья:',also:'ЕЩЁ С ЭТОГО ТЕЛЕФОНА',door1:'На входе назови имя — лидер отметит тебя в списке.',story:'Поделиться в сторис',sgo:'Я ИДУ',sjoin:'Приходи тоже — регистрация открыта',who:'Кто регистрируется?',whoT:'Я подросток',whoTs:'записываюсь сам',whoP:'Я родитель',whoPs:'записываю своего подростка',n1:'Как тебя зовут? Имя и фамилия',n1p:'Как зовут подростка? Имя и фамилия',e1:'Напиши имя и фамилию',e1p:'Напишите имя и фамилию подростка',
         n2:'Твой номер телефона',n2p:'Телефон подростка',np:'У меня нет своего номера',npp:'У подростка нет своего номера',nph:'Запишем номер родителя — спросим его дальше.',nphp:'Запишем ваш номер — спросим его дальше.',e2:'Введи номер США из 10 цифр',
         n3:'Сколько тебе лет?',n3p:'Сколько ему лет?',h3:'Нажми на возраст — сразу перейдём дальше.',e3:'Выбери возраст',
         n4:'Приведёшь друга?',n4p:'Приведёт друга?',h4:'Друзьям тоже нужно место — посчитаем их заранее.',no:'Нет',e4:'Выбери ответ',
@@ -1039,7 +1057,7 @@ ONLY</span></div>
         ok:'Ты в списке, {n}!',okp:'{n} в списке!',when:'сб, 19 декабря · 6:00 PM',fr:'Приведёшь: ',frp:'Приведёт: ',door:'На входе лидер отметит тебя по имени. Билет показывать не нужно.',doorp:'На входе лидер отметит подростка по имени. Билет показывать не нужно.',
         cal:'Добавить в календарь',cals:'чтобы не забыть',tg:'Вступить в чат подростков',tgs:'Telegram · новости и фото',more:'Зарегистрировать ещё кого-то',mores:'брата, сестру или друга',morep:'Записать ещё одного подростка',moresp:'ваши данные вводить заново не нужно',
         full:'Места закончились. Напиши лидеру — возможно, место появится.',closed:'Регистрация на это событие закрыта.',many:'Слишком много попыток. Попробуй позже или напиши лидеру.',gen:'Не получилось. Проверь интернет и попробуй ещё раз.',inlist:'в списке'},
-      en:{who:'Who is signing up?',whoT:"I'm a teen",whoTs:'signing up myself',whoP:"I'm a parent",whoPs:'signing up my teen',n1:"What's your first and last name?",n1p:"What's your teen's first and last name?",e1:'Enter your first and last name',e1p:"Enter your teen's first and last name",
+      en:{mine:'My ticket',inl:'ON THE LIST',tk:'TICKET FOR',withf:'Friends:',also:'ALSO FROM THIS PHONE',door1:'Say your name at the door — a leader will check you in.',story:'Share to stories',sgo:"I'M GOING",sjoin:'Come too — registration is open',who:'Who is signing up?',whoT:"I'm a teen",whoTs:'signing up myself',whoP:"I'm a parent",whoPs:'signing up my teen',n1:"What's your first and last name?",n1p:"What's your teen's first and last name?",e1:'Enter your first and last name',e1p:"Enter your teen's first and last name",
         n2:'Your phone number',n2p:"Your teen's phone",np:"I don't have my own number",npp:'My teen has no phone of their own',nph:"We'll use your parent's number — it's the next question.",nphp:"We'll use your number — it's the next question.",e2:'Enter a 10-digit US phone number',
         n3:'How old are you?',n3p:'How old is your teen?',h3:'Tap the age and we move on.',e3:'Choose the age',
         n4:'Bringing a friend?',n4p:'Bringing a friend?',h4:'Friends need a spot too — let us count them in.',no:'No',e4:'Pick an answer',
@@ -1049,7 +1067,7 @@ ONLY</span></div>
         ok:"You're on the list, {n}!",okp:'{n} is on the list!',when:'Sat, Dec 19 · 6:00 PM',fr:'Bringing: ',frp:'Bringing: ',door:'A leader will check you in by name at the door. No ticket needed.',doorp:'A leader will check your teen in by name at the door. No ticket needed.',
         cal:'Add to calendar',cals:"so you don't forget",tg:'Join the teens chat',tgs:'Telegram · news and photos',more:'Register someone else',mores:'a brother, sister or friend',morep:'Sign up another teen',moresp:'no need to enter your details again',
         full:'No spots left. Message a leader — a spot may open up.',closed:'Registration for this event is closed.',many:'Too many attempts. Try later or message a leader.',gen:'Something went wrong. Check your connection and try again.',inlist:'on the list'},
-      uk:{who:'Хто реєструється?',whoT:'Я підліток',whoTs:'записуюся сам',whoP:'Я один із батьків',whoPs:'записую свого підлітка',n1:"Як тебе звати? Ім'я та прізвище",n1p:"Як звати підлітка? Ім'я та прізвище",e1:"Напиши ім'я та прізвище",e1p:"Напишіть ім'я та прізвище підлітка",
+      uk:{mine:'Мій квиток',inl:'У СПИСКУ',tk:'КВИТОК НА ІМʼЯ',withf:'Друзі:',also:'ЩЕ З ЦЬОГО ТЕЛЕФОНУ',door1:'На вході назви імʼя — лідер відмітить тебе у списку.',story:'Поділитися в сторіс',sgo:'Я ЙДУ',sjoin:'Приходь теж — реєстрацію відкрито',who:'Хто реєструється?',whoT:'Я підліток',whoTs:'записуюся сам',whoP:'Я один із батьків',whoPs:'записую свого підлітка',n1:"Як тебе звати? Ім'я та прізвище",n1p:"Як звати підлітка? Ім'я та прізвище",e1:"Напиши ім'я та прізвище",e1p:"Напишіть ім'я та прізвище підлітка",
         n2:'Твій номер телефону',n2p:'Телефон підлітка',np:'У мене немає свого номера',npp:'У підлітка немає свого номера',nph:'Запишемо номер батьків — спитаємо його далі.',nphp:'Запишемо ваш номер — спитаємо його далі.',e2:'Введи номер США з 10 цифр',
         n3:'Скільки тобі років?',n3p:'Скільки йому років?',h3:'Натисни на вік — одразу перейдемо далі.',e3:'Обери вік',
         n4:'Приведеш друга?',n4p:'Приведе друга?',h4:'Друзям теж потрібне місце — порахуємо їх заздалегідь.',no:'Ні',e4:'Обери відповідь',
@@ -1102,7 +1120,7 @@ ONLY</span></div>
       fetch(CHECKIN, {method:'POST', body:JSON.stringify({fn:'evJoinSite', args:[EVENT_ID, {first:nm[0], last:nm[1], age:f.age, phone:f.noPhone ? '' : f.phone, noPhone:!!f.noPhone, pFirst:pn[0], pLast:pn[1], pPhone:f.pphone, consent:true, friends:f.friends || 0, bring:''}]})})
         .then(function(r){ return r.json(); })
         .then(function(j){ S.busy = false; if(!j.ok){ var m = String(j.error || ''); S.err = m === 'full' ? x('full') : m === 'closed' ? x('closed') : m === 'too_many' ? x('many') : x('gen'); return render(); }
-          S.done = true; render(); store('tp_reg_xmas26', split(f.name)[0]); mark(); track('registered'); refresh(); })
+          S.done = true; render(); addTicket({n:split(f.name)[0], no:+(j.data && j.data.no) || 0, fr:+f.friends || 0}); mark(); track('registered'); refresh(); })
         .catch(function(){ S.busy = false; S.err = x('gen'); render(); });
     }
     var H = {
@@ -1117,8 +1135,64 @@ ONLY</span></div>
     B.addEventListener('input', function(e){ var k = e.target.getAttribute('data-b'); if(k) S.f[k] = e.target.value; });
     B.addEventListener('keydown', function(e){ if(e.key === 'Enter' && e.target.tagName === 'INPUT'){ e.preventDefault(); H.next(); } });
     document.getElementById('rgClose').addEventListener('click', function(){ D.close(); });
-    /* отметка на билете: кто уже записан с этого устройства */
-    function mark(){ var n = store('tp_reg_xmas26'), el = document.getElementById('rgMark'); if(!el) return; el.hidden = !n; if(n) el.textContent = '✓ ' + n + ' ' + (L[lang] || L.en).inlist; }
+    /* ===== «Мой билет»: кто записан с этого устройства. Билет переворачивается, на обороте — имя, номер, «поделиться в сторис» ===== */
+    var TK = document.querySelector('.ticket'), BK = document.getElementById('tBack'), flipped = false, sFile = null, sBlob = null, sKey = '';
+    function tickets(){ var v = store('tp_reg_xmas26'); if(!v) return []; try{ var a = JSON.parse(v); if(Array.isArray(a)) return a; }catch(e){} return [{n:String(v)}]; }
+    function addTicket(t){ var a = tickets().filter(function(o){ return !(o.n === t.n && (o.no || 0) === (t.no || 0)); }); a.push(t); store('tp_reg_xmas26', JSON.stringify(a.slice(-8))); }
+    function num(t){ return t.no ? '№ ' + ('00' + t.no).slice(-3) : ''; }
+    function mark(){
+      var a = tickets(), d = L[lang] || L.en, el = document.getElementById('rgMark'), op = document.getElementById('open');
+      el.hidden = !a.length; if(!a.length){ setBack(false, true); return; }
+      el.textContent = d.mine; if(!op.disabled){ op.textContent = d.more; var o2 = document.getElementById('open2'); if(o2) o2.textContent = d.more; }
+      var t = a[a.length - 1], rest = a.slice(0, -1);
+      BK.innerHTML = '<div class="tbh"><span>✳ CHRISTMAS PASS</span><span class="no">' + d.inl + '</span></div><div class="tbb">' +
+        '<span class="tbk">' + d.tk + '</span><span class="tbn">' + esc(t.n) + '</span>' + (num(t) ? '<span class="tbno">' + num(t) + '</span>' : '') +
+        '<div class="tbi"><span><b>DEC 19</b> · 6:00 PM</span><a href="https://maps.google.com/?q=5948+Pecan+Ave,+Orangevale,+CA+95662" target="_blank" rel="noopener">5948 Pecan Ave, Orangevale, CA 95662</a>' + (t.fr ? '<span>' + d.withf + ' <b>+' + t.fr + '</b></span>' : '') + '</div>' +
+        (rest.length ? '<div class="tbr"><span class="tbk">' + d.also + '</span>' + rest.map(function(o){ return '<span>' + esc(o.n) + (num(o) ? ' · ' + num(o) : '') + '</span>'; }).join('') + '</div>' : '') +
+        '<p class="hint">' + d.door1 + '</p><div class="tbf"><button type="button" class="btn" data-a="story">' + d.story + '</button><button type="button" class="ghost" data-a="front">' + d.back + '</button></div></div>';
+      prepStory(t);
+    }
+    function setBack(on, instant){
+      if(on === flipped) return; flipped = on;
+      var sw = function(){ BK.hidden = !on; TK.classList.toggle('isback', on); };
+      if(instant || !TK.animate || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) return sw();
+      var P = 'perspective(1400px) ';
+      TK.animate([{transform:P + 'rotateY(0deg)'}, {transform:P + 'rotateY(90deg)'}], {duration:230, easing:'ease-in'}).onfinish = function(){ sw(); TK.animate([{transform:P + 'rotateY(-90deg)'}, {transform:P + 'rotateY(0deg)'}], {duration:260, easing:'ease-out'}); };
+    }
+    document.getElementById('rgMark').addEventListener('click', function(){ setBack(true); track('my_ticket'); });
+    BK.addEventListener('click', function(e){ var b = e.target.closest('[data-a]'); if(!b) return; if(b.getAttribute('data-a') === 'front') setBack(false); else share(); });
+    D.addEventListener('close', function(){ if(S.done){ S.done = false; mark(); setBack(true); TK.scrollIntoView({block:'nearest', behavior:'smooth'}); } });
+    /* картинка для сторис 1080x1920 */
+    function makeStory(t){
+      var d = L[lang] || L.en, W = 1080, H = 1920, c = document.createElement('canvas'); c.width = W; c.height = H; var x = c.getContext('2d'), F = 'Unbounded, sans-serif', i;
+      x.fillStyle = '#10231A'; x.fillRect(0, 0, W, H);
+      function candy(y){ x.save(); x.beginPath(); x.rect(0, y, W, 34); x.clip(); var col = ['#EF4444', '#F4F4F5', '#1F7A46']; for(i = -2; i < 40; i++){ x.fillStyle = col[((i % 3) + 3) % 3]; x.beginPath(); x.moveTo(i * 40, y + 34); x.lineTo(i * 40 + 34, y); x.lineTo(i * 40 + 74, y); x.lineTo(i * 40 + 40, y + 34); x.fill(); } x.restore(); }
+      candy(0); candy(H - 34);
+      x.fillStyle = 'rgba(244,244,245,.5)'; for(i = 0; i < 70; i++){ x.beginPath(); x.arc((i * 397) % W, 60 + (i * 733) % (H - 120), 2 + (i % 4), 0, 6.3); x.fill(); }
+      x.save(); x.translate(80, 250); x.rotate(-0.05); x.fillStyle = '#EF4444'; x.beginPath(); x.roundRect(0, 0, 560, 84, 42); x.fill(); x.fillStyle = '#0E0F12'; x.font = '700 34px ' + F; x.textBaseline = 'middle'; x.fillText('CHRISTMAS EDITION', 40, 44); x.restore();
+      x.textBaseline = 'alphabetic'; x.fillStyle = '#F4F4F5'; fitFont(x, 'TEENS', '900', F, 250, W - 160); x.fillText('TEENS', 74, 600);
+      x.lineWidth = 5; x.strokeStyle = '#F4F4F5'; x.strokeText('PARTY', 74, 830);
+      x.fillStyle = '#FBF7EE'; x.beginPath(); x.roundRect(80, 960, W - 160, 640, 48); x.fill();
+      x.fillStyle = '#B91C1C'; x.beginPath(); x.roundRect(80, 960, W - 160, 120, [48, 48, 0, 0]); x.fill();
+      x.fillStyle = '#FBF7EE'; x.font = '700 40px ' + F; x.fillText('✳ CHRISTMAS PASS', 130, 1036);
+      x.fillStyle = '#52525B'; x.font = '700 34px Inter, sans-serif'; x.fillText(d.sgo, 130, 1170);
+      x.fillStyle = '#0E0F12'; fitFont(x, t.n, '900', F, 110, W - 260); x.fillText(t.n, 130, 1290);
+      x.fillStyle = '#B91C1C'; x.font = '900 150px ' + F; x.fillText('DEC 19', 130, 1470);
+      x.fillStyle = '#0E0F12'; x.font = '700 48px ' + F; x.fillText('6:00 PM' + (num(t) ? '   ·   ' + num(t) : ''), 130, 1550);
+      x.fillStyle = '#F4F4F5'; x.font = '700 44px ' + F; x.fillText('teensparty.fun/xmas26', 80, 1730);
+      x.fillStyle = '#B6C4BB'; x.font = '600 36px Inter, sans-serif'; x.fillText(d.sjoin, 80, 1790);
+      return new Promise(function(res){ c.toBlob(function(b){ res(b); }, 'image/png'); });
+    }
+    function prepStory(t){ var k = lang + '|' + t.n + '|' + (t.no || ''); if(k === sKey) return; sKey = k; sFile = sBlob = null;
+      fontsReady().then(function(){ return document.fonts && document.fonts.load ? document.fonts.load('700 34px Inter', 'Aa Яя') : null; }).catch(function(){}).then(function(){ return makeStory(t); }).then(function(b){ if(k !== sKey || !b) return; sBlob = b; try{ sFile = new File([b], 'teens-party-christmas.png', {type:'image/png'}); }catch(e){ sFile = null; } }); }
+    function share(){ track('share_story');
+      var can = false; try{ can = !!(sFile && navigator.canShare && navigator.canShare({files:[sFile]})); }catch(e){}
+      if(can){ navigator.share({files:[sFile], title:'TEENS PARTY Christmas'}).catch(function(){}); return; }
+      var im = document.getElementById('pvImg'), w = document.getElementById('pvWait'), dl = document.getElementById('dlg3');
+      function put(){ if(!sBlob) return false; im.src = URL.createObjectURL(sBlob); im.hidden = false; w.hidden = true; return true; }
+      im.hidden = true; w.hidden = false; if(!put()){ var n = 0, iv = setInterval(function(){ if(put() || ++n > 40) clearInterval(iv); }, 150); }
+      if(typeof dl.showModal === 'function') dl.showModal(); else dl.setAttribute('open', '');
+    }
     return { open:function(){ S = {i:0, par:false, who:null, f:{}, err:'', busy:false, done:false, keep:false}; if(!D.open) D.showModal(); render(true); }, mark:mark };
   })();
   document.addEventListener('click', function(e){ var b = e.target.closest && e.target.closest('#open,#openParent,#finBtn,#open2'); if(!b) return; e.preventDefault(); e.stopImmediatePropagation(); RG.open(); }, true);

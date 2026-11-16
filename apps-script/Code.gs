@@ -1103,7 +1103,9 @@ function evPut_(e, t, f, extra) {
   if (mine) update_('Регистрации', mine, Object.assign(ans, extra && extra.parNew ? { parNew: '1' } : {}));
   else append_('Регистрации', Object.assign({ id: uid_('R'), eventId: e.id, teenId: t.id, teenName: (t.first + ' ' + t.last).trim(), ts: nowIso_() }, ans, extra || {}));
   try { ensure_('Журнал'); append_('Журнал', { ts: String(Date.now()), by: 'self', act: 'evReg', teenId: t.id, data: JSON.stringify({ n: e.name, d: e.date, id: e.id, isNew: !!(extra && extra.isNew), again: !!mine }) }); } catch (err) {}
-  return { ok: true, id: t.id, first: t.first, again: !!mine, name: e.name, date: e.date, time: e.time || '', place: e.place || '' };
+  // no — порядковый номер записи на это событие (для билета на сайте): позиция строки среди записей события
+  const evRegs = all.filter(r => r.eventId === e.id), no = mine ? evRegs.indexOf(mine) + 1 : evRegs.length + 1;
+  return { ok: true, id: t.id, first: t.first, again: !!mine, no: no, name: e.name, date: e.date, time: e.time || '', place: e.place || '' };
 }
 function parent_(f) {
   const cl = v => String(v || '').replace(/\s+/g, ' ').trim().slice(0, 60);
