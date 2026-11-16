@@ -16,7 +16,7 @@ b=b.replace(g,'<div class="pgrid" style="display: grid; gap: 12px">',1)
 i=b.index(g); j=b.index('</div>',i)+6
 b=b[:i]+'<div class="phgrid" id="grid"></div>'+b[j:]
 m=re.search(r'<button type="button" (style="min-height: 68px;[^"]*")>Показать все 385 фото</button>',b); assert m
-b=b.replace(m.group(0),'<button type="button" id="more" %s>Показать все 385 фото</button>\n  <div style="display: flex; flex-wrap: wrap; gap: 10px"><a href="https://t.me/+P1QV3wSylSQyNDFi" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; min-height: 48px; padding: 0 20px; border-radius: 14px; border: 1px solid #3A3D46; color: #F4F4F5; text-decoration: none; font-weight: 600; font-size: 15px">Вступить в Telegram-чат</a><a href="https://drive.google.com/drive/folders/1QIw4TVgPmyOMGkzsL4CC16FU-Yhdnsno" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; min-height: 48px; padding: 0 20px; border-radius: 14px; border: 1px solid #3A3D46; color: #F4F4F5; text-decoration: none; font-weight: 600; font-size: 15px">Оригиналы · часть 1</a><a href="https://drive.google.com/drive/folders/11PTTfKbpxl5khkHiY6QnLCak1cJREZJA" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; min-height: 48px; padding: 0 20px; border-radius: 14px; border: 1px solid #3A3D46; color: #F4F4F5; text-decoration: none; font-weight: 600; font-size: 15px">Оригиналы · часть 2</a></div>'%m.group(1))
+b=b.replace(m.group(0),'<button type="button" id="more" %s>Показать все 385 фото</button>\n  <div class="orig"><a href="https://drive.google.com/drive/folders/1QIw4TVgPmyOMGkzsL4CC16FU-Yhdnsno" target="_blank" rel="noopener">Оригиналы · часть 1</a><a href="https://drive.google.com/drive/folders/11PTTfKbpxl5khkHiY6QnLCak1cJREZJA" target="_blank" rel="noopener">Оригиналы · часть 2</a></div>\n  <a class="tgbtn" href="https://t.me/+P1QV3wSylSQyNDFi" target="_blank" rel="noopener"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M21.9 4.3l-3 14.3c-.2 1-.8 1.2-1.7.8l-4.6-3.4-2.2 2.1c-.2.2-.5.5-.9.5l.3-4.7 8.5-7.7c.4-.3-.1-.5-.6-.2L7.2 12.6 2.7 11.2c-1-.3-1-1 .2-1.4L20.6 3c.8-.3 1.5.2 1.3 1.3z"></path></svg><span>Вступить в Telegram-чат</span></a>'%m.group(1))
 # photos anchor
 rep('<h2 style="margin: 0; font-family: Unbounded, sans-serif; font-weight: 700; font-size: clamp(30px, 4.4vw, 52px); line-height: 1; letter-spacing: -0.02em">Фото</h2>','<h2 id="photos" style="margin: 0; scroll-margin-top: 20px; font-family: Unbounded, sans-serif; font-weight: 700; font-size: clamp(30px, 4.4vw, 52px); line-height: 1; letter-spacing: -0.02em">Фото</h2>')
 assert '{{' not in b and '<img src="/fall26' not in b
@@ -31,6 +31,10 @@ b=b[:i]+b[j:k]+prog.replace('padding: 0 24px 56px','padding: 0 24px 72px')+b[k:]
 css=XBAN_CSS+'''
 .xban .mbr{display:none}@media (max-width:720px){.xban .mbr{display:inline}}
 .pgrid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.orig{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.orig a{display:flex;align-items:center;justify-content:center;min-height:56px;padding:8px 14px;border-radius:16px;border:1px solid #3A3D46;background:#15171B;color:#F4F4F5;text-decoration:none;font-weight:600;font-size:15px;text-align:center}
+.tgbtn{display:flex;align-items:center;justify-content:center;gap:10px;min-height:60px;padding:8px 18px;border-radius:16px;background:#229ED9;color:#fff!important;text-decoration:none;font-weight:700;font-size:17px}
+.orig a,.tgbtn{transition:filter .15s ease,transform .15s ease}.orig a:hover,.tgbtn:hover{filter:brightness(1.12)}.orig a:active,.tgbtn:active{transform:scale(.98)}
 .phgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 .phgrid button{display:block;padding:0;border:0;background:#15171B;border-radius:18px;overflow:hidden;cursor:zoom-in}
 .phgrid img{display:block;width:100%;aspect-ratio:3 / 2;object-fit:cover}
