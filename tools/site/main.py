@@ -86,7 +86,8 @@ i=b.index('<div style="flex: 1 1 260px; min-width: 0; height: 300px; perspective
 b=b[:i]+sg('СРЕДА','6:00 PM','Tima','sms:+19165595882','+19165595882',0)+sg('ПЯТНИЦА','7:00 PM','Pasha','https://t.me/pabeloglazov','+12797592990',1)+b[j:]
 assert 'data-flip' not in b
 b=b.replace('OCT 20','OCT 17')  # дата поездки в Стенфорд — как в Check-in (2026-10-17)
-rep('line-height: 0.86; letter-spacing: -0.04em">3:16<br><span style="color: #0E0F12; -webkit-text-stroke: 2px #F4F4F5">TEENS</span></h1>','line-height: 0.86; letter-spacing: -0.04em" class="hero" aria-label="3:16 TEENS"><span class="hl1" aria-hidden="true"><i>3</i><i>:</i><i>1</i><i>6</i></span><br><span class="hl2" aria-hidden="true">TEENS</span></h1>')
+rep('line-height: 0.86; letter-spacing: -0.04em">3:16<br><span style="color: #0E0F12; -webkit-text-stroke: 2px #F4F4F5">TEENS</span></h1>','line-height: 0.86; letter-spacing: -0.04em" class="hero" aria-label="3:16 TEENS"><span class="hl1" aria-hidden="true"><i>3</i><i>:</i><i>1</i><i>6</i></span><span class="hl2" aria-hidden="true">TEENS</span></h1>')
+rep('font-size: clamp(64px, 12vw, 168px); line-height: 0.86; letter-spacing: -0.04em" class="hero"','font-size: 0; line-height: 0" class="hero"')
 rep('<p style="margin: 0; max-width: 540px; font-size: 19px; line-height: 1.5; color: #D4D4D8; width: 747px">','<p class="lead" style="margin: 0; font-size: 19px; line-height: 1.5; color: #D4D4D8">')
 rep('<div style="max-width: 1200px; margin: 0 auto; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap">','<div class="nav">')
 css=''':root{--cw:min(78%,860px);--gw:min(70%,520px);--ar:9 / 4}
@@ -116,7 +117,9 @@ css=''':root{--cw:min(78%,860px);--gw:min(70%,520px);--ar:9 / 4}
 .sgw{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;height:58px;border-radius:16px;background:#FF8A3D;color:#0E0F12!important;text-decoration:none;font-weight:700;font-size:17px;white-space:nowrap}
 .sgp{flex:none;width:58px;height:58px;display:flex;align-items:center;justify-content:center;border-radius:16px;border:1px solid #FF8A3D;color:#FF8A3D!important}
 .sgw,.sgp{transition:filter .15s ease,transform .15s ease}.sgw:hover,.sgp:hover{filter:brightness(1.12)}.sgw:active,.sgp:active{transform:scale(.97)}
-.hero .hl1{display:inline-block;overflow:hidden;padding:.06em .04em .02em 0;margin:-.06em 0 -.02em}
+/* «3:16 TEENS» во всю ширину: на компьютере одной строкой, на телефоне двумя — размер подгоняет скрипт */
+.hero{white-space:nowrap}.hero .hl1,.hero .hl2{font-size:min(13.4vw,161px);line-height:.9;letter-spacing:-.04em;vertical-align:top}
+.hero .hl1{display:inline-block;overflow:hidden;padding:.06em .04em .02em 0;margin:-.06em .2em -.02em 0}
 .hero .hl1 i{display:inline-block;font-style:normal;transform:translateY(110%);animation:hup .7s cubic-bezier(.2,.8,.2,1) forwards}
 .hero .hl1 i:nth-child(2){animation-delay:.07s}.hero .hl1 i:nth-child(3){animation-delay:.14s}.hero .hl1 i:nth-child(4){animation-delay:.21s}
 .hero .hl2{display:inline-block;color:transparent;-webkit-text-stroke:2px #F4F4F5;background:linear-gradient(100deg,transparent 0 42%,#FF8A3D 50%,transparent 58% 100%) 150% 0 / 300% 100% no-repeat;-webkit-background-clip:text;background-clip:text;opacity:0;animation:hin .7s .35s ease forwards,hsweep 4.5s 1.2s ease-in-out infinite}
@@ -124,7 +127,7 @@ css=''':root{--cw:min(78%,860px);--gw:min(70%,520px);--ar:9 / 4}
 @keyframes hin{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
 @keyframes hsweep{0%{background-position:150% 0}55%,100%{background-position:-50% 0}}
 @media (prefers-reduced-motion:reduce){.hero .hl1 i{transform:none}.hero .hl2{opacity:1}}
-@media (max-width:720px){.nav{grid-template-columns:1fr auto}.xban{align-items:start}.xcal{border-radius:14px}.xbtn{height:58px;font-size:17px}.xtag{font-size:11px;padding:8px 12px}.herobtns a{flex:1 1 100%;min-width:0}.lead{font-size:17px!important;min-height:3em}[data-move]{display:none!important}.chips{flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none;margin:0 -24px;padding:0 24px;-webkit-overflow-scrolling:touch}.chips::-webkit-scrollbar{display:none}}'''
+@media (max-width:720px){.nav{grid-template-columns:1fr auto}.xban{align-items:start}.xcal{border-radius:14px}.xbtn{height:58px;font-size:17px}.xtag{font-size:11px;padding:8px 12px}.herobtns a{flex:1 1 100%;min-width:0}.hero .hl1,.hero .hl2{display:block;width:max-content}.hero .hl1{font-size:36vw;margin-right:0}.hero .hl2{font-size:21.5vw;margin-top:.06em}.lead{font-size:17px!important;min-height:3em}[data-move]{display:none!important}.chips{flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none;margin:0 -24px;padding:0 24px;-webkit-overflow-scrolling:touch}.chips::-webkit-scrollbar{display:none}}'''
 TR={
 'Подростковое служение русскоязычного потока SOL Church':['Youth ministry of the Russian-speaking stream of SOL Church','Підліткове служіння російськомовного потоку SOL Church'],
 'События':['Events','Події'],'Встречи':['Meetings','Зустрічі'],'Фото':['Photos','Фото'],'Контакты':['Contacts','Контакти'],
@@ -156,6 +159,13 @@ js='''
     btns.forEach(function(b){ b.addEventListener('click', function(){ set(b.getAttribute(attr)); }); }); set('all'); }
   filt('data-f','data-cat', function(k,c){ return c==='empty' ? (k==='meet'||k==='holiday') : (k==='all'||k===c); });
   filt('data-g','data-gcat', function(k,c){ return k==='all'||k===c; });
+  /* «3:16 TEENS» ровно во всю ширину блока */
+  (function(){ var h=document.querySelector('.hero'); if(!h) return; var a=h.querySelector('.hl1'), b=h.querySelector('.hl2');
+    function fit(){ var W=h.clientWidth-2, mob=window.innerWidth<=720; a.style.fontSize=b.style.fontSize='100px';
+      var wa=a.getBoundingClientRect().width, wb=b.getBoundingClientRect().width;
+      if(mob){ a.style.fontSize=(100*W/wa)+'px'; b.style.fontSize=(100*W/wb)+'px'; }
+      else { var fs=100*W/(wa+wb+20); a.style.fontSize=b.style.fontSize=fs+'px'; } }
+    fit(); if(document.fonts&&document.fonts.ready) document.fonts.ready.then(fit); window.addEventListener('resize', fit); window.addEventListener('load', fit); })();
   /* lightbox */
   var lb=document.getElementById('lb'), im=document.getElementById('lbImg'), list=[], cur=0;
   function show(){ im.src=list[cur]; document.getElementById('lbC').textContent = list.length>1 ? (cur+1)+' / '+list.length : ''; lb.querySelector('.pv').hidden=lb.querySelector('.nx').hidden=list.length<2; }

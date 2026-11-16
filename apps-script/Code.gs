@@ -209,7 +209,7 @@ function doGet(e) {
 // JSON-API для приложения на GitHub Pages: POST {fn, args} -> {ok, data|error}
 function doPost(e) {
   if (e && e.parameter && e.parameter.tg) { try { tgWebhook_(e); } catch (err) { Logger.log(err); } return HtmlService.createHtmlOutput('ok'); }
-  const FNS = { requestCode, verifyCode, joinByCode, logout, api, joinInfo, joinKnown, joinPick, joinNew, joinFriends, evInfo, evLookup, evJoinKnown, evJoinNew, inviteInfo, inviteJoin, tgStart, tgPoll, teenApi, teenByCode };
+  const FNS = { requestCode, verifyCode, joinByCode, logout, api, joinInfo, joinKnown, joinPick, joinNew, joinFriends, evInfo, evLookup, evJoinKnown, evJoinNew, evJoinSite, inviteInfo, inviteJoin, tgStart, tgPoll, teenApi, teenByCode };
   let r;
   try {
     const b = JSON.parse(e.postData.contents);
@@ -1143,6 +1143,48 @@ function evJoinNew(eid, f, by) {
     const res = evPut_(e, o, f, { isNew: '1', by: inviter ? inviter.id : '' });
     append_('Подростки', o);
     res.isNew = true; if (inviter) res.inviter = inviter.first;
+    return res;
+  }));
+}
+// ---------------- запись с сайта (страница события на teensparty.fun) ----------------
+// Подросток ничего не ищет: сервер сам сверяет его с базой. Привязываем к существующей карточке только при уверенном
+// совпадении (тот же телефон + то же имя, либо имя и фамилия один в один с учётом транслита). Всё остальное — новая карточка «проверить».
+function siteMatch_(first, last, ph, pPh, teens) {
+  const pool = teens.filter(t => t.archived !== '1' && String(t.source || '').indexOf('merged:') !== 0);
+  const sameName = (a, b) => { const x = lat_(a), y = lat_(b); if (!x || !y) return false; if (x === y) return true; const n = nickOf_(a); return n >= 0 && n === nickOf_(b); };
+  const nums = [ph, pPh].filter(n => n && n.length >= 10);
+  let c = pool.filter(t => sameName(first, t.first) && nums.some(n => digits_(t.phone) === n || digits_(t.pPhone) === n));
+  if (c.length === 1) return c[0];
+  if (c.length > 1) return null;
+  if (!lat_(last)) return null;
+  c = pool.filter(t => lat_(first) === lat_(t.first) && lat_(last) === lat_(t.last));
+  return c.length === 1 ? c[0] : null;
+}
+function evJoinSite(eid, f) {
+  return out_(() => lock_(() => {
+    const e = evOpen_(eid); f = f || {};
+    const cl = v => String(v || '').replace(/\s+/g, ' ').trim().slice(0, 60);
+    const first = cl(f.first), last = cl(f.last), age = parseInt(f.age, 10);
+    if (!first || !last) throw new Error('need_name');
+    if (!(age >= 8 && age <= 20)) throw new Error('need_age');
+    const par = parent_(f);
+    const phone = f.noPhone ? par.pPhone : cl(f.phone);
+    if (digits_(phone).length < 10) throw new Error('need_phone');
+    if (!f.consent) throw new Error('need_consent');
+    const teens = rows_('Подростки');
+    if (regs_().filter(r => r.eventId === e.id && r.isNew === '1' && String(r.ts).slice(0, 10) === today_()).length >= 80) throw new Error('too_many');
+    let t = siteMatch_(first, last, f.noPhone ? '' : digits_(phone), digits_(par.pPhone), teens), res;
+    if (t) {
+      let parNew = false;
+      if (t.isLeader !== '1' && !(String(t.pFirst || '').trim() && digits_(t.pPhone).length >= 10)) { t = update_('Подростки', t, par); parNew = true; }
+      res = evPut_(e, t, f, parNew ? { parNew: '1' } : null);
+    } else {
+      const o = Object.assign({ id: uid_('T'), first, last, phone, age: String(age), ageAt: today_(), groups: '', createdAt: today_(), source: 'site', review: '1', archived: '', invitedBy: '' }, par);
+      res = evPut_(e, o, f, { isNew: '1', by: '' });
+      append_('Подростки', o);
+      res.isNew = true;
+    }
+    res.first = first; delete res.id; // наружу — только то, что человек ввёл сам
     return res;
   }));
 }
