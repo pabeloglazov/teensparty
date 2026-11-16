@@ -332,7 +332,10 @@ dialog{border:0;border-radius:24px;box-shadow:0 30px 80px rgba(0,0,0,.5);overflo
 @media (max-width:640px){.seats{grid-template-columns:repeat(10,minmax(0,1fr))}}
 
 /* ===== форма записи (Check-in) ===== */
-#checkBtn{display:none!important}
+#checkBtn,#openParent{display:none!important}
+.rgwho{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-height:76px;padding:14px 18px;border:2px solid #0E0F12;border-radius:14px;background:#fff;color:#0E0F12;text-align:left;cursor:pointer;transition:background .15s ease,transform .15s ease}
+.rgwho b{font-family:var(--display);font-weight:700;font-size:19px}.rgwho small{font-size:14px;color:#52525B}
+.rgwho:hover{background:#F0EADB}.rgwho:active{transform:scale(.98)}
 #rgBody{padding:20px;display:flex;flex-direction:column;gap:16px}
 #rgBody .step input{font-size:20px}
 .rgck{display:flex;align-items:center;gap:12px;min-height:54px;padding:8px 14px;border:2px solid #0E0F12;border-radius:12px;background:#fff;color:#0E0F12;font:600 15px/1.3 var(--body);text-align:left;cursor:pointer}
@@ -1026,7 +1029,7 @@ ONLY</span></div>
   /* ===== Запись на событие: лёгкая форма на странице, данные сразу уходят в Check-in (evJoinSite: сервер сам сверяет с базой) ===== */
   var RG = (function(){
     var L = {
-      ru:{n1:'Как тебя зовут? Имя и фамилия',n1p:'Как зовут подростка? Имя и фамилия',e1:'Напиши имя и фамилию',e1p:'Напишите имя и фамилию подростка',
+      ru:{who:'Кто регистрируется?',whoT:'Я подросток',whoTs:'записываюсь сам',whoP:'Я родитель',whoPs:'записываю своего подростка',n1:'Как тебя зовут? Имя и фамилия',n1p:'Как зовут подростка? Имя и фамилия',e1:'Напиши имя и фамилию',e1p:'Напишите имя и фамилию подростка',
         n2:'Твой номер телефона',n2p:'Телефон подростка',np:'У меня нет своего номера',npp:'У подростка нет своего номера',nph:'Запишем номер родителя — спросим его дальше.',nphp:'Запишем ваш номер — спросим его дальше.',e2:'Введи номер США из 10 цифр',
         n3:'Сколько тебе лет?',n3p:'Сколько ему лет?',h3:'Нажми на возраст — сразу перейдём дальше.',e3:'Выбери возраст',
         n4:'Приведёшь друга?',n4p:'Приведёт друга?',h4:'Друзьям тоже нужно место — посчитаем их заранее.',no:'Нет',e4:'Выбери ответ',
@@ -1036,7 +1039,7 @@ ONLY</span></div>
         ok:'Ты в списке, {n}!',okp:'{n} в списке!',when:'сб, 19 декабря · 6:00 PM',fr:'Приведёшь: ',frp:'Приведёт: ',door:'На входе лидер отметит тебя по имени. Билет показывать не нужно.',doorp:'На входе лидер отметит подростка по имени. Билет показывать не нужно.',
         cal:'Добавить в календарь',cals:'чтобы не забыть',tg:'Вступить в чат подростков',tgs:'Telegram · новости и фото',more:'Зарегистрировать ещё кого-то',mores:'брата, сестру или друга',morep:'Записать ещё одного подростка',moresp:'ваши данные вводить заново не нужно',
         full:'Места закончились. Напиши лидеру — возможно, место появится.',closed:'Регистрация на это событие закрыта.',many:'Слишком много попыток. Попробуй позже или напиши лидеру.',gen:'Не получилось. Проверь интернет и попробуй ещё раз.',inlist:'в списке'},
-      en:{n1:"What's your first and last name?",n1p:"What's your teen's first and last name?",e1:'Enter your first and last name',e1p:"Enter your teen's first and last name",
+      en:{who:'Who is signing up?',whoT:"I'm a teen",whoTs:'signing up myself',whoP:"I'm a parent",whoPs:'signing up my teen',n1:"What's your first and last name?",n1p:"What's your teen's first and last name?",e1:'Enter your first and last name',e1p:"Enter your teen's first and last name",
         n2:'Your phone number',n2p:"Your teen's phone",np:"I don't have my own number",npp:'My teen has no phone of their own',nph:"We'll use your parent's number — it's the next question.",nphp:"We'll use your number — it's the next question.",e2:'Enter a 10-digit US phone number',
         n3:'How old are you?',n3p:'How old is your teen?',h3:'Tap the age and we move on.',e3:'Choose the age',
         n4:'Bringing a friend?',n4p:'Bringing a friend?',h4:'Friends need a spot too — let us count them in.',no:'No',e4:'Pick an answer',
@@ -1046,7 +1049,7 @@ ONLY</span></div>
         ok:"You're on the list, {n}!",okp:'{n} is on the list!',when:'Sat, Dec 19 · 6:00 PM',fr:'Bringing: ',frp:'Bringing: ',door:'A leader will check you in by name at the door. No ticket needed.',doorp:'A leader will check your teen in by name at the door. No ticket needed.',
         cal:'Add to calendar',cals:"so you don't forget",tg:'Join the teens chat',tgs:'Telegram · news and photos',more:'Register someone else',mores:'a brother, sister or friend',morep:'Sign up another teen',moresp:'no need to enter your details again',
         full:'No spots left. Message a leader — a spot may open up.',closed:'Registration for this event is closed.',many:'Too many attempts. Try later or message a leader.',gen:'Something went wrong. Check your connection and try again.',inlist:'on the list'},
-      uk:{n1:"Як тебе звати? Ім'я та прізвище",n1p:"Як звати підлітка? Ім'я та прізвище",e1:"Напиши ім'я та прізвище",e1p:"Напишіть ім'я та прізвище підлітка",
+      uk:{who:'Хто реєструється?',whoT:'Я підліток',whoTs:'записуюся сам',whoP:'Я один із батьків',whoPs:'записую свого підлітка',n1:"Як тебе звати? Ім'я та прізвище",n1p:"Як звати підлітка? Ім'я та прізвище",e1:"Напиши ім'я та прізвище",e1p:"Напишіть ім'я та прізвище підлітка",
         n2:'Твій номер телефону',n2p:'Телефон підлітка',np:'У мене немає свого номера',npp:'У підлітка немає свого номера',nph:'Запишемо номер батьків — спитаємо його далі.',nphp:'Запишемо ваш номер — спитаємо його далі.',e2:'Введи номер США з 10 цифр',
         n3:'Скільки тобі років?',n3p:'Скільки йому років?',h3:'Натисни на вік — одразу перейдемо далі.',e3:'Обери вік',
         n4:'Приведеш друга?',n4p:'Приведе друга?',h4:'Друзям теж потрібне місце — порахуємо їх заздалегідь.',no:'Ні',e4:'Обери відповідь',
@@ -1082,10 +1085,14 @@ ONLY</span></div>
         B.innerHTML = '<div class="rgok">✓</div><h2 class="rgh">' + x('ok').replace('{n}', nm) + '</h2><div class="rgsum"><b>TEENS PARTY Christmas</b><span>' + x('when') + '</span><a href="https://maps.google.com/?q=5948+Pecan+Ave,+Orangevale,+CA+95662" target="_blank" rel="noopener">5948 Pecan Ave, Orangevale, CA 95662</a>' + (n ? '<span>' + x('fr') + '<b>+' + n + '</b></span>' : '') + '</div><p class="hint" style="text-align:center">' + x('door') + '</p>' +
           '<a class="rgrow" href="' + CAL + '" target="_blank" rel="noopener"><span>' + x('cal') + '<small>' + x('cals') + '</small></span><span>›</span></a><a class="rgrow" href="' + TGURL + '" target="_blank" rel="noopener"><span>' + x('tg') + '<small>' + x('tgs') + '</small></span><span>›</span></a><button type="button" class="rgrow" data-a="again"><span>' + x('more') + '<small>' + x('mores') + '</small></span><span>›</span></button>';
         return; }
-      var q = Q[S.i], steps = S.keep ? 4 : N;
-      document.getElementById('rgCount').textContent = (S.i + 1) + ' / ' + steps; document.getElementById('rgBar').style.width = ((S.i + 1) / steps * 100) + '%';
+      var d0 = L[lang] || L.en;
+      if(S.who == null){ document.getElementById('rgCount').textContent = '1 / ' + (N + 1); document.getElementById('rgBar').style.width = (100 / (N + 1)) + '%';
+        B.innerHTML = '<div class="step"' + (focus ? '' : ' style="animation:none"') + '><label>' + d0.who + '</label><button type="button" class="rgwho" data-a="who" data-x="teen"><b>' + d0.whoT + '</b><small>' + d0.whoTs + '</small></button><button type="button" class="rgwho" data-a="who" data-x="par"><b>' + d0.whoP + '</b><small>' + d0.whoPs + '</small></button></div>';
+        return; }
+      var q = Q[S.i], steps = S.keep ? 4 : N + 1, num = S.keep ? S.i + 1 : S.i + 2;
+      document.getElementById('rgCount').textContent = num + ' / ' + steps; document.getElementById('rgBar').style.width = (num / steps * 100) + '%';
       B.innerHTML = '<div class="step"' + (focus ? '' : ' style="animation:none"') + '><label for="rg_' + ['name','phone','','','pname','pphone'][S.i] + '">' + x(q.h) + '</label>' + q.b() + '</div>' + (S.err ? '<p class="err" role="alert">' + esc(S.err) + '</p>' : '') +
-        '<div class="q-nav">' + (S.i ? '<button type="button" class="ghost" data-a="back"' + (S.busy ? ' disabled' : '') + '>' + x('back') + '</button>' : '') + (q.tap && S.f[q.h === 'n3' ? 'age' : 'friends'] == null ? '' : '<button type="button" class="btn" data-a="next"' + (S.busy ? ' disabled' : '') + '>' + (S.busy ? x('busy') : last() ? x('go') : x('next')) + '</button>') + '</div>';
+        '<div class="q-nav">' + (S.i || !S.keep ? '<button type="button" class="ghost" data-a="back"' + (S.busy ? ' disabled' : '') + '>' + x('back') + '</button>' : '') + (q.tap && S.f[q.h === 'n3' ? 'age' : 'friends'] == null ? '' : '<button type="button" class="btn" data-a="next"' + (S.busy ? ' disabled' : '') + '>' + (S.busy ? x('busy') : last() ? x('go') : x('next')) + '</button>') + '</div>';
       if(focus){ var el = B.querySelector('input'); if(el) setTimeout(function(){ el.focus(); }, 60); }
     }
     function show(i){ S.i = i; S.err = ''; render(true); }
@@ -1099,11 +1106,12 @@ ONLY</span></div>
         .catch(function(){ S.busy = false; S.err = x('gen'); render(); });
     }
     var H = {
-      back:function(){ show(S.i - 1); },
+      back:function(){ if(!S.i){ S.who = null; S.err = ''; return render(true); } show(S.i - 1); },
+      who:function(v){ S.who = v; S.par = v === 'par'; track(S.par ? 'open_parent' : 'open_form'); show(0); },
       next:function(){ if(S.busy) return; var e = Q[S.i].v(); if(e){ S.err = e; return render(); } if(last()) return submit(); show(S.i + 1); },
       pick:function(v){ var a = v.split(':'); S.f[a[0]] = +a[1]; H.next(); },
       tg:function(k){ S.f[k] = !S.f[k]; S.err = ''; render(); },
-      again:function(){ var par = S.par, f = S.f; S = {i:0, par:par, f:par ? {pname:f.pname, pphone:f.pphone, consent:true} : {}, err:'', busy:false, done:false, keep:par}; show(0); }
+      again:function(){ var par = S.par, f = S.f; S = {i:0, par:par, who:par ? 'par' : 'teen', f:par ? {pname:f.pname, pphone:f.pphone, consent:true} : {}, err:'', busy:false, done:false, keep:par}; show(0); }
     };
     B.addEventListener('click', function(e){ var b = e.target.closest('[data-a]'); if(b) H[b.getAttribute('data-a')](b.getAttribute('data-x')); });
     B.addEventListener('input', function(e){ var k = e.target.getAttribute('data-b'); if(k) S.f[k] = e.target.value; });
@@ -1111,9 +1119,9 @@ ONLY</span></div>
     document.getElementById('rgClose').addEventListener('click', function(){ D.close(); });
     /* отметка на билете: кто уже записан с этого устройства */
     function mark(){ var n = store('tp_reg_xmas26'), el = document.getElementById('rgMark'); if(!el) return; el.hidden = !n; if(n) el.textContent = '✓ ' + n + ' ' + (L[lang] || L.en).inlist; }
-    return { open:function(par){ S = {i:0, par:!!par, f:{}, err:'', busy:false, done:false, keep:false}; if(!D.open) D.showModal(); show(0); track(par ? 'open_parent' : 'open_form'); }, mark:mark };
+    return { open:function(){ S = {i:0, par:false, who:null, f:{}, err:'', busy:false, done:false, keep:false}; if(!D.open) D.showModal(); render(true); }, mark:mark };
   })();
-  document.addEventListener('click', function(e){ var b = e.target.closest && e.target.closest('#open,#openParent,#finBtn,#open2'); if(!b) return; e.preventDefault(); e.stopImmediatePropagation(); RG.open(b.id === 'openParent'); }, true);
+  document.addEventListener('click', function(e){ var b = e.target.closest && e.target.closest('#open,#openParent,#finBtn,#open2'); if(!b) return; e.preventDefault(); e.stopImmediatePropagation(); RG.open(); }, true);
   document.addEventListener('tp-reg-lang', function(){ RG.mark(); });
 
   /* gallery */
