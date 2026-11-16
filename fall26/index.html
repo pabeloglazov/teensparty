@@ -48,7 +48,7 @@ a[style*="border-radius"]:active,button:active{transform:scale(.98)}
     <img src="/app/icons/icon-192.png" alt="" style="width: 44px; height: 44px; border-radius: 12px">
     <span style="font-family: Unbounded, sans-serif; font-weight: 700; font-size: 16px">3:16 TEENS</span>
   </a>
-  <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap"><div class="lang" role="group" aria-label="Language"><button type="button" data-l="ru">RU</button><button type="button" data-l="uk">UA</button><button type="button" data-l="en">EN</button></div><a href="/" style="display: inline-flex; align-items: center; height: 44px; padding: 0 16px; border-radius: 14px; border: 1px solid #3A3D46; color: #F4F4F5; text-decoration: none; font-weight: 600; font-size: 14px">← Все события</a></div>
+  <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: flex-end; margin-left: auto"><a href="/" style="display: inline-flex; align-items: center; height: 44px; padding: 0 16px; border-radius: 14px; border: 1px solid #3A3D46; color: #F4F4F5; text-decoration: none; font-weight: 600; font-size: 14px">← Все события</a><div class="lang" role="group" aria-label="Language"><button type="button" data-l="ru">RU</button><button type="button" data-l="uk">UA</button><button type="button" data-l="en">EN</button></div></div>
 </div>
 
 <div style="max-width: 1200px; margin: 0 auto; padding: 40px 24px 48px; display: flex; flex-direction: column; gap: 22px">
@@ -61,7 +61,18 @@ a[style*="border-radius"]:active,button:active{transform:scale(.98)}
   
 </div>
 
-<div style="max-width: 1200px; margin: 0 auto; padding: 0 24px 56px; display: flex; flex-direction: column; gap: 24px">
+<div style="max-width: 1200px; margin: 0 auto; padding: 0 24px 72px; display: flex; flex-direction: column; gap: 24px">
+  <h2 id="photos" style="margin: 0; scroll-margin-top: 20px; font-family: Unbounded, sans-serif; font-weight: 700; font-size: clamp(30px, 4.4vw, 52px); line-height: 1; letter-spacing: -0.02em">Фото</h2>
+  <div class="phgrid" id="grid"></div>
+  <button type="button" id="more" style="min-height: 68px; border: 0; border-radius: 18px; background: #FF8A3D; color: #0E0F12; font-family: Unbounded, sans-serif; font-weight: 700; font-size: clamp(18px, 2.2vw, 24px); cursor: pointer">Показать все 385 фото</button>
+  <div style="display: flex; flex-wrap: wrap; gap: 10px"><a href="https://t.me/+P1QV3wSylSQyNDFi" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; min-height: 48px; padding: 0 20px; border-radius: 14px; border: 1px solid #3A3D46; color: #F4F4F5; text-decoration: none; font-weight: 600; font-size: 15px">Вступить в Telegram-чат</a><a href="https://drive.google.com/drive/folders/1QIw4TVgPmyOMGkzsL4CC16FU-Yhdnsno" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; min-height: 48px; padding: 0 20px; border-radius: 14px; border: 1px solid #3A3D46; color: #F4F4F5; text-decoration: none; font-weight: 600; font-size: 15px">Оригиналы · часть 1</a><a href="https://drive.google.com/drive/folders/11PTTfKbpxl5khkHiY6QnLCak1cJREZJA" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; min-height: 48px; padding: 0 20px; border-radius: 14px; border: 1px solid #3A3D46; color: #F4F4F5; text-decoration: none; font-weight: 600; font-size: 15px">Оригиналы · часть 2</a></div>
+  <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; background: #15171B; border: 1px solid #2A2D35; border-radius: 20px; padding: 20px 24px">
+    <div style="display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 700; font-size: 17px">Хочешь на следующую?</span><span style="color: #A1A1AA; font-size: 14px">TEENS PARTY Christmas · DEC 19 · 6:00 PM</span></div>
+    <a href="/xmas26/" style="display: inline-flex; align-items: center; height: 48px; padding: 0 22px; border-radius: 14px; background: #EF4444; color: #0E0F12; text-decoration: none; font-weight: 700; font-size: 15px">Зарегистрироваться</a>
+  </div>
+</div>
+
+<div style="max-width: 1200px; margin: 0 auto; padding: 0 24px 72px; display: flex; flex-direction: column; gap: 24px">
   <h2 style="margin: 0; font-family: Unbounded, sans-serif; font-weight: 700; font-size: clamp(30px, 4.4vw, 52px); line-height: 1; letter-spacing: -0.02em">Программа</h2>
   <div class="pgrid" style="display: grid; gap: 12px">
     <div style="background: #15171B; border: 1px solid #2A2D35; border-radius: 20px; padding: 22px; display: flex; flex-direction: column; gap: 10px; min-height: 150px">
@@ -94,17 +105,6 @@ a[style*="border-radius"]:active,button:active{transform:scale(.98)}
       <span style="font-family: Unbounded, sans-serif; font-weight: 700; font-size: 22px; line-height: 1.1">Живое общение</span>
       <span style="color: #A1A1AA; font-size: 15px">Новые знакомства, разговоры и просто классное время вместе.</span>
     </div>
-  </div>
-</div>
-
-<div style="max-width: 1200px; margin: 0 auto; padding: 0 24px 72px; display: flex; flex-direction: column; gap: 24px">
-  <h2 id="photos" style="margin: 0; scroll-margin-top: 20px; font-family: Unbounded, sans-serif; font-weight: 700; font-size: clamp(30px, 4.4vw, 52px); line-height: 1; letter-spacing: -0.02em">Фото</h2>
-  <div class="phgrid" id="grid"></div>
-  <button type="button" id="more" style="min-height: 68px; border: 0; border-radius: 18px; background: #FF8A3D; color: #0E0F12; font-family: Unbounded, sans-serif; font-weight: 700; font-size: clamp(18px, 2.2vw, 24px); cursor: pointer">Показать все 385 фото</button>
-  <div style="display: flex; flex-wrap: wrap; gap: 10px"><a href="https://t.me/+P1QV3wSylSQyNDFi" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; min-height: 48px; padding: 0 20px; border-radius: 14px; border: 1px solid #3A3D46; color: #F4F4F5; text-decoration: none; font-weight: 600; font-size: 15px">Вступить в Telegram-чат</a><a href="https://drive.google.com/drive/folders/1QIw4TVgPmyOMGkzsL4CC16FU-Yhdnsno" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; min-height: 48px; padding: 0 20px; border-radius: 14px; border: 1px solid #3A3D46; color: #F4F4F5; text-decoration: none; font-weight: 600; font-size: 15px">Оригиналы · часть 1</a><a href="https://drive.google.com/drive/folders/11PTTfKbpxl5khkHiY6QnLCak1cJREZJA" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; min-height: 48px; padding: 0 20px; border-radius: 14px; border: 1px solid #3A3D46; color: #F4F4F5; text-decoration: none; font-weight: 600; font-size: 15px">Оригиналы · часть 2</a></div>
-  <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; background: #15171B; border: 1px solid #2A2D35; border-radius: 20px; padding: 20px 24px">
-    <div style="display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 700; font-size: 17px">Хочешь на следующую?</span><span style="color: #A1A1AA; font-size: 14px">TEENS PARTY Christmas · DEC 19 · 6:00 PM</span></div>
-    <a href="/xmas26/" style="display: inline-flex; align-items: center; height: 48px; padding: 0 22px; border-radius: 14px; background: #EF4444; color: #0E0F12; text-decoration: none; font-weight: 700; font-size: 15px">Зарегистрироваться</a>
   </div>
 </div>
 

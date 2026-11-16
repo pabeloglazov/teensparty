@@ -15,12 +15,12 @@ flake=lambda st:'<svg class="bigflake" aria-hidden="true" viewBox="0 0 24 24" fi
 top='''  <nav class="xnav">
     <a class="xlogo" href="/"><img src="/app/icons/icon-192.png" alt=""><span>3:16 TEENS</span></a>
     <div class="xnavr">
+      <a class="xback" href="/" data-i="navBack">← All events</a>
       <div class="lang" role="group" aria-label="Language">
         <button type="button" data-lang="ru" aria-pressed="false">RU</button>
         <button type="button" data-lang="uk" aria-pressed="false">UA</button>
         <button type="button" data-lang="en" aria-pressed="true">EN</button>
       </div>
-      <a class="xback" href="/" data-i="navBack">← All events</a>
     </div>
   </nav>
   <div class="candy" aria-hidden="true"></div>
@@ -78,7 +78,7 @@ body{font-family:var(--body)}
 .xnav{width:100%;max-width:1200px;margin:0 auto;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;position:relative;z-index:2}
 .xlogo{display:flex;align-items:center;gap:12px;color:var(--fg);text-decoration:none;font-family:var(--display);font-weight:700;font-size:16px}
 .xlogo img{width:44px;height:44px;border-radius:12px}
-.xnavr{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.xnavr{display:flex;align-items:center;justify-content:flex-end;gap:12px;flex-wrap:wrap;margin-left:auto}
 .xback{display:inline-flex;align-items:center;height:44px;padding:0 16px;border-radius:14px;border:1px solid #3F7A5A;color:var(--fg);text-decoration:none;font-weight:600;font-size:14px}
 .xback:hover{background:#0C1C14}
 .candy{height:10px;background:repeating-linear-gradient(135deg,#EF4444 0 18px,#F4F4F5 18px 36px,#1F7A46 36px 54px)}

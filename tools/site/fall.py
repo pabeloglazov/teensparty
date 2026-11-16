@@ -8,7 +8,7 @@ def rep(a,n,count=1):
 rep('href="Main.dc.html"','href="/"',2); rep('href="Event.dc.html"','href="/xmas26/"')
 # lang switch next to back link
 m=re.search(r'<a href="/" style="display: inline-flex; align-items: center; height: 44px;[^>]*>← Все события</a>',b); assert m
-b=b.replace(m.group(0),'<div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap">'+LANGHTML+m.group(0)+'</div>')
+b=b.replace(m.group(0),'<div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: flex-end; margin-left: auto">'+m.group(0)+LANGHTML+'</div>')
 rep('TEENS <span style="color: #0E0F12;','TEENS <br class="mbr"><span style="color: #0E0F12;')
 g='<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px">'
 assert b.count(g)==2
@@ -20,6 +20,11 @@ b=b.replace(m.group(0),'<button type="button" id="more" %s>Показать вс
 # photos anchor
 rep('<h2 style="margin: 0; font-family: Unbounded, sans-serif; font-weight: 700; font-size: clamp(30px, 4.4vw, 52px); line-height: 1; letter-spacing: -0.02em">Фото</h2>','<h2 id="photos" style="margin: 0; scroll-margin-top: 20px; font-family: Unbounded, sans-serif; font-weight: 700; font-size: clamp(30px, 4.4vw, 52px); line-height: 1; letter-spacing: -0.02em">Фото</h2>')
 assert '{{' not in b and '<img src="/fall26' not in b
+# v3: порядок — фото, регистрация на новое событие, программа
+P='<div style="max-width: 1200px; margin: 0 auto; padding: 0 24px 56px; display: flex; flex-direction: column; gap: 24px">'; Q='<div style="max-width: 1200px; margin: 0 auto; padding: 0 24px 72px; display: flex; flex-direction: column; gap: 24px">'
+assert b.count(P)==1 and b.count(Q)==1
+i=b.index(P); j=b.index(Q); prog=b[i:j]; k=b.rindex('</div>')
+b=b[:i]+b[j:k]+prog.replace('padding: 0 24px 56px','padding: 0 24px 72px')+b[k:]
 css='''.pgrid{grid-template-columns:repeat(3,minmax(0,1fr))}
 .phgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 .phgrid button{display:block;padding:0;border:0;background:#15171B;border-radius:18px;overflow:hidden;cursor:zoom-in}
