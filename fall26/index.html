@@ -1,919 +1,155 @@
+<!doctype html>
+<html lang="ru">
+<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>TEENS PARTY · OCT 31, 2026</title>
+<meta name="description" content="TEENS PARTY 31 октября 2026 — программа и фото.">
 <meta name="robots" content="noindex">
+<link rel="icon" href="/app/icons/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;900&family=Manrope:wght@500;700;800&display=swap">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap">
 <style>
-/* Layout: big marquee strips top/bottom; left = title + seat board + countdown; right = ticket; registration = step-by-step popup */
-:root{
-  --bg:#0d0d0d; --fg:#f2efe8; --paper:#f2efe8; --ink:#0d0d0d; --orange:#ff5a1f; --orange-dark:#b83606;
-  --muted:#b9b4ab; --paper-muted:#55524c; --seat-empty:#262421; --err:#b3200c; --track:#d9d4ca;
-  --display:Unbounded, "Arial Black", Impact, sans-serif;
-  --body:Manrope, "Segoe UI", system-ui, sans-serif;
-  color-scheme:dark;
-}
 *{box-sizing:border-box}
-[hidden]{display:none!important}
-html,body{margin:0}
-body{background:var(--bg);color:var(--fg);font-family:var(--body)}
-a,button,input{font:inherit}
-:focus-visible{outline:3px solid var(--orange);outline-offset:3px}
-.page{position:relative;min-height:100svh;overflow:hidden;display:flex;flex-direction:column}
-
-/* marquee */
-.strip{overflow:hidden;font-family:var(--display);font-weight:900;white-space:nowrap;line-height:1}
-.strip.top{background:var(--orange);color:var(--ink);font-size:clamp(30px,4.4vw,52px);padding:20px 0;transform:rotate(-1.5deg) scale(1.06);margin-top:34px}
-.strip.bot{background:var(--paper);color:var(--ink);font-size:clamp(26px,3.6vw,42px);padding:18px 0;transform:rotate(1deg) scale(1.06);margin-bottom:40px}
-.track{display:inline-flex;animation:mq 26s linear infinite}
-.track span{padding-right:40px}
-.strip.bot .track{animation-direction:reverse;animation-duration:32s}
-@keyframes mq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-
-/* registration closed after the event */
-.closedbox{display:none;flex-direction:column;gap:12px}
-.closedbox .k{font-family:var(--display);font-weight:900;font-size:20px;line-height:1.1}
-.closedbox p{margin:0;font-weight:700;line-height:1.35}
-.closedbox .btn{display:flex;align-items:center;justify-content:center;text-decoration:none}
-body.closed .closedbox{display:flex}
-body.closed #fin,body.closed #open,body.closed #openParent,body.closed #checkBtn,body.closed #mcta,body.closed #done{display:none!important}
-/* photos */
-.tgbtn{display:flex;align-items:center;justify-content:center;text-decoration:none}
-.gal{width:100%;max-width:1200px;margin:0 auto;padding:16px clamp(16px,4vw,48px) 72px;display:none;flex-direction:column;gap:22px;scroll-margin-top:16px}
-body.closed .gal{display:flex}
-.gal .gk{font-size:13px;font-weight:800;letter-spacing:.16em;color:var(--muted)}
-.gal h2{margin:0;font-family:var(--display);font-weight:900;font-size:clamp(40px,7vw,84px);line-height:.9;letter-spacing:-.03em}
-.gal h2 span{color:var(--orange)}
-.gbar{display:flex;flex-wrap:wrap;gap:12px}
-.gbar a{text-decoration:none;display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:12px 20px}
-.gbar .tg{background:var(--orange);color:var(--ink);font-family:var(--display);font-weight:900;font-size:16px;box-shadow:6px 6px 0 var(--fg)}
-.gbar .dl{border:2px solid var(--fg);color:var(--fg);font-weight:800;letter-spacing:.06em}
-.grid{columns:4 160px;column-gap:10px}
-.grid button{display:block;width:100%;margin:0 0 10px;padding:0;border:0;background:var(--seat-empty);cursor:zoom-in;break-inside:avoid}
-.grid img{display:block;width:100%;height:auto}
-.gmore{align-self:center;background:transparent;color:var(--fg);border:2px solid var(--fg);font-weight:800;letter-spacing:.1em;padding:14px 24px;min-height:52px;cursor:pointer}
-.lb{position:fixed;inset:0;z-index:60;background:rgba(10,10,10,.96);display:none;align-items:center;justify-content:center}
+html{scroll-behavior:smooth}
+body{margin:0;background:#0E0F12}
+a{color:#FF8A3D}a:hover{color:#FFB27A}
+button,a{-webkit-tap-highlight-color:transparent}
+:focus-visible{outline:3px solid #FF8A3D;outline-offset:3px}
+a[style*="border-radius"],button{transition:filter .15s ease,transform .15s ease}
+a[style*="border-radius"]:hover,button:hover{filter:brightness(1.12)}
+a[style*="border-radius"]:active,button:active{transform:scale(.98)}
+.lang{display:flex;gap:2px;padding:4px;background:#15171B;border:1px solid #2A2D35;border-radius:999px}
+.lang button{min-width:44px;height:36px;border:0;border-radius:999px;background:transparent;color:#A1A1AA;font:700 13px Inter,sans-serif;cursor:pointer}
+.lang button.on{background:#FF8A3D;color:#0E0F12}
+.chip{min-height:44px;padding:0 18px;border-radius:999px;border:1px solid #3A3D46;background:#15171B;color:#F4F4F5;font:700 14px Inter,sans-serif;cursor:pointer}
+.chip.on{background:#FF8A3D;color:#0E0F12;border-color:#FF8A3D}
+.mbr{display:none}
+[data-rail]{scrollbar-width:none}[data-rail]::-webkit-scrollbar{display:none}
+.lb{position:fixed;inset:0;z-index:60;background:rgba(10,10,12,.96);display:none;align-items:center;justify-content:center}
 .lb.on{display:flex}
 .lb img{max-width:100vw;max-height:100vh;object-fit:contain}
-.lb button{position:absolute;background:rgba(13,13,13,.7);color:var(--fg);border:2px solid var(--fg);width:52px;height:52px;font-size:24px;font-weight:900;cursor:pointer}
-.lb .x{top:14px;right:14px}.lb .pv{left:10px;top:50%;transform:translateY(-50%)}.lb .nx{right:10px;top:50%;transform:translateY(-50%)}
-.lb .cnt{position:absolute;bottom:16px;left:0;right:0;text-align:center;font-weight:800;letter-spacing:.12em;color:var(--muted)}
-/* language switch */
-.langbar{width:100%;max-width:1200px;margin:28px auto 0;padding-inline:clamp(16px,4vw,48px);display:flex;justify-content:flex-end}
-.lang{display:inline-flex;border:2px solid var(--fg)}
-.lang button{background:transparent;color:var(--fg);border:0;padding:10px 16px;min-width:52px;min-height:44px;font-weight:800;letter-spacing:.1em;cursor:pointer}
-.lang button+button{border-left:2px solid var(--fg)}
-.lang button[aria-pressed="true"]{background:var(--fg);color:var(--ink)}
-
-.wrap{flex:1;width:100%;max-width:1200px;margin:0 auto;padding:clamp(24px,4vw,48px) clamp(16px,4vw,48px) clamp(40px,5vw,64px);display:flex;flex-wrap:wrap;align-items:stretch;gap:clamp(40px,5vw,72px)}
-.left{flex:999 1 440px;min-width:0;display:flex;flex-direction:column;gap:36px}
-h1{margin:0;font-family:var(--display);font-weight:900;font-size:clamp(54px,9.4vw,134px);line-height:.88;letter-spacing:-.03em}
-h1 span{display:block;animation:slam .5s cubic-bezier(.2,1.2,.4,1) both}
-h1 .outline{color:var(--bg);-webkit-text-stroke:2px var(--fg);animation-delay:.12s}
-@keyframes slam{from{transform:translateY(40%) scaleY(1.4);opacity:.2}to{transform:none;opacity:1}}
-
-/* seat board */
-.board{display:flex;flex-direction:column;gap:18px;max-width:560px}
-.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px;background:var(--fg);border:2px solid var(--fg)}
-.stat{background:var(--bg);padding:16px 18px;display:flex;flex-direction:column;gap:6px}
-.stat.hot{background:var(--orange);color:var(--ink)}
-.stat .k{font-size:12px;font-weight:800;letter-spacing:.12em;line-height:1.25;min-height:2.5em}
-.stat .v{font-family:var(--display);font-weight:900;font-size:clamp(44px,6vw,64px);line-height:1;font-variant-numeric:tabular-nums}
-.stat .v small{font-size:.38em;font-weight:600;opacity:.75}
-.seats{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:6px}
-.seat{aspect-ratio:1;max-width:100%;border:2px solid #4a4640;background:var(--seat-empty);transition:background .4s ease,border-color .4s ease}
-.seat.on{background:var(--orange);border-color:var(--orange)}
-.seat.me{background:var(--paper);border-color:var(--paper);animation:pulse 1.2s ease-in-out 3}
-@keyframes pulse{50%{transform:scale(1.25)}}
-.legend{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;font-size:13px;color:var(--muted);font-weight:700;min-height:1.4em}
-.legend>span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.legend>span[hidden]{display:block!important;visibility:hidden}
-.legend i{display:inline-block;width:12px;height:12px;margin-right:8px;vertical-align:-1px}
-.timer .k{display:block;font-size:12px;font-weight:800;letter-spacing:.12em;color:var(--muted);margin-bottom:10px}
-.tgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:2px;background:var(--fg);border:2px solid var(--fg)}
-.tgrid div{background:var(--bg);padding:12px 6px;text-align:center;display:flex;flex-direction:column;gap:4px}
-.tgrid b{font-family:var(--display);font-weight:900;font-size:clamp(24px,3.4vw,34px);line-height:1;font-variant-numeric:tabular-nums}
-.tgrid span{font-size:11px;font-weight:800;letter-spacing:.12em;color:var(--muted);white-space:nowrap}
-
-/* ticket */
-.ticket{flex:1 1 320px;min-width:0;max-width:430px;background:var(--paper);color:var(--ink);border:3px solid var(--ink);box-shadow:12px 12px 0 var(--orange);display:flex;flex-direction:column;animation:drop .9s cubic-bezier(.2,1.4,.4,1) both .3s;transform:rotate(-1.5deg)}
-@keyframes drop{from{transform:translateY(-60px) rotate(-8deg);opacity:.2}to{transform:rotate(-1.5deg);opacity:1}}
-.part{padding:24px;display:flex;flex-direction:column;gap:18px}
-.part:first-child{gap:22px}
-.part.stub{flex:1}
-.part.stub .barcode{margin-top:auto}
-.stamp{flex:1;display:flex;align-items:center;justify-content:center;min-width:0;overflow:hidden;padding:16px 4px}
-.stamp-box{display:block;border:3px solid var(--ink);padding:10px 14px;font-family:var(--display);font-weight:900;font-size:34px;line-height:1.05;text-align:center;white-space:pre;color:var(--ink);transform:rotate(-8deg)}
-.bigdate{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;border-top:3px solid var(--ink);border-bottom:3px solid var(--ink);padding:10px 0}
-.bigdate .dd{font-family:var(--display);font-weight:900;font-size:clamp(84px,10vw,120px);line-height:.82;letter-spacing:-.05em}
-.bigdate .dm{display:flex;flex-direction:column;gap:6px;padding-bottom:4px;font-family:var(--display);font-weight:900;font-size:16px;min-width:0}
-.bigdate .dm span{display:block;height:20px;line-height:20px;white-space:nowrap}
-.bigdate .dm span:last-child{font-family:var(--body);font-size:13px;font-weight:800;letter-spacing:.14em;color:var(--paper-muted)}
-@media (max-width:899px){ .stamp{display:none} }
-@media (min-width:900px){ .ticket{flex:0 0 400px;width:400px} }
-.mcta{display:none}
-@media (max-width:899px){
-  .mcta{display:block;position:fixed;left:0;right:0;bottom:0;z-index:5;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));background:linear-gradient(180deg,rgba(13,13,13,0),rgba(13,13,13,.92) 35%)}
-  .mcta .btn{width:100%}
-  .page{padding-bottom:84px}
-}
-.head{display:flex;justify-content:space-between;align-items:center;gap:12px;height:28px;font-weight:800;font-size:12px;line-height:20px;letter-spacing:.14em;white-space:nowrap}
-.no{background:var(--ink);color:var(--paper);padding:4px 8px;white-space:nowrap}
-.pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
-.f{display:flex;flex-direction:column;gap:4px;color:var(--ink);text-decoration:none;min-width:0}
-.f .k{font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--paper-muted)}
-.big{font-family:var(--display);font-weight:900;font-size:21px;white-space:nowrap}
-.addr{font-size:17px;font-weight:800;line-height:1.35}
-.perf{border-top:3px dashed var(--ink)}
-.btn{white-space:nowrap;background:var(--orange);color:var(--ink);border:3px solid var(--ink);box-shadow:6px 6px 0 var(--ink);font-family:var(--display);font-weight:900;font-size:16px;letter-spacing:.02em;padding:16px;min-height:52px;cursor:pointer;transition:transform .12s ease,box-shadow .12s ease}
-.btn:hover:not(:disabled){transform:translate(4px,4px);box-shadow:2px 2px 0 var(--ink)}
-.btn:disabled{cursor:default;background:#c9c4ba}
-.done{display:flex;flex-direction:column;gap:10px}
-.done .k{font-size:13px;font-weight:800;letter-spacing:.18em;color:var(--orange-dark)}
-.tno{font-family:var(--display);font-weight:900;font-size:clamp(44px,8vw,60px);line-height:1;font-variant-numeric:tabular-nums}
-.tname{font-size:20px;font-weight:800}
-.qr{width:200px;max-width:100%;aspect-ratio:1;background:#fff;border:3px solid var(--ink);padding:8px;margin-top:6px;cursor:zoom-in;transition:transform .15s ease}
-.qr:hover{transform:scale(1.03)}
-.qr svg{display:block;width:100%;height:100%}
-.qrhint{margin:-2px 0 0;font-size:13px;font-weight:700;opacity:.6}
-.qrz{position:fixed;inset:0;z-index:1000;background:rgba(13,13,13,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:20px;cursor:zoom-out;opacity:0;pointer-events:none;transition:opacity .2s ease}
-.qrz.on{opacity:1;pointer-events:auto}
-.qrz .big{width:min(88vw,72vh,520px);aspect-ratio:1;background:#fff;border:6px solid var(--orange);padding:16px;transform:scale(.6);transition:transform .25s cubic-bezier(.2,.9,.3,1.2)}
-.qrz.on .big{transform:scale(1)}
-.qrz .big svg{display:block;width:100%;height:100%}
-.qrz .zt{font-family:var(--display);font-weight:900;font-size:clamp(30px,8vw,44px);color:var(--paper);line-height:1}
-.qrz .zn{font-size:18px;font-weight:800;color:var(--paper);margin-top:-8px}
-.qrz .zc{font-size:14px;font-weight:700;letter-spacing:.08em;color:var(--paper);opacity:.6;text-transform:uppercase}
-.dmsg{margin:0;font-size:15px;font-weight:600;line-height:1.45}
-.btn2{background:transparent;color:var(--ink);border:3px solid var(--ink);font-family:var(--display);font-weight:900;font-size:14px;letter-spacing:.02em;line-height:1.25;padding:12px 14px;min-height:52px;cursor:pointer;text-align:center}
-.btn2:hover:not(:disabled){background:var(--ink);color:var(--paper)}
-.btn2:disabled{opacity:.4;cursor:default}
-.linkbtn{align-self:center;background:none;border:0;padding:6px 0;min-height:56px;line-height:1.35;text-align:center;color:var(--ink);font-weight:800;font-size:14px;letter-spacing:.06em;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
-.share{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:6px;background:var(--ink);color:var(--paper);border:3px solid var(--ink);font-family:var(--display);font-weight:900;font-size:15px;padding:14px;min-height:52px;cursor:pointer;white-space:nowrap}
-.share:hover{background:var(--orange);color:var(--ink)}
-.pv-body{padding:16px 20px 22px;display:flex;flex-direction:column;gap:14px;align-items:center;text-align:center}
-.pv-body img{width:min(260px,62vw);aspect-ratio:9/16;border:3px solid var(--ink);box-shadow:8px 8px 0 var(--orange);-webkit-touch-callout:default;user-select:auto}
-.pv-body .share{align-self:stretch}
-.pv-wait{margin:0;font-weight:800;padding:60px 0}
-.again{align-self:flex-start;background:none;border:0;padding:8px 0;min-height:44px;color:var(--ink);font-weight:800;text-decoration:underline;cursor:pointer}
-.barcode{height:36px;background:repeating-linear-gradient(90deg,var(--ink) 0 2px,transparent 2px 5px,var(--ink) 5px 9px,transparent 9px 11px,var(--ink) 11px 12px,transparent 12px 16px)}
-
-/* popup questionnaire */
-dialog{border:3px solid var(--ink);padding:0;background:var(--paper);color:var(--ink);width:min(520px,calc(100% - 32px));max-width:none;box-shadow:12px 12px 0 var(--orange)}
-dialog[open]{animation:pop .35s cubic-bezier(.2,1.3,.4,1)}
-@keyframes pop{from{transform:translateY(40px) scale(.94);opacity:0}to{transform:none;opacity:1}}
-dialog::backdrop{background:rgba(13,13,13,.78);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
-.q-top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 20px 0}
-.q-count{font-weight:800;font-size:13px;letter-spacing:.16em;font-variant-numeric:tabular-nums}
-.q-close{background:none;border:0;width:44px;height:44px;display:grid;place-items:center;cursor:pointer;color:var(--ink)}
-.q-bar{margin:12px 20px 0;height:6px;background:var(--track)}
-.q-bar i{display:block;height:100%;background:var(--orange);transition:width .3s ease}
-#qform{padding:24px 20px 20px;display:flex;flex-direction:column;gap:18px}
-.step{display:flex;flex-direction:column;gap:10px;animation:slide .3s ease}
-@keyframes slide{from{transform:translateX(24px);opacity:0}to{transform:none;opacity:1}}
-.step label{font-family:var(--display);font-weight:900;font-size:clamp(20px,4.4vw,26px);line-height:1.2;min-height:2.4em;text-wrap:balance}
-.hint{margin:0;font-size:14px;font-weight:700;color:var(--paper-muted);min-height:1.4em}
-.opt{display:inline-block;margin-left:6px;padding:2px 8px;font-family:var(--body);font-size:12px;font-weight:800;letter-spacing:.08em;background:var(--ink);color:var(--paper);vertical-align:middle}
-.step input{width:100%;min-height:56px;padding:12px 14px;border:3px solid var(--ink);background:#fff;color:var(--ink);font-size:20px;font-weight:700;border-radius:0}
-.err{margin:0;color:var(--err);font-weight:800;font-size:14px}
-.q-nav{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.q-nav .btn{flex:1 1 auto}
-.ghost{background:none;border:3px solid var(--ink);color:var(--ink);font-weight:800;padding:12px 16px;min-height:52px;cursor:pointer}
-.ghost:hover{background:var(--ink);color:var(--paper)}
-@media (max-width:520px){
-  dialog{margin:auto auto 0;width:100%;box-shadow:none;border-width:3px 0 0}
-  dialog[open]{animation:sheet .35s cubic-bezier(.2,1,.4,1)}
-  @keyframes sheet{from{transform:translateY(100%)}to{transform:none}}
-}
-.prog{width:100%;max-width:1200px;margin:0 auto;padding:16px clamp(16px,4vw,48px) 80px;display:flex;flex-direction:column;gap:28px}
-.prog .ph{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:10px 24px}
-.prog h2{margin:0;font-family:var(--display);font-weight:900;font-size:clamp(40px,7vw,84px);line-height:.9;letter-spacing:-.03em}
-.prog .pk{font-size:13px;font-weight:800;letter-spacing:.16em;color:var(--orange)}
-.pgrid{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr));gap:18px}
-.pi{position:relative;background:var(--paper);color:var(--ink);border:3px solid var(--ink);box-shadow:8px 8px 0 var(--orange);padding:36px 22px 26px;display:flex;flex-direction:column;gap:10px}
-.pi .n{display:block;height:48px;font-family:var(--display);font-weight:900;font-size:56px;line-height:48px;color:var(--orange);-webkit-text-stroke:4px var(--ink);paint-order:stroke fill}
-.pi .ic{position:absolute;top:38px;right:22px;width:44px;height:44px;color:var(--orange-dark)}
-.pi h3{margin:34px 0 0;min-height:2.04em;display:flex;align-items:flex-end;white-space:pre-line;font-family:var(--display);font-weight:900;font-size:clamp(22px,2.3vw,27px);line-height:1.02;letter-spacing:-.01em}
-.pi p{min-height:2.8em}
-.pi p{margin:0;font-size:15px;font-weight:700;line-height:1.4;color:var(--paper-muted)}
-.pi.hot{background:var(--orange);box-shadow:6px 6px 0 var(--paper)}
-.pi.hot p{color:var(--ink)}
-@media (max-width:600px){.pgrid{gap:30px}.pi{min-height:0;padding:36px 18px 22px;gap:8px}.pi .n{font-size:40px}.pi .ic{width:36px;height:36px}.pi h3{margin-top:14px;min-height:0;display:block}.pi p{min-height:0}.pi .n{height:36px;line-height:36px}.pi .ic{top:36px;right:18px}}
-.pi .sec{position:absolute;top:-16px;left:18px;display:inline-flex;align-items:center;gap:7px;background:var(--ink);color:var(--orange);border:2px solid var(--orange);box-shadow:3px 3px 0 var(--paper);font-family:var(--display);font-size:12px;font-weight:900;letter-spacing:.03em;padding:7px 12px 7px 10px;transform:rotate(-2deg)}
-.pi .redact{position:relative;display:flex;flex-direction:column;gap:10px;margin-top:6px;padding:4px 0}
-.pi .redact i{display:block;height:16px;background:var(--ink)}
-.pi .cls{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-6deg);white-space:nowrap;border:3px solid var(--orange);color:var(--orange);background:transparent;font-family:var(--display);font-weight:900;font-size:12.5px;letter-spacing:.07em;padding:7px 12px;outline:2px solid var(--orange);outline-offset:3px;text-shadow:0 0 1px var(--orange)}
-.pi .sec svg{width:12px;height:12px}
-.pi.hot .tag{position:absolute;top:-14px;left:18px;background:var(--ink);color:var(--paper);font-size:11px;font-weight:800;letter-spacing:.14em;padding:6px 10px}
-.fin{width:100%;max-width:1200px;margin:0 auto;padding:24px clamp(16px,4vw,48px) 120px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:18px}
-.fin h2{margin:0;font-family:var(--display);font-weight:900;font-size:clamp(38px,7vw,84px);line-height:.92;letter-spacing:-.03em}
-.fin p{margin:0;font-size:18px;font-weight:700;color:var(--muted)}
-.fin .btn{margin-top:10px;padding:18px 28px;font-size:18px}
-.vid{width:100%;max-width:1200px;margin:0 auto;padding:8px clamp(16px,4vw,48px) 72px;display:flex;flex-direction:column;align-items:center;gap:18px}
-.vid .k{font-size:13px;font-weight:800;letter-spacing:.16em;color:var(--muted)}
-.vid h2{margin:0;font-family:var(--display);font-weight:900;font-size:clamp(26px,4.4vw,44px);line-height:1;text-align:center;letter-spacing:-.01em}
-.vframe{position:relative;width:min(100%,460px);aspect-ratio:4/5;border:3px solid var(--paper);box-shadow:12px 12px 0 var(--orange);background:#000;transform:rotate(1deg)}
-.vframe video{display:block;width:100%;height:100%;object-fit:cover}
-.snd{position:absolute;left:12px;bottom:12px;display:flex;align-items:center;gap:8px;background:var(--orange);color:var(--ink);border:3px solid var(--ink);font-family:var(--display);font-weight:900;font-size:13px;padding:10px 14px;min-height:44px;cursor:pointer}
-.snd[aria-pressed="true"]{background:var(--paper)}
-@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+.lb button{position:absolute;background:rgba(21,23,27,.85);color:#F4F4F5;border:1px solid #3A3D46;border-radius:999px;width:52px;height:52px;font-size:24px;font-weight:700;cursor:pointer}
+.lb .x{top:14px;right:14px}.lb .pv{left:10px;top:50%;margin-top:-26px}.lb .nx{right:10px;top:50%;margin-top:-26px}
+.lb .cnt{position:absolute;bottom:16px;left:0;right:0;text-align:center;font:700 13px Inter,sans-serif;letter-spacing:.12em;color:#A1A1AA}
+.pgrid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.phgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.phgrid button{display:block;padding:0;border:0;background:#15171B;border-radius:18px;overflow:hidden;cursor:zoom-in}
+.phgrid img{display:block;width:100%;aspect-ratio:3 / 2;object-fit:cover}
+@media (max-width:720px){.pgrid{grid-template-columns:1fr}.phgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.phgrid button{border-radius:14px}.mbr{display:inline}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
 </style>
+</head>
+<body>
+<div style="background: #0E0F12; color: #F4F4F5; font-family: Inter, system-ui, sans-serif; font-size: 16px; line-height: 1.5; overflow: hidden">
 
-<main class="page">
-  <div class="strip top" aria-hidden="true"><div class="track">
-    <span data-i="mqTop">TEENS PARTY — OCT 31 — 6 PM — INVITATION ONLY — TEENS PARTY — OCT 31 — 6 PM — INVITATION ONLY — </span>
-    <span data-i="mqTop">TEENS PARTY — OCT 31 — 6 PM — INVITATION ONLY — TEENS PARTY — OCT 31 — 6 PM — INVITATION ONLY — </span>
-  </div></div>
+<div style="max-width: 1200px; margin: 0 auto; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap">
+  <a href="/" style="display: flex; align-items: center; gap: 12px; text-decoration: none; color: #F4F4F5">
+    <img src="/app/icons/icon-192.png" alt="" style="width: 44px; height: 44px; border-radius: 12px">
+    <span style="font-family: Unbounded, sans-serif; font-weight: 700; font-size: 16px">3:16 TEENS</span>
+  </a>
+  <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap"><div class="lang" role="group" aria-label="Language"><button type="button" data-l="ru">RU</button><button type="button" data-l="uk">UA</button><button type="button" data-l="en">EN</button></div><a href="/" style="display: inline-flex; align-items: center; height: 44px; padding: 0 16px; border-radius: 14px; border: 1px solid #3A3D46; color: #F4F4F5; text-decoration: none; font-weight: 600; font-size: 14px">← Все события</a></div>
+</div>
 
-  <div class="langbar">
-    <div class="lang" role="group" aria-label="Language">
-      <button type="button" data-lang="en" aria-pressed="true">EN</button>
-      <button type="button" data-lang="uk" aria-pressed="false">UA</button>
-      <button type="button" data-lang="ru" aria-pressed="false">RU</button>
+<div style="max-width: 1200px; margin: 0 auto; padding: 40px 24px 48px; display: flex; flex-direction: column; gap: 22px">
+  
+  <span style="align-self: flex-start; background: #FF8A3D; color: #0E0F12; font-family: Unbounded, sans-serif; font-weight: 900; font-size: clamp(14px, 1.8vw, 22px); letter-spacing: 0.04em; padding: 12px 20px; border-radius: 10px; transform: rotate(-4deg); box-shadow: 6px 8px 0 rgba(0,0,0,0.55); white-space: nowrap; margin: 0 0 6px 4px">УЖЕ ПРОШЛО</span>
+  <div style="position: relative; align-self: flex-start; max-width: 100%">
+    <h1 style="margin: 0; font-family: Unbounded, sans-serif; font-weight: 900; font-size: clamp(56px, 10vw, 136px); line-height: 0.86; letter-spacing: -0.04em">TEENS <br class="mbr"><span style="color: #0E0F12; -webkit-text-stroke: 2px #F4F4F5">PARTY</span></h1>
+    
+  </div>
+  
+</div>
+
+<div style="max-width: 1200px; margin: 0 auto; padding: 0 24px 56px; display: flex; flex-direction: column; gap: 24px">
+  <h2 style="margin: 0; font-family: Unbounded, sans-serif; font-weight: 700; font-size: clamp(30px, 4.4vw, 52px); line-height: 1; letter-spacing: -0.02em">Программа</h2>
+  <div class="pgrid" style="display: grid; gap: 12px">
+    <div style="background: #15171B; border: 1px solid #2A2D35; border-radius: 20px; padding: 22px; display: flex; flex-direction: column; gap: 10px; min-height: 150px">
+      <span style="font-family: Unbounded, sans-serif; font-weight: 700; font-size: 14px; color: #FF8A3D">01</span>
+      <span style="font-family: Unbounded, sans-serif; font-weight: 700; font-size: 22px; line-height: 1.1">Фотозона</span>
+      <span style="color: #A1A1AA; font-size: 15px">Кадры для сторис с друзьями.</span>
+    </div>
+    <div style="background: #15171B; border: 1px solid #2A2D35; border-radius: 20px; padding: 22px; display: flex; flex-direction: column; gap: 10px; min-height: 150px">
+      <span style="font-family: Unbounded, sans-serif; font-weight: 700; font-size: 14px; color: #FF8A3D">02</span>
+      <span style="font-family: Unbounded, sans-serif; font-weight: 700; font-size: 22px; line-height: 1.1">Секретная миссия</span>
+      <span style="color: #A1A1AA; font-size: 15px">Сканируй QR, получи задания и знакомься с людьми по всему залу.</span>
+    </div>
+    <div style="background: #15171B; border: 1px solid #2A2D35; border-radius: 20px; padding: 22px; display: flex; flex-direction: column; gap: 10px; min-height: 150px">
+      <span style="font-family: Unbounded, sans-serif; font-weight: 700; font-size: 14px; color: #FF8A3D">03</span>
+      <span style="font-family: Unbounded, sans-serif; font-weight: 700; font-size: 22px; line-height: 1.1">Секретный агент</span>
+      <span style="color: #A1A1AA; font-size: 15px">Командный квиз: узнаем, кто здесь лучший агент.</span>
+    </div>
+    <div style="background: #15171B; border: 1px solid #2A2D35; border-radius: 20px; padding: 22px; display: flex; flex-direction: column; gap: 10px; min-height: 150px">
+      <span style="font-family: Unbounded, sans-serif; font-weight: 700; font-size: 14px; color: #FF8A3D">04</span>
+      <span style="font-family: Unbounded, sans-serif; font-weight: 700; font-size: 22px; line-height: 1.1">Real Talk</span>
+      <span style="color: #A1A1AA; font-size: 15px">Короткий честный разговор с пастором о главном.</span>
+    </div>
+    <div style="background: #15171B; border: 1px solid #2A2D35; border-radius: 20px; padding: 22px; display: flex; flex-direction: column; gap: 10px; min-height: 150px">
+      <span style="font-family: Unbounded, sans-serif; font-weight: 700; font-size: 14px; color: #FF8A3D">05</span>
+      <span style="font-family: Unbounded, sans-serif; font-weight: 700; font-size: 22px; line-height: 1.1">Еда и напитки</span>
+      <span style="color: #A1A1AA; font-size: 15px">Еда, напитки и закуски — хватит всем.</span>
+    </div>
+    <div style="background: #15171B; border: 1px solid #2A2D35; border-radius: 20px; padding: 22px; display: flex; flex-direction: column; gap: 10px; min-height: 150px">
+      <span style="font-family: Unbounded, sans-serif; font-weight: 700; font-size: 14px; color: #FF8A3D">06</span>
+      <span style="font-family: Unbounded, sans-serif; font-weight: 700; font-size: 22px; line-height: 1.1">Живое общение</span>
+      <span style="color: #A1A1AA; font-size: 15px">Новые знакомства, разговоры и просто классное время вместе.</span>
     </div>
   </div>
+</div>
 
-  <div class="wrap">
-    <div class="left">
-      <h1><span>TEENS</span><span class="outline">PARTY</span></h1>
-
-      <div class="board">
-        <div class="stats">
-          <div class="stat"><span class="k" data-i="taken">TAKEN</span><span class="v"><span id="taken">0</span> <small>/ <span class="capn">67</span></small></span></div>
-          <div class="stat hot"><span class="k" data-i="left">SPOTS LEFT</span><span class="v" id="left">67</span></div>
-        </div>
-        <div class="seats" id="seats" role="img" aria-label="67 spots"></div>
-        <div class="legend">
-          <span><i style="background:var(--orange)"></i><span data-i="lgTaken">Taken</span></span>
-          <span><i style="background:var(--seat-empty);border:2px solid #4a4640"></i><span data-i="lgFree">Free</span></span>
-          <span id="lgMe" hidden><i style="background:var(--paper)"></i><span data-i="lgMe">Your spot</span></span>
-        </div>
-        <div class="timer"><span class="k" data-i="starts">STARTS IN</span>
-          <div class="tgrid">
-            <div><b id="tD">00</b><span data-i="uD">DAYS</span></div>
-            <div><b id="tH">00</b><span data-i="uH">HRS</span></div>
-            <div><b id="tM">00</b><span data-i="uM">MIN</span></div>
-            <div><b id="tS">00</b><span data-i="uS">SEC</span></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="ticket">
-      <div class="part">
-        <div class="head"><span data-i="admit">ADMIT ONE</span><span class="no"><span class="capn">67</span> <span data-i="spots">SPOTS</span></span></div>
-        <div class="bigdate">
-          <span class="dm"><span data-i="monthV">OCTOBER</span><span data-i="dayV">SATURDAY</span></span>
-          <span class="dd">31</span>
-        </div>
-        <div class="f"><span class="k" data-i="doors">START</span><span class="big" data-i="timeV">6:00 PM</span></div>
-        <a class="f" href="https://maps.google.com/?q=5948+Pecan+Ave,+Orangevale,+CA+95662" target="_blank" rel="noopener"><span class="k" data-i="venue">ADDRESS ↗</span><span class="addr">5948 Pecan Ave<br>Orangevale, CA 95662</span></a>
-      </div>
-      <div class="perf" aria-hidden="true"></div>
-      <div class="part stub">
-        <div class="closedbox" id="closedBox"><span class="k" data-i="closedH">REGISTRATION CLOSED</span><p data-i="closedP">TEENS PARTY is over. Thank you for coming!</p><a class="btn" href="#photos" data-i="photos">SEE THE PHOTOS</a><a class="btn2 tgbtn" href="https://t.me/+P1QV3wSylSQyNDFi" target="_blank" rel="noopener" data-i="tgJoin">JOIN OUR TELEGRAM CHAT</a></div>
-        <button class="btn" type="button" id="open" data-i="cta">GET MY TICKET</button>
-        <button class="btn2" type="button" id="openParent" data-i="parentBtn">I'M A PARENT — REGISTER MY TEEN</button>
-        <button class="linkbtn" type="button" id="checkBtn" data-i="check">Already registered? Check my ticket</button>
-        <div class="stamp" id="stamp" aria-hidden="true"><span class="stamp-box" id="stampText" data-i="invite">INVITATION
-ONLY</span></div>
-        <div class="done" id="done" hidden aria-live="polite">
-          <span class="k" id="doneHead" data-i="youreIn">YOU'RE IN</span>
-          <div class="tno" id="tno">TP-000</div>
-          <div class="tname" id="tname"></div>
-          <div class="qr" id="qr" role="button" tabindex="0" aria-label="QR"></div>
-          <p class="qrhint" id="qrhint" data-i="qrTap">Tap the QR to enlarge it</p>
-          <p class="dmsg" id="dmsg"></p>
-          <button type="button" class="share" id="shareBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"></path><path d="M7 8l5-5 5 5"></path><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"></path></svg><span data-i="share">SHARE TO STORIES</span></button>
-          <button type="button" class="again" id="again" data-i="again">Register someone else</button>
-        </div>
-        <div class="barcode" id="barcode" aria-hidden="true"></div>
-      </div>
-    </div>
+<div style="max-width: 1200px; margin: 0 auto; padding: 0 24px 72px; display: flex; flex-direction: column; gap: 24px">
+  <h2 id="photos" style="margin: 0; scroll-margin-top: 20px; font-family: Unbounded, sans-serif; font-weight: 700; font-size: clamp(30px, 4.4vw, 52px); line-height: 1; letter-spacing: -0.02em">Фото</h2>
+  <div class="phgrid" id="grid"></div>
+  <button type="button" id="more" style="min-height: 68px; border: 0; border-radius: 18px; background: #FF8A3D; color: #0E0F12; font-family: Unbounded, sans-serif; font-weight: 700; font-size: clamp(18px, 2.2vw, 24px); cursor: pointer">Показать все 385 фото</button>
+  <div style="display: flex; flex-wrap: wrap; gap: 10px"><a href="https://t.me/+P1QV3wSylSQyNDFi" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; min-height: 48px; padding: 0 20px; border-radius: 14px; border: 1px solid #3A3D46; color: #F4F4F5; text-decoration: none; font-weight: 600; font-size: 15px">Вступить в Telegram-чат</a><a href="https://drive.google.com/drive/folders/1QIw4TVgPmyOMGkzsL4CC16FU-Yhdnsno" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; min-height: 48px; padding: 0 20px; border-radius: 14px; border: 1px solid #3A3D46; color: #F4F4F5; text-decoration: none; font-weight: 600; font-size: 15px">Оригиналы · часть 1</a><a href="https://drive.google.com/drive/folders/11PTTfKbpxl5khkHiY6QnLCak1cJREZJA" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; min-height: 48px; padding: 0 20px; border-radius: 14px; border: 1px solid #3A3D46; color: #F4F4F5; text-decoration: none; font-weight: 600; font-size: 15px">Оригиналы · часть 2</a></div>
+  <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; background: #15171B; border: 1px solid #2A2D35; border-radius: 20px; padding: 20px 24px">
+    <div style="display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 700; font-size: 17px">Хочешь на следующую?</span><span style="color: #A1A1AA; font-size: 14px">TEENS PARTY Christmas · DEC 19 · 6:00 PM</span></div>
+    <a href="/xmas26/" style="display: inline-flex; align-items: center; height: 48px; padding: 0 22px; border-radius: 14px; background: #EF4444; color: #0E0F12; text-decoration: none; font-weight: 700; font-size: 15px">Зарегистрироваться</a>
   </div>
+</div>
 
-  <div class="strip bot" aria-hidden="true"><div class="track">
-    <span data-i="mq">DON'T MISS IT — BRING A FRIEND — DON'T MISS IT — BRING A FRIEND — DON'T MISS IT — BRING A FRIEND — </span>
-    <span data-i="mq">DON'T MISS IT — BRING A FRIEND — DON'T MISS IT — BRING A FRIEND — DON'T MISS IT — BRING A FRIEND — </span>
-  </div></div>
-
-  <section class="gal" id="photos" aria-labelledby="galH">
-    <span class="gk" data-i="galK">TEENS PARTY · OCT 31, 2026</span>
-    <h2 id="galH"><span data-i="galH">PHOTOS</span> <span id="galN"></span></h2>
-    <div class="gbar"><a class="tg" href="https://t.me/+P1QV3wSylSQyNDFi" target="_blank" rel="noopener" data-i="tgJoin">JOIN OUR TELEGRAM CHAT</a><a class="dl" href="https://drive.google.com/drive/folders/1QIw4TVgPmyOMGkzsL4CC16FU-Yhdnsno" target="_blank" rel="noopener" data-i="dl1">ORIGINALS · PART 1 ↗</a><a class="dl" href="https://drive.google.com/drive/folders/11PTTfKbpxl5khkHiY6QnLCak1cJREZJA" target="_blank" rel="noopener" data-i="dl2">ORIGINALS · PART 2 ↗</a></div>
-    <div class="grid" id="grid"></div>
-    <button type="button" class="gmore" id="gmore" hidden data-i="more">SHOW MORE</button>
-  </section>
-  <div class="lb" id="lb" aria-hidden="true"><img id="lbImg" alt=""><button type="button" class="x" id="lbX" aria-label="Close">×</button><button type="button" class="pv" id="lbP" aria-label="Previous">‹</button><button type="button" class="nx" id="lbN" aria-label="Next">›</button><div class="cnt" id="lbC"></div></div>
-  <section class="vid" aria-labelledby="vidH">
-    <h2 id="vidH" data-i="vidH">EVERYTHING ABOUT TEENS PARTY</h2>
-    <div class="vframe">
-      <video id="promo" muted loop playsinline preload="metadata" poster="/media/poster-en.jpg" src="/media/teensparty-en.mp4"></video>
-      <button type="button" class="snd" id="snd" aria-pressed="false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4z"></path><path id="sndWave" d="M16 9a4 4 0 0 1 0 6M19 6a8 8 0 0 1 0 12"></path></svg><span id="sndTxt">SOUND ON</span></button>
-    </div>
-  </section>
-  <section class="prog" aria-labelledby="progH">
-    <div class="ph"><h2 id="progH" data-i="progH">PROGRAM</h2></div>
-    <ol class="pgrid"><li class="pi"><span class="n">01</span><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h4l2-3h6l2 3h4v11H3z"/><circle cx="12" cy="13" r="3.5"/></svg><h3 data-i="p1h">x</h3></li><li class="pi"><span class="sec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span data-i="pSec">GAME DETAILS CLASSIFIED</span></span><span class="n">02</span><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r=".6" fill="currentColor"/><path d="M12 1v4M12 19v4M1 12h4M19 12h4"/></svg><h3 data-i="p2h">x</h3></li><li class="pi"><span class="sec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span data-i="pSec">GAME DETAILS CLASSIFIED</span></span><span class="n">03</span><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10h16M6 10l1.5-5h9L18 10"/><circle cx="8" cy="15" r="3"/><circle cx="16" cy="15" r="3"/><path d="M11 15h2"/></svg><h3 data-i="p3h">x</h3></li><li class="pi"><span class="n">04</span><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a3 3 0 0 1 3 3v5a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3z"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M9 21h6"/></svg><h3 data-i="p4h">x</h3></li><li class="pi"><span class="n">05</span><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11h16l-1.5 9h-13z"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><h3 data-i="p5h">x</h3></li><li class="pi"><span class="n">06</span><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h11v8H8l-4 3z"/><path d="M15 9h5v8l-3-2h-6v-2"/></svg><h3 data-i="p6h">x</h3></li></ol>
-  </section>
-  <section class="fin" id="fin" aria-labelledby="finH">
-    <h2 id="finH" data-i="finH">NO TICKET YET?</h2>
-    <button type="button" class="btn" id="finBtn"><span data-i="cta">GET MY TICKET</span> ↑</button>
-  </section>
-</main>
-<div class="qrz" id="qrz" aria-hidden="true"><div class="zt" id="zt"></div><div class="big" id="qrbig"></div><div class="zn" id="zn"></div><div class="zc" data-i="qrClose">Tap anywhere to close</div></div>
-
-<div class="mcta" id="mcta"><button class="btn" type="button" id="open2" data-i="cta">GET MY TICKET</button></div>
-
-<dialog id="dlg3" class="pv" aria-labelledby="pvTitle">
-  <div class="q-top">
-    <span class="q-count" id="pvTitle" data-i="share">SHARE TO STORIES</span>
-    <button type="button" class="q-close" id="pvClose" aria-label="Close"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"></path></svg></button>
-  </div>
-  <div class="pv-body">
-    <p class="pv-wait" id="pvWait">…</p>
-    <img id="pvImg" alt="TEENS PARTY story" hidden>
-    <p class="hint" data-i="shareHint">Press and hold the image to save it, then post it to your story.</p>
-    <button type="button" class="share" id="pvLink" data-i="shareLink">SHARE LINK</button>
-  </div>
-</dialog>
-
-<dialog id="dlg2" aria-labelledby="ctitle">
-  <div class="q-top">
-    <span class="q-count" id="ctitle" data-i="checkTitle">FIND YOUR TICKET</span>
-    <button type="button" class="q-close" id="cclose" aria-label="Close"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"></path></svg></button>
-  </div>
-  <form id="cform" novalidate style="padding:20px;display:flex;flex-direction:column;gap:16px">
-    <div class="step">
-      <label for="c-phone" data-i="checkQ">Phone number you registered with</label>
-      <input id="c-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(916) 555-0123">
-    </div>
-    <p class="err" id="cerr" role="alert" hidden></p>
-    <button type="submit" class="btn" id="cfind" data-i="find">SHOW MY TICKET</button>
-  </form>
-</dialog>
-
-<dialog id="dlg" aria-labelledby="qcount">
-  <div class="q-top">
-    <span class="q-count" id="qcount">1 / 5</span>
-    <button type="button" class="q-close" id="qclose" aria-label="Close"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"></path></svg></button>
-  </div>
-  <div class="q-bar" aria-hidden="true"><i id="qbar" style="width:20%"></i></div>
-  <form id="qform" novalidate>
-    <div class="step" data-step="0">
-      <label for="f-name" id="l-q1" data-i="q1">What's your first and last name?</label>
-      <input id="f-name" name="name" autocomplete="name" maxlength="60">
-    </div>
-    <div class="step" data-step="1" hidden>
-      <label for="f-phone" id="l-q2" data-i="q2">Your phone number</label>
-      <p class="hint" id="l-h2" data-i="h2">Your ticket goes here.</p>
-      <input id="f-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(916) 555-0123">
-    </div>
-    <div class="step" data-step="2" hidden>
-      <label for="f-age" id="l-q3" data-i="q3">How old are you?</label>
-      <input id="f-age" name="age" type="text" inputmode="numeric" maxlength="2" autocomplete="off">
-    </div>
-    <div class="step" data-step="3" hidden>
-      <label for="f-pname"><span id="l-q4" data-i="q4">Parent's name</span><span class="opt" data-i="optional">OPTIONAL</span></label>
-      <input id="f-pname" name="parentName" maxlength="60" autocomplete="off">
-    </div>
-    <div class="step" data-step="4" hidden>
-      <label for="f-pphone"><span id="l-q5" data-i="q5">Parent's phone</span><span class="opt" data-i="optional">OPTIONAL</span></label>
-      <input id="f-pphone" name="parentPhone" type="tel" inputmode="tel" autocomplete="off" placeholder="(916) 555-0123">
-    </div>
-    <p class="err" id="err" role="alert" hidden></p>
-    <div class="q-nav">
-      <button type="button" class="ghost" id="back" data-i="back">Back</button>
-      <button type="button" class="ghost" id="skip" data-i="skip" hidden>Skip</button>
-      <button type="submit" class="btn" id="next" data-i="next">Next</button>
-    </div>
-  </form>
-</dialog>
-
+</div>
+<div class="lb" id="lb" aria-hidden="true"><img id="lbImg" alt=""><button type="button" class="x" aria-label="Close">×</button><button type="button" class="pv" aria-label="Previous">‹</button><button type="button" class="nx" aria-label="Next">›</button><div class="cnt" id="lbC"></div></div>
 <script>
+var TR={"← Все события": ["← All events", "← Усі події"], "УЖЕ ПРОШЛО": ["ALREADY HAPPENED", "ВЖЕ МИНУЛО"], "Программа": ["Program", "Програма"], "Фото": ["Photos", "Фото"], "Фотозона": ["Photo zone", "Фотозона"], "Кадры для сторис с друзьями.": ["Grab shots for your stories with friends.", "Кадри для сторіс із друзями."], "Секретная миссия": ["Secret mission", "Секретна місія"], "Сканируй QR, получи задания и знакомься с людьми по всему залу.": ["Scan the QR, get your missions and meet people across the room.", "Скануй QR, отримуй завдання і знайомся з людьми по всій залі."], "Секретный агент": ["Secret agent", "Секретний агент"], "Командный квиз: узнаем, кто здесь лучший агент.": ["A team quiz to find the best agent in the room.", "Командний квіз: дізнаємось, хто тут найкращий агент."], "Короткий честный разговор с пастором о главном.": ["A short, honest talk with the pastor about what really matters.", "Коротка чесна розмова з пастором про головне."], "Еда и напитки": ["Food & drinks", "Їжа та напої"], "Еда, напитки и закуски — хватит всем.": ["Food, drinks and snacks — enough for everyone.", "Їжа, напої та закуски — вистачить усім."], "Живое общение": ["Hang out", "Живе спілкування"], "Новые знакомства, разговоры и просто классное время вместе.": ["Meet new people, talk and just have a good time.", "Нові знайомства, розмови і просто класний час разом."], "Показать все 385 фото": ["Show all 385 photos", "Показати всі 385 фото"], "Показать ещё": ["Show more", "Показати ще"], "Вступить в Telegram-чат": ["Join our Telegram chat", "Вступити в Telegram-чат"], "Оригиналы · часть 1": ["Originals · part 1", "Оригінали · частина 1"], "Оригиналы · часть 2": ["Originals · part 2", "Оригінали · частина 2"], "Хочешь на следующую?": ["Want to come to the next one?", "Хочеш на наступну?"], "Зарегистрироваться": ["Register", "Зареєструватися"]};
 (function(){
-  var CAPACITY = 67, STEPS = 5;
-  var TARGET = Date.parse('2026-10-31T18:00:00-07:00');
+  var nodes=[], w=document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT), n;
+  while((n=w.nextNode())){ var k=n.nodeValue.trim(); if(k && TR[k]) nodes.push([n,k,n.nodeValue]); }
+  var attrs=[]; document.querySelectorAll('[aria-label],[alt]').forEach(function(e){ ['aria-label','alt'].forEach(function(a){ var v=e.getAttribute(a); if(v && TR[v]) attrs.push([e,a,v]); }); });
+  window.setLang=function(l){ if(['ru','uk','en'].indexOf(l)<0) l='en'; document.documentElement.lang=l; var i=l==='en'?0:1;
+    nodes.forEach(function(x){ x[0].nodeValue = l==='ru' ? x[2] : x[2].replace(x[1], TR[x[1]][i]); });
+    attrs.forEach(function(x){ x[0].setAttribute(x[1], l==='ru' ? x[2] : TR[x[2]][i]); });
+    document.querySelectorAll('.lang button').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-l')===l); b.setAttribute('aria-pressed', b.getAttribute('data-l')===l); });
+    try{ localStorage.setItem('tp_lang', l); }catch(e){}
+    document.dispatchEvent(new CustomEvent('tp-lang',{detail:l})); };
+  document.querySelectorAll('.lang button').forEach(function(b){ b.addEventListener('click', function(){ setLang(b.getAttribute('data-l')); }); });
+  var l0; try{ l0=localStorage.getItem('tp_lang'); }catch(e){}
+  if(!l0){ var nl=(navigator.language||'').slice(0,2); l0 = nl==='ru'?'ru':nl==='uk'?'uk':'en'; }
+  setLang(l0);
+})();
 
-  var T = {
-    en:{tgJoin:"JOIN OUR TELEGRAM CHAT",galK:"TEENS PARTY · OCT 31, 2026",galH:"PHOTOS",dl1:"ORIGINALS · PART 1 ↗",dl2:"ORIGINALS · PART 2 ↗",more:"SHOW MORE",closedH:"REGISTRATION CLOSED",closedP:"TEENS PARTY is over. Thank you for coming!",photos:"SEE THE PHOTOS",pyoureIn:"YOUR TEEN IS IN",parentBtn:"I'M A PARENT — REGISTER MY TEEN",pq1:"Your teen's first and last name",pq2:"Phone number for the ticket",ph2:"Your number or your teen's. With it you can find the ticket on this site.",pq3:"How old is your teen?",pq4:"Your name",pq5:"Your phone (if different)",taken:"TAKEN",left:"SPOTS LEFT",lgTaken:"Taken",lgFree:"Free",lgMe:"Your spot",starts:"STARTS IN",admit:"ADMIT ONE",spots:"SPOTS",
-        monthV:"OCTOBER",dayV:"SATURDAY",doors:"START",timeV:"6:00 PM",venue:"ADDRESS ↗",cta:"GET MY TICKET",
-        busy:"BOOKING…",soldout:"SOLD OUT",youreIn:"YOU'RE IN",already:"ALREADY REGISTERED",again:"Register someone else",
-        qrTap:"Tap the QR to enlarge it",qrClose:"Tap anywhere to close",smsSent:"Your ticket was texted to {p}.",noSms:"Screenshot this ticket and show the QR code at the entrance. Lost it? Register again with the same phone number.",
-        q1:"What's your first and last name?",q2:"Your phone number",h2:"Your ticket goes here.",q3:"How old are you?",
-        q4:"Parent's name",q5:"Parent's phone",optional:"OPTIONAL",next:"Next",back:"Back",skip:"Skip",close:"Close",
-        eName:"Enter your first and last name.",ePhone:"Enter a 10-digit US phone number.",eAge:"Enter your age as a number.",
-        ePPhone:"Check the parent's phone: 10 digits.",eSold:"All {n} spots are taken.",eGen:"Something went wrong. Try again.",
-        uD:"DAYS",uH:"HRS",uM:"MIN",uS:"SEC",
-        check:"Already registered? Check my ticket",checkTitle:"FIND YOUR TICKET",checkQ:"Phone number you registered with",find:"SHOW MY TICKET",eNotFound:"No ticket for this number yet. Register first.",share:"SHARE TO STORIES",shareHint:"Press and hold the image to save it, then post it to your story.",shareLink:"SHARE LINK",copied:"LINK COPIED",storyIn:"I'M IN",storyCta:"Register at teensparty.fun",storyDate:"SAT · OCT 31 · 6:00 PM",invite:"INVITATION\nONLY",mqTop:"TEENS PARTY — OCT 31 — 6 PM — INVITATION ONLY — TEENS PARTY — OCT 31 — 6 PM — INVITATION ONLY — ",
-        mq:"DON'T MISS IT — BRING A FRIEND — DON'T MISS IT — BRING A FRIEND — DON'T MISS IT — BRING A FRIEND — ", vidK:"WATCH · 29 SEC", vidH:"EVERYTHING ABOUT TEENS PARTY",progH:"PROGRAM",finH:"NO TICKET YET?",finP:"Only 67 spots — grab yours before they're gone.",pSec:"GAME DETAILS CLASSIFIED",pTag:"DON'T MISS",p1h:"PHOTO\nZONE",p1d:"Grab shots for your stories with friends.",p2h:"SECRET\nMISSION",p2d:"Scan the QR, get your missions and meet new people across the room.",p3h:"SECRET\nAGENT",p3d:"A team quiz to find the best agent in the room.",p4h:"REAL\nTALK",p4d:"A short, honest talk with the pastor about what really matters.",p5h:"FOOD &\nDRINKS",p5d:"Food, drinks and snacks — enough for everyone.",p6h:"HANG\nOUT",p6d:"Meet new people, talk and just have a good time.", sndOn:"SOUND ON", sndOff:"SOUND OFF"},
-    ru:{tgJoin:"ВСТУПИТЬ В TELEGRAM-ЧАТ",galK:"TEENS PARTY · 31 ОКТЯБРЯ 2026",galH:"ФОТО",dl1:"ОРИГИНАЛЫ · ЧАСТЬ 1 ↗",dl2:"ОРИГИНАЛЫ · ЧАСТЬ 2 ↗",more:"ПОКАЗАТЬ ЕЩЁ",closedH:"РЕГИСТРАЦИЯ ЗАКРЫТА",closedP:"TEENS PARTY завершено. Спасибо, что были с нами!",photos:"СМОТРЕТЬ ФОТО",pyoureIn:"ПОДРОСТОК В СПИСКЕ",parentBtn:"Я РОДИТЕЛЬ — ЗАПИСАТЬ ПОДРОСТКА",pq1:"Имя и фамилия подростка",pq2:"Номер телефона для билета",ph2:"Ваш номер или номер подростка. По нему можно найти билет на сайте.",pq3:"Сколько лет подростку?",pq4:"Ваше имя",pq5:"Ваш телефон (если другой)",taken:"ЗАНЯТО",left:"ОСТАЛОСЬ МЕСТ",lgTaken:"Занято",lgFree:"Свободно",lgMe:"Твоё место",starts:"ДО НАЧАЛА",admit:"ПРОПУСК",spots:"МЕСТ",
-        monthV:"OCTOBER",dayV:"СУББОТА",doors:"НАЧАЛО",timeV:"6:00 PM",venue:"АДРЕС ↗",cta:"ПОЛУЧИТЬ БИЛЕТ",
-        busy:"ОФОРМЛЯЕМ…",soldout:"МЕСТ НЕТ",youreIn:"ТЫ В СПИСКЕ",already:"УЖЕ ЗАРЕГИСТРИРОВАН",again:"Зарегистрировать ещё одного",
-        qrTap:"Нажми на QR, чтобы увеличить",qrClose:"Нажми в любом месте, чтобы закрыть",smsSent:"Билет отправлен SMS на {p}.",noSms:"Сделай скриншот билета и покажи QR-код на входе. Потерял? Зарегистрируйся ещё раз с тем же номером.",
-        q1:"Как тебя зовут? Имя и фамилия",q2:"Твой номер телефона",h2:"Сюда придёт билет.",q3:"Сколько тебе лет?",
-        q4:"Имя родителя",q5:"Телефон родителя",optional:"НЕОБЯЗАТЕЛЬНО",next:"Далее",back:"Назад",skip:"Пропустить",close:"Закрыть",
-        eName:"Введи имя и фамилию.",ePhone:"Введи номер США из 10 цифр.",eAge:"Введи возраст числом.",
-        ePPhone:"Проверь телефон родителя: 10 цифр.",eSold:"Все {n} мест заняты.",eGen:"Не получилось. Попробуй ещё раз.",
-        uD:"ДНЕЙ",uH:"ЧАСОВ",uM:"МИН",uS:"СЕК",
-        check:"Уже зарегистрирован? Проверить билет",checkTitle:"НАЙТИ СВОЙ БИЛЕТ",checkQ:"Номер, с которым ты регистрировался",find:"ПОКАЗАТЬ БИЛЕТ",eNotFound:"На этот номер билета нет. Сначала зарегистрируйся.",share:"ПОДЕЛИТЬСЯ В СТОРИС",shareHint:"Нажми и удерживай картинку, чтобы сохранить, и выложи её в сторис.",shareLink:"ПОДЕЛИТЬСЯ ССЫЛКОЙ",copied:"ССЫЛКА СКОПИРОВАНА",storyIn:"Я ИДУ",storyCta:"Регистрация на teensparty.fun",storyDate:"СБ · OCT 31 · 6:00 PM",invite:"ТОЛЬКО ПО\nПРИГЛАШЕНИЯМ",mqTop:"TEENS PARTY — OCT 31 — 6 PM — ТОЛЬКО ПО ПРИГЛАШЕНИЯМ — TEENS PARTY — OCT 31 — 6 PM — ТОЛЬКО ПО ПРИГЛАШЕНИЯМ — ",
-        mq:"НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — ", vidK:"СМОТРИ · 29 СЕК", vidH:"ВСЁ О TEENS PARTY",progH:"ПРОГРАММА",finH:"ЕЩЁ НЕТ БИЛЕТА?",finP:"Мест всего 67 — успей забрать своё.",pSec:"ДЕТАЛИ ИГРЫ ЗАСЕКРЕЧЕНЫ",pTag:"ГЛАВНОЕ",p1h:"ФОТО\nЗОНА",p1d:"Кадры для сторис с друзьями.",p2h:"СЕКРЕТНАЯ\nМИССИЯ",p2d:"Сканируй QR, получи задания и знакомься с людьми по всему залу.",p3h:"СЕКРЕТНЫЙ\nАГЕНТ",p3d:"Командный квиз: узнаем, кто здесь лучший агент.",p4h:"REAL\nTALK",p4d:"Короткий честный разговор с пастором о главном.",p5h:"ЕДА И\nНАПИТКИ",p5d:"Еда, напитки и закуски — хватит всем.",p6h:"ЖИВОЕ\nОБЩЕНИЕ",p6d:"Новые знакомства, разговоры и просто классное время вместе.", sndOn:"ВКЛЮЧИТЬ ЗВУК", sndOff:"ВЫКЛЮЧИТЬ ЗВУК"},
-    uk:{tgJoin:"ВСТУПИТИ В TELEGRAM-ЧАТ",galK:"TEENS PARTY · 31 ЖОВТНЯ 2026",galH:"ФОТО",dl1:"ОРИГІНАЛИ · ЧАСТИНА 1 ↗",dl2:"ОРИГІНАЛИ · ЧАСТИНА 2 ↗",more:"ПОКАЗАТИ ЩЕ",closedH:"РЕЄСТРАЦІЮ ЗАКРИТО",closedP:"TEENS PARTY завершено. Дякуємо, що були з нами!",photos:"ДИВИТИСЯ ФОТО",pyoureIn:"ПІДЛІТОК У СПИСКУ",parentBtn:"Я З БАТЬКІВ — ЗАПИСАТИ ПІДЛІТКА",pq1:"Ім'я та прізвище підлітка",pq2:"Номер телефону для квитка",ph2:"Ваш номер або номер підлітка. За ним можна знайти квиток на сайті.",pq3:"Скільки років підлітку?",pq4:"Ваше ім'я",pq5:"Ваш телефон (якщо інший)",taken:"ЗАЙНЯТО",left:"ЗАЛИШИЛОСЬ МІСЦЬ",lgTaken:"Зайнято",lgFree:"Вільно",lgMe:"Твоє місце",starts:"ДО ПОЧАТКУ",admit:"ПЕРЕПУСТКА",spots:"МІСЦЬ",
-        monthV:"OCTOBER",dayV:"СУБОТА",doors:"ПОЧАТОК",timeV:"6:00 PM",venue:"АДРЕСА ↗",cta:"ОТРИМАТИ КВИТОК",
-        busy:"ОФОРМЛЮЄМО…",soldout:"МІСЦЬ НЕМАЄ",youreIn:"ТИ В СПИСКУ",already:"ВЖЕ ЗАРЕЄСТРОВАНО",again:"Зареєструвати ще когось",
-        qrTap:"Натисни на QR, щоб збільшити",qrClose:"Натисни будь-де, щоб закрити",smsSent:"Квиток надіслано SMS на {p}.",noSms:"Зроби скриншот квитка і покажи QR-код на вході. Загубив? Зареєструйся ще раз з тим самим номером.",
-        q1:"Як тебе звати? Ім'я та прізвище",q2:"Твій номер телефону",h2:"Сюди прийде квиток.",q3:"Скільки тобі років?",
-        q4:"Ім'я одного з батьків",q5:"Телефон одного з батьків",optional:"НЕОБОВ'ЯЗКОВО",next:"Далі",back:"Назад",skip:"Пропустити",close:"Закрити",
-        eName:"Введи ім'я та прізвище.",ePhone:"Введи номер США з 10 цифр.",eAge:"Введи вік числом.",
-        ePPhone:"Перевір телефон батьків: 10 цифр.",eSold:"Усі {n} місць зайняті.",eGen:"Не вийшло. Спробуй ще раз.",
-        uD:"ДНІВ",uH:"ГОДИН",uM:"ХВ",uS:"СЕК",
-        check:"Вже зареєстрований? Перевірити квиток",checkTitle:"ЗНАЙТИ СВІЙ КВИТОК",checkQ:"Номер, з яким ти реєструвався",find:"ПОКАЗАТИ КВИТОК",eNotFound:"На цей номер квитка немає. Спочатку зареєструйся.",share:"ПОДІЛИТИСЯ В СТОРІС",shareHint:"Натисни й утримуй картинку, щоб зберегти, і виклади її в сторіс.",shareLink:"ПОДІЛИТИСЯ ПОСИЛАННЯМ",copied:"ПОСИЛАННЯ СКОПІЙОВАНО",storyIn:"Я ЙДУ",storyCta:"Реєстрація на teensparty.fun",storyDate:"СБ · OCT 31 · 6:00 PM",invite:"ЛИШЕ ЗА\nЗАПРОШЕННЯМИ",mqTop:"TEENS PARTY — OCT 31 — 6 PM — ЛИШЕ ЗА ЗАПРОШЕННЯМИ — TEENS PARTY — OCT 31 — 6 PM — ЛИШЕ ЗА ЗАПРОШЕННЯМИ — ",
-        mq:"НЕ ПРОПУСТИ — КЛИЧ ДРУЗІВ — НЕ ПРОПУСТИ — КЛИЧ ДРУЗІВ — НЕ ПРОПУСТИ — КЛИЧ ДРУЗІВ — ", vidK:"ДИВИСЬ · 29 СЕК", vidH:"ВСЕ ПРО TEENS PARTY",progH:"ПРОГРАМА",finH:"ЩЕ НЕМАЄ КВИТКА?",finP:"Місць лише 67 — встигни забрати своє.",pSec:"ДЕТАЛІ ГРИ ЗАСЕКРЕЧЕНІ",pTag:"ГОЛОВНЕ",p1h:"ФОТО\nЗОНА",p1d:"Кадри для сторіс з друзями.",p2h:"СЕКРЕТНА\nМІСІЯ",p2d:"Скануй QR, отримай завдання і знайомся з людьми по всій залі.",p3h:"СЕКРЕТНИЙ\nАГЕНТ",p3d:"Командний квіз: дізнаємось, хто тут найкращий агент.",p4h:"REAL\nTALK",p4d:"Коротка чесна розмова з пастором про головне.",p5h:"ЇЖА\nЙ НАПОЇ",p5d:"Їжа, напої та закуски — вистачить усім.",p6h:"ЖИВЕ\nСПІЛКУВАННЯ",p6d:"Нові знайомства, розмови і просто класний час разом.", sndOn:"УВІМКНУТИ ЗВУК", sndOff:"ВИМКНУТИ ЗВУК"}
-  };
-
-  var $ = function(id){ return document.getElementById(id); };
-  var parentMode = false, lang = 'en', stats = {capacity:CAPACITY, taken:0, left:CAPACITY}, mine = null, busy = false, step = 0;
-  var steps = Array.prototype.slice.call(document.querySelectorAll('#qform .step'));
-  var inputs = ['f-name','f-phone','f-age','f-pname','f-pphone'].map($);
-  var OPTIONAL = {3:true, 4:true};
-  var STEP_ERR = {name:0, phone:1, age:2, pphone:4};
-
-  function store(k, v){ try{ if(v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); }catch(e){ return null; } }
-
-  /* validation shared with the server's rules */
-  function digits10(p){ var d = String(p || '').replace(/\D/g,''); if(d.length === 11 && d[0] === '1') d = d.slice(1); return d.length === 10 ? d : null; }
-  function validName(n){ return String(n || '').trim().split(/\s+/).filter(function(w){ return w.length > 0; }).length >= 2; }
-  function validAge(a){ var s = String(a || '').trim(); return /^\d{1,2}$/.test(s) && +s >= 5 && +s <= 99; }
-  function checkStep(i){
-    var v = inputs[i].value;
-    if(i === 0 && !validName(v)) return 'name';
-    if(i === 1 && !digits10(v)) return 'phone';
-    if(i === 2 && !validAge(v)) return 'age';
-    if(i === 4 && v.trim() && !digits10(v)) return 'pphone';
-    return null;
-  }
-
-  /* backend: google.script.run inside Apps Script, JSON API on teensparty.fun, demo elsewhere */
-  var API = 'https://script.google.com/macros/s/AKfycbzrKsCRRilLJLRPbAgoQ26ONDOv3liAsMgXgN0V3gIIInhhtdk8ZjMxWhABss3qh-Hq/exec';
-  var gas = (typeof google !== 'undefined' && google.script && google.script.run) ? true : false;
-  var useApi = !gas && /(^|\.)teensparty\.fun$|\.github\.io$|^localhost$|^127\.0\.0\.1$/.test(location.hostname);
-
-  /* Aggregate-only analytics (first-party, no cookies, no IDs, no personal data, nothing sent to Meta).
-     Sends event name + UTM tags to our own backend; "reg_done" is counted by the server after a NEW ticket is written. */
-  var UTM = (function(){
-    var o = {};
-    try{
-      var p = new URLSearchParams(location.search);
-      ['source','medium','campaign','content'].forEach(function(k){
-        var v = p.get('utm_' + k); if(v) o[k] = v.replace(/[^A-Za-z0-9_.\-]/g,'').slice(0,60);
-      });
-      if(o.source) sessionStorage.setItem('tp_utm', JSON.stringify(o));
-      else o = JSON.parse(sessionStorage.getItem('tp_utm') || '{}') || {};
-    }catch(e){ o = {}; }
-    return o;
-  })();
-  var canTrack = /(^|\.)teensparty\.fun$/.test(location.hostname);
-  function track(ev){
-    if(!canTrack) return;
-    var body = JSON.stringify({action:'evt', e:ev, utm:UTM});
-    try{
-      if(navigator.sendBeacon && navigator.sendBeacon(API, new Blob([body], {type:'text/plain;charset=utf-8'}))) return;
-      fetch(API, {method:'POST', body:body, keepalive:true, mode:'no-cors', headers:{'Content-Type':'text/plain;charset=utf-8'}});
-    }catch(e){}
-  }
-  var live = gas || useApi;
-  var demo = {
-    taken: 13, phones: {},
-    getStats: function(){ return {capacity:CAPACITY, taken:this.taken, left:CAPACITY - this.taken}; },
-    myTicket: function(f){
-      var d = digits10(f.phone); if(!d) return {ok:false, code:'phone'};
-      var e = this.phones[d]; if(!e) return {ok:false, code:'notfound', stats:this.getStats()};
-      return {ok:true, existing:true, ticket:e.t, seat:e.s, name:e.n, qr:e.q, sms:false, stats:this.getStats()};
-    },
-    register: function(f){
-      if(!validName(f.name)) return {ok:false, code:'name'};
-      var d = digits10(f.phone); if(!d) return {ok:false, code:'phone'};
-      if(!validAge(f.age)) return {ok:false, code:'age'};
-      if(String(f.parentPhone || '').trim() && !digits10(f.parentPhone)) return {ok:false, code:'pphone'};
-      if(this.phones[d]){ var e = this.phones[d]; return {ok:true, existing:true, ticket:e.t, seat:e.s, name:e.n, qr:e.q, sms:false, stats:this.getStats()}; }
-      if(this.taken >= CAPACITY) return {ok:false, code:'soldout', stats:this.getStats()};
-      this.taken++;
-      var t = 'TP-' + String(this.taken).padStart(3,'0');
-      var q = 'DEMO' + String(this.taken).padStart(2,'0');
-      this.phones[d] = {t:t, s:this.taken, n:f.name.trim(), q:q};
-      return {ok:true, ticket:t, seat:this.taken, name:f.name.trim(), qr:q, sms:false, stats:this.getStats()};
-    }
-  };
-  function call(fn, arg){
-    return new Promise(function(res, rej){
-      if(gas){
-        var r = google.script.run.withSuccessHandler(res).withFailureHandler(rej);
-        if(arg === undefined) r[fn](); else r[fn](arg);
-      } else if(useApi){
-        var req = fn === 'getStats'
-          ? fetch(API + '?action=stats&t=' + Date.now())
-          : fetch(API, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(fn === 'myTicket' ? {action:'myticket', phone:arg.phone} : arg)});
-        req.then(function(x){ if(!x.ok) throw new Error('HTTP ' + x.status); return x.json(); }).then(res, rej);
-      } else {
-        setTimeout(function(){ try{ res(demo[fn](arg)); }catch(e){ rej(e); } }, 600);
-      }
-    });
-  }
-
-  /* seats */
-  var seatEls = [];
-  for(var i = 0; i < CAPACITY; i++){ var s = document.createElement('span'); s.className = 'seat'; $('seats').appendChild(s); seatEls.push(s); }
-
-  function renderStats(){
-    var cap = stats.capacity || CAPACITY, taken = Math.min(cap, stats.taken || 0), left = Math.max(0, cap - taken);
-    $('taken').textContent = taken;
-    $('left').textContent = left;
-    document.querySelectorAll('.capn').forEach(function(el){ el.textContent = cap; });
-    $('seats').setAttribute('aria-label', taken + ' / ' + cap);
-    var mySeat = mine ? Math.min(cap, mine.seat || 0) : 0;
-    seatEls.forEach(function(el, idx){
-      el.classList.toggle('on', idx < taken && idx + 1 !== mySeat);
-      el.classList.toggle('me', idx + 1 === mySeat);
-    });
-    $('lgMe').hidden = !mySeat;
-    var sold = left === 0 && !mine;
-    $('open').disabled = sold; $('open2').disabled = sold; $('openParent').disabled = sold;
-    $('open').textContent = $('open2').textContent = sold ? T[lang].soldout : T[lang].cta;
-    $('next').disabled = busy;
-    $('next').textContent = busy ? T[lang].busy : (step === STEPS - 1 ? T[lang].cta : T[lang].next);
-  }
-
-  function fmtPhone(p){ var d = digits10(p); return d ? '(' + d.slice(0,3) + ') ' + d.slice(3,6) + '-' + d.slice(6) : p; }
-
-  var qrDrawn = '';
-  function drawQr(){
-    var box = $('qr');
-    if(!mine || !mine.qr){ box.hidden = true; $('qrhint').hidden = true; qrDrawn = ''; return; }
-    $('qrhint').hidden = false;
-    var payload = 'https://teensparty.fun/check.html#' + mine.ticket + '.' + mine.qr;
-    box.hidden = false;
-    if(qrDrawn === payload) return;
-    if(typeof qrcode !== 'function'){ box.textContent = mine.ticket + '.' + mine.qr; qrDrawn = ''; return; }
-    var q = qrcode(0, 'M'); q.addData(payload); q.make();
-    box.innerHTML = q.createSvgTag({cellSize:4, margin:0, scalable:true});
-    qrDrawn = payload;
-  }
-  function qrOpen(){
-    if(!mine || !qrDrawn) return;
-    $('qrbig').innerHTML = $('qr').innerHTML;
-    $('zt').textContent = mine.ticket; $('zn').textContent = mine.name || '';
-    $('qrz').classList.add('on'); $('qrz').setAttribute('aria-hidden','false');
-  }
-  function qrClose(){ $('qrz').classList.remove('on'); $('qrz').setAttribute('aria-hidden','true'); }
-  $('qr').addEventListener('click', qrOpen);
-  $('qr').addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); qrOpen(); } });
-  $('qrz').addEventListener('click', qrClose);
-  document.addEventListener('keydown', function(e){ if(e.key==='Escape') qrClose(); });
-
-  function renderDone(){
-    $('fin').hidden = !!mine;
-    $('open').hidden = !!mine;
-    $('openParent').hidden = !!mine;
-    $('checkBtn').hidden = !!mine;
-    $('mcta').hidden = !!mine;
-    $('done').hidden = !mine;
-    $('barcode').hidden = !!mine;
-    $('stamp').hidden = !!mine;
-    drawQr();
-    prepStory();
-    if(!mine) return;
-    $('doneHead').textContent = mine.existing ? T[lang].already : (mine.parent ? T[lang].pyoureIn : T[lang].youreIn);
-    $('tno').textContent = mine.ticket;
-    $('tname').textContent = mine.name;
-    $('dmsg').textContent = mine.sms ? T[lang].smsSent.replace('{p}', fmtPhone(mine.phone)) : T[lang].noSms;
-  }
-
-  /* popup steps */
-  function showStep(i){
-    step = i;
-    steps.forEach(function(el, idx){ el.hidden = idx !== i; });
-    $('qcount').textContent = (i + 1) + ' / ' + STEPS;
-    $('qbar').style.width = ((i + 1) / STEPS * 100) + '%';
-    $('back').hidden = i === 0;
-    $('skip').hidden = !OPTIONAL[i];
-    renderStats();
-    setTimeout(function(){ inputs[i].focus(); }, 30);
-  }
-  function hideErr(){ $('err').hidden = true; $('err').dataset.code = ''; }
-  function showErr(code){
-    var map = {name:'eName', phone:'ePhone', age:'eAge', pphone:'ePPhone', soldout:'eSold'};
-    $('err').dataset.code = code;
-    $('err').textContent = T[lang][map[code] || 'eGen'].replace('{n}', stats.capacity || CAPACITY);
-    $('err').hidden = false;
-  }
-  /* parent mode: same form and same backend fields, questions worded for a parent registering their teen */
-  function applyMode(){
-    var L = T[lang], P = parentMode;
-    [['l-q1','q1'],['l-q2','q2'],['l-h2','h2'],['l-q3','q3'],['l-q4','q4'],['l-q5','q5']].forEach(function(x){
-      $(x[0]).textContent = L[(P ? 'p' : '') + x[1]] || L[x[1]];
-    });
-  }
-  function openDlg(){
-    if(document.body.classList.contains('closed')) return;
-    hideErr(); applyMode(); showStep(0);
-    if(typeof $('dlg').showModal === 'function') $('dlg').showModal(); else $('dlg').setAttribute('open', '');
-  }
-  function closeDlg(){ if($('dlg').open){ if(typeof $('dlg').close === 'function') $('dlg').close(); else $('dlg').removeAttribute('open'); } }
-
-  function submitAll(){
-    busy = true; renderStats();
-    var data = {name:inputs[0].value.trim(), phone:inputs[1].value, age:inputs[2].value.trim(),
-                parentName:inputs[3].value.trim(), parentPhone:inputs[4].value, lang:lang, utm:UTM};
-    call('register', data).then(function(r){
-      busy = false;
-      if(r && r.stats) stats = r.stats;
-      if(!r || !r.ok){
-        var code = r && r.code;
-        if(STEP_ERR[code] !== undefined) showStep(STEP_ERR[code]);
-        showErr(code); renderStats(); return;
-      }
-      mine = {ticket:r.ticket, seat:r.seat, name:r.name, qr:r.qr || '', sms:!!r.sms, phone:data.phone, existing:!!r.existing, parent:parentMode};
-      store('tp_ticket', JSON.stringify(mine));
-      closeDlg(); renderStats(); renderDone();
-    }).catch(function(){ busy = false; showErr('gen'); renderStats(); });
-  }
-
-  $('qform').addEventListener('submit', function(e){
-    e.preventDefault();
-    if(busy) return;
-    var err = checkStep(step);
-    if(err){ showErr(err); inputs[step].focus(); return; }
-    hideErr();
-    if(step < STEPS - 1) showStep(step + 1); else submitAll();
-  });
-  $('back').addEventListener('click', function(){ if(step > 0 && !busy){ hideErr(); showStep(step - 1); } });
-  $('skip').addEventListener('click', function(){
-    if(busy) return;
-    inputs[step].value = ''; hideErr();
-    if(step < STEPS - 1) showStep(step + 1); else submitAll();
-  });
-  $('qclose').addEventListener('click', closeDlg);
-  $('open').addEventListener('click', function(){ track('reg_open'); });
-  $('open2').addEventListener('click', function(){ track('reg_open'); });
-  document.querySelectorAll('a[href*="instagram.com"]').forEach(function(a){ a.addEventListener('click', function(){ track('ig_click'); }); });
-  track('view');
-  $('open').addEventListener('click', function(){ parentMode = false; openDlg(); });
-  $('finBtn').addEventListener('click', function(){ window.scrollTo({top:0, behavior:'smooth'}); });
-  $('open2').addEventListener('click', function(){ parentMode = false; openDlg(); });
-  $('openParent').addEventListener('click', function(){ track('reg_open'); parentMode = true; openDlg(); });
-
-  /* phone mask */
-  [inputs[1], inputs[4]].forEach(function(inp){
-    inp.addEventListener('input', function(e){
-      var d = e.target.value.replace(/\D/g,'');
-      if(d.length === 11 && d[0] === '1') d = d.slice(1);
-      d = d.slice(0,10);
-      var out = d;
-      if(d.length > 6) out = '(' + d.slice(0,3) + ') ' + d.slice(3,6) + '-' + d.slice(6);
-      else if(d.length > 3) out = '(' + d.slice(0,3) + ') ' + d.slice(3);
-      else if(d.length > 0) out = '(' + d;
-      e.target.value = out;
-    });
-  });
-  inputs[2].addEventListener('input', function(e){ e.target.value = e.target.value.replace(/\D/g,'').slice(0,2); });
-
-  /* check my ticket */
-  function openCheck(){
-    $('cerr').hidden = true; $('c-phone').value = '';
-    if(typeof $('dlg2').showModal === 'function') $('dlg2').showModal(); else $('dlg2').setAttribute('open', '');
-    setTimeout(function(){ $('c-phone').focus(); }, 30);
-  }
-  function closeCheck(){ if($('dlg2').open){ if(typeof $('dlg2').close === 'function') $('dlg2').close(); else $('dlg2').removeAttribute('open'); } }
-  $('checkBtn').addEventListener('click', openCheck);
-  $('cclose').addEventListener('click', closeCheck);
-  $('cform').addEventListener('submit', function(e){
-    e.preventDefault();
-    var phone = $('c-phone').value;
-    if(!digits10(phone)){ $('cerr').textContent = T[lang].ePhone; $('cerr').hidden = false; return; }
-    $('cfind').disabled = true; $('cfind').textContent = T[lang].busy;
-    call('myTicket', {phone:phone}).then(function(r){
-      $('cfind').disabled = false; $('cfind').textContent = T[lang].find;
-      if(r && r.stats){ stats = r.stats; }
-      if(!r || !r.ok){ $('cerr').textContent = (r && r.code === 'notfound') ? T[lang].eNotFound : T[lang].eGen; $('cerr').hidden = false; renderStats(); return; }
-      mine = {ticket:r.ticket, seat:r.seat, name:r.name, qr:r.qr || '', sms:false, phone:phone, existing:true};
-      store('tp_ticket', JSON.stringify(mine));
-      closeCheck(); renderStats(); renderDone();
-      $('done').scrollIntoView({behavior:'smooth', block:'center'});
-    }).catch(function(){ $('cfind').disabled = false; $('cfind').textContent = T[lang].find; $('cerr').textContent = T[lang].eGen; $('cerr').hidden = false; });
-  });
-  $('c-phone').addEventListener('input', function(e){
-    var d = e.target.value.replace(/\D/g,''); if(d.length === 11 && d[0] === '1') d = d.slice(1); d = d.slice(0,10);
-    e.target.value = d.length > 6 ? '(' + d.slice(0,3) + ') ' + d.slice(3,6) + '-' + d.slice(6) : d.length > 3 ? '(' + d.slice(0,3) + ') ' + d.slice(3) : d.length ? '(' + d : '';
-  });
-
-  /* story image 1080x1920 (no QR on purpose: the QR is the entry pass) */
-  function wrapLines(ctx, text, maxW){
-    var words = String(text).split(/\s+/), lines = [], cur = '';
-    words.forEach(function(w){ var t = cur ? cur + ' ' + w : w; if(ctx.measureText(t).width > maxW && cur){ lines.push(cur); cur = w; } else cur = t; });
-    if(cur) lines.push(cur);
-    return lines;
-  }
-  function fitFont(ctx, text, weight, family, size, maxW){
-    ctx.font = weight + ' ' + size + 'px ' + family;
-    while(ctx.measureText(text).width > maxW && size > 20){ size -= 2; ctx.font = weight + ' ' + size + 'px ' + family; }
-    return size;
-  }
-  function makeStory(){
-    var W = 1080, H = 1920, c = document.createElement('canvas'); c.width = W; c.height = H;
-    var x = c.getContext('2d'), L = T[lang], D = 'Unbounded, "Arial Black", sans-serif', B = 'Manrope, Arial, sans-serif';
-    x.fillStyle = '#0d0d0d'; x.fillRect(0, 0, W, H);
-    function strip(y, rot, bg, fg, txt, size){
-      x.save(); x.translate(W/2, y); x.rotate(rot);
-      x.fillStyle = bg; x.fillRect(-W, -size, W * 2, size * 2);
-      x.fillStyle = fg; x.font = '900 ' + size + 'px ' + D; x.textBaseline = 'middle';
-      var unit = txt + '  ', w = x.measureText(unit).width;
-      for(var i = -W - w * 0.4; i < W; i += w) x.fillText(unit, i, 4);
-      x.restore();
-    }
-    strip(170, -0.035, '#ff5a1f', '#0d0d0d', 'TEENS PARTY — OCT 31 —', 64);
-    function centerStrip(y, rot, bg, fg, txt, size){
-      x.save(); x.translate(W/2, y); x.rotate(rot);
-      x.fillStyle = bg; x.fillRect(-W, -size * 0.95, W * 2, size * 1.9);
-      x.fillStyle = fg; x.textBaseline = 'middle'; x.textAlign = 'center';
-      fitFont(x, txt, '900', D, size, W - 140); x.fillText(txt, 0, 4);
-      x.restore(); x.textAlign = 'left';
-    }
-    x.textBaseline = 'alphabetic';
-    x.fillStyle = '#ff5a1f'; fitFont(x, L.storyIn, '900', D, 150, W - 160); x.fillText(L.storyIn, 80, 470);
-    x.fillStyle = '#f2efe8'; x.font = '900 190px ' + D; x.fillText('TEENS', 70, 690);
-    x.lineWidth = 5; x.strokeStyle = '#f2efe8'; x.strokeText('PARTY', 70, 880);
-    var cx = 90, cy = 970, cw = W - 180, ch = 540;
-    x.save(); x.translate(W/2, cy + ch/2); x.rotate(-0.025); x.translate(-W/2, -(cy + ch/2));
-    x.fillStyle = '#ff5a1f'; x.fillRect(cx + 22, cy + 22, cw, ch);
-    x.fillStyle = '#f2efe8'; x.fillRect(cx, cy, cw, ch);
-    x.lineWidth = 6; x.strokeStyle = '#0d0d0d'; x.strokeRect(cx, cy, cw, ch);
-    x.fillStyle = '#0d0d0d'; x.font = '800 30px ' + B; x.fillText(L.admit, cx + 50, cy + 80);
-    var nm = mine ? mine.name : '', size = 72, lines;
-    do { x.font = '900 ' + size + 'px ' + D; lines = wrapLines(x, nm, cw - 100); size -= 4; } while((lines.length > 2 || lines.some(function(l){ return x.measureText(l).width > cw - 100; })) && size > 32);
-    lines.slice(0, 2).forEach(function(ln, i){ x.fillText(ln, cx + 50, cy + 200 + i * (size + 14)); });
-    x.setLineDash([16, 12]); x.beginPath(); x.moveTo(cx, cy + 340); x.lineTo(cx + cw, cy + 340); x.stroke(); x.setLineDash([]);
-    fitFont(x, L.storyDate, '900', D, 46, cw - 100); x.fillText(L.storyDate, cx + 50, cy + 425);
-    x.font = '800 32px ' + B; x.fillStyle = '#55524c'; x.fillText('5948 Pecan Ave · Orangevale, CA', cx + 50, cy + 485);
-    x.restore();
-    centerStrip(1690, 0.02, '#f2efe8', '#0d0d0d', 'TEENSPARTY.FUN', 78);
-    return new Promise(function(res){ c.toBlob(function(b){ res(b); }, 'image/png'); });
-  }
-  window.__makeStory = makeStory;
-  /* Share: the image is prepared in advance so the tap opens the system share sheet right away
-     (iOS only allows navigator.share directly inside the tap). */
-  var storyFile = null, storyBlob = null, storyKey = '', storyUrl = '';
-  function fontsReady(){
-    return (document.fonts && document.fonts.load)
-      ? Promise.all([document.fonts.load('900 64px Unbounded', 'TEENS ПАРТІ'), document.fonts.load('800 30px Manrope', 'Aa Яя')]).catch(function(){})
-      : Promise.resolve();
-  }
-  function prepStory(){
-    if(!mine){ storyKey = ''; storyFile = storyBlob = null; return; }
-    var key = lang + '|' + mine.name;
-    if(key === storyKey) return;
-    storyKey = key; storyFile = storyBlob = null;
-    fontsReady().then(makeStory).then(function(blob){
-      if(key !== storyKey || !blob) return;
-      storyBlob = blob;
-      try{ storyFile = new File([blob], 'teens-party.png', {type:'image/png'}); }catch(err){ storyFile = null; }
-    }).catch(function(){});
-  }
-  function canShareFile(){ try{ return !!(storyFile && navigator.canShare && navigator.canShare({files:[storyFile]})); }catch(e){ return false; } }
-  function openPreview(){
-    if(storyUrl) URL.revokeObjectURL(storyUrl);
-    storyUrl = storyBlob ? URL.createObjectURL(storyBlob) : '';
-    $('pvImg').src = storyUrl; $('pvImg').hidden = !storyUrl; $('pvWait').hidden = !!storyUrl;
-    if(typeof $('dlg3').showModal === 'function') $('dlg3').showModal(); else $('dlg3').setAttribute('open', '');
-    if(!storyBlob){
-      var tries = 0, t = setInterval(function(){
-        tries++;
-        if(storyBlob){ clearInterval(t); storyUrl = URL.createObjectURL(storyBlob); $('pvImg').src = storyUrl; $('pvImg').hidden = false; $('pvWait').hidden = true; }
-        else if(tries > 40) clearInterval(t);
-      }, 150);
-    }
-  }
-  $('shareBtn').addEventListener('click', function(){
-    if(canShareFile()){
-      navigator.share({files:[storyFile], title:'TEENS PARTY', text:'TEENS PARTY · teensparty.fun'}).catch(function(err){
-        if(err && err.name !== 'AbortError') openPreview();
-      });
-    } else {
-      openPreview();
-    }
-  });
-  $('pvClose').addEventListener('click', function(){ if(typeof $('dlg3').close === 'function') $('dlg3').close(); else $('dlg3').removeAttribute('open'); });
-  $('pvLink').addEventListener('click', function(){
-    var url = 'https://teensparty.fun';
-    if(navigator.share){ navigator.share({title:'TEENS PARTY', text:'TEENS PARTY · OCT 31', url:url}).catch(function(){}); return; }
-    var done = function(){ $('pvLink').textContent = T[lang].copied; setTimeout(function(){ $('pvLink').textContent = T[lang].shareLink; }, 2000); };
-    if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done).catch(function(){});
-  });
-
-  $('again').addEventListener('click', function(){
-    mine = null; store('tp_ticket', '');
-    inputs.forEach(function(inp){ inp.value = ''; });
-    renderStats(); renderDone(); openDlg();
-  });
-
-  function setLang(l){
-    if(!T[l]) l = 'en';
-    lang = l;
-    document.documentElement.lang = l;
-    document.querySelectorAll('[data-i]').forEach(function(el){ var v = T[l][el.getAttribute('data-i')]; if(typeof v === 'string') el.textContent = v; });
-    document.querySelectorAll('.lang button').forEach(function(b){ b.setAttribute('aria-pressed', b.getAttribute('data-lang') === l ? 'true' : 'false'); });
-    $('qclose').setAttribute('aria-label', T[l].close);
-    $('cclose').setAttribute('aria-label', T[l].close);
-    $('pvClose').setAttribute('aria-label', T[l].close);
-    if(!$('err').hidden && $('err').dataset.code) showErr($('err').dataset.code);
-    applyMode();
-    store('tp_lang', l);
-    setVideo(l);
-    renderStats(); renderDone(); tick(); fitStamp(); setTimeout(fitStamp, 400); setTimeout(fitStamp, 1500);
-  }
-
-  /* promo video: language-specific file, muted autoplay while visible, sound toggle */
-  var vid = $('promo'), vidLang = 'en', vidSeen = false;
-  function sndLabel(){ var on = !vid.muted; $('snd').setAttribute('aria-pressed', on ? 'true' : 'false'); $('sndTxt').textContent = T[lang][on ? 'sndOff' : 'sndOn']; $('sndWave').style.display = on ? '' : 'none'; }
-
-  function setVideo(l){
-    if(!vid) return;
-    if(vidLang !== l){
-      var playing = !vid.paused; vidLang = l;
-      vid.poster = '/media/poster-' + l + '.jpg'; vid.src = '/media/teensparty-' + l + '.mp4'; vid.load();
-      if(playing || vidSeen) vid.play().catch(function(){});
-    }
-    sndLabel();
-  }
-  if(vid){
-    $('snd').addEventListener('click', function(){
-      vid.muted = !vid.muted;
-      if(!vid.muted){ vid.currentTime = 0; vid.loop = false; } else { vid.loop = true; }
-      vid.play().catch(function(){}); sndLabel();
-    });
-    vid.addEventListener('ended', function(){ vid.muted = true; vid.loop = true; vid.play().catch(function(){}); sndLabel(); });
-    if('IntersectionObserver' in window){
-      new IntersectionObserver(function(es){ es.forEach(function(e){
-        if(e.isIntersecting){ vidSeen = true; vid.play().catch(function(){}); } else { vid.pause(); }
-      }); }, {threshold: .4}).observe(vid);
-    }
-  }
-
-  /* shrink the stamp text until it fits the ticket width */
-  function fitStamp(){
-    var box = $('stampText'), wrap = $('stamp');
-    if(!box || !wrap.offsetWidth) return;
-    var size = 34; box.style.fontSize = size + 'px';
-    var room = wrap.clientWidth - 8;
-    while(size > 14 && box.offsetWidth > room){ size -= 1; box.style.fontSize = size + 'px'; }
-  }
-  window.addEventListener('resize', fitStamp);
-  if(document.fonts){
-    if(document.fonts.ready) document.fonts.ready.then(fitStamp);
-    if(document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', fitStamp);
-  }
-  document.querySelectorAll('.lang button').forEach(function(b){ b.addEventListener('click', function(){ setLang(b.getAttribute('data-lang')); }); });
-
-  function p2(n){ return String(n).padStart(2,'0'); }
-  function tick(){
-    var d = Math.max(0, TARGET - Date.now());
-    $('tD').textContent = p2(Math.floor(d/864e5));
-    $('tH').textContent = p2(Math.floor(d/36e5)%24);
-    $('tM').textContent = p2(Math.floor(d/6e4)%60);
-    $('tS').textContent = p2(Math.floor(d/1e3)%60);
-  }
-  function refresh(){ call('getStats').then(function(s){ if(s){ stats = s; renderStats(); } }).catch(function(){}); }
-
-  /* gallery */
-  (function(){
-    var BASE = (window.PHOTO_BASE || '/fall26/'), L = [], shown = 0, cur = 0, STEP = 40;
-    function add(){ var g = $('grid'), end = Math.min(L.length, shown + STEP);
-      for(var i = shown; i < end; i++){ (function(i){ var b = document.createElement('button'); b.type = 'button';
-        var im = new Image(); im.loading = 'lazy'; im.decoding = 'async'; im.alt = ''; im.width = L[i].w; im.height = L[i].h; im.src = BASE + 't/' + L[i].f + '.webp';
-        b.appendChild(im); b.addEventListener('click', function(){ open(i); }); g.appendChild(b); })(i); }
-      shown = end; $('gmore').hidden = shown >= L.length; }
-    function show(){ $('lbImg').src = BASE + 'p/' + L[cur].f + '.webp'; $('lbC').textContent = (cur + 1) + ' / ' + L.length;
-      [cur + 1, cur - 1].forEach(function(j){ if(L[j]) (new Image()).src = BASE + 'p/' + L[j].f + '.webp'; }); }
-    function open(i){ cur = i; show(); $('lb').classList.add('on'); $('lb').setAttribute('aria-hidden','false'); }
-    function close(){ $('lb').classList.remove('on'); $('lb').setAttribute('aria-hidden','true'); }
-    function go(d){ cur = (cur + d + L.length) % L.length; show(); }
-    $('lbX').addEventListener('click', close); $('lbP').addEventListener('click', function(e){ e.stopPropagation(); go(-1); });
-    $('lbN').addEventListener('click', function(e){ e.stopPropagation(); go(1); });
-    $('lb').addEventListener('click', function(e){ if(e.target === $('lb')) close(); });
-    document.addEventListener('keydown', function(e){ if(!$('lb').classList.contains('on')) return; if(e.key === 'Escape') close(); if(e.key === 'ArrowLeft') go(-1); if(e.key === 'ArrowRight') go(1); });
-    var x0 = null; $('lb').addEventListener('touchstart', function(e){ x0 = e.touches[0].clientX; }, {passive:true});
-    $('lb').addEventListener('touchend', function(e){ if(x0 === null) return; var dx = e.changedTouches[0].clientX - x0; if(Math.abs(dx) > 40) go(dx < 0 ? 1 : -1); x0 = null; });
-    $('gmore').addEventListener('click', add);
-    fetch(BASE + 'photos.json').then(function(r){ return r.json(); }).then(function(d){ L = d; $('galN').textContent = '· ' + L.length; add(); }).catch(function(){});
-  })();
-
-  /* boot */
-  var CLOSED = true; /* осенняя TEENS PARTY прошла 31.10 — запись закрыта */
-  if(CLOSED) document.body.classList.add('closed');
-  try{ var saved = JSON.parse(store('tp_ticket') || 'null'); if(saved && saved.ticket) mine = saved; }catch(e){}
-  setLang(store('tp_lang') || 'en');
-  refresh();
-  setInterval(tick, 1000);
-  if(live) setInterval(refresh, 20000);
+(function(){
+  var FEAT=['b_5Q4A2391','a_080A5623','a_080A5485','a_080A5811','a_080A5363','a_080A5686'], L=[], shown=0, cur=0, lang='ru';
+  var grid=document.getElementById('grid'), more=document.getElementById('more');
+  var lb=document.getElementById('lb'), im=document.getElementById('lbImg');
+  function add(n){ var end=Math.min(L.length, shown+n);
+    for(var i=shown;i<end;i++){ (function(i){ var b=document.createElement('button'); b.type='button'; var g=new Image(); g.loading='lazy'; g.decoding='async'; g.alt=''; g.src='/fall26/t/'+L[i]+'.webp'; b.appendChild(g); b.addEventListener('click', function(){ open(i); }); grid.appendChild(b); })(i); }
+    shown=end; label(); }
+  function label(){ more.hidden = shown>=L.length; more.textContent = shown<=6 ? ({ru:'Показать все '+L.length+' фото',uk:'Показати всі '+L.length+' фото',en:'Show all '+L.length+' photos'})[lang] : ({ru:'Показать ещё',uk:'Показати ще',en:'Show more'})[lang]; }
+  function show(){ im.src='/fall26/p/'+L[cur]+'.webp'; document.getElementById('lbC').textContent=(cur+1)+' / '+L.length; [cur+1,cur-1].forEach(function(j){ if(L[j]) (new Image()).src='/fall26/p/'+L[j]+'.webp'; }); }
+  function open(i){ cur=i; show(); lb.classList.add('on'); lb.setAttribute('aria-hidden','false'); }
+  function close(){ lb.classList.remove('on'); lb.setAttribute('aria-hidden','true'); }
+  function go(d){ cur=(cur+d+L.length)%L.length; show(); }
+  more.addEventListener('click', function(){ add(60); });
+  lb.querySelector('.x').addEventListener('click', close); lb.querySelector('.pv').addEventListener('click', function(){ go(-1); }); lb.querySelector('.nx').addEventListener('click', function(){ go(1); });
+  lb.addEventListener('click', function(e){ if(e.target===lb) close(); });
+  document.addEventListener('keydown', function(e){ if(!lb.classList.contains('on')) return; if(e.key==='Escape') close(); if(e.key==='ArrowLeft') go(-1); if(e.key==='ArrowRight') go(1); });
+  var x0=null; lb.addEventListener('touchstart', function(e){ x0=e.touches[0].clientX; }, {passive:true});
+  lb.addEventListener('touchend', function(e){ if(x0===null) return; var dx=e.changedTouches[0].clientX-x0; if(Math.abs(dx)>40) go(dx<0?1:-1); x0=null; });
+  document.addEventListener('tp-lang', function(e){ lang=e.detail; if(L.length) label(); });
+  try{ lang=document.documentElement.lang||'ru'; }catch(e){}
+  fetch('/fall26/photos.json').then(function(r){ return r.json(); }).then(function(d){ var all=d.map(function(x){ return x.f; }); L=FEAT.filter(function(f){ return all.indexOf(f)>=0; }).concat(all.filter(function(f){ return FEAT.indexOf(f)<0; })); add(6); }).catch(function(){ more.hidden=true; });
 })();
 </script>
+</body>
+</html>
