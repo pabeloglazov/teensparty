@@ -379,6 +379,7 @@ const A_ = {
     if (p.on && hit.length) return { already: true, by: markerName_(hit[0]), mine: hit[0].by === me.email };
     if (p.on) {
       if (offs_().some(o => o.date === p.date && o.kind === p.kind && o.meetId === p.meetId)) throw new Error('meet_off');
+      if (String(p.date) > today_()) throw new Error('future'); // отметить пришедших заранее нельзя
       const t = rows_('Подростки').find(x => x.id === p.teenId);
       append_('Посещения', { id: uid_('A'), date: p.date, kind: p.kind, meetId: p.meetId, teenId: p.teenId, teenName: t ? (t.first + ' ' + t.last).trim() : '', by: me.email, method: 'leader', ts: nowIso_() });
       return { on: true };
@@ -1091,7 +1092,7 @@ function evLookup(eid, phone, d, m) {
     if (!(+d >= 1 && +d <= 31 && +m >= 1 && +m <= 12)) throw new Error('need_birth');
     const pool = whoAmI_(phone, d, m, rows_('Подростки'));
     if (!pool.length) return { found: false };
-    return { found: true, cands: pool.map(t => ({ k: keyFor_(t.id), first: t.first, needPar: !(String(t.pFirst || '').trim() && digits_(t.pPhone).length >= 10), already: rg.some(r => r.teenId === t.id) })) };
+    return { found: true, cands: pool.map(t => ({ k: keyFor_(t.id), first: t.first, lead: t.isLeader === '1', needPar: t.isLeader !== '1' && !(String(t.pFirst || '').trim() && digits_(t.pPhone).length >= 10), already: rg.some(r => r.teenId === t.id) })) };
   });
 }
 function evAns_(e, f) { const n = parseInt(f && f.friends, 10); return { friends: e.askFriend === '1' && n >= 1 && n <= 3 ? String(n) : '', bring: e.askBring === '1' ? String((f && f.bring) || '').replace(/\s+/g, ' ').trim().slice(0, 80) : '' }; }
@@ -1113,9 +1114,10 @@ function parent_(f) {
 function evJoinKnown(eid, key, f) {
   return out_(() => lock_(() => {
     const e = evOpen_(eid); let t = byKey_(key); f = f || {};
-    if (!f.consent) throw new Error('need_consent');
+    const lead = t.isLeader === '1'; // лидеры — взрослые: согласие и контакт родителей не нужны
+    if (!lead && !f.consent) throw new Error('need_consent');
     let parNew = false;
-    if (!(String(t.pFirst || '').trim() && digits_(t.pPhone).length >= 10)) { t = update_('Подростки', t, parent_(f)); parNew = true; }
+    if (!lead && !(String(t.pFirst || '').trim() && digits_(t.pPhone).length >= 10)) { t = update_('Подростки', t, parent_(f)); parNew = true; }
     return evPut_(e, t, f, parNew ? { parNew: '1' } : null);
   }));
 }
