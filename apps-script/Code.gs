@@ -11,7 +11,7 @@ const COLS = {
   'Подростки': [['id','ID'],['first','Имя'],['last','Фамилия'],['phone','Телефон'],['birth','Дата рождения'],['addr','Адрес'],
     ['pFirst','Имя родителя'],['pLast','Фамилия родителя'],['pPhone','Телефон родителя'],['pAddr','Адрес родителя'],
     ['groups','Группы (ID)'],['createdAt','Добавлен'],['source','Источник'],['invitedBy','Пригласил (ID)'],['review','Проверить'],
-    ['ig','Instagram'],['tgId','Telegram ID'],['archived','Скрыт'],['igStatus','Instagram: статус'],['tgChat','В Telegram-чате'],['age','Возраст (со слов)'],['ageAt','Возраст указан (дата)'],['isLeader','Лидер']],
+    ['ig','Instagram'],['tgId','Telegram ID'],['archived','Скрыт'],['igStatus','Instagram: статус'],['tgChat','В Telegram-чате'],['age','Возраст (со слов)'],['ageAt','Возраст указан (дата)'],['isLeader','Лидер'],['del','Удалён']],
   'Посещения': [['id','ID'],['date','Дата'],['kind','Тип'],['meetId','Встреча (ID)'],['teenId','Подросток (ID)'],['teenName','Подросток'],['by','Отметил'],['method','Способ'],['ts','Время отметки']],
   'Группы': [['id','ID'],['name','Название'],['leader','Лидер'],['day','День (0=вс)'],['time','Время'],['active','Активна'],['addr','Адрес'],['contact','Контакт лидера']],
   'События': [['id','ID'],['name','Название'],['date','Дата'],['reg','Регистраций']],
@@ -281,7 +281,7 @@ function logout(token) {
 const CAN = {
   mark: ['admin', 'leader', 'mod'], attNow: ['admin', 'leader', 'mod', 'viewer'], addTeen: ['admin', 'leader', 'mod'], updateTeen: ['admin', 'leader', 'mod'], reviewTeen: ['admin', 'leader', 'mod'],
   addEvent: ['admin', 'leader'], editEvent: ['admin'], delEvent: ['admin'], saveGroup: ['admin'], saveSettings: ['admin'],
-  meetOff: ['admin', 'leader'], mergeTeens: ['admin'], notDup: ['admin'], contact: ['admin', 'leader', 'mod'], log: ['admin'],
+  meetOff: ['admin', 'leader'], mergeTeens: ['admin'], notDup: ['admin'], contact: ['admin', 'leader', 'mod'], log: ['admin'], delTeen: ['admin'], restoreTeen: ['admin'], wipeTeen: ['admin'], trash: ['admin'],
   invite: ['admin'], updateLeader: ['admin'], removeLeader: ['admin'],
   savePlanWeek: ['admin'], delVcom: ['admin', 'leader'], teenCode: ['admin', 'leader'], groupReq: ['admin'], confirmTask: ['admin', 'leader'], addTask: ['admin', 'leader'], taskDone: ['admin', 'leader'], remind: ['admin', 'leader'], award: ['admin', 'leader'], igReview: ['admin', 'leader']
 };
@@ -319,7 +319,7 @@ const CONTACT_KEYS = ['phone', 'birth', 'addr', 'ig', 'igStatus', 'tgChat', 'age
 
 const A_ = {
   bootstrap(me) {
-    const teens = rows_('Подростки').filter(t => t.archived !== '1');
+    const allT = rows_('Подростки'), teens = allT.filter(t => t.archived !== '1');
     const myGroups = me.groups;
     const visTeens = teens.map(t => {
       const o = { id: t.id, first: t.first, last: t.last, groups: t.groups ? t.groups.split(',').filter(Boolean) : [], createdAt: t.createdAt, source: t.source, review: t.review === '1', invitedBy: t.invitedBy, isLeader: t.isLeader === '1' };
@@ -335,7 +335,7 @@ const A_ = {
     const st = settings_();
     const res = {
       me, today: today_(), execUrl: execUrl_(), settings: st,
-      teens: visTeens, dups, contacts: cts_().map(c => [c.teenId, c.date, c.by ? markerName_({ by: c.by }) : '', c.note, c.upd]), att, off: offs_().map(o => [o.date, o.kind, o.meetId, o.reason, markerName_({ by: o.by })]),
+      teens: visTeens, dups, trashN: me.role === 'admin' ? allT.filter(inTrash_).length : 0, contacts: cts_().map(c => [c.teenId, c.date, c.by ? markerName_({ by: c.by }) : '', c.note, c.upd]), att, off: offs_().map(o => [o.date, o.kind, o.meetId, o.reason, markerName_({ by: o.by })]),
       groups: rows_('Группы').filter(g => g.active !== '0').map(g => ({ id: g.id, name: g.name, leader: g.leader, day: +g.day, time: g.time, addr: g.addr || '', contact: g.contact || '' })),
       events: rows_('События').map(e => ({ id: e.id, name: e.name, date: e.date, reg: +e.reg || 0 })),
       tasks: rows_('Задания').map(t => ({ id: t.id, title: t.title, kind: t.kind, due: t.due, pts: +t.pts || 0, aud: t.aud ? t.aud.split(',').filter(Boolean) : [], createdAt: t.createdAt })),
@@ -370,6 +370,30 @@ const A_ = {
     }
     if (hit.length) delete_('Посещения', hit.map(h => h._row));
     return { on: false };
+  },
+  // Удаление карточки: скрываем и кладём в корзину на 30 дней; посещения остаются в статистике
+  delTeen(me, p) {
+    const t = rows_('Подростки').find(x => x.id === p.id && x.archived !== '1'); if (!t) throw new Error('not_found');
+    const sh = sh_('Подростки'), ci = keys_('Подростки').indexOf('del') + 1;
+    if (!sh.getRange(1, ci, 1, 1).getDisplayValues()[0][0]) sh.getRange(1, ci, 1, 1).setValues([['Удалён']]);
+    update_('Подростки', t, { archived: '1', review: '', del: [today_(), me.email, String(p.reason || '').replace(/\|/g, ' ').trim().slice(0, 80)].join('|') });
+    const key = 'teen:' + t.id; ['_Сессии', '_Коды'].forEach(n => { const r = rows_(n).filter(x => x.email === key); if (r.length) delete_(n, r.map(x => x._row)); });
+    purgeTrash_();
+    return { name: (t.first + ' ' + t.last).trim() };
+  },
+  restoreTeen(me, p) {
+    const t = rows_('Подростки').find(x => x.id === p.id && inTrash_(x)); if (!t) throw new Error('not_found');
+    update_('Подростки', t, { archived: '', del: '' });
+    return { name: (t.first + ' ' + t.last).trim() };
+  },
+  wipeTeen(me, p) {
+    const t = rows_('Подростки').find(x => x.id === p.id && inTrash_(x)); if (!t) throw new Error('not_found');
+    const name = (t.first + ' ' + t.last).trim(); wipeTeen_(t); return { name: name };
+  },
+  trash(me) {
+    purgeTrash_();
+    const cnt = {}; rows_('Посещения').forEach(a => { cnt[a.teenId] = (cnt[a.teenId] || 0) + 1; });
+    return rows_('Подростки').filter(inTrash_).map(t => { const d = t.del.split('|'); return { id: t.id, name: (t.first + ' ' + t.last).trim(), date: d[0], by: markerName_({ by: d[1] }), mine: String(d[1]).toLowerCase() === String(me.email).toLowerCase(), reason: d[2] || '', left: Math.max(0, 30 - (dnum_(today_()) - dnum_(d[0]))), visits: cnt[t.id] || 0 }; }).sort((a, b) => a.left - b.left);
   },
   // Журнал действий команды за 90 дней — только админу
   log(me) {
@@ -887,6 +911,9 @@ function logAct_(me, act, p, res) {
     case 'updateTeen': teen = p.id; d = { n: nm(p.fields || {}) }; break;
     case 'mergeTeens': teen = p.keepId; d = { keep: res.keepName, drop: res.dropName, moved: res.moved }; break;
     case 'teenCode': teen = p.teenId; d = {}; break;
+    case 'delTeen': teen = p.id; d = { n: res.name, r: p.reason || '' }; break;
+    case 'restoreTeen': teen = p.id; d = { n: res.name }; break;
+    case 'wipeTeen': d = { n: res.name }; break;
     case 'contact': teen = p.teenId; d = { on: p.on, note: p.note == null ? null : String(p.note).slice(0, 120) }; break;
     case 'igReview': teen = p.id; d = { ok: !!p.ok }; break;
     case 'groupReq': if (res && res.gone) return; d = { ok: !!p.ok }; break;
@@ -912,6 +939,20 @@ function logAct_(me, act, p, res) {
   append_('Журнал', { ts: String(Date.now()), by: me.email, act: act, teenId: teen || '', data: JSON.stringify(d).slice(0, 600) });
   if (Math.random() < 0.03) { const min = Date.now() - 90 * 864e5; const old = rows_('Журнал').filter(r => +r.ts < min); if (old.length) delete_('Журнал', old.map(r => r._row)); }
 }
+// Корзина: карточка удалена (del = дата|кто|причина) и ещё не стёрта
+function inTrash_(t) { return t.archived === '1' && !!t.del && String(t.del).indexOf('wiped') !== 0; }
+// Стираем личные данные, оставляя строку с ID: посещения, баллы и ачивки остаются в статистике без имени
+function wipeTeen_(t) {
+  const blank = { first: 'Удалён', last: '', del: 'wiped|' + today_(), groups: '', invitedBy: '', tgId: '', review: '' };
+  ['phone', 'birth', 'addr', 'ig', 'igStatus', 'tgChat', 'age', 'ageAt'].concat(PARENT_KEYS).forEach(k => { blank[k] = ''; });
+  update_('Подростки', t, blank);
+  const sh = sh_('Посещения'), ni = keys_('Посещения').indexOf('teenName') + 1;
+  rows_('Посещения').forEach(a => { if (a.teenId === t.id && a.teenName) sh.getRange(a._row, ni, 1, 1).setValues([['']]); });
+  const drop = (name, fn) => { if (!ss_().getSheetByName(name)) return; const r = rows_(name).filter(fn); if (r.length) delete_(name, r.map(x => x._row)); };
+  drop('_Сессии', x => x.email === 'teen:' + t.id); drop('_Коды', x => x.email === 'teen:' + t.id); drop('_ТГ', x => x.teenId === t.id);
+  drop('Контакты', x => x.teenId === t.id); drop('Заявки', x => x.teenId === t.id); drop('Стих дня', x => x.teenId === t.id && x.kind === 'com');
+}
+function purgeTrash_() { const today = dnum_(today_()); rows_('Подростки').filter(inTrash_).forEach(t => { if (today - dnum_(t.del.split('|')[0]) >= 30) wipeTeen_(t); }); }
 function cts_() { return ss_().getSheetByName('Контакты') ? rows_('Контакты') : []; }
 function offs_() { return ss_().getSheetByName('Отмены') ? rows_('Отмены') : []; }
 function greqs_() { return ss_().getSheetByName('Заявки') ? rows_('Заявки') : []; }
