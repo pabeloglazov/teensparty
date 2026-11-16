@@ -148,6 +148,19 @@ a{color:inherit}
 .login{max-width:440px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;justify-content:center;gap:18px;padding:32px 22px calc(28px + env(safe-area-inset-bottom))}
 .spin{width:22px;height:22px;border-radius:999px;border:3px solid #3A2414;border-top-color:var(--acc);animation:s 1s linear infinite}
 @keyframes s{to{transform:rotate(360deg)}}
+/* отклик на наведение мышки (только там, где есть мышь) */
+button,a.btn,a.btn2,a.row,.evacts>*{transition:filter .12s ease,background-color .12s ease,border-color .12s ease,color .12s ease,transform .08s ease}
+@media (hover:hover){
+button:not(:disabled):hover,a.row:hover{filter:brightness(1.32)}
+.btn:not(:disabled):hover,a.btn:hover{filter:brightness(1.08)}
+.btn2:not(:disabled):hover{border-color:var(--mu,#A1A1AA);color:var(--tx,#F4F4F5);background:rgba(255,255,255,.04);filter:none}
+button.row:not(:disabled):hover,a.row:hover{border-color:var(--line3,#3A3D46);background:var(--card2,#1B1D23);filter:none}
+.chip:not(:disabled):hover{border-color:var(--mu,#A1A1AA);color:var(--tx,#F4F4F5)}
+.seg button:not(.on):hover{color:var(--tx,#F4F4F5);background:rgba(255,255,255,.05);filter:none}
+.evacts>*:hover{border-color:var(--acc,#FF8A3D);background:var(--accbg,#1C140F);filter:none}
+.evrow:not(:disabled):hover{border-color:var(--line3,#3A3D46);filter:none}
+}
+button:not(:disabled):active,a.btn:active,a.btn2:active{transform:scale(.985)}
 </style>
 </head>
 <body>
