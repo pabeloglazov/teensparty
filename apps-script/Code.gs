@@ -22,6 +22,7 @@ const COLS = {
   'Ачивки': [['id','ID'],['badge','Ачивка'],['teenId','Подросток (ID)'],['date','Дата'],['by','Засчитал']],
   'Настройки': [['key','Ключ'],['value','Значение']],
   'Входы': [['teenId','Подросток (ID)'],['date','Дата']],
+  'Контакты': [['teenId','Подросток (ID)'],['date','Связались'],['by','Кто'],['note','Заметка'],['upd','Обновлено']],
   'Отмены': [['id','ID'],['date','Дата'],['kind','Тип'],['meetId','Встреча (ID)'],['reason','Причина'],['by','Отметил'],['ts','Когда']],
   'Заявки': [['id','ID'],['teenId','Подросток (ID)'],['groupId','Группа (ID)'],['date','Дата'],['status','Статус'],['by','Решил']],
   'Стих дня': [['id','ID'],['date','Дата'],['teenId','Подросток (ID)'],['kind','Тип'],['text','Текст'],['ts','Когда']],
@@ -279,7 +280,7 @@ function logout(token) {
 const CAN = {
   mark: ['admin', 'leader', 'mod'], attNow: ['admin', 'leader', 'mod', 'viewer'], addTeen: ['admin', 'leader', 'mod'], updateTeen: ['admin', 'leader', 'mod'], reviewTeen: ['admin', 'leader', 'mod'],
   addEvent: ['admin', 'leader'], editEvent: ['admin'], delEvent: ['admin'], saveGroup: ['admin'], saveSettings: ['admin'],
-  meetOff: ['admin', 'leader'], mergeTeens: ['admin'], notDup: ['admin'],
+  meetOff: ['admin', 'leader'], mergeTeens: ['admin'], notDup: ['admin'], contact: ['admin', 'leader', 'mod'],
   invite: ['admin'], updateLeader: ['admin'], removeLeader: ['admin'],
   savePlanWeek: ['admin'], delVcom: ['admin', 'leader'], teenCode: ['admin', 'leader'], groupReq: ['admin'], confirmTask: ['admin', 'leader'], addTask: ['admin', 'leader'], taskDone: ['admin', 'leader'], remind: ['admin', 'leader'], award: ['admin', 'leader'], igReview: ['admin', 'leader']
 };
@@ -333,7 +334,7 @@ const A_ = {
     const st = settings_();
     const res = {
       me, today: today_(), execUrl: execUrl_(), settings: st,
-      teens: visTeens, dups, att, off: offs_().map(o => [o.date, o.kind, o.meetId, o.reason, markerName_({ by: o.by })]),
+      teens: visTeens, dups, contacts: cts_().map(c => [c.teenId, c.date, c.by ? markerName_({ by: c.by }) : '', c.note, c.upd]), att, off: offs_().map(o => [o.date, o.kind, o.meetId, o.reason, markerName_({ by: o.by })]),
       groups: rows_('Группы').filter(g => g.active !== '0').map(g => ({ id: g.id, name: g.name, leader: g.leader, day: +g.day, time: g.time, addr: g.addr || '', contact: g.contact || '' })),
       events: rows_('События').map(e => ({ id: e.id, name: e.name, date: e.date, reg: +e.reg || 0 })),
       tasks: rows_('Задания').map(t => ({ id: t.id, title: t.title, kind: t.kind, due: t.due, pts: +t.pts || 0, aud: t.aud ? t.aud.split(',').filter(Boolean) : [], createdAt: t.createdAt })),
@@ -369,6 +370,21 @@ const A_ = {
     if (hit.length) delete_('Посещения', hit.map(h => h._row));
     return { on: false };
   },
+  // «Давно не были»: отметка «связались» и заметка — одна строка на подростка
+  contact(me, p) {
+    const t = rows_('Подростки').find(x => x.id === p.teenId && x.archived !== '1'); if (!t) throw new Error('not_found');
+    if (me.role === 'leader' && !(t.groups || '').split(',').some(g => g && me.groups.indexOf(g) >= 0)) throw new Error('forbidden');
+    ensure_('Контакты');
+    const cur = rows_('Контакты').filter(x => x.teenId === t.id), row = cur[0];
+    const next = { teenId: t.id, date: row ? row.date : '', by: row ? row.by : '', note: row ? row.note : '', upd: today_() };
+    if (p.on === true) { next.date = today_(); next.by = me.email; }
+    if (p.on === false) { next.date = ''; next.by = ''; }
+    if (p.note != null) next.note = String(p.note).trim().slice(0, 200);
+    if (cur.length > 1) delete_('Контакты', cur.slice(1).map(x => x._row));
+    if (!next.date && !next.note) { if (row) delete_('Контакты', [row._row]); return { date: '', note: '' }; }
+    if (row) update_('Контакты', row, next); else append_('Контакты', next);
+    return { date: next.date, note: next.note, by: next.date ? (me.name || me.email) : '' };
+  },
   // Склейка дублей: всё с профиля drop переезжает на keep, drop скрывается
   mergeTeens(me, p) {
     const teens = rows_('Подростки');
@@ -395,7 +411,7 @@ const A_ = {
     move('Заявки', 'teenId', r => r.groupId + '|' + r.status);
     move('Стих дня', 'teenId', r => r.kind === 'com' ? r.id : r.date + '|' + r.kind + '|' + r.text);
     move('Приглашения', 'teenId'); move('Приглашения', 'by');
-    move('_ТГ', 'teenId'); move('Подростки', 'invitedBy');
+    move('_ТГ', 'teenId'); move('Подростки', 'invitedBy'); move('Контакты', 'teenId', r => 'one');
     const sess = rows_('_Сессии').filter(x => x.email === 'teen:' + Dp), si = keys_('_Сессии').indexOf('email') + 1;
     sess.forEach(x => sh_('_Сессии').getRange(x._row, si, 1, 1).setValues([['teen:' + K]]));
     const codes = rows_('_Коды').filter(x => x.email === 'teen:' + Dp); if (codes.length) delete_('_Коды', codes.map(x => x._row));
@@ -853,6 +869,7 @@ function dupPairs_(teens, notDup) {
   }
   return res.slice(0, 30);
 }
+function cts_() { return ss_().getSheetByName('Контакты') ? rows_('Контакты') : []; }
 function offs_() { return ss_().getSheetByName('Отмены') ? rows_('Отмены') : []; }
 function greqs_() { return ss_().getSheetByName('Заявки') ? rows_('Заявки') : []; }
 function nextMeet_() { const sv = services_()[0]; return sv ? DAYS_RU_[sv.day] + ', ' + t12_(sv.time) : ''; }

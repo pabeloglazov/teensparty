@@ -286,7 +286,8 @@ function buildIdx() {
     allDates[d] = 1;
   });
   const S2 = {}; Object.keys(sess).forEach(k => S2[k] = Array.from(sess[k]).sort());
-  IDX = { set, sess: S2, total, off, teen: Object.fromEntries(D.teens.map(t => [t.id, t])), group: Object.fromEntries(D.groups.map(g => [g.id, g])) };
+  const contact = {}; (D.contacts || []).forEach(c => contact[c[0]] = { date: c[1] || '', by: c[2] || '', note: c[3] || '', upd: c[4] || '' });
+  IDX = { set, sess: S2, total, off, contact, teen: Object.fromEntries(D.teens.map(t => [t.id, t])), group: Object.fromEntries(D.groups.map(g => [g.id, g])) };
 }
 // «Встречи не было»: причины хранятся по-русски, в английском интерфейсе переводятся
 const OFFR = [['Праздник / каникулы', 'Holiday / break'], ['Лидер не смог', 'Leader unavailable'], ['Погода', 'Weather'], ['Нет помещения', 'No venue'], ['Перенесли', 'Rescheduled'], ['Общее событие церкви', 'Church-wide event'], ['Выезд / лагерь', 'Trip / camp']];
@@ -536,6 +537,60 @@ function ageBody(known, none, by, ages, mx, avg) {
     ${none ? `<button class="agebar" style="grid-template-columns:1fr auto;color:var(--tx2)" data-a="ageList" data-x="none"><span>${tr('Без даты рождения', 'No birth date')}</span><b>${none}</b></button>` : ''}
   </div>`;
 }
+// ---------- ДАВНО НЕ БЫЛИ ----------
+const GCOL = ['#F5C451', '#FF8A3D', '#F87171'];
+const GBN = () => [tr('3–4 НЕДЕЛИ', '3–4 WEEKS'), tr('1–2 МЕСЯЦА', '1–2 MONTHS'), tr('3+ МЕСЯЦА', '3+ MONTHS')];
+function goneAll() {
+  if (S._gone && S._gone.src === D.att && S._gone.c === D.contacts && S._gone.as === S.as) return S._gone.list;
+  const last = {}; D.att.forEach(a => { const c = last[a[3]]; if (!c || a[0] > c[0]) last[a[3]] = a; });
+  const r = myRole(), mine = D.me.groups || [], today = parse(D.today);
+  const list = D.teens.filter(t => !t.isLeader && last[t.id] && (r !== 'leader' || t.groups.some(g => mine.indexOf(g) >= 0))).map(t => {
+    const a = last[t.id], days = Math.round((today - parse(a[0])) / 864e5), c = IDX.contact[t.id], ok = c && c.upd >= a[0];
+    return { t, days, last: a[0], lk: a[1], lm: a[2], b: days < 35 ? 0 : days < 91 ? 1 : 2, nw: days < 28, c: ok && c.date ? c : null, note: ok ? c.note : '' };
+  }).filter(x => x.days >= 21).sort((a, b) => a.days - b.days);
+  S._gone = { src: D.att, c: D.contacts, as: S.as, list }; return list;
+}
+const goneDur = d => { if (d < 56) { const w = Math.floor(d / 7); return w + ' ' + tr(plur(w, 'неделя', 'недели', 'недель'), w === 1 ? 'week' : 'weeks'); } const m = Math.round(d / 30.4); return m + ' ' + tr(plur(m, 'месяц', 'месяца', 'месяцев'), m === 1 ? 'month' : 'months'); };
+const canContact = () => !S.as && ['admin', 'leader', 'mod'].indexOf(myRole()) >= 0;
+function goneCard() {
+  const L2 = goneAll(); if (!L2.length) return '';
+  const n = [0, 1, 2].map(b => L2.filter(x => x.b === b).length), nc = L2.filter(x => !x.c).length, nw = L2.filter(x => x.nw).length;
+  return `<button class="card" data-a="goneOpen" style="display:flex;flex-direction:column;gap:14px;text-align:left;width:100%;border-color:var(--acc)"><span style="display:flex;align-items:center;gap:10px"><span style="flex:1;font-size:16px;font-weight:700">${tr('Давно не были', 'Missing lately')}</span><span style="font-size:22px;font-weight:700;color:var(--acc)">${L2.length}</span>${svg(IC.right, ACC, 18, 2.5)}</span>
+  <span style="display:flex;height:10px;border-radius:999px;overflow:hidden;gap:3px">${n.map((x, i) => x ? `<span style="flex:${x};background:${GCOL[i]}"></span>` : '').join('')}</span>
+  <span class="xs mut" style="display:flex;gap:14px;flex-wrap:wrap">${n.map((x, i) => `<span><b style="color:${GCOL[i]}">${x}</b> · ${GBN()[i].toLowerCase()}</span>`).join('')}</span>
+  <span class="xs" style="color:var(--acc2)">${nw ? '+' + nw + tr(' ' + plur(nw, 'новый', 'новых', 'новых') + ' на этой неделе · ', ' new this week · ') : ''}${nc ? tr('с ' + nc + ' ещё никто не связался', nc + ' not contacted yet') : tr('со всеми связались', 'everyone contacted')}</span></button>`;
+}
+function goneOverlay(o) {
+  const all = goneAll(), groups = visibleGroups().filter(g => all.some(x => x.t.groups.indexOf(g.id) >= 0));
+  const fs = [['all', tr('Все', 'All')], ['nc', tr('Не связались', 'Not contacted')], ['new', tr('Новые', 'New')], ...groups.map(g => [g.id, g.name])];
+  const ok = (x, f) => f === 'all' || (f === 'nc' && !x.c) || (f === 'new' && x.nw) || x.t.groups.indexOf(f) >= 0;
+  if (!fs.find(f => f[0] === o.f)) o.f = 'all';
+  const L2 = all.filter(x => ok(x, o.f));
+  const row = x => { const fem = /[ая]$/i.test(String(x.t.first || '').trim()); return `<button class="row" data-a="goneP" data-x="${x.t.id}" style="min-height:64px"><span style="width:4px;align-self:stretch;border-radius:4px;background:${GCOL[x.b]};flex-shrink:0"></span><div class="av">${esc(ini(tname(x.t)))}</div><span style="flex:1;min-width:0;text-align:left;display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(tname(x.t))}${x.nw ? ` <span class="xs" style="color:var(--acc2);font-weight:600">· ${tr('новый в списке', 'new here')}</span>` : ''}</span><span class="xs mut" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${goneDur(x.days)} · ${tr(fem ? 'была ' : 'был ', 'last ')}${esc(human(x.last))}, ${esc(meetName(x.lk, x.lm))}</span></span>${x.c ? `<span class="xs" style="color:var(--green);white-space:nowrap">${tr('связались', 'contacted')}</span>` : ''}${svg(IC.right, '#5F626B', 18, 2.5)}</button>`; };
+  const body = `<div style="display:flex;gap:8px;overflow-x:auto;margin:-4px 0">${fs.map(f => `<button class="chip ${o.f === f[0] ? 'on' : ''}" data-a="goneF" data-x="${f[0]}">${esc(f[1])} · ${all.filter(x => ok(x, f[0])).length}</button>`).join('')}</div>
+    ${L2.length ? [0, 1, 2].map(b => { const g = L2.filter(x => x.b === b); return g.length ? `<div style="display:flex;flex-direction:column;gap:6px"><div class="sec" style="color:${GCOL[b]};margin-bottom:2px">${GBN()[b]} · ${g.length}</div>${g.map(row).join('')}</div>` : ''; }).join('') : `<div class="empty">${tr('В этом фильтре никого нет', 'No one in this filter')}</div>`}`;
+  return full(tr('Давно не были', 'Missing lately') + ' · ' + all.length, body, '') + (o.pid ? gonePerson(o) : '');
+}
+function gonePerson(o) {
+  const x = goneAll().find(y => y.t.id === o.pid), t = x ? x.t : IDX.teen[o.pid]; if (!t) return '';
+  const fem = /[ая]$/i.test(String(t.first || '').trim());
+  const dates = Array.from(new Set(D.att.filter(a => a[1] === 'service' && !IDX.off[a[0] + '|' + a[1] + '|' + a[2]]).map(a => a[0]))).sort().slice(-8);
+  const mine = {}; D.att.forEach(a => { if (a[3] === t.id) mine[a[0]] = 1; });
+  const sq = (p, c, bg) => `<span style="width:44px;height:44px;border-radius:13px;background:${bg || 'var(--accbg)'};display:flex;align-items:center;justify-content:center;flex-shrink:0">${svg(p, c || ACC, 20, 2.1)}</span>`;
+  const txt = (a, b) => `<span style="flex:1;min-width:0;text-align:left;display:flex;flex-direction:column;gap:2px"><span style="font-size:16px;font-weight:600">${a}</span><span class="xs mut" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${b}</span></span>`;
+  const ph = String(t.phone || '').replace(/[^\d+]/g, ''), tel = ph ? (ph.length === 10 ? '+1' + ph : ph) : '';
+  const msg = tr('Привет, ' + (t.first || '') + '! Давно тебя не видели на SOL 3:16 Teens — как ты? Ждём тебя в это воскресенье 🙌', 'Hi ' + (t.first || '') + '! We have missed you at SOL 3:16 Teens — how are you? Hope to see you this Sunday 🙌');
+  const sms = 'sms:' + tel + (/iPhone|iPad|iPod|Macintosh/.test(navigator.userAgent) ? '&' : '?') + 'body=' + encodeURIComponent(msg);
+  const lnk = (href, p, a, b) => tel ? `<a class="row" href="${href}" style="gap:14px;min-height:64px;text-decoration:none;color:var(--tx)">${sq(p)}${txt(a, b)}${svg(IC.right, '#5F626B', 18, 2.5)}</a>` : `<div class="row" style="gap:14px;min-height:64px;cursor:default;opacity:.55">${sq(p, '#8B8B94', 'var(--card2)')}${txt(a, tr('телефон не указан', 'no phone on file'))}</div>`;
+  const c = x && x.c;
+  return sheet(esc(tname(t)), `<div class="sm" style="color:${x ? GCOL[x.b] : 'var(--mu)'};font-weight:600">${x ? tr(fem ? 'Не была ' : 'Не был ', 'Away for ') + goneDur(x.days) : tr('Снова приходит', 'Back again')}${t.groups.length ? ' · ' + esc(t.groups.map(g => (IDX.group[g] || {}).name).filter(Boolean).join(', ')) : ''}</div>
+    <div class="card" style="display:flex;flex-direction:column;gap:10px"><div class="xs mut" style="font-weight:700;letter-spacing:.04em">${tr('ПОСЛЕДНИЕ ' + dates.length + ' ' + plur(dates.length, 'ВСТРЕЧА', 'ВСТРЕЧИ', 'ВСТРЕЧ'), 'LAST ' + dates.length + ' MEETINGS')}</div><div style="display:flex;gap:6px" role="img" aria-label="${tr('Был на ', 'Attended ')}${dates.filter(d => mine[d]).length}${tr(' из ', ' of ')}${dates.length}">${dates.map(d => `<span style="flex:1;height:26px;border-radius:7px;background:${mine[d] ? 'var(--acc)' : 'var(--card2)'};border:1px solid ${mine[d] ? 'var(--acc)' : 'var(--line2)'}"></span>`).join('')}</div><div class="xs mut">${x ? tr('Последний раз: ', 'Last time: ') + esc(human(x.last)) + ' ' + x.last.slice(0, 4) + ', ' + esc(meetName(x.lk, x.lm)) + ' · ' : ''}${tr('всего ', 'total ')}${IDX.total[t.id] || 0} ${tr(plur(IDX.total[t.id] || 0, 'посещение', 'посещения', 'посещений'), 'visits')}</div></div>
+    <div style="display:flex;flex-direction:column;gap:6px">${lnk('tel:' + tel, 'M22 16.9v3a2 2 0 0 1-2.2 2A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7l.6 3a2 2 0 0 1-.6 1.9L7.9 9.8a16 16 0 0 0 6.3 6.3l1.2-1.2a2 2 0 0 1 1.9-.6l3 .6a2 2 0 0 1 1.7 2z', tr('Позвонить', 'Call'), esc(t.phone || ''))}${lnk(sms, 'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z', tr('Написать', 'Message'), tr('сообщение с готовым текстом', 'text with a ready message'))}
+    ${canContact() ? `<button class="row" data-a="goneMark" style="gap:14px;min-height:64px;${c ? 'border-color:var(--green)' : ''}">${sq(IC.check, c ? '#4ADE80' : ACC, c ? '#12251A' : '')}${txt(c ? tr('Связались', 'Contacted') : tr('Отметить: связались', 'Mark as contacted'), c ? esc(human(c.date)) + (c.by ? ' · ' + esc(c.by) : '') + tr(' · нажмите, чтобы снять', ' · tap to undo') : tr('увидят все лидеры', 'visible to all leaders'))}</button>` : c ? `<div class="row" style="gap:14px;min-height:64px;cursor:default;border-color:var(--green)">${sq(IC.check, '#4ADE80', '#12251A')}${txt(tr('Связались', 'Contacted'), esc(human(c.date)) + (c.by ? ' · ' + esc(c.by) : ''))}</div>` : ''}</div>
+    ${canContact() ? `<input class="inp" style="height:48px;background:var(--bg)" data-b="ov.note" data-change="goneNote" maxlength="200" value="${esc(o.note || '')}" placeholder="${tr('Заметка: что сказал, когда придёт', 'Note: what they said, when they will come')}" aria-label="${tr('Заметка', 'Note')}">` : (x && x.note ? `<div class="sm mut">${esc(x.note)}</div>` : '')}`,
+    `<button class="btn2" data-a="openProf" data-x="${t.id}">${tr('Открыть профиль', 'Open profile')}</button>`);
+}
+function setContact(id, r) { D.contacts = (D.contacts || []).filter(c => c[0] !== id); if (r.date || r.note) D.contacts.push([id, r.date || '', r.by || '', r.note || '', D.today]); buildIdx(); }
 function viewDash() {
   const groups = visibleGroups();
   const fk = [['all', tr('Всё', 'All')], ...SVCS().map(s => [s.id, s.pl]), ...(groups.length ? [['grp', tr('Малые группы', 'Small groups')]] : []), ['events', tr('События', 'Events')], ...groups.map(g => [g.id, g.name])];
@@ -559,6 +614,7 @@ function viewDash() {
   return `<h1 class="h1">${tr('Дашборд', 'Dashboard')}</h1>
   <div id="dchips" style="display:flex;gap:6px;overflow-x:auto;padding:4px 0">${fk.map(([k, l]) => `<button class="chip ${k === S.dash ? 'on' : ''}" data-a="dash" data-x="${k}">${esc(l)}</button>`).join('')}</div>
   <div class="stats3"><div class="stat acc"><b>${last}</b><span class="xs mut">${tr('последняя', 'latest')}</span></div><div class="stat"><b>${avg}</b><span class="xs mut">${tr('в среднем', 'average')}</span></div><div class="stat"><b>${S.dash === 'all' ? rec : Math.max(0, ...vals)}</b><span class="xs mut">${tr('рекорд', 'record')}</span></div></div>
+  ${goneCard()}
   <div class="dashgrid">
   <div class="card" style="display:flex;flex-direction:column;gap:12px"><div style="font-size:14px;font-weight:600">${tr('Посещаемость · ', 'Attendance · ')}${esc(label)}${tr(' · последние встречи', ' · recent meetings')}</div>
   ${ser.length ? `<div class="bars">${ser.map(x => `<button class="${x.d === selD ? 'sel' : ''}${x.off ? ' off' : ''}" data-a="bar" data-x="${x.d}" aria-label="${esc(human(x.d))}: ${x.off ? tr('встречи не было', 'no meeting') : x.v}"><b>${x.off ? svg(BAN, x.d === selD ? ACC : '#8B8B94', 14, 2.2) : x.v}</b><i style="height:${x.off ? 22 : Math.max(4, Math.round(x.v / mx * 150))}px"></i><em>${+x.d.slice(8)}.${x.d.slice(5, 7)}</em></button>`).join('')}</div>
@@ -901,6 +957,7 @@ function viewOverlay() {
   }
   if (o.type === 'pw') return planOverlay(o);
   if (o.type === 'day') return dayOverlay(o);
+  if (o.type === 'gone') return goneOverlay(o);
   if (o.type === 'merge') return mergeOverlay(o);
   if (o.type === 'mpick') return mergePickOverlay(o);
   if (o.type === 'off') { const m = meet(), custom = o.reason === '*';
@@ -1002,6 +1059,7 @@ document.addEventListener('input', e => {
 document.addEventListener('change', e => {
   const el = e.target;
   if (el.getAttribute('data-save') === 'settings') { const k = el.getAttribute('data-b').slice(4); api('saveSettings', { [k]: el.value }).then(() => toast(tr('Сохранено', 'Saved'))).catch(err => toast(errText(err))); }
+  if (el.getAttribute('data-change') === 'goneNote' && S.ov && S.ov.type === 'gone') { S.ov.note = el.value; H.goneNote(); }
   if (el.getAttribute('data-change') === 'otherDate' && el.value) { S.meet = Object.assign({}, meet(), { date: el.value }); S.ov = null; render(); }
 });
 document.addEventListener('click', e => {
@@ -1055,7 +1113,7 @@ const H = {
   // навигация
   tab(x) { S.tab = x; S.more = 'root'; S.ov = null; render(); if (x === 'mark') syncMarks(); },
   moreRoot() { S.more = 'root'; render(); }, goGroups() { S.more = 'groups'; render(); }, goRules() { S.more = 'rules'; render(); }, goAccess() { S.more = 'access'; render(); }, goQR() { S.more = 'qr'; render(); },
-  close() { S.ov = null; rerender(); },
+  close() { if (S.ov && S.ov.type === 'gone' && S.ov.pid) { S.ov.pid = null; return rerender(); } S.ov = null; rerender(); },
   ovToggle(x) { S.ov[x] = !S.ov[x]; rerender(); },
   async teenCode() { const ov = S.ov; try { const r = await api('teenCode', { teenId: ov.id }); if (S.ov === ov) { ov.code = r.code; rerender(); } } catch (e) { toast(errText(e)); } },
   sameAddr() { syncForm(); const ov = S.ov, F = ov.f; if (!ov.sameAddr) { if (!String(F.addr || '').trim()) return toast(tr('Сначала введите адрес подростка', 'Enter the teen’s address first')); ov.sameAddr = true; F.pAddr = F.addr; } else { ov.sameAddr = false; F.pAddr = ''; } rerender(); },
@@ -1114,6 +1172,15 @@ const H = {
   bar(x) { S.bar = x; rerender(); },
   dayEv(k) { S.ov = { type: 'day', key: k, tab: 0 }; rerender(); },
   dayTab(v) { S.ov.tab = +v; rerender(); },
+  goneOpen() { S.ov = { type: 'gone', f: 'all', pid: null }; rerender(); },
+  goneF(x) { S.ov.f = x; rerender(); },
+  goneP(id) { const x = goneAll().find(y => y.t.id === id); S.ov.pid = id; S.ov.note = x ? x.note : ''; rerender(); },
+  async goneMark() { const id = S.ov.pid, x = goneAll().find(y => y.t.id === id), old = D.contacts, on = !(x && x.c);
+    setContact(id, { date: on ? D.today : '', by: on ? (D.me.name || '') : '', note: S.ov.note || '' }); rerender();
+    try { await api('contact', { teenId: id, on, note: S.ov.note || '' }); toast(on ? tr('Отмечено: связались', 'Marked as contacted') : tr('Отметка снята', 'Mark removed')); } catch (e) { D.contacts = old; buildIdx(); rerender(); toast(errText(e)); } },
+  async goneNote() { const id = S.ov.pid, x = goneAll().find(y => y.t.id === id), old = D.contacts, c = x && x.c;
+    setContact(id, { date: c ? c.date : '', by: c ? c.by : '', note: S.ov.note || '' });
+    try { await api('contact', { teenId: id, note: S.ov.note || '' }); toast(tr('Заметка сохранена', 'Note saved')); } catch (e) { D.contacts = old; buildIdx(); toast(errText(e)); } },
   cntOpen() { const m = meet(); S.ov = { type: 'day', key: m.date + '|' + m.kind + '|' + m.meetId, tab: 0 }; rerender(); },
   dupOpen() { const p = dupList()[0]; if (p) mergeStart(p[0], p[1], p[2], true); },
   mergePick() { S.ov = { type: 'mpick', id: S.ov.id, q: '' }; rerender(); },
