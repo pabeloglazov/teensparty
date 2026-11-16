@@ -1162,8 +1162,10 @@ ONLY</span></div>
     document.getElementById('rgClose').addEventListener('click', function(){ D.close(); });
     /* ===== «Мой билет»: кто записан с этого устройства. Билет переворачивается, на обороте — имя, номер, «поделиться в сторис» ===== */
     var TK = document.querySelector('.ticket'), BK = document.getElementById('tBack'), flipped = false, sFile = null, sBlob = null, sKey = '';
-    function tickets(){ var v = store('tp_reg_xmas26'); if(!v) return []; try{ var a = JSON.parse(v); if(Array.isArray(a)) return a; }catch(e){} return [{n:String(v)}]; }
-    function addTicket(t){ var a = tickets().filter(function(o){ return !(o.n === t.n && (o.no || 0) === (t.no || 0)); }); a.push(t); store('tp_reg_xmas26', JSON.stringify(a.slice(-8))); }
+    function tickets(){ var v = store('tp_reg_xmas26'), a; if(!v) return []; try{ a = JSON.parse(v); }catch(e){} if(!Array.isArray(a)) a = [{n:String(v)}];
+      var numbered = a.filter(function(o){ return o.no; }); return numbered.length ? numbered : a; }
+    /* один человек — один билет: совпал номер или это старая запись без номера — заменяем, а не добавляем вторую строку */
+    function addTicket(t){ var a = tickets().filter(function(o){ return t.no ? (o.no && o.no !== t.no) : !(o.n === t.n && !o.no); }); a.push(t); store('tp_reg_xmas26', JSON.stringify(a.slice(-8))); }
     function num(t){ return t.no ? '№ ' + ('00' + t.no).slice(-3) : ''; }
     function mark(){
       var a = tickets(), d = L[lang] || L.en, el = document.getElementById('rgMark'), op = document.getElementById('open');
