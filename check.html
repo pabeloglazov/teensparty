@@ -98,7 +98,12 @@ dd{margin:0;font-weight:700;min-width:0;overflow-wrap:anywhere}
 
 <script>
 (function(){
-  var API = 'https://script.google.com/macros/s/AKfycbzrKsCRRilLJLRPbAgoQ26ONDOv3liAsMgXgN0V3gIIInhhtdk8ZjMxWhABss3qh-Hq/exec';
+  var APIS = {
+    fall26: 'https://script.google.com/macros/s/AKfycbzrKsCRRilLJLRPbAgoQ26ONDOv3liAsMgXgN0V3gIIInhhtdk8ZjMxWhABss3qh-Hq/exec',
+    xmas26: 'https://script.google.com/macros/s/AKfycbxMHLpaBqxKOCeHi1I4j1VmPkhgTt5l3Q5pLmAVP3ZNcOeI8m6ZVzx-O2_MB-Vl76KtDA/exec'
+  };
+  var EV = (location.search.match(/[?&]e=(\w+)/) || [])[1];
+  var API = APIS[EV] || APIS.fall26; /* без ?e= — осенняя пати (старые QR) */
   var $ = function(id){ return document.getElementById(id); };
   var key = '';
   try{ key = localStorage.getItem('tp_admin') || ''; }catch(e){}

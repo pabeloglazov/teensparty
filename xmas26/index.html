@@ -468,7 +468,7 @@ ONLY</span></div>
   }
 
   /* backend: google.script.run inside Apps Script, JSON API on teensparty.fun, demo elsewhere */
-  var API = ''; /* отдельный сервер для Christmas — вставить адрес /exec, когда будет готов */
+  var API = 'https://script.google.com/macros/s/AKfycbxMHLpaBqxKOCeHi1I4j1VmPkhgTt5l3Q5pLmAVP3ZNcOeI8m6ZVzx-O2_MB-Vl76KtDA/exec'; /* отдельный сервер Christmas: таблица «TEENS PARTY Christmas регистрации» */
   var gas = (typeof google !== 'undefined' && google.script && google.script.run) ? true : false;
   var useApi = !!API && !gas && /(^|\.)teensparty\.fun$|\.github\.io$|^localhost$|^127\.0\.0\.1$/.test(location.hostname);
 
@@ -564,7 +564,7 @@ ONLY</span></div>
     var box = $('qr');
     if(!mine || !mine.qr){ box.hidden = true; $('qrhint').hidden = true; qrDrawn = ''; return; }
     $('qrhint').hidden = false;
-    var payload = 'https://teensparty.fun/check.html#' + mine.ticket + '.' + mine.qr;
+    var payload = 'https://teensparty.fun/check.html?e=xmas26#' + mine.ticket + '.' + mine.qr;
     box.hidden = false;
     if(qrDrawn === payload) return;
     if(typeof qrcode !== 'function'){ box.textContent = mine.ticket + '.' + mine.qr; qrDrawn = ''; return; }
@@ -647,7 +647,7 @@ ONLY</span></div>
         showErr(code); renderStats(); return;
       }
       mine = {ticket:r.ticket, seat:r.seat, name:r.name, qr:r.qr || '', sms:!!r.sms, phone:data.phone, existing:!!r.existing, parent:parentMode};
-      store('tp_ticket', JSON.stringify(mine));
+      store('tp_ticket_xmas26', JSON.stringify(mine));
       closeDlg(); renderStats(); renderDone();
     }).catch(function(){ busy = false; showErr('gen'); renderStats(); });
   }
@@ -710,7 +710,7 @@ ONLY</span></div>
       if(r && r.stats){ stats = r.stats; }
       if(!r || !r.ok){ $('cerr').textContent = (r && r.code === 'notfound') ? T[lang].eNotFound : T[lang].eGen; $('cerr').hidden = false; renderStats(); return; }
       mine = {ticket:r.ticket, seat:r.seat, name:r.name, qr:r.qr || '', sms:false, phone:phone, existing:true};
-      store('tp_ticket', JSON.stringify(mine));
+      store('tp_ticket_xmas26', JSON.stringify(mine));
       closeCheck(); renderStats(); renderDone();
       $('done').scrollIntoView({behavior:'smooth', block:'center'});
     }).catch(function(){ $('cfind').disabled = false; $('cfind').textContent = T[lang].find; $('cerr').textContent = T[lang].eGen; $('cerr').hidden = false; });
@@ -824,7 +824,7 @@ ONLY</span></div>
   });
 
   $('again').addEventListener('click', function(){
-    mine = null; store('tp_ticket', '');
+    mine = null; store('tp_ticket_xmas26', '');
     inputs.forEach(function(inp){ inp.value = ''; });
     renderStats(); renderDone(); openDlg();
   });
@@ -934,7 +934,7 @@ ONLY</span></div>
   var CLOSED = false;
   if(!API) document.body.classList.add('soonreg'); /* осенняя TEENS PARTY прошла 31.10 — запись закрыта */
   if(CLOSED) document.body.classList.add('closed');
-  try{ var saved = JSON.parse(store('tp_ticket') || 'null'); if(saved && saved.ticket) mine = saved; }catch(e){}
+  try{ var saved = JSON.parse(store('tp_ticket_xmas26') || 'null'); if(saved && saved.ticket) mine = saved; }catch(e){}
   setLang(store('tp_lang') || 'en');
   refresh();
   setInterval(tick, 1000);
