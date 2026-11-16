@@ -85,6 +85,7 @@ def sg(day,time,leader,msg,tel,ext):
 i=b.index('<div style="flex: 1 1 260px; min-width: 0; height: 300px; perspective: 1200px">'); j=b.index('<div style="flex: 1 1 260px; min-width: 0; background: #1C140F; border: 1px solid #FF8A3D;')
 b=b[:i]+sg('СРЕДА','6:00 PM','Tima','sms:+19165595882','+19165595882',0)+sg('ПЯТНИЦА','7:00 PM','Pasha','https://t.me/pabeloglazov','+12797592990',1)+b[j:]
 assert 'data-flip' not in b
+b=b.replace('OCT 20','OCT 17')  # дата поездки в Стенфорд — как в Check-in (2026-10-17)
 rep('line-height: 0.86; letter-spacing: -0.04em">3:16<br><span style="color: #0E0F12; -webkit-text-stroke: 2px #F4F4F5">TEENS</span></h1>','line-height: 0.86; letter-spacing: -0.04em" class="hero" aria-label="3:16 TEENS"><span class="hl1" aria-hidden="true"><i>3</i><i>:</i><i>1</i><i>6</i></span><br><span class="hl2" aria-hidden="true">TEENS</span></h1>')
 rep('<p style="margin: 0; max-width: 540px; font-size: 19px; line-height: 1.5; color: #D4D4D8; width: 747px">','<p class="lead" style="margin: 0; font-size: 19px; line-height: 1.5; color: #D4D4D8">')
 rep('<div style="max-width: 1200px; margin: 0 auto; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap">','<div class="nav">')
@@ -138,7 +139,7 @@ TR={
 'УЖЕ ПРОШЛО':['ALREADY HAPPENED','ВЖЕ МИНУЛО'],'Смотреть':['View','Дивитися'],'Стенфорд':['Stanford','Стенфорд'],
 'Фото появятся здесь после пати':['Photos will show up here after the party','Фото зʼявляться тут після паті'],
 'Пока пусто':['Nothing here yet','Поки порожньо'],'Здесь появятся фото, когда добавим первое событие в этот раздел.':['Photos will appear here once we add the first event to this section.','Тут зʼявляться фото, коли додамо першу подію до цього розділу.'],
-'Галерея':['Gallery','Галерея'],'Все события':['All events','Усі події'],'Стенфорд · OCT 20':['Stanford · OCT 20','Стенфорд · OCT 20'],
+'Галерея':['Gallery','Галерея'],'Все события':['All events','Усі події'],'Стенфорд · OCT 17':['Stanford · OCT 17','Стенфорд · OCT 17'],
 'Предыдущая встреча':['Previous event','Попередня зустріч'],'Следующая встреча':['Next event','Наступна зустріч'],'Предыдущие фото':['Previous photos','Попередні фото'],'Следующие фото':['Next photos','Наступні фото'],
 'Чат 3:16 TEENS':['3:16 TEENS chat','Чат 3:16 TEENS'],'Где мы':['Find us','Де ми'],
 '3:16 TEENS · подростковое служение SOL Church':['3:16 TEENS · SOL Church youth ministry','3:16 TEENS · підліткове служіння SOL Church'],

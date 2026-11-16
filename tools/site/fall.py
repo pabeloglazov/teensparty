@@ -20,12 +20,17 @@ b=b.replace(m.group(0),'<button type="button" id="more" %s>Показать вс
 # photos anchor
 rep('<h2 style="margin: 0; font-family: Unbounded, sans-serif; font-weight: 700; font-size: clamp(30px, 4.4vw, 52px); line-height: 1; letter-spacing: -0.02em">Фото</h2>','<h2 id="photos" style="margin: 0; scroll-margin-top: 20px; font-family: Unbounded, sans-serif; font-weight: 700; font-size: clamp(30px, 4.4vw, 52px); line-height: 1; letter-spacing: -0.02em">Фото</h2>')
 assert '{{' not in b and '<img src="/fall26' not in b
+# v3: регистрация на новое событие — рождественский баннер, как на главной
+i=b.index('<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; background: #15171B; border: 1px solid #2A2D35; border-radius: 20px; padding: 20px 24px">'); j=b.index('</a>',i); j=b.index('</div>',j)+6
+b=b[:i]+'<span style="font-family: Unbounded, sans-serif; font-weight: 700; font-size: clamp(22px, 3vw, 34px); line-height: 1.1; margin-top: 24px">Хочешь на следующую?</span>\n  '+BAN.strip()+b[j:]
 # v3: порядок — фото, регистрация на новое событие, программа
 P='<div style="max-width: 1200px; margin: 0 auto; padding: 0 24px 56px; display: flex; flex-direction: column; gap: 24px">'; Q='<div style="max-width: 1200px; margin: 0 auto; padding: 0 24px 72px; display: flex; flex-direction: column; gap: 24px">'
 assert b.count(P)==1 and b.count(Q)==1
 i=b.index(P); j=b.index(Q); prog=b[i:j]; k=b.rindex('</div>')
 b=b[:i]+b[j:k]+prog.replace('padding: 0 24px 56px','padding: 0 24px 72px')+b[k:]
-css='''.pgrid{grid-template-columns:repeat(3,minmax(0,1fr))}
+css=XBAN_CSS+'''
+.xban .mbr{display:none}@media (max-width:720px){.xban .mbr{display:inline}}
+.pgrid{grid-template-columns:repeat(3,minmax(0,1fr))}
 .phgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 .phgrid button{display:block;padding:0;border:0;background:#15171B;border-radius:18px;overflow:hidden;cursor:zoom-in}
 .phgrid img{display:block;width:100%;aspect-ratio:3 / 2;object-fit:cover}
