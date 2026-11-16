@@ -888,14 +888,20 @@ const NICK_ = [['aleksei','alexei','aleksey','alexey','alex','alek','lesha','les
   ['anastasiia','anastasia','nastya','nastia'],['elena','lena','olena','helen'],['timofei','timofey','tima','tymofii','tim'],['daniil','daniel','danya','dania','danylo','dan'],
   ['mariia','maria','masha','mary'],['elizaveta','liza'],['nikolai','kolya'],['pavel','pasha','pavlo','paul'],['vasilina','vasylyna'],['iliia','ilia','ilya','illia'],['artem','artemii','tema'],
   ['yuliia','yulia','julia'],['olga','olia','olya'],['viktoriia','viktoria','vika'],['khrystyna','kristina','christina'],['mark','marko'],['kamila','camila'],['nelli','nelly']];
+const LAT_C_ = Object.create(null); // транслитерация чистая — считаем каждое слово один раз, иначе поиск дублей тормозит загрузку
 function lat_(w) {
+  const key = String(w || ''); if (key in LAT_C_) return LAT_C_[key];
+  return LAT_C_[key] = latRaw_(key);
+}
+function latRaw_(w) {
   const T = { а:'a',б:'b',в:'v',г:'g',д:'d',е:'e',ё:'e',ж:'zh',з:'z',и:'i',й:'i',к:'k',л:'l',м:'m',н:'n',о:'o',п:'p',р:'r',с:'s',т:'t',у:'u',ф:'f',х:'h',ц:'ts',ч:'ch',ш:'sh',щ:'sch',ъ:'',ы:'i',ь:'',э:'e',ю:'iu',я:'ia',і:'i',ї:'i',є:'e',ґ:'g' };
   return String(w || '').toLowerCase().split('').map(c => T[c] != null ? T[c] : c).join('')
     .replace(/kh/g, 'h').replace(/[yj]/g, 'i').replace(/x/g, 'ks').replace(/w/g, 'v').replace(/[^a-z]/g, '').replace(/(.)\1+/g, '$1');
 }
 function lev_(a, b) { const m = a.length, n = b.length; if (!m) return n; if (!n) return m; let p = Array.from({ length: n + 1 }, (_, j) => j);
   for (let i = 1; i <= m; i++) { const c = [i]; for (let j = 1; j <= n; j++) c[j] = Math.min(p[j] + 1, c[j - 1] + 1, p[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); p = c; } return p[n]; }
-function nickOf_(f) { const l = lat_(f); for (let i = 0; i < NICK_.length; i++) if (NICK_[i].map(lat_).indexOf(l) >= 0) return i; return -1; }
+let NICK_MAP_ = null;
+function nickOf_(f) { if (!NICK_MAP_) { NICK_MAP_ = Object.create(null); NICK_.forEach((g, i) => g.forEach(n => { const k = lat_(n); if (!(k in NICK_MAP_)) NICK_MAP_[k] = i; })); } const l = lat_(f); return l in NICK_MAP_ ? NICK_MAP_[l] : -1; }
 function sameFirst_(a, b) { const x = lat_(a), y = lat_(b); if (!x || !y) return false; if (x === y) return true; const n1 = nickOf_(a), n2 = nickOf_(b); if (n1 >= 0 && n1 === n2) return true;
   return lev_(x, y) <= 1 || (x.length >= 3 && y.length >= 3 && (x.indexOf(y) === 0 || y.indexOf(x) === 0)); }
 function sameLast_(a, b) { const x = lat_(a), y = lat_(b); if (!x || !y) return false; const strip = z => z.replace(/(a|aia|ova|eva|ina|aia|skaia|ska)$/, ''); return x === y || lev_(x, y) <= 2 && Math.min(x.length, y.length) >= 4 || (strip(x).length >= 4 && strip(x) === strip(y)); }
