@@ -271,6 +271,8 @@ h1 .outline{color:var(--bg);-webkit-text-stroke:2px var(--fg)}
 .tgrid b{font-weight:700;font-size:24px}
 .ticket{position:relative;background:var(--paper);border:0;border-radius:28px;box-shadow:none;transform:none;overflow:hidden;animation:none;max-width:420px}
 @media (min-width:900px){.ticket{flex:0 0 420px;width:420px}}
+/* на компьютере билет тянется до нижней линии таймера */
+@media (min-width:900px){.wrap{align-items:stretch}.ticket .part:first-child{flex:1;gap:0;justify-content:space-between}.ticket .part:first-child>*{flex:none}.ticket .part.stub{flex:none}}
 .ticket::before,.ticket::after{content:"";display:block;height:14px;flex:none;background:repeating-linear-gradient(135deg,#DC2626 0 14px,#FBF7EE 14px 28px,#1F7A46 28px 42px)}
 .ticket::after{order:99}
 .part{padding:24px 28px}
