@@ -14,7 +14,9 @@ const COLS = {
     ['ig','Instagram'],['tgId','Telegram ID'],['archived','Скрыт'],['igStatus','Instagram: статус'],['tgChat','В Telegram-чате'],['age','Возраст (со слов)'],['ageAt','Возраст указан (дата)'],['isLeader','Лидер'],['del','Удалён']],
   'Посещения': [['id','ID'],['date','Дата'],['kind','Тип'],['meetId','Встреча (ID)'],['teenId','Подросток (ID)'],['teenName','Подросток'],['by','Отметил'],['method','Способ'],['ts','Время отметки']],
   'Группы': [['id','ID'],['name','Название'],['leader','Лидер'],['day','День (0=вс)'],['time','Время'],['active','Активна'],['addr','Адрес'],['contact','Контакт лидера']],
-  'События': [['id','ID'],['name','Название'],['date','Дата'],['reg','Регистраций']],
+  'События': [['id','ID'],['name','Название'],['date','Дата'],['reg','Регистраций'],['time','Время'],['place','Место'],['desc','Описание'],['descOn','Показывать описание'],['thumb','Миниатюра'],['img','Фото'],['paid','Платно'],['price','Цена'],['incl','Что входит'],['cap','Мест'],['open','Регистрация открыта'],['askFriend','Спросить про друга'],['askBring','Спросить, что принесёт'],['by','Создал']],
+  'Регистрации': [['id','ID'],['eventId','Событие (ID)'],['teenId','Подросток (ID)'],['teenName','Подросток'],['friends','Друзей с собой'],['bring','Что принесёт'],['isNew','Новый'],['by','Позвал (ID)'],['parNew','Добавил родителя'],['ts','Когда']],
+  '_Фото': [['id','ID'],['n','Часть'],['data','Данные']],
   'Лидеры': [['id','ID'],['email','Email'],['name','Имя'],['role','Роль'],['groups','Группы (ID)'],['status','Статус'],['code','Код приглашения'],['invitedAt','Приглашён']],
   'Задания': [['id','ID'],['title','Задание'],['kind','Тип'],['due','Срок'],['pts','Баллы'],['aud','Для групп (ID)'],['createdBy','Создал'],['createdAt','Создано']],
   'Выполнения': [['taskId','Задание (ID)'],['teenId','Подросток (ID)'],['date','Дата'],['by','Засчитал'],['status','Статус']],
@@ -197,7 +199,7 @@ function doGet(e) {
 // JSON-API для приложения на GitHub Pages: POST {fn, args} -> {ok, data|error}
 function doPost(e) {
   if (e && e.parameter && e.parameter.tg) { try { tgWebhook_(e); } catch (err) { Logger.log(err); } return HtmlService.createHtmlOutput('ok'); }
-  const FNS = { requestCode, verifyCode, joinByCode, logout, api, joinInfo, joinKnown, joinNew, joinFriends, inviteInfo, inviteJoin, tgStart, tgPoll, teenApi, teenByCode };
+  const FNS = { requestCode, verifyCode, joinByCode, logout, api, joinInfo, joinKnown, joinPick, joinNew, joinFriends, evInfo, evLookup, evJoinKnown, evJoinNew, inviteInfo, inviteJoin, tgStart, tgPoll, teenApi, teenByCode };
   let r;
   try {
     const b = JSON.parse(e.postData.contents);
@@ -280,7 +282,7 @@ function logout(token) {
 // ---------------- API для админки ----------------
 const CAN = {
   mark: ['admin', 'leader', 'mod'], attNow: ['admin', 'leader', 'mod', 'viewer'], addTeen: ['admin', 'leader', 'mod'], updateTeen: ['admin', 'leader', 'mod'], reviewTeen: ['admin', 'leader', 'mod'],
-  addEvent: ['admin', 'leader'], editEvent: ['admin'], delEvent: ['admin'], saveGroup: ['admin'], saveSettings: ['admin'],
+  addEvent: ['admin', 'leader'], editEvent: ['admin', 'leader'], delEvent: ['admin'], evUnreg: ['admin', 'leader'], saveGroup: ['admin'], saveSettings: ['admin'],
   meetOff: ['admin', 'leader'], mergeTeens: ['admin'], notDup: ['admin'], contact: ['admin', 'leader', 'mod'], log: ['admin'], delTeen: ['admin'], restoreTeen: ['admin'], wipeTeen: ['admin'], trash: ['admin'],
   invite: ['admin'], updateLeader: ['admin'], removeLeader: ['admin'],
   savePlanWeek: ['admin'], delVcom: ['admin', 'leader'], teenCode: ['admin', 'leader'], groupReq: ['admin'], confirmTask: ['admin', 'leader'], addTask: ['admin', 'leader'], taskDone: ['admin', 'leader'], remind: ['admin', 'leader'], award: ['admin', 'leader'], igReview: ['admin', 'leader']
@@ -337,7 +339,7 @@ const A_ = {
       me, today: today_(), execUrl: execUrl_(), settings: st,
       teens: visTeens, dups, trashN: me.role === 'admin' ? allT.filter(inTrash_).length : 0, contacts: cts_().map(c => [c.teenId, c.date, c.by ? markerName_({ by: c.by }) : '', c.note, c.upd]), att, off: offs_().map(o => [o.date, o.kind, o.meetId, o.reason, markerName_({ by: o.by })]),
       groups: rows_('Группы').filter(g => g.active !== '0').map(g => ({ id: g.id, name: g.name, leader: g.leader, day: +g.day, time: g.time, addr: g.addr || '', contact: g.contact || '' })),
-      events: rows_('События').map(e => ({ id: e.id, name: e.name, date: e.date, reg: +e.reg || 0 })),
+      events: rows_('События').map(evOut_), regs: regs_().map(r => [r.eventId, r.teenId, +r.friends || 0, r.bring, r.isNew === '1' ? 1 : 0, r.by, r.parNew === '1' ? 1 : 0, r.ts]),
       tasks: rows_('Задания').map(t => ({ id: t.id, title: t.title, kind: t.kind, due: t.due, pts: +t.pts || 0, aud: t.aud ? t.aud.split(',').filter(Boolean) : [], createdAt: t.createdAt })),
       done: rows_('Выполнения').filter(counted_).map(d => [d.taskId, d.teenId, d.date]),
       reminders: rows_('Напоминания').map(d => [d.taskId, d.teenId]),
@@ -443,6 +445,7 @@ const A_ = {
     move('Заявки', 'teenId', r => r.groupId + '|' + r.status);
     move('Стих дня', 'teenId', r => r.kind === 'com' ? r.id : r.date + '|' + r.kind + '|' + r.text);
     move('Приглашения', 'teenId'); move('Приглашения', 'by');
+    if (ss_().getSheetByName('Регистрации')) { move('Регистрации', 'teenId', r => r.eventId); move('Регистрации', 'by'); }
     move('_ТГ', 'teenId'); move('Подростки', 'invitedBy'); move('Контакты', 'teenId', r => 'one');
     const sess = rows_('_Сессии').filter(x => x.email === 'teen:' + Dp), si = keys_('_Сессии').indexOf('email') + 1;
     sess.forEach(x => sh_('_Сессии').getRange(x._row, si, 1, 1).setValues([['teen:' + K]]));
@@ -569,22 +572,34 @@ const A_ = {
   },
   addEvent(me, p) {
     const name = String(p.name || '').trim(); if (!name) throw new Error('need_name');
-    const e = { id: uid_('E'), name, date: p.date || today_() };
-    append_('События', e); return e;
+    fixHeads_('События');
+    const e = Object.assign({ id: uid_('E'), name: name.slice(0, 80), date: /^\d{4}-\d{2}-\d{2}$/.test(p.date || '') ? p.date : today_(), by: me.email }, evClean_(p));
+    if (typeof p.img === 'string') Object.assign(e, evSaveImg_(e.id, p.img, p.thumb));
+    append_('События', e); return evOut_(e);
   },
   editEvent(me, p) {
     const e = rows_('События').find(x => x.id === p.id); if (!e) throw new Error('not_found');
     const name = String(p.name || '').trim(); if (!name) throw new Error('need_name');
     const date = /^\d{4}-\d{2}-\d{2}$/.test(p.date || '') ? p.date : e.date;
-    update_('События', e, { name, date });
+    fixHeads_('События');
+    const patch = Object.assign({ name: name.slice(0, 80), date }, evClean_(p));
+    if (typeof p.img === 'string') Object.assign(patch, evSaveImg_(e.id, p.img, p.thumb));
+    const o = update_('События', e, patch);
     if (date !== e.date) rows_('Посещения').filter(a => a.kind === 'event' && a.meetId === e.id).forEach(a => update_('Посещения', a, { date }));
-    return true;
+    return evOut_(o);
   },
   delEvent(me, p) {
     const e = rows_('События').find(x => x.id === p.id); if (!e) throw new Error('not_found');
     delete_('Посещения', rows_('Посещения').filter(a => a.kind === 'event' && a.meetId === e.id).map(a => a._row));
+    const rg = regs_().filter(r => r.eventId === e.id); if (rg.length) delete_('Регистрации', rg.map(r => r._row));
+    evSaveImg_(e.id, '', '');
     delete_('События', [e._row]);
     return true;
+  },
+  evUnreg(me, p) {
+    const rg = regs_().filter(r => r.eventId === p.eventId && r.teenId === p.teenId);
+    if (rg.length) delete_('Регистрации', rg.map(r => r._row));
+    return { gone: rg.length };
   },
 
   saveGroup(me, p) {
@@ -711,13 +726,53 @@ function checkIn_(teenId, teenName, meet, method) {
   }
   return false;
 }
-function joinKnown(phone) {
+// Отметка «я уже был»: телефон (свой или родителя) + день и месяц рождения. Имена не показываем, пока не совпало и то и другое.
+function bMD_(b) {
+  const v = String(b || '').trim(); let m;
+  if ((m = v.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/))) return [+m[2], +m[3]];
+  if ((m = v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/))) return [+m[1], +m[2]];
+  if ((m = v.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/))) return [+m[2], +m[1]];
+  return null;
+}
+function tries_(key, add) {
+  const c = CacheService.getScriptCache(), n = +(c.get(key) || 0);
+  if (add) c.put(key, String(n + 1), 3600);
+  return n;
+}
+// кандидаты по телефону и дню рождения; у кого дата рождения не записана — подходят по одному телефону
+function whoAmI_(phone, d, m, teens) {
+  const ph = digits_(phone); if (ph.length < 10) throw new Error('bad_phone');
+  if (tries_('who:' + ph) >= 8) throw new Error('too_many');
+  const byPh = teens.filter(t => t.archived !== '1' && (digits_(t.phone) === ph || digits_(t.pPhone) === ph));
+  const exact = byPh.filter(t => { const b = bMD_(t.birth); return b && b[0] === +m && b[1] === +d; });
+  const pool = exact.length ? exact : byPh.filter(t => !bMD_(t.birth));
+  if (!pool.length) tries_('who:' + ph, true);
+  return pool;
+}
+function keyFor_(teenId) { const k = uid_('K') + Math.floor(Math.random() * 1e9).toString(36); CacheService.getScriptCache().put('who:k:' + k, teenId, 1800); return k; }
+function byKey_(k) { const id = CacheService.getScriptCache().get('who:k:' + String(k || '')); if (!id) throw new Error('expired'); const t = rows_('Подростки').find(x => x.id === id && x.archived !== '1'); if (!t) throw new Error('expired'); return t; }
+function joinKnown(phone, d, m) {
   return out_(() => lock_(() => {
     const meet = currentMeeting_(); if (!meet) throw new Error('no_meeting');
-    const ph = digits_(phone); if (ph.length < 7) throw new Error('bad_phone');
-    const t = rows_('Подростки').find(x => digits_(x.phone) === ph && x.archived !== '1');
-    if (!t) return { found: false };
-    const fresh = checkIn_(t.id, (t.first + ' ' + t.last).trim(), meet, 'qr');
+    const teens = rows_('Подростки');
+    if (!d || !m) { // старая версия страницы: пускаем только однозначный случай без даты рождения в базе
+      const ph = digits_(phone); if (ph.length < 7) throw new Error('bad_phone');
+      const c = teens.filter(x => digits_(x.phone) === ph && x.archived !== '1');
+      if (c.length !== 1 || bMD_(c[0].birth)) return { found: false, needBirth: c.length > 0 };
+      const fresh0 = checkIn_(c[0].id, (c[0].first + ' ' + c[0].last).trim(), meet, 'qr');
+      return { found: true, first: c[0].first, already: !fresh0, meet };
+    }
+    const pool = whoAmI_(phone, d, m, teens);
+    if (!pool.length) return { found: false };
+    if (pool.length > 1) return { found: true, pick: pool.map(t => ({ k: keyFor_(t.id), first: t.first })) };
+    const t = pool[0], fresh = checkIn_(t.id, (t.first + ' ' + t.last).trim(), meet, 'qr');
+    return { found: true, first: t.first, already: !fresh, meet };
+  }));
+}
+function joinPick(key) {
+  return out_(() => lock_(() => {
+    const meet = currentMeeting_(); if (!meet) throw new Error('no_meeting');
+    const t = byKey_(key), fresh = checkIn_(t.id, (t.first + ' ' + t.last).trim(), meet, 'qr');
     return { found: true, first: t.first, already: !fresh, meet };
   }));
 }
@@ -725,11 +780,7 @@ function joinNew(form, confirmDupId) {
   return out_(() => lock_(() => {
     const meet = currentMeeting_(); if (!meet) throw new Error('no_meeting');
     const teens = rows_('Подростки');
-    if (confirmDupId) {
-      const t = teens.find(x => x.id === confirmDupId); if (!t) throw new Error('not_found');
-      checkIn_(t.id, (t.first + ' ' + t.last).trim(), meet, 'qr');
-      return { done: true, first: t.first, isNew: false, meet };
-    }
+    if (confirmDupId) throw new Error('use_lookup'); // «да, это я» по имени больше не отмечает: только телефон + день рождения
     const f = form || {};
     if (!String(f.first || '').trim() || !String(f.last || '').trim() || digits_(f.phone).length < 10) throw new Error('need_fields');
     if (!f.forceNew) {
@@ -919,6 +970,7 @@ function logAct_(me, act, p, res) {
     case 'groupReq': if (res && res.gone) return; d = { ok: !!p.ok }; break;
     case 'meetOff': d = { d: p.date, k: p.kind, m: p.meetId, on: p.on !== false, r: p.reason || '', clear: !!p.clear }; break;
     case 'addEvent': d = { n: res.name, d: res.date }; break;
+    case 'evUnreg': if (!res || !res.gone) return; teen = p.teenId; d = { e: p.eventId }; break;
     case 'editEvent': d = { n: p.name, d: p.date, id: p.id }; break;
     case 'delEvent': d = { id: p.id }; break;
     case 'saveGroup': d = { n: p.name, isNew: !p.id }; break;
@@ -950,6 +1002,7 @@ function wipeTeen_(t) {
   rows_('Посещения').forEach(a => { if (a.teenId === t.id && a.teenName) sh.getRange(a._row, ni, 1, 1).setValues([['']]); });
   const drop = (name, fn) => { if (!ss_().getSheetByName(name)) return; const r = rows_(name).filter(fn); if (r.length) delete_(name, r.map(x => x._row)); };
   drop('_Сессии', x => x.email === 'teen:' + t.id); drop('_Коды', x => x.email === 'teen:' + t.id); drop('_ТГ', x => x.teenId === t.id);
+  if (ss_().getSheetByName('Регистрации')) { const rs = sh_('Регистрации'), rn = keys_('Регистрации').indexOf('teenName') + 1; regs_().forEach(r => { if (r.teenId === t.id && r.teenName) rs.getRange(r._row, rn, 1, 1).setValues([['']]); }); }
   drop('Контакты', x => x.teenId === t.id); drop('Заявки', x => x.teenId === t.id); drop('Стих дня', x => x.teenId === t.id && x.kind === 'com');
 }
 function purgeTrash_() { const today = dnum_(today_()); rows_('Подростки').filter(inTrash_).forEach(t => { if (today - dnum_(t.del.split('|')[0]) >= 30) wipeTeen_(t); }); }
@@ -963,6 +1016,114 @@ function patchGroups1() {
   const g = rows_('Группы').find(x => /^tima/i.test(x.name)); if (g) update_('Группы', g, { addr: g.addr || '7457 Walnut Road', contact: g.contact || '(916) 559-5882' });
   const g2 = rows_('Группы').find(x => /^pasha/i.test(x.name)); if (g2) update_('Группы', g2, { contact: g2.contact || 't.me/pabeloglazov 2797592990', addr: g2.addr || '5357 Hidden Glen Dr' });
   Logger.log('Группы: ' + JSON.stringify(rows_('Группы').map(x => [x.name, x.addr, x.contact])));
+}
+// ---------------- события с регистрацией ----------------
+function regs_() { return ss_().getSheetByName('Регистрации') ? rows_('Регистрации') : []; }
+function fixHeads_(name) {
+  const c = CacheService.getScriptCache(); if (c.get('heads:' + name)) return;
+  const s = sh_(name), heads = COLS[name].map(x => x[1]);
+  if (s.getMaxColumns && s.getMaxColumns() < heads.length) s.insertColumnsAfter(s.getMaxColumns(), heads.length - s.getMaxColumns());
+  s.getRange(1, 1, 1, heads.length).setValues([heads]).setFontWeight('bold').setBackground('#FFE3CC');
+  s.getRange(1, 1, s.getMaxRows(), heads.length).setNumberFormat('@'); // иначе «18:00» и «15» превратятся в время и число
+  c.put('heads:' + name, '1', 21600);
+}
+function evClean_(p) {
+  const cl = (v, n) => String(v == null ? '' : v).replace(/[ \t]+/g, ' ').trim().slice(0, n), o = {};
+  if ('time' in p) o.time = /^\d{1,2}:\d{2}$/.test(p.time || '') ? p.time : '';
+  if ('place' in p) o.place = cl(p.place, 120);
+  if ('desc' in p) o.desc = String(p.desc || '').trim().slice(0, 600);
+  ['descOn', 'paid', 'open', 'askFriend', 'askBring'].forEach(k => { if (k in p) o[k] = p[k] ? '1' : ''; });
+  if ('price' in p) o.price = cl(p.price, 20);
+  if ('incl' in p) o.incl = cl(p.incl, 60);
+  if ('cap' in p) { const n = parseInt(p.cap, 10); o.cap = n > 0 ? String(Math.min(n, 9999)) : ''; }
+  return o;
+}
+function evOut_(e) {
+  return { id: e.id, name: e.name, date: e.date, reg: +e.reg || 0, time: e.time || '', place: e.place || '', desc: e.desc || '', descOn: e.descOn === '1', thumb: e.thumb || '', img: e.img === '1',
+    paid: e.paid === '1', price: e.price || '', incl: e.incl || '', cap: +e.cap || 0, open: e.open === '1', askFriend: e.askFriend === '1', askBring: e.askBring === '1' };
+}
+// фото события режем на части по 40 000 знаков: в ячейку больше не помещается
+function evSaveImg_(id, img, thumb) {
+  const sh = ensure_('_Фото'); try { if (!sh.isSheetHidden()) sh.hideSheet(); } catch (e) {}
+  const old = rows_('_Фото').filter(r => r.id === id); if (old.length) delete_('_Фото', old.map(r => r._row));
+  if (!img) return { img: '', thumb: '' };
+  if (!/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+\/=]+$/.test(img) || img.length > 400000) throw new Error('bad_image');
+  const parts = []; for (let i = 0; i < img.length; i += 40000) parts.push({ id, n: String(parts.length), data: img.slice(i, i + 40000) });
+  appendMany_('_Фото', parts);
+  return { img: '1', thumb: /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+\/=]+$/.test(thumb || '') && thumb.length <= 12000 ? thumb : '' };
+}
+function evImg_(id) { return ss_().getSheetByName('_Фото') ? rows_('_Фото').filter(r => r.id === id).sort((a, b) => a.n - b.n).map(r => r.data).join('') : ''; }
+function evGoing_(eid, rg) { return (rg || regs_()).filter(r => r.eventId === eid).reduce((a, r) => a + 1 + (+r.friends || 0), 0); }
+function evGet_(eid) { const e = rows_('События').find(x => x.id === String(eid || '')); if (!e) throw new Error('no_event'); return e; }
+function evInfo(eid, by) {
+  return out_(() => {
+    const e = evGet_(eid), o = evOut_(e), going = evGoing_(e.id);
+    delete o.thumb; delete o.reg;
+    o.img = e.img === '1' ? evImg_(e.id) : '';
+    o.going = going; o.full = !!o.cap && going >= o.cap; o.past = e.date < today_();
+    if (by) { const t = rows_('Подростки').find(x => x.id === by && x.archived !== '1'); if (t) o.inviter = (t.first + ' ' + String(t.last || '').charAt(0) + '.').trim(); }
+    return o;
+  });
+}
+function evOpen_(eid) { const e = evGet_(eid); if (e.open !== '1' || e.date < today_()) throw new Error('closed'); return e; }
+function evLookup(eid, phone, d, m) {
+  return out_(() => {
+    const e = evOpen_(eid), rg = regs_().filter(r => r.eventId === e.id);
+    if (!(+d >= 1 && +d <= 31 && +m >= 1 && +m <= 12)) throw new Error('need_birth');
+    const pool = whoAmI_(phone, d, m, rows_('Подростки'));
+    if (!pool.length) return { found: false };
+    return { found: true, cands: pool.map(t => ({ k: keyFor_(t.id), first: t.first, needPar: !(String(t.pFirst || '').trim() && digits_(t.pPhone).length >= 10), already: rg.some(r => r.teenId === t.id) })) };
+  });
+}
+function evAns_(e, f) { const n = parseInt(f && f.friends, 10); return { friends: e.askFriend === '1' && n >= 1 && n <= 3 ? String(n) : '', bring: e.askBring === '1' ? String((f && f.bring) || '').replace(/\s+/g, ' ').trim().slice(0, 80) : '' }; }
+function evPut_(e, t, f, extra) {
+  ensure_('Регистрации');
+  const all = regs_(), mine = all.find(r => r.eventId === e.id && r.teenId === t.id), ans = evAns_(e, f);
+  if (!mine && +e.cap > 0 && evGoing_(e.id, all) >= +e.cap) throw new Error('full');
+  if (mine) update_('Регистрации', mine, Object.assign(ans, extra && extra.parNew ? { parNew: '1' } : {}));
+  else append_('Регистрации', Object.assign({ id: uid_('R'), eventId: e.id, teenId: t.id, teenName: (t.first + ' ' + t.last).trim(), ts: nowIso_() }, ans, extra || {}));
+  try { ensure_('Журнал'); append_('Журнал', { ts: String(Date.now()), by: 'self', act: 'evReg', teenId: t.id, data: JSON.stringify({ n: e.name, d: e.date, id: e.id, isNew: !!(extra && extra.isNew), again: !!mine }) }); } catch (err) {}
+  return { ok: true, id: t.id, first: t.first, again: !!mine, name: e.name, date: e.date, time: e.time || '', place: e.place || '' };
+}
+function parent_(f) {
+  const cl = v => String(v || '').replace(/\s+/g, ' ').trim().slice(0, 60);
+  const o = { pFirst: cl(f.pFirst), pLast: cl(f.pLast), pPhone: cl(f.pPhone) };
+  if (!o.pFirst || !o.pLast || digits_(o.pPhone).length < 10) throw new Error('need_parent');
+  return o;
+}
+function evJoinKnown(eid, key, f) {
+  return out_(() => lock_(() => {
+    const e = evOpen_(eid); let t = byKey_(key); f = f || {};
+    if (!f.consent) throw new Error('need_consent');
+    let parNew = false;
+    if (!(String(t.pFirst || '').trim() && digits_(t.pPhone).length >= 10)) { t = update_('Подростки', t, parent_(f)); parNew = true; }
+    return evPut_(e, t, f, parNew ? { parNew: '1' } : null);
+  }));
+}
+function evJoinNew(eid, f, by) {
+  return out_(() => lock_(() => {
+    const e = evOpen_(eid); f = f || {};
+    const cl = v => String(v || '').replace(/\s+/g, ' ').trim().slice(0, 60);
+    const first = cl(f.first), last = cl(f.last), age = parseInt(f.age, 10);
+    if (!first || !last) throw new Error('need_name');
+    if (!(age >= 8 && age <= 20)) throw new Error('need_age');
+    const par = parent_(f);
+    const phone = f.noPhone ? par.pPhone : cl(f.phone);
+    if (digits_(phone).length < 10) throw new Error('need_phone');
+    if (!f.consent) throw new Error('need_consent');
+    const teens = rows_('Подростки'), ph = digits_(phone), low = x => String(x || '').trim().toLowerCase();
+    if (regs_().filter(r => r.eventId === e.id && r.isNew === '1' && String(r.ts).slice(0, 10) === today_()).length >= 80) throw new Error('too_many');
+    // тот же человек записывается второй раз (то же имя и тот же телефон) — второй карточки не создаём
+    const same = teens.find(t => t.archived !== '1' && low(t.first) === low(first) && low(t.last) === low(last) && digits_(t.phone) === ph);
+    if (same) return evPut_(e, same, f, null);
+    const o = Object.assign({ id: uid_('T'), first, last, phone, age: String(age), ageAt: today_(), groups: '', createdAt: today_(), source: 'event', review: '1', archived: '', invitedBy: '' }, par);
+    const inviter = by ? teens.find(x => x.id === by && x.archived !== '1') : null;
+    if (inviter && !knownPerson_(o, teens)) o.invitedBy = inviter.id;
+    const res = evPut_(e, o, f, { isNew: '1', by: inviter ? inviter.id : '' });
+    append_('Подростки', o);
+    res.isNew = true; if (inviter) res.inviter = inviter.first;
+    return res;
+  }));
 }
 function inviteInfo(by) {
   return out_(() => { const t = rows_('Подростки').find(x => x.id === by && x.archived !== '1'); if (!t) throw new Error('bad_invite'); return { first: t.first, when: nextMeet_() }; });
