@@ -370,7 +370,8 @@ function teenApi(token, action, p) {
   return out_(() => {
     const t = teenAuth_(token);
     const fn = TA_[action]; if (!fn) throw new Error('unknown_action');
-    return action === 'me' ? fn(t, p || {}) : lock_(() => fn(t, p || {}));
+    if (action === 'me') { READS_ONCE_ = true; return fn(t, p || {}); }
+    return lock_(() => fn(t, p || {}));
   });
 }
 // что подростку осталось заполнить в профиле

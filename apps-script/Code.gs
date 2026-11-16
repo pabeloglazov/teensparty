@@ -38,18 +38,28 @@ const COLS = {
 const DEFAULT_SETTINGS = { win: '8', reg: '6', gone: '3', serviceTime: '15:00', wedTime: '18:00', friTime: '19:00', before: '60', after: '240', qrAlways: '0' };
 
 // ---------------- доступ к таблице ----------------
+// Таблицу и каждый лист читаем один раз за запрос: чтение листа — самая медленная операция Apps Script.
+let SS_C_ = null, SS_ID_C_ = null, READS_ONCE_ = false; // READS_ONCE_ включаем только в запросах на чтение (загрузка данных)
+const ROWS_C_ = {};
 function ss_() {
   const id = PropertiesService.getScriptProperties().getProperty('SS_ID');
-  return id ? SpreadsheetApp.openById(id) : SpreadsheetApp.getActiveSpreadsheet();
+  if (SS_C_ && SS_ID_C_ === id) return SS_C_;
+  SS_ID_C_ = id; Object.keys(ROWS_C_).forEach(k => delete ROWS_C_[k]);
+  return SS_C_ = id ? SpreadsheetApp.openById(id) : SpreadsheetApp.getActiveSpreadsheet();
 }
-function sh_(name) { return ss_().getSheetByName(name); }
+// прямой доступ к листу почти всегда означает запись — сбрасываем прочитанное
+function sh_(name) { delete ROWS_C_[name]; return ss_().getSheetByName(name); }
 function keys_(name) { return COLS[name].map(c => c[0]); }
 function rows_(name) {
-  const s = sh_(name); const last = s.getLastRow();
-  if (last < 2) return [];
-  const keys = keys_(name);
-  const v = s.getRange(2, 1, last - 1, keys.length).getDisplayValues();
-  return v.map((r, i) => { const o = { _row: i + 2 }; keys.forEach((k, j) => o[k] = r[j]); return o; });
+  const ss = ss_(); let c = READS_ONCE_ ? ROWS_C_[name] : null;
+  if (!c) {
+    const s = ss.getSheetByName(name), last = s.getLastRow(), keys = keys_(name);
+    const v = last < 2 ? [] : s.getRange(2, 1, last - 1, keys.length).getDisplayValues();
+    c = v.map((r, i) => { const o = { _row: i + 2 }; keys.forEach((k, j) => o[k] = r[j]); return o; });
+    if (!READS_ONCE_) return c;
+    ROWS_C_[name] = c;
+  }
+  return c.map(o => Object.assign({}, o)); // копии: вызывающий код может менять строки
 }
 function toRow_(name, obj) { return keys_(name).map(k => obj[k] == null ? '' : String(obj[k])); }
 function append_(name, obj) { sh_(name).appendRow(toRow_(name, obj)); }
@@ -211,8 +221,11 @@ function doPost(e) {
 
 // ---------------- вход лидеров ----------------
 function out_(fn) {
+  const clean = () => { READS_ONCE_ = false; Object.keys(ROWS_C_).forEach(k => delete ROWS_C_[k]); }; // прочитанное живёт только внутри одного запроса
+  clean();
   try { return JSON.stringify({ ok: true, data: fn() }); }
   catch (e) { return JSON.stringify({ ok: false, error: String(e && e.message || e) }); }
+  finally { clean(); }
 }
 function leaderByEmail_(email) {
   email = String(email || '').trim().toLowerCase();
@@ -292,7 +305,7 @@ function api(token, action, payload) {
     const me = auth_(token);
     if (action !== 'bootstrap' && (!CAN[action] || CAN[action].indexOf(me.role) < 0)) throw new Error('forbidden');
     const fn = A_[action]; if (!fn) throw new Error('unknown_action');
-    if (action === 'bootstrap') return fn(asMe_(me, payload || {}), payload || {});
+    if (action === 'bootstrap') { READS_ONCE_ = true; return fn(asMe_(me, payload || {}), payload || {}); }
     return lock_(() => { const res = fn(me, payload || {}); try { logAct_(me, action, payload || {}, res); } catch (e) {} return res; });
   });
 }
@@ -715,7 +728,7 @@ function currentMeeting_() {
   if (st.qrAlways === '1') { const t = SV.find(x => x.day === day) || SV[0]; if (!t || isOff('service', t.id)) return null; return { kind: 'service', meetId: t.id, label: t.name, date: today, test: true }; }
   return null;
 }
-function joinInfo() { return out_(() => ({ meet: currentMeeting_() })); }
+function joinInfo() { return out_(() => { READS_ONCE_ = true; return { meet: currentMeeting_() }; }); }
 
 function checkIn_(teenId, teenName, meet, method) {
   if (offs_().some(o => o.date === meet.date && o.kind === meet.kind && o.meetId === meet.meetId)) throw new Error('no_meeting');
@@ -927,7 +940,7 @@ function matchTeen_(first, last, phone, pool) {
 
 // ---------------- приглашения друзей ----------------
 function ensure_(name) {
-  const ss = ss_(); let sh = ss.getSheetByName(name);
+  delete ROWS_C_[name]; const ss = ss_(); let sh = ss.getSheetByName(name);
   if (!sh) { sh = ss.insertSheet(name); const heads = COLS[name].map(c => c[1]); sh.getRange(1, 1, 1, heads.length).setValues([heads]).setFontWeight('bold').setBackground('#FFE3CC'); sh.setFrozenRows(1); sh.getRange(1, 1, sh.getMaxRows(), heads.length).setNumberFormat('@'); }
   return sh;
 }
@@ -1063,7 +1076,7 @@ function evGoing_(eid, rg) { return (rg || regs_()).filter(r => r.eventId === ei
 function evGet_(eid) { const e = rows_('События').find(x => x.id === String(eid || '')); if (!e) throw new Error('no_event'); return e; }
 function evInfo(eid, by) {
   return out_(() => {
-    const e = evGet_(eid), o = evOut_(e), going = evGoing_(e.id);
+    READS_ONCE_ = true; const e = evGet_(eid), o = evOut_(e), going = evGoing_(e.id);
     delete o.thumb; delete o.reg;
     o.img = e.img === '1' ? evImg_(e.id) : '';
     o.going = going; o.full = !!o.cap && going >= o.cap; o.past = e.date < today_();
