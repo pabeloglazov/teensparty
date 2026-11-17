@@ -30,6 +30,7 @@ const COLS = {
   'Заявки': [['id','ID'],['teenId','Подросток (ID)'],['groupId','Группа (ID)'],['date','Дата'],['status','Статус'],['by','Решил']],
   'Стих дня': [['id','ID'],['date','Дата'],['teenId','Подросток (ID)'],['kind','Тип'],['text','Текст'],['ts','Когда']],
   'Приглашения': [['id','ID'],['by','Пригласил (ID)'],['first','Имя'],['last','Фамилия'],['phone','Телефон'],['date','Дата'],['status','Статус'],['teenId','Подросток (ID)']],
+  'Шары': [['id','ID'],['eventId','Событие (ID)'],['teenId','Подросток (ID)'],['name','Имя на шаре'],['wish','Пожелание'],['color','Цвет'],['photo','Фото'],['status','Статус'],['ts','Когда'],['by','Кто проверил']],
   '_Сессии': [['token','Токен'],['email','Email'],['expires','Истекает']],
   '_ТГ': [['nonce','Код входа'],['chatId','Telegram чат'],['teenId','Подросток (ID)'],['status','Статус'],['created','Создан']],
   '_Коды': [['email','Email'],['code','Код'],['expires','Истекает']]
@@ -209,7 +210,7 @@ function doGet(e) {
 // JSON-API для приложения на GitHub Pages: POST {fn, args} -> {ok, data|error}
 function doPost(e) {
   if (e && e.parameter && e.parameter.tg) { try { tgWebhook_(e); } catch (err) { Logger.log(err); } return HtmlService.createHtmlOutput('ok'); }
-  const FNS = { requestCode, verifyCode, joinByCode, logout, api, joinInfo, joinKnown, joinPick, joinNew, joinFriends, evInfo, evLookup, evJoinKnown, evJoinNew, evJoinSite, evTicket, inviteInfo, inviteJoin, tgStart, tgPoll, teenApi, teenByCode };
+  const FNS = { requestCode, verifyCode, joinByCode, logout, api, joinInfo, joinKnown, joinPick, joinNew, joinFriends, evInfo, evLookup, evJoinKnown, evJoinNew, evJoinSite, evTicket, balls, ballPut, ballsAdmin, ballMod, inviteInfo, inviteJoin, tgStart, tgPoll, teenApi, teenByCode };
   let r;
   try {
     const b = JSON.parse(e.postData.contents);
@@ -1095,6 +1096,47 @@ function evLookup(eid, phone, d, m) {
     return { found: true, cands: pool.map(t => { const c = { k: keyFor_(t.id), first: t.first, lead: t.isLeader === '1', needPar: t.isLeader !== '1' && !(String(t.pFirst || '').trim() && digits_(t.pPhone).length >= 10), already: rg.some(r => r.teenId === t.id) }; const mine = rg.find(r => r.teenId === t.id); if (mine) { c.friends = +mine.friends || 0; c.bring = mine.bring || ''; } return c; }) };
   });
 }
+// ---------------- ёлка: шар участника события (фото или пожелание) ----------------
+// Ключ шара выдаётся вместе с билетом (запись с сайта или «Уже есть билет?») — по нему человек вешает и меняет только свой шар.
+// Шар виден всем только после одобрения лидером (status = ok); до этого его видит только автор.
+function ballSecret_() { const p = PropertiesService.getScriptProperties(); let s = p.getProperty('BALL_SECRET'); if (!s) { s = Utilities.getUuid() + Utilities.getUuid(); p.setProperty('BALL_SECRET', s); } return s; }
+function ballKey_(teenId, eid) { return teenId + '.' + Utilities.computeHmacSha256Signature(teenId + '|' + eid, ballSecret_()).slice(0, 9).map(b => ('0' + (b & 255).toString(16)).slice(-2)).join(''); }
+function ballWho_(eid, bk) { const id = String(bk || '').split('.')[0]; if (!id || ballKey_(id, eid) !== String(bk)) throw new Error('bad_key'); return id; }
+function balls_() { return ss_().getSheetByName('Шары') ? rows_('Шары') : []; }
+function ballView_(b, i) { return { i: i, n: b.name, w: b.wish, c: b.color, p: b.photo }; }
+function balls(eid, bk) {
+  return out_(() => {
+    READS_ONCE_ = true; const e = evGet_(eid); let me = ''; try { if (bk) me = ballWho_(e.id, bk); } catch (x) {}
+    const out = []; let mine = null;
+    balls_().filter(b => b.eventId === e.id).forEach((b, i) => { if (b.status === 'ok') out.push(ballView_(b, i)); if (me && b.teenId === me) { mine = ballView_(b, i); mine.status = b.status; } });
+    return { balls: out, mine: mine };
+  });
+}
+function ballPut(eid, bk, d) {
+  return out_(() => lock_(() => {
+    const e = evGet_(eid), id = ballWho_(e.id, bk); d = d || {};
+    if (!regs_().some(r => r.eventId === e.id && r.teenId === id)) throw new Error('no_ticket');
+    const cl = (v, n) => String(v || '').replace(/\s+/g, ' ').trim().slice(0, n);
+    const name = cl(d.name, 20), wish = cl(d.wish, 90), color = ['red', 'gold', 'white', 'blue', 'green'].indexOf(d.color) >= 0 ? d.color : 'red', photo = String(d.photo || '');
+    if (photo && (photo.indexOf('data:image/jpeg;base64,') !== 0 || photo.length > 24000)) throw new Error('bad_photo');
+    if (!name) throw new Error('need_name');
+    if (!photo && !wish) throw new Error('need_wish');
+    ensure_('Шары'); const all = rows_('Шары').filter(b => b.eventId === e.id), cur = all.find(b => b.teenId === id);
+    const patch = { name: name, wish: wish, color: color, photo: photo, status: 'wait', ts: String(Date.now()), by: '' };
+    if (cur) update_('Шары', cur, patch); else append_('Шары', Object.assign({ id: uid_('B'), eventId: e.id, teenId: id }, patch));
+    return { ok: true, mine: { i: cur ? all.indexOf(cur) : all.length, n: name, w: wish, c: color, p: photo, status: 'wait' } };
+  }));
+}
+function ballsAdmin(token, eid) {
+  return out_(() => { auth_(token); const e = evGet_(eid); return balls_().filter(b => b.eventId === e.id).map((b, i) => ({ id: b.id, i: i, n: b.name, w: b.wish, c: b.color, p: b.photo, status: b.status, ts: b.ts })); });
+}
+function ballMod(token, id, status) {
+  return out_(() => lock_(() => {
+    const me = auth_(token); if (['ok', 'no', 'wait'].indexOf(status) < 0) throw new Error('bad_status');
+    const b = balls_().find(x => x.id === id); if (!b) throw new Error('not_found');
+    update_('Шары', b, { status: status, by: me.email }); return true;
+  }));
+}
 // Найти свой билет на сайте: телефон (свой или родителя) + имя. Отдаём только имя, номер записи и число друзей.
 function evTicket(eid, phone, name) {
   return out_(() => {
@@ -1105,7 +1147,7 @@ function evTicket(eid, phone, name) {
     const same = (a, b) => { const x = lat_(a), y = lat_(b); if (!x || !y) return false; if (x === y) return true; const n = nickOf_(a); return n >= 0 && n === nickOf_(b); };
     const rg = regs_().filter(r => r.eventId === e.id), byId = {}; rows_('Подростки').forEach(t => { byId[t.id] = t; });
     const out = [];
-    rg.forEach((r, i) => { const t = byId[r.teenId]; if (t && (digits_(t.phone) === ph || digits_(t.pPhone) === ph) && same(nm, t.first)) out.push({ first: t.first, no: i + 1, friends: +r.friends || 0 }); });
+    rg.forEach((r, i) => { const t = byId[r.teenId]; if (t && (digits_(t.phone) === ph || digits_(t.pPhone) === ph) && same(nm, t.first)) out.push({ first: t.first, no: i + 1, friends: +r.friends || 0, bk: ballKey_(t.id, e.id) }); });
     if (!out.length) { tries_('tk:' + ph, true); return { found: false }; }
     return { found: true, tickets: out };
   });
@@ -1201,7 +1243,7 @@ function evJoinSite(eid, f) {
       append_('Подростки', o);
       res.isNew = true;
     }
-    res.first = first; delete res.id; // наружу — только то, что человек ввёл сам
+    res.first = first; res.bk = ballKey_(res.id, e.id); delete res.id; // наружу — только то, что человек ввёл сам, и ключ его шара
     return res;
   }));
 }
