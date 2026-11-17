@@ -412,6 +412,7 @@ dialog{border:0;border-radius:24px;box-shadow:0 30px 80px rgba(0,0,0,.5);overflo
 .glb.big{width:132px;font-size:48px;align-self:center;box-shadow:inset -9px -11px 0 rgba(0,0,0,.14)}
 .gle{position:absolute;width:12px;height:16px;margin:2px 0 0 -6px;border-radius:50% 50% 50% 50% / 40% 40% 60% 60%;opacity:.5}
 .gle.c0{background:#EF4444}.gle.c1{background:#F5C542}.gle.c2{background:#4ADE80}.gle.c3{background:#60A5FA}
+#gv .q-close,#gf .q-close{background:#EF4444;color:#fff;border-radius:12px;transition:filter .15s}#gv .q-close:hover,#gf .q-close:hover{filter:brightness(1.1)}
 #gvBody,#gfBody{padding:20px;display:flex;flex-direction:column;gap:14px}
 .glk{font-weight:700;font-size:11px;letter-spacing:.12em;color:#52525B;text-align:center}
 #gfBody .glk{text-align:left}
@@ -568,13 +569,13 @@ ONLY</span></div>
 </dialog>
 
 <dialog id="gv" class="glv" aria-label="Ornament">
-  <div class="q-top"><span class="q-count">✳</span><button type="button" class="q-close" id="gvClose" aria-label="Close"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"></path></svg></button></div>
+  <div class="q-top"><span></span><button type="button" class="q-close" id="gvClose" aria-label="Close"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"></path></svg></button></div>
   <div id="gvBody"></div>
 </dialog>
 
 <input type="file" id="glFile" accept="image/*" hidden>
 <dialog id="gf" aria-label="My ornament">
-  <div class="q-top"><span class="q-count">✳</span><button type="button" class="q-close" id="gfClose" aria-label="Close"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"></path></svg></button></div>
+  <div class="q-top"><span></span><button type="button" class="q-close" id="gfClose" aria-label="Close"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"></path></svg></button></div>
   <div id="gfBody"></div>
 </dialog>
 
@@ -1366,6 +1367,7 @@ ONLY</span></div>
     document.getElementById('glBtn').addEventListener('click', open);
     VB.addEventListener('click', function(e){ if(e.target.closest('[data-a="edit"]')) open(); });
     document.getElementById('gvClose').addEventListener('click', function(){ V.close(); });
+    V.addEventListener('click', function(e){ if(e.target !== V) return; var r = V.getBoundingClientRect(); if(e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) V.close(); });
     document.getElementById('gfClose').addEventListener('click', function(){ picking = 0; F.close(); });
     FB.addEventListener('input', function(e){ if(e.target.id === 'gl_n'){ st.f.name = e.target.value; var p = FB.querySelector('.glprev .glb'); if(p && !(st.f.kind === 'photo' && st.f.photo)) p.textContent = String(st.f.name || '?').charAt(0).toUpperCase(); } if(e.target.id === 'gl_w') st.f.wish = e.target.value; draft(true); });
     /* Выбор фото. Поле файла стоит вне окна формы: на части телефонов системное окно выбора закрывало форму или перезагружало страницу.
