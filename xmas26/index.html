@@ -382,6 +382,45 @@ dialog{border:0;border-radius:24px;box-shadow:0 30px 80px rgba(0,0,0,.5);overflo
 .tbf .ghost:hover{background:#14532D;color:#FBF7EE}
 #rg .q-nav .ghost:disabled,#rg .q-nav .btn:disabled{opacity:.6;cursor:default}
 
+/* ===== гирлянда ===== */
+.garland{position:relative;z-index:1;width:100%;max-width:1200px;margin:0 auto;padding:8px 24px 64px;display:flex;flex-direction:column;gap:26px}
+.glhead{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:20px 40px}
+.gltxt{flex:1 1 420px;min-width:0;display:flex;flex-direction:column;gap:10px}
+.garland h2{margin:0;font-family:var(--display);font-weight:700;font-size:clamp(30px,4.4vw,52px);line-height:1;letter-spacing:-.02em}
+.gltxt p{margin:0;max-width:52ch;color:var(--muted);font-size:17px;line-height:1.5}
+.glact{flex:0 1 320px;min-width:0;display:flex;flex-direction:column;gap:10px}
+.glact .btn{width:100%}
+.glcnt{font-family:var(--display);font-weight:700;font-size:15px;color:#F5C542}
+.glst{font-size:13px;color:var(--muted)}
+.glrows{display:flex;flex-direction:column;gap:6px;padding:0 4px}
+.glrow{position:relative;height:118px}
+.glrow svg{position:absolute;left:0;top:0;width:100%;height:60px;overflow:visible}
+.glh{position:absolute;transform:translateX(-50%);padding:14px 0 0;border:0;background:transparent;cursor:pointer;transform-origin:50% 0;transition:transform .2s ease}
+.glh::before{content:"";position:absolute;left:50%;top:0;width:2px;height:10px;margin-left:-1px;background:#C9B26B}
+.glh::after{content:"";position:absolute;left:50%;top:9px;width:14px;height:8px;margin-left:-7px;border-radius:3px 3px 0 0;background:#C9B26B}
+.glh:hover{transform:translateX(-50%) rotate(-5deg)}
+.glh:focus-visible{outline:3px solid #F4F4F5;outline-offset:4px;border-radius:12px}
+.glh.pend .glb{opacity:.55;outline:2px dashed #F4F4F5;outline-offset:3px}
+.glb{display:flex;align-items:center;justify-content:center;width:clamp(48px,6.4vw,64px);aspect-ratio:1;border-radius:50%;background-size:cover;background-position:center;color:#0E0F12;font-family:var(--display);font-weight:700;font-size:clamp(17px,2.2vw,22px);box-shadow:inset -5px -6px 0 rgba(0,0,0,.16),0 0 18px rgba(245,197,66,.28),0 6px 12px rgba(0,0,0,.35)}
+.glb.c-red{background-color:#EF4444}.glb.c-gold{background-color:#F5C542}.glb.c-white{background-color:#FBF7EE}.glb.c-blue{background-color:#60A5FA}.glb.c-green{background-color:#4ADE80}
+.glb.big{width:132px;font-size:48px;align-self:center;box-shadow:inset -9px -11px 0 rgba(0,0,0,.14)}
+.gle{position:absolute;width:12px;height:16px;margin:2px 0 0 -6px;border-radius:50% 50% 50% 50% / 40% 40% 60% 60%;opacity:.5}
+.gle.c0{background:#EF4444}.gle.c1{background:#F5C542}.gle.c2{background:#4ADE80}.gle.c3{background:#60A5FA}
+#gvBody,#gfBody{padding:20px;display:flex;flex-direction:column;gap:14px}
+.glk{font-weight:700;font-size:11px;letter-spacing:.12em;color:#52525B;text-align:center}
+#gfBody .glk{text-align:left}
+.glw{margin:0;font-size:18px;line-height:1.45;text-align:center;color:#0E0F12}
+.glprev{display:flex;justify-content:center}
+#gfBody textarea{width:100%;padding:12px 14px;border:3px solid #0E0F12;border-radius:14px;background:#fff;color:#0E0F12;font:500 17px var(--body);resize:none}
+#gfBody .step input{font-size:18px}
+.gldrop{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:84px;padding:12px;border:2px dashed #0E0F12;border-radius:14px;background:#fff;color:#0E0F12;cursor:pointer;text-align:center;font-size:15px}
+.gldrop small{color:#52525B}
+.glcol{display:flex;gap:10px;margin-top:8px}
+.glcol button{width:44px;height:44px;border-radius:50%;border:3px solid transparent;cursor:pointer;box-shadow:inset -4px -5px 0 rgba(0,0,0,.15)}
+.glcol button.on{border-color:#0E0F12}
+@media (max-width:640px){.glrow{height:104px}.glact{flex-basis:100%}}
+@media (prefers-reduced-motion:reduce){.glh{transition:none}}
+
 @media (prefers-reduced-motion:reduce){*{animation:none!important}}
 </style>
 
@@ -463,6 +502,13 @@ ONLY</span></div>
   </div>
 
   <div class="lb" id="lb" aria-hidden="true"><img id="lbImg" alt=""><button type="button" class="x" id="lbX" aria-label="Close">×</button><button type="button" class="pv" id="lbP" aria-label="Previous">‹</button><button type="button" class="nx" id="lbN" aria-label="Next">›</button><div class="cnt" id="lbC"></div></div>
+  <section class="garland" id="garland" aria-labelledby="glH">
+    <div class="glhead">
+      <div class="gltxt"><h2 id="glH">НАША ГИРЛЯНДА</h2><p id="glLead"></p></div>
+      <div class="glact"><span class="glcnt" id="glCnt"></span><button type="button" class="btn" id="glBtn"></button><span class="glst" id="glSt" hidden></span></div>
+    </div>
+    <div class="glrows" id="glRows"></div>
+  </section>
   <section class="soon">
     <span class="gk" data-i="soonK">DEC 19 · 6:00 PM</span>
     <h2 data-i="soonH">EVERYTHING ELSE — SOON</h2>
@@ -512,6 +558,16 @@ ONLY</span></div>
     <p class="err" id="cerr" role="alert" hidden></p>
     <button type="submit" class="btn" id="cfind" data-i="find">SHOW MY TICKET</button>
   </form>
+</dialog>
+
+<dialog id="gv" class="glv" aria-label="Ornament">
+  <div class="q-top"><span class="q-count">✳</span><button type="button" class="q-close" id="gvClose" aria-label="Close"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"></path></svg></button></div>
+  <div id="gvBody"></div>
+</dialog>
+
+<dialog id="gf" aria-label="My ornament">
+  <div class="q-top"><span class="q-count">✳</span><button type="button" class="q-close" id="gfClose" aria-label="Close"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"></path></svg></button></div>
+  <div id="gfBody"></div>
 </dialog>
 
 <dialog id="rg" aria-labelledby="rgCount">
@@ -682,7 +738,7 @@ ONLY</span></div>
         if(arg === undefined) r[fn](); else r[fn](arg);
       } else if(useApi){
         var req = fn === 'getStats'
-          ? fetch(CHECKIN, {method:'POST', body:JSON.stringify({fn:'evInfo', args:[EVENT_ID]})}).then(function(x){ if(!x.ok) throw new Error('HTTP ' + x.status); return x.json(); }).then(function(j){ if(!j.ok) throw new Error(j.error); var d = j.data, cap = d.cap || CAPACITY, tk = Math.min(cap, d.going || 0); regOpen = !!d.open && !d.past; return {ok:true, json:function(){ return {capacity:cap, taken:tk, left:cap - tk}; }}; })
+          ? fetch(CHECKIN, {method:'POST', body:JSON.stringify({fn:'evInfo', args:[EVENT_ID]})}).then(function(x){ if(!x.ok) throw new Error('HTTP ' + x.status); return x.json(); }).then(function(j){ if(!j.ok) throw new Error(j.error); var d = j.data, cap = d.cap || CAPACITY, tk = Math.min(cap, d.going || 0); regOpen = !!d.open && !d.past; try{ GL.cap(cap); }catch(e){} return {ok:true, json:function(){ return {capacity:cap, taken:tk, left:cap - tk}; }}; })
           : fetch(API, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(fn === 'myTicket' ? {action:'myticket', phone:arg.phone} : arg)});
         req.then(function(x){ if(!x.ok) throw new Error('HTTP ' + x.status); return x.json(); }).then(res, rej);
       } else {
@@ -1112,7 +1168,7 @@ ONLY</span></div>
       if(S.done){ var n = +S.f.friends || 0, nm = esc(split(S.f.name)[0]);
         document.getElementById('rgCount').textContent = '✓'; document.getElementById('rgBar').style.width = '100%';
         B.innerHTML = '<div class="rgok">✓</div><h2 class="rgh">' + x('ok').replace('{n}', nm) + '</h2><div class="rgsum"><b>TEENS PARTY Christmas</b><span>' + x('when') + '</span><a href="https://maps.google.com/?q=5948+Pecan+Ave,+Orangevale,+CA+95662" target="_blank" rel="noopener">5948 Pecan Ave, Orangevale, CA 95662</a>' + (n ? '<span>' + x('fr') + '<b>+' + n + '</b></span>' : '') + '</div><p class="hint" style="text-align:center">' + x('door') + '</p>' +
-          '<a class="rgrow" href="' + CAL + '" target="_blank" rel="noopener"><span>' + x('cal') + '<small>' + x('cals') + '</small></span><span>›</span></a><a class="rgrow" href="' + TGURL + '" target="_blank" rel="noopener"><span>' + x('tg') + '<small>' + x('tgs') + '</small></span><span>›</span></a><button type="button" class="rgrow" data-a="again"><span>' + x('more') + '<small>' + x('mores') + '</small></span><span>›</span></button>';
+          '<button type="button" class="rgrow" data-a="ball"><span>' + GL.t('row') + '<small>' + GL.t('rows') + '</small></span><span>›</span></button><a class="rgrow" href="' + CAL + '" target="_blank" rel="noopener"><span>' + x('cal') + '<small>' + x('cals') + '</small></span><span>›</span></a><a class="rgrow" href="' + TGURL + '" target="_blank" rel="noopener"><span>' + x('tg') + '<small>' + x('tgs') + '</small></span><span>›</span></a><button type="button" class="rgrow" data-a="again"><span>' + x('more') + '<small>' + x('mores') + '</small></span><span>›</span></button>';
         return; }
       var d0 = L[lang] || L.en;
       if(S.find){ document.getElementById('rgCount').textContent = d0.fT; document.getElementById('rgBar').style.width = '100%';
@@ -1135,7 +1191,7 @@ ONLY</span></div>
       fetch(CHECKIN, {method:'POST', body:JSON.stringify({fn:'evJoinSite', args:[EVENT_ID, {first:nm[0], last:nm[1], age:f.age, phone:f.noPhone ? '' : f.phone, noPhone:!!f.noPhone, pFirst:pn[0], pLast:pn[1], pPhone:f.pphone, consent:true, friends:f.friends || 0, bring:''}]})})
         .then(function(r){ return r.json(); })
         .then(function(j){ S.busy = false; if(!j.ok){ var m = String(j.error || ''); S.err = m === 'full' ? x('full') : m === 'closed' ? x('closed') : m === 'too_many' ? x('many') : x('gen'); return render(); }
-          S.done = true; render(); addTicket({n:split(f.name)[0], no:+(j.data && j.data.no) || 0, fr:+f.friends || 0}); mark(); track('registered'); refresh(); })
+          S.done = true; render(); addTicket({n:split(f.name)[0], no:+(j.data && j.data.no) || 0, fr:+f.friends || 0, bk:(j.data && j.data.bk) || ''}); mark(); try{ GL.reload(); }catch(e){} track('registered'); refresh(); })
         .catch(function(){ S.busy = false; S.err = x('gen'); render(); });
     }
     var H = {
@@ -1147,12 +1203,13 @@ ONLY</span></div>
         fetch(CHECKIN, {method:'POST', body:JSON.stringify({fn:'evTicket', args:[EVENT_ID, S.f.fphone, S.f.fname]})}).then(function(r){ return r.json(); }).then(function(j){ S.busy = false;
           if(!j.ok){ S.err = String(j.error) === 'too_many' ? d.many : d.gen; return render(); }
           if(!j.data.found){ S.err = d.fNo; return render(); }
-          j.data.tickets.forEach(function(t){ addTicket({n:t.first, no:+t.no || 0, fr:+t.friends || 0}); });
+          j.data.tickets.forEach(function(t){ addTicket({n:t.first, no:+t.no || 0, fr:+t.friends || 0, bk:t.bk || ''}); }); try{ GL.reload(); }catch(e){}
           track('ticket_found'); S.done = true; D.close(); })
         .catch(function(){ S.busy = false; S.err = d.gen; render(); }); },
       next:function(){ if(S.find) return H.findGo(); if(S.busy) return; var e = Q[S.i].v(); if(e){ S.err = e; return render(); } if(last()) return submit(); show(S.i + 1); },
       pick:function(v){ var a = v.split(':'); S.f[a[0]] = +a[1]; H.next(); },
       tg:function(k){ S.f[k] = !S.f[k]; S.err = ''; render(); },
+      ball:function(){ S.done = false; D.close(); mark(); GL.open(); },
       again:function(){ var par = S.par, f = S.f; S = {i:0, par:par, who:par ? 'par' : 'teen', f:par ? {pname:f.pname, pphone:f.pphone, consent:true} : {}, err:'', busy:false, done:false, keep:par}; show(0); }
     };
     B.addEventListener('click', function(e){ var b = e.target.closest('[data-a]'); if(b) H[b.getAttribute('data-a')](b.getAttribute('data-x')); });
@@ -1224,10 +1281,105 @@ ONLY</span></div>
       if(typeof dl.showModal === 'function') dl.showModal(); else dl.setAttribute('open', '');
     }
     document.getElementById('rgHave').addEventListener('click', function(){ S = {find:true, i:0, par:false, who:null, f:{}, err:'', busy:false, done:false, keep:false}; if(!D.open) D.showModal(); render(true); track('find_ticket'); });
-    return { open:function(){ S = {i:0, par:false, who:null, f:{}, err:'', busy:false, done:false, keep:false}; if(!D.open) D.showModal(); render(true); }, mark:mark };
+    return { tickets:tickets, find:function(){ document.getElementById('rgHave').click(); }, open:function(){ S = {i:0, par:false, who:null, f:{}, err:'', busy:false, done:false, keep:false}; if(!D.open) D.showModal(); render(true); }, mark:mark };
   })();
   document.addEventListener('click', function(e){ var b = e.target.closest && e.target.closest('#open,#openParent,#finBtn,#open2'); if(!b) return; e.preventDefault(); e.stopImmediatePropagation(); RG.open(); }, true);
   document.addEventListener('tp-reg-lang', function(){ RG.mark(); });
+  /* ===== Гирлянда: у каждого записавшегося свой шар — фото или пожелание. Шар виден всем после одобрения лидером. ===== */
+  var GL = (function(){
+    var T2 = {
+      ru:{h:'НАША ГИРЛЯНДА',lead:'У каждого, кто идёт на TEENS PARTY, свой шар. Загрузи фото или напиши пожелание — и он загорится на гирлянде.',reg:'Зарегистрируйся и повесь шар',hang:'Повесить свой шар',edit:'Изменить мой шар',cnt:'{n} из {m} шаров горят',wait:'Твой шар на проверке — скоро загорится у всех',no:'Шар не прошёл проверку — измени его',formT:'ТВОЙ ШАР',name:'Имя на шаре',kWish:'Пожелание',kPhoto:'Моё фото',pick:'Нажми и выбери фото',pickS:'Лучше лицо крупно — шар круглый',picked:'Фото выбрано — нажми, чтобы заменить',wishL:'Пожелание',wishO:'Пожелание (по желанию)',wishPh:'Что ты желаешь на это Рождество?',color:'ЦВЕТ ШАРА',go:'Повесить на гирлянду',busy:'Вешаем…',eName:'Напиши имя для шара',ePhoto:'Выбери фото или переключись на пожелание',eWish:'Напиши пожелание',eGen:'Не получилось. Проверь интернет и попробуй ещё раз.',eKey:'Не нашли твой билет. Нажми «Уже есть билет? Проверить» на билете.',by:'ШАР ПОВЕСИЛ(А)',whose:'ЧЕЙ ШАР',note:'Шар загорится у всех после проверки лидером.',close:'Закрыть',mineL:'мой шар',row:'Повесить свой шар на гирлянду',rows:'фото или пожелание'},
+      en:{h:'OUR GARLAND',lead:'Everyone coming to TEENS PARTY gets an ornament. Add a photo or a wish and it lights up on the garland.',reg:'Register and hang your ornament',hang:'Hang my ornament',edit:'Change my ornament',cnt:'{n} of {m} ornaments are lit',wait:'Your ornament is being reviewed — it will light up for everyone soon',no:'Your ornament was not approved — please change it',formT:'YOUR ORNAMENT',name:'Name on the ornament',kWish:'A wish',kPhoto:'My photo',pick:'Tap to choose a photo',pickS:'A close-up face works best — the ornament is round',picked:'Photo selected — tap to replace',wishL:'Your wish',wishO:'Your wish (optional)',wishPh:'What do you wish for this Christmas?',color:'ORNAMENT COLOR',go:'Hang it on the garland',busy:'Hanging…',eName:'Enter a name for the ornament',ePhoto:'Choose a photo or switch to a wish',eWish:'Write your wish',eGen:'Something went wrong. Check your connection and try again.',eKey:'We could not find your ticket. Tap “Already have a ticket? Check” on the ticket.',by:'HUNG BY',whose:'WHOSE ORNAMENT',note:'It will light up for everyone after a leader reviews it.',close:'Close',mineL:'my ornament',row:'Hang my ornament on the garland',rows:'a photo or a wish'},
+      uk:{h:'НАША ГІРЛЯНДА',lead:'У кожного, хто йде на TEENS PARTY, своя кулька. Завантаж фото або напиши побажання — і вона засвітиться на гірлянді.',reg:'Зареєструйся й повісь кульку',hang:'Повісити свою кульку',edit:'Змінити мою кульку',cnt:'{n} із {m} кульок світяться',wait:'Твоя кулька на перевірці — скоро засвітиться у всіх',no:'Кулька не пройшла перевірку — зміни її',formT:'ТВОЯ КУЛЬКА',name:'Імʼя на кульці',kWish:'Побажання',kPhoto:'Моє фото',pick:'Натисни й обери фото',pickS:'Краще обличчя крупно — кулька кругла',picked:'Фото обрано — натисни, щоб замінити',wishL:'Побажання',wishO:'Побажання (за бажанням)',wishPh:'Що ти бажаєш на це Різдво?',color:'КОЛІР КУЛЬКИ',go:'Повісити на гірлянду',busy:'Вішаємо…',eName:'Напиши імʼя для кульки',ePhoto:'Обери фото або перемкнися на побажання',eWish:'Напиши побажання',eGen:'Не вийшло. Перевір інтернет і спробуй ще раз.',eKey:'Не знайшли твій квиток. Натисни «Вже є квиток? Перевірити» на квитку.',by:'КУЛЬКУ ПОВІСИВ(ЛА)',whose:'ЧИЯ КУЛЬКА',note:'Кулька засвітиться у всіх після перевірки лідером.',close:'Закрити',mineL:'моя кулька',row:'Повісити свою кульку на гірлянду',rows:'фото або побажання'}
+    };
+    var COL = ['red','gold','white','blue','green'], HEX = {red:'#EF4444', gold:'#F5C542', white:'#FBF7EE', blue:'#60A5FA', green:'#4ADE80'};
+    var G = document.getElementById('glRows'), V = document.getElementById('gv'), VB = document.getElementById('gvBody'), F = document.getElementById('gf'), FB = document.getElementById('gfBody');
+    var st = {balls:[], mine:{}, cap:CAPACITY, who:0, f:null, err:'', busy:false, per:0};
+    function d(){ return T2[lang] || T2.en; }
+    function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+    function keys(){ return RG.tickets().filter(function(t){ return t.bk; }); }
+    function me(){ var k = keys(); return k[Math.min(st.who, k.length - 1)] || null; }
+    function myBall(){ var t = me(); return t ? st.mine[t.bk] || null : null; }
+    function post(fn, args){ return fetch(CHECKIN, {method:'POST', body:JSON.stringify({fn:fn, args:args})}).then(function(r){ return r.json(); }); }
+    function face(b, cls){ return '<span class="glb c-' + esc(b.c) + ' ' + (cls || '') + '"' + (b.p ? ' style="background-image:url(' + b.p + ')"' : '') + '>' + (b.p ? '' : esc(String(b.n || '?').charAt(0).toUpperCase())) + '</span>'; }
+    function draw(){
+      var D2 = d(), w = G.clientWidth || 320, per = Math.max(5, Math.min(10, Math.floor(w / 100))), by = {}, max = st.cap - 1, last = -1;
+      st.per = per;
+      st.balls.forEach(function(b){ by[b.i] = b; if(b.i > max) max = b.i; if(b.i > last) last = b.i; });
+      keys().forEach(function(t){ var m = st.mine[t.bk]; if(m){ by[m.i] = {i:m.i, n:m.n, w:m.w, c:m.c, p:m.p, mine:true, status:m.status}; if(m.i > max) max = m.i; if(m.i > last) last = m.i; } });
+      var total = Math.min(Math.ceil((max + 1) / per), Math.floor(last / per) + 2) * per, h = '', SAG = 30, lit = 0;
+      for(var r = 0; r < total / per; r++){
+        h += '<div class="glrow"><svg aria-hidden="true" viewBox="0 0 100 60" preserveAspectRatio="none"><path d="M0 6 Q50 ' + (6 + SAG * 2) + ' 100 6" fill="none" stroke="#C9B26B" stroke-width="2" vector-effect="non-scaling-stroke"></path></svg>';
+        for(var j = 0; j < per; j++){
+          var i = r * per + j, t = (j + 0.5) / per, y = 6 + 4 * SAG * t * (1 - t), b = by[i], pos = 'left:' + (t * 100) + '%;top:' + y + 'px';
+          if(b){ if(!b.mine || b.status === 'ok') lit++; h += '<button type="button" class="glh' + (b.mine && b.status !== 'ok' ? ' pend' : '') + '" style="' + pos + '" data-i="' + i + '" aria-label="' + esc(b.n) + '">' + face(b) + '</button>'; }
+          else h += '<span class="gle c' + (i % 4) + '" style="' + pos + '"></span>';
+        }
+        h += '</div>';
+      }
+      G.innerHTML = h; G._by = by;
+      document.getElementById('glH').textContent = D2.h; document.getElementById('glLead').textContent = D2.lead;
+      document.getElementById('glCnt').textContent = D2.cnt.replace('{n}', lit).replace('{m}', Math.max(st.cap, lit));
+      var btn = document.getElementById('glBtn'), mb = myBall(), has = RG.tickets().length;
+      btn.textContent = !has ? D2.reg : mb ? D2.edit : D2.hang;
+      var s = document.getElementById('glSt'); s.hidden = !(mb && mb.status !== 'ok'); if(!s.hidden) s.textContent = mb.status === 'no' ? D2.no : D2.wait;
+    }
+    function load(){
+      var k = keys(), list = k.length ? k : [null];
+      list.forEach(function(t, n){ post('balls', [EVENT_ID, t ? t.bk : '']).then(function(j){ if(!j.ok) return; if(n === 0) st.balls = j.data.balls || []; if(t){ if(j.data.mine) st.mine[t.bk] = j.data.mine; else delete st.mine[t.bk]; } draw(); }).catch(function(){}); });
+    }
+    function view(i){ var b = G._by[i]; if(!b) return; var D2 = d();
+      VB.innerHTML = face(b, 'big') + '<span class="glk">' + D2.by + '</span><h2 class="rgh">' + esc(b.n) + '</h2>' + (b.w ? '<p class="glw">«' + esc(b.w) + '»</p>' : '') + (b.mine ? (b.status !== 'ok' ? '<p class="hint" style="text-align:center">' + (b.status === 'no' ? D2.no : D2.wait) + '</p>' : '') + '<button type="button" class="btn" data-a="edit">' + D2.edit + '</button>' : '');
+      if(!V.open) V.showModal(); track('ball_view'); }
+    function form(){ var D2 = d(), f = st.f, k = keys();
+      FB.innerHTML = (k.length > 1 ? '<div class="step"><label>' + D2.whose + '</label><div class="rgseg" style="grid-template-columns:repeat(' + Math.min(k.length, 3) + ',1fr)">' + k.map(function(t, n){ return '<button type="button" data-a="who" data-x="' + n + '" class="' + (n === st.who ? 'on' : '') + '">' + esc(t.n) + '</button>'; }).join('') + '</div></div>' : '') +
+        '<div class="glprev">' + face({c:f.color, n:f.name, p:f.kind === 'photo' ? f.photo : ''}, 'big') + '</div>' +
+        '<div class="step"><label for="gl_n">' + D2.name + '</label><input id="gl_n" type="text" maxlength="20" autocomplete="off" value="' + esc(f.name) + '"></div>' +
+        '<div class="rgseg" style="grid-template-columns:1fr 1fr"><button type="button" data-a="kind" data-x="wish" class="' + (f.kind === 'wish' ? 'on' : '') + '">' + D2.kWish + '</button><button type="button" data-a="kind" data-x="photo" class="' + (f.kind === 'photo' ? 'on' : '') + '">' + D2.kPhoto + '</button></div>' +
+        (f.kind === 'photo' ? '<label class="gldrop" for="gl_p"><b>' + (f.photo ? D2.picked : D2.pick) + '</b>' + (f.photo ? '' : '<small>' + D2.pickS + '</small>') + '</label><input type="file" id="gl_p" accept="image/*" hidden>' : '') +
+        '<div class="step"><label for="gl_w">' + (f.kind === 'photo' ? D2.wishO : D2.wishL) + '</label><textarea id="gl_w" rows="3" maxlength="90" placeholder="' + esc(D2.wishPh) + '">' + esc(f.wish) + '</textarea></div>' +
+        '<div><span class="glk">' + D2.color + '</span><div class="glcol">' + COL.map(function(c){ return '<button type="button" data-a="col" data-x="' + c + '" class="' + (f.color === c ? 'on' : '') + '" style="background:' + HEX[c] + '" aria-label="' + c + '" aria-pressed="' + (f.color === c) + '"></button>'; }).join('') + '</div></div>' +
+        (st.err ? '<p class="err" role="alert">' + esc(st.err) + '</p>' : '') +
+        '<div class="q-nav"><button type="button" class="btn" data-a="put"' + (st.busy ? ' disabled' : '') + '>' + (st.busy ? D2.busy : D2.go) + '</button></div><p class="hint">' + D2.note + '</p>';
+    }
+    function startForm(){ var t = me(), m = myBall(); st.f = m ? {name:m.n, wish:m.w || '', photo:m.p || '', kind:m.p ? 'photo' : 'wish', color:m.c} : {name:t.n, wish:'', photo:'', kind:'wish', color:COL[Math.floor(Math.random() * 5)]}; st.err = ''; st.busy = false; }
+    function open(){
+      if(!RG.tickets().length) return RG.open();
+      if(!keys().length) return RG.find();          /* старый билет без ключа шара — просим найти билет заново */
+      if(V.open) V.close(); startForm(); form(); if(!F.open) F.showModal(); track('ball_form');
+    }
+    function shrink(file){ return new Promise(function(res, rej){ var u = URL.createObjectURL(file), im = new Image();
+      im.onload = function(){ var s = Math.min(im.naturalWidth, im.naturalHeight), c = document.createElement('canvas'); c.width = c.height = 128;
+        c.getContext('2d').drawImage(im, (im.naturalWidth - s) / 2, (im.naturalHeight - s) / 2, s, s, 0, 0, 128, 128); URL.revokeObjectURL(u);
+        var q = 0.74, o = c.toDataURL('image/jpeg', q); while(o.length > 22000 && q > 0.3){ q -= 0.12; o = c.toDataURL('image/jpeg', q); } res(o); };
+      im.onerror = function(){ URL.revokeObjectURL(u); rej(); }; im.src = u; }); }
+    G.addEventListener('click', function(e){ var b = e.target.closest('.glh'); if(b) view(+b.getAttribute('data-i')); });
+    document.getElementById('glBtn').addEventListener('click', open);
+    VB.addEventListener('click', function(e){ if(e.target.closest('[data-a="edit"]')) open(); });
+    document.getElementById('gvClose').addEventListener('click', function(){ V.close(); });
+    document.getElementById('gfClose').addEventListener('click', function(){ F.close(); });
+    FB.addEventListener('input', function(e){ if(e.target.id === 'gl_n'){ st.f.name = e.target.value; var p = FB.querySelector('.glprev .glb'); if(p && !(st.f.kind === 'photo' && st.f.photo)) p.textContent = String(st.f.name || '?').charAt(0).toUpperCase(); } if(e.target.id === 'gl_w') st.f.wish = e.target.value; });
+    FB.addEventListener('change', function(e){ if(e.target.id !== 'gl_p' || !e.target.files[0]) return; shrink(e.target.files[0]).then(function(o){ st.f.photo = o; st.err = ''; form(); }).catch(function(){ st.err = d().eGen; form(); }); });
+    FB.addEventListener('click', function(e){ var b = e.target.closest('[data-a]'); if(!b) return; var a = b.getAttribute('data-a'), x = b.getAttribute('data-x'), D2 = d(), f = st.f;
+      if(a === 'who'){ st.who = +x; startForm(); form(); }
+      else if(a === 'kind'){ f.kind = x; st.err = ''; form(); }
+      else if(a === 'col'){ f.color = x; form(); }
+      else if(a === 'put'){ if(st.busy) return;
+        if(!String(f.name || '').trim()){ st.err = D2.eName; return form(); }
+        if(f.kind === 'photo' && !f.photo){ st.err = D2.ePhoto; return form(); }
+        if(f.kind === 'wish' && !String(f.wish || '').trim()){ st.err = D2.eWish; return form(); }
+        var t = me(); st.busy = true; st.err = ''; form();
+        post('ballPut', [EVENT_ID, t.bk, {name:f.name, wish:f.wish, color:f.color, photo:f.kind === 'photo' ? f.photo : ''}]).then(function(j){ st.busy = false;
+          if(!j.ok){ st.err = /bad_key|no_ticket/.test(String(j.error)) ? D2.eKey : D2.eGen; return form(); }
+          st.mine[t.bk] = j.data.mine; F.close(); draw(); track('ball_put'); document.getElementById('garland').scrollIntoView({block:'center', behavior:'smooth'}); })
+        .catch(function(){ st.busy = false; st.err = D2.eGen; form(); }); }
+    });
+    var rz; window.addEventListener('resize', function(){ clearTimeout(rz); rz = setTimeout(function(){ var w = G.clientWidth || 320, per = Math.max(5, Math.min(10, Math.floor(w / 100))); if(per !== st.per) draw(); }, 150); });
+    document.addEventListener('tp-reg-lang', draw);
+    draw(); load();
+    return { open:open, reload:load, cap:function(n){ if(n && n !== st.cap){ st.cap = n; draw(); } }, t:function(k){ return d()[k]; } };
+  })();
+
 
   /* gallery */
   if(document.getElementById('grid'))(function(){
