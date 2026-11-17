@@ -388,10 +388,16 @@ dialog{border:0;border-radius:24px;box-shadow:0 30px 80px rgba(0,0,0,.5);overflo
 .gltxt{flex:1 1 420px;min-width:0;display:flex;flex-direction:column;gap:10px}
 .garland h2{margin:0;font-family:var(--display);font-weight:700;font-size:clamp(30px,4.4vw,52px);line-height:1;letter-spacing:-.02em}
 .gltxt p{margin:0;max-width:52ch;color:var(--muted);font-size:17px;line-height:1.5}
-.glact{flex:0 1 320px;min-width:0;display:flex;flex-direction:column;gap:10px}
-.glact .btn{width:100%}
-.glcnt{font-family:var(--display);font-weight:700;font-size:15px;color:#F5C542}
-.glst{font-size:13px;color:var(--muted)}
+.glstrip{display:flex;flex-wrap:wrap;align-items:center;gap:16px 24px;padding:14px 14px 14px 22px;background:#0C1C14;border:1px solid #245B3D;border-radius:20px}
+.glnum{font-family:var(--display);font-weight:700;font-size:26px;line-height:1;color:#F5C542;font-variant-numeric:tabular-nums;white-space:nowrap}
+.glnum small{font-size:15px;color:var(--muted)}
+.glmid{flex:1 1 220px;min-width:0;display:flex;flex-direction:column;gap:8px}
+.glmid>span{font-weight:700;font-size:11px;letter-spacing:.12em;color:var(--muted)}
+.gldots{display:grid;grid-template-columns:repeat(var(--n,50),1fr);gap:3px}
+.gldots i{height:8px;border-radius:4px;background:#1B3A2B}
+.gldots i.on{background:#F5C542;box-shadow:0 0 6px rgba(245,197,66,.6)}
+.glstrip .btn{flex:none;min-height:56px;padding:0 26px;white-space:nowrap}
+.glst{margin-top:-14px;font-size:13px;color:var(--muted)}
 .glrows{display:flex;flex-direction:column;gap:6px;padding:0 4px}
 .glrow{position:relative;height:118px}
 .glrow svg{position:absolute;left:0;top:0;width:100%;height:60px;overflow:visible}
@@ -418,7 +424,7 @@ dialog{border:0;border-radius:24px;box-shadow:0 30px 80px rgba(0,0,0,.5);overflo
 .glcol{display:flex;gap:10px;margin-top:8px}
 .glcol button{width:44px;height:44px;border-radius:50%;border:3px solid transparent;cursor:pointer;box-shadow:inset -4px -5px 0 rgba(0,0,0,.15)}
 .glcol button.on{border-color:#0E0F12}
-@media (max-width:640px){.glrow{height:104px}.glact{flex-basis:100%}}
+@media (max-width:640px){.glrow{height:104px}.glstrip{padding:16px}.glstrip .btn{width:100%;white-space:normal}.gldots{grid-template-columns:repeat(25,1fr)}}
 @media (prefers-reduced-motion:reduce){.glh{transition:none}}
 
 @media (prefers-reduced-motion:reduce){*{animation:none!important}}
@@ -505,8 +511,9 @@ ONLY</span></div>
   <section class="garland" id="garland" aria-labelledby="glH">
     <div class="glhead">
       <div class="gltxt"><h2 id="glH">НАША ГИРЛЯНДА</h2><p id="glLead"></p></div>
-      <div class="glact"><span class="glcnt" id="glCnt"></span><button type="button" class="btn" id="glBtn"></button><span class="glst" id="glSt" hidden></span></div>
     </div>
+    <div class="glstrip"><span class="glnum" id="glNum"></span><div class="glmid"><span id="glLab"></span><div class="gldots" id="glDots" aria-hidden="true"></div></div><button type="button" class="btn" id="glBtn"></button></div>
+    <span class="glst" id="glSt" hidden></span>
     <div class="glrows" id="glRows"></div>
   </section>
   <section class="soon">
@@ -1288,9 +1295,9 @@ ONLY</span></div>
   /* ===== Гирлянда: у каждого записавшегося свой шар — фото или пожелание. Шар виден всем после одобрения лидером. ===== */
   var GL = (function(){
     var T2 = {
-      ru:{h:'НАША ГИРЛЯНДА',lead:'У каждого, кто идёт на TEENS PARTY, свой шар. Загрузи фото или напиши пожелание — и он загорится на гирлянде.',reg:'Зарегистрируйся и повесь шар',hang:'Повесить свой шар',edit:'Изменить мой шар',cnt:'{n} из {m} шаров горят',wait:'Твой шар на проверке — скоро загорится у всех',no:'Шар не прошёл проверку — измени его',formT:'ТВОЙ ШАР',name:'Имя на шаре',kWish:'Пожелание',kPhoto:'Моё фото',pick:'Нажми и выбери фото',pickS:'Лучше лицо крупно — шар круглый',picked:'Фото выбрано — нажми, чтобы заменить',wishL:'Пожелание',wishO:'Пожелание (по желанию)',wishPh:'Что ты желаешь на это Рождество?',color:'ЦВЕТ ШАРА',go:'Повесить на гирлянду',busy:'Вешаем…',eName:'Напиши имя для шара',ePhoto:'Выбери фото или переключись на пожелание',eWish:'Напиши пожелание',eGen:'Не получилось. Проверь интернет и попробуй ещё раз.',eKey:'Не нашли твой билет. Нажми «Уже есть билет? Проверить» на билете.',by:'ШАР ПОВЕСИЛ(А)',whose:'ЧЕЙ ШАР',note:'Шар загорится у всех после проверки лидером.',close:'Закрыть',mineL:'мой шар',row:'Повесить свой шар на гирлянду',rows:'фото или пожелание'},
-      en:{h:'OUR GARLAND',lead:'Everyone coming to TEENS PARTY gets an ornament. Add a photo or a wish and it lights up on the garland.',reg:'Register and hang your ornament',hang:'Hang my ornament',edit:'Change my ornament',cnt:'{n} of {m} ornaments are lit',wait:'Your ornament is being reviewed — it will light up for everyone soon',no:'Your ornament was not approved — please change it',formT:'YOUR ORNAMENT',name:'Name on the ornament',kWish:'A wish',kPhoto:'My photo',pick:'Tap to choose a photo',pickS:'A close-up face works best — the ornament is round',picked:'Photo selected — tap to replace',wishL:'Your wish',wishO:'Your wish (optional)',wishPh:'What do you wish for this Christmas?',color:'ORNAMENT COLOR',go:'Hang it on the garland',busy:'Hanging…',eName:'Enter a name for the ornament',ePhoto:'Choose a photo or switch to a wish',eWish:'Write your wish',eGen:'Something went wrong. Check your connection and try again.',eKey:'We could not find your ticket. Tap “Already have a ticket? Check” on the ticket.',by:'HUNG BY',whose:'WHOSE ORNAMENT',note:'It will light up for everyone after a leader reviews it.',close:'Close',mineL:'my ornament',row:'Hang my ornament on the garland',rows:'a photo or a wish'},
-      uk:{h:'НАША ГІРЛЯНДА',lead:'У кожного, хто йде на TEENS PARTY, своя кулька. Завантаж фото або напиши побажання — і вона засвітиться на гірлянді.',reg:'Зареєструйся й повісь кульку',hang:'Повісити свою кульку',edit:'Змінити мою кульку',cnt:'{n} із {m} кульок світяться',wait:'Твоя кулька на перевірці — скоро засвітиться у всіх',no:'Кулька не пройшла перевірку — зміни її',formT:'ТВОЯ КУЛЬКА',name:'Імʼя на кульці',kWish:'Побажання',kPhoto:'Моє фото',pick:'Натисни й обери фото',pickS:'Краще обличчя крупно — кулька кругла',picked:'Фото обрано — натисни, щоб замінити',wishL:'Побажання',wishO:'Побажання (за бажанням)',wishPh:'Що ти бажаєш на це Різдво?',color:'КОЛІР КУЛЬКИ',go:'Повісити на гірлянду',busy:'Вішаємо…',eName:'Напиши імʼя для кульки',ePhoto:'Обери фото або перемкнися на побажання',eWish:'Напиши побажання',eGen:'Не вийшло. Перевір інтернет і спробуй ще раз.',eKey:'Не знайшли твій квиток. Натисни «Вже є квиток? Перевірити» на квитку.',by:'КУЛЬКУ ПОВІСИВ(ЛА)',whose:'ЧИЯ КУЛЬКА',note:'Кулька засвітиться у всіх після перевірки лідером.',close:'Закрити',mineL:'моя кулька',row:'Повісити свою кульку на гірлянду',rows:'фото або побажання'}
+      ru:{lit:'ШАРОВ ГОРИТ',h:'НАША ГИРЛЯНДА',lead:'У каждого, кто идёт на TEENS PARTY, свой шар. Загрузи фото или напиши пожелание — и он загорится на гирлянде.',reg:'Зарегистрируйся и повесь шар',hang:'Повесить свой шар',edit:'Изменить мой шар',cnt:'{n} из {m} шаров горят',wait:'Твой шар на проверке — скоро загорится у всех',no:'Шар не прошёл проверку — измени его',formT:'ТВОЙ ШАР',name:'Имя на шаре',kWish:'Пожелание',kPhoto:'Моё фото',pick:'Нажми и выбери фото',pickS:'Лучше лицо крупно — шар круглый',picked:'Фото выбрано — нажми, чтобы заменить',wishL:'Пожелание',wishO:'Пожелание (по желанию)',wishPh:'Что ты желаешь на это Рождество?',color:'ЦВЕТ ШАРА',go:'Повесить на гирлянду',busy:'Вешаем…',eName:'Напиши имя для шара',ePhoto:'Выбери фото или переключись на пожелание',eWish:'Напиши пожелание',eGen:'Не получилось. Проверь интернет и попробуй ещё раз.',eKey:'Не нашли твой билет. Нажми «Уже есть билет? Проверить» на билете.',by:'ШАР ПОВЕСИЛ(А)',whose:'ЧЕЙ ШАР',note:'Шар загорится у всех после проверки лидером.',close:'Закрыть',mineL:'мой шар',row:'Повесить свой шар на гирлянду',rows:'фото или пожелание'},
+      en:{lit:'ORNAMENTS LIT',h:'OUR GARLAND',lead:'Everyone coming to TEENS PARTY gets an ornament. Add a photo or a wish and it lights up on the garland.',reg:'Register and hang your ornament',hang:'Hang my ornament',edit:'Change my ornament',cnt:'{n} of {m} ornaments are lit',wait:'Your ornament is being reviewed — it will light up for everyone soon',no:'Your ornament was not approved — please change it',formT:'YOUR ORNAMENT',name:'Name on the ornament',kWish:'A wish',kPhoto:'My photo',pick:'Tap to choose a photo',pickS:'A close-up face works best — the ornament is round',picked:'Photo selected — tap to replace',wishL:'Your wish',wishO:'Your wish (optional)',wishPh:'What do you wish for this Christmas?',color:'ORNAMENT COLOR',go:'Hang it on the garland',busy:'Hanging…',eName:'Enter a name for the ornament',ePhoto:'Choose a photo or switch to a wish',eWish:'Write your wish',eGen:'Something went wrong. Check your connection and try again.',eKey:'We could not find your ticket. Tap “Already have a ticket? Check” on the ticket.',by:'HUNG BY',whose:'WHOSE ORNAMENT',note:'It will light up for everyone after a leader reviews it.',close:'Close',mineL:'my ornament',row:'Hang my ornament on the garland',rows:'a photo or a wish'},
+      uk:{lit:'КУЛЬОК СВІТИТЬСЯ',h:'НАША ГІРЛЯНДА',lead:'У кожного, хто йде на TEENS PARTY, своя кулька. Завантаж фото або напиши побажання — і вона засвітиться на гірлянді.',reg:'Зареєструйся й повісь кульку',hang:'Повісити свою кульку',edit:'Змінити мою кульку',cnt:'{n} із {m} кульок світяться',wait:'Твоя кулька на перевірці — скоро засвітиться у всіх',no:'Кулька не пройшла перевірку — зміни її',formT:'ТВОЯ КУЛЬКА',name:'Імʼя на кульці',kWish:'Побажання',kPhoto:'Моє фото',pick:'Натисни й обери фото',pickS:'Краще обличчя крупно — кулька кругла',picked:'Фото обрано — натисни, щоб замінити',wishL:'Побажання',wishO:'Побажання (за бажанням)',wishPh:'Що ти бажаєш на це Різдво?',color:'КОЛІР КУЛЬКИ',go:'Повісити на гірлянду',busy:'Вішаємо…',eName:'Напиши імʼя для кульки',ePhoto:'Обери фото або перемкнися на побажання',eWish:'Напиши побажання',eGen:'Не вийшло. Перевір інтернет і спробуй ще раз.',eKey:'Не знайшли твій квиток. Натисни «Вже є квиток? Перевірити» на квитку.',by:'КУЛЬКУ ПОВІСИВ(ЛА)',whose:'ЧИЯ КУЛЬКА',note:'Кулька засвітиться у всіх після перевірки лідером.',close:'Закрити',mineL:'моя кулька',row:'Повісити свою кульку на гірлянду',rows:'фото або побажання'}
     };
     var COL = ['red','gold','white','blue','green'], HEX = {red:'#EF4444', gold:'#F5C542', white:'#FBF7EE', blue:'#60A5FA', green:'#4ADE80'};
     var G = document.getElementById('glRows'), V = document.getElementById('gv'), VB = document.getElementById('gvBody'), F = document.getElementById('gf'), FB = document.getElementById('gfBody');
@@ -1319,7 +1326,8 @@ ONLY</span></div>
       }
       G.innerHTML = h; G._by = by;
       document.getElementById('glH').textContent = D2.h; document.getElementById('glLead').textContent = D2.lead;
-      document.getElementById('glCnt').textContent = D2.cnt.replace('{n}', lit).replace('{m}', Math.max(st.cap, lit));
+      var cap = Math.max(st.cap, lit), dh = ''; for(var q = 0; q < cap; q++) dh += '<i' + (q < lit ? ' class="on"' : '') + '></i>';
+      document.getElementById('glNum').innerHTML = lit + ' <small>/ ' + cap + '</small>'; document.getElementById('glLab').textContent = D2.lit; document.getElementById('glDots').innerHTML = dh; document.getElementById('glDots').style.setProperty('--n', cap);
       var btn = document.getElementById('glBtn'), mb = myBall(), has = RG.tickets().length;
       btn.textContent = !has ? D2.reg : mb ? D2.edit : D2.hang;
       var s = document.getElementById('glSt'); s.hidden = !(mb && mb.status !== 'ok'); if(!s.hidden) s.textContent = mb.status === 'no' ? D2.no : D2.wait;
