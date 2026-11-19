@@ -76,7 +76,9 @@ body.soonreg #open,body.soonreg #openParent,body.soonreg #checkBtn,body.soonreg 
 @media(max-width:640px){.rgrid{grid-template-columns:repeat(2,1fr)}}
 .rnum{display:flex;align-items:baseline;gap:14px}.rnum b{font-family:var(--display);font-weight:900;font-size:clamp(48px,7vw,84px);color:var(--orange);line-height:1}.rnum span{font-weight:800;font-size:18px}
 .rbtn{align-self:flex-start;display:inline-flex;align-items:center;text-decoration:none;padding:0 26px}
-#snow{position:fixed;inset:0;pointer-events:none;z-index:5}
+#snow{position:fixed;inset:0;pointer-events:none;z-index:0}
+/* снег падает позади фото, билета и карточек: страница лежит слоем выше */
+main.page{position:relative;z-index:1}
 /* language switch */
 .langbar{width:100%;max-width:1200px;margin:28px auto 0;padding-inline:clamp(16px,4vw,48px);display:flex;justify-content:flex-end}
 .lang{display:inline-flex;border:2px solid var(--fg)}
