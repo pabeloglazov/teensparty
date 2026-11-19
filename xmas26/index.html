@@ -298,6 +298,19 @@ h1 .outline{color:var(--bg);-webkit-text-stroke:2px var(--fg)}
 .linkbtn{align-self:stretch;margin-top:8px;min-height:52px;padding:10px 14px;background:#1F7A46;color:#F4F4F5;border-radius:12px;text-decoration:none;font-weight:700;font-size:15px;letter-spacing:0}
 .linkbtn:hover{filter:brightness(1.1)}
 .stamp,.barcode,#fin{display:none!important}
+/* Билет на настоящей бумаге (картинки из xmas26/tk): кремовый картон, полоски, красная шапка с золотой снежинкой; оборот — золотая рамка и звезда */
+.ticket{background:#FBF7EE url(/xmas26/tk/front.jpg) center/100% 100% no-repeat}
+.ticket::before,.ticket::after{height:16px;background:url(/xmas26/tk/stripe.png) left center/auto 100% repeat-x}
+.ticket .head{background:#A8161B url(/xmas26/tk/band.jpg) center/cover no-repeat;box-shadow:inset 0 -1px 0 rgba(0,0,0,.15)}
+.ticket .head .hl svg{display:none}
+.ticket .head .hl::before{content:"";width:30px;height:30px;flex:none;background:url(/xmas26/tk/flake.jpg) center/cover;border-radius:4px}
+.ticket .tback{inset:16px 0;background:#FBF7EE url(/xmas26/tk/back.jpg) center/100% 100% no-repeat}
+.ticket .tback .tbh{background:transparent;color:#7a1414;padding:56px 30px 6px}
+.ticket .tback .tbh .no{background:#1F7A46;color:#FBF7EE}
+.ticket .tback .tbflake{display:none}
+.ticket .tback::before{content:"";position:absolute;left:50%;top:18px;width:30px;height:30px;margin-left:-15px;background:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%20100%20100%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%271%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23fff1b0%27/%3E%3Cstop%20offset%3D%27.45%27%20stop-color%3D%27%23d9a930%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%238a5f0e%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Cg%20fill%3D%27none%27%20stroke%3D%27url%28%23g%29%27%20stroke-width%3D%279%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M50%206%2088%2072H12z%27/%3E%3Cpath%20d%3D%27M50%2094%2012%2028h76z%27/%3E%3C/g%3E%3C/svg%3E") center/contain no-repeat;filter:drop-shadow(0 1px 1px rgba(90,60,0,.35));pointer-events:none}
+.tback .tbb{padding:16px 32px 14px}
+.tback .tbs{padding:6px 32px 12px}.tback .tbf{padding:0 32px 26px}
 .done .k{font-family:var(--display);letter-spacing:.08em;color:#14532D}
 .tno{font-weight:900}
 .qr{border:0;border-radius:14px;box-shadow:0 0 0 2px #0E0F12 inset}
