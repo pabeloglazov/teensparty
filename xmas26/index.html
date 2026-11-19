@@ -402,6 +402,7 @@ dialog{border:0;border-radius:24px;box-shadow:0 30px 80px rgba(0,0,0,.5);overflo
 .garland h2{margin:0;font-family:var(--display);font-weight:700;font-size:clamp(30px,4.4vw,52px);line-height:1;letter-spacing:-.02em}
 .gltxt p{margin:0;max-width:52ch;color:var(--muted);font-size:17px;line-height:1.5}
 .glstrip{display:flex;flex-wrap:wrap;align-items:center;gap:16px 24px;padding:18px 18px 18px 26px;background:#140c07 url(/xmas26/gl/wood.jpg) left center/cover no-repeat;border:1px solid #3a2414;border-radius:20px;box-shadow:inset 0 0 0 1px rgba(255,210,150,.05),0 12px 26px rgba(0,0,0,.35)}
+.glnum,.glmid>span{text-shadow:0 1px 6px rgba(0,0,0,.85)}
 .glnum{font-family:var(--display);font-weight:700;font-size:26px;line-height:1;color:#F5C542;font-variant-numeric:tabular-nums;white-space:nowrap}
 .glnum small{font-size:15px;color:var(--muted)}
 .glmid{flex:1 1 220px;min-width:0;display:flex;flex-direction:column;gap:8px}
@@ -452,7 +453,7 @@ dialog{border:0;border-radius:24px;box-shadow:0 30px 80px rgba(0,0,0,.5);overflo
 .glcol button:hover{transform:translateY(-2px)}
 @media (max-width:420px){.glcol{grid-template-columns:repeat(6,minmax(0,1fr))}}
 .glcol button.on{border-color:#0E0F12;background-color:#EFE6D2}
-@media (max-width:640px){.glrow{height:132px}.glstrip{padding:16px}.glstrip .btn{width:100%;white-space:normal}.gldots{grid-template-columns:repeat(25,1fr)}}
+@media (max-width:640px){.glrow{height:132px}.glstrip{padding:16px;background-position:right center}.glstrip .btn{width:100%;white-space:normal}.gldots{grid-template-columns:repeat(25,1fr)}}
 @media (prefers-reduced-motion:reduce){.glh{transition:none}}
 
 @media (prefers-reduced-motion:reduce){*{animation:none!important}}
@@ -1542,12 +1543,18 @@ ONLY</span></div>
 
   /* recap + snow */
 
-  (function(){ var c=document.createElement('canvas'); c.id='snow'; document.body.appendChild(c); var x=c.getContext('2d'), F=[];
-    function rs(){ c.width=innerWidth; c.height=innerHeight; } rs(); addEventListener('resize', rs);
-    for(var i=0;i<70;i++) F.push({x:Math.random(),y:Math.random(),r:1+Math.random()*2.4,s:.0006+Math.random()*.0012,d:Math.random()*6});
-    (function f(t){ x.clearRect(0,0,c.width,c.height); x.fillStyle='rgba(242,239,232,.75)';
-      F.forEach(function(p){ p.y+=p.s; if(p.y>1) p.y=-.02; var px=(p.x+Math.sin(t/2000+p.d)*.01)*c.width; x.beginPath(); x.arc(px,p.y*c.height,p.r,0,7); x.fill(); });
-      requestAnimationFrame(f); })(0); })();
+  /* Снег: 96 настоящих снежинок из листа /xmas26/gl/flakes.webp (12×8, ячейка 64px). Каждая падает, качается и медленно вращается. */
+  (function(){ var c=document.createElement('canvas'); c.id='snow'; document.body.appendChild(c); var x=c.getContext('2d'), F=[], dpr=1, img=new Image(), ok=false;
+    img.onload=function(){ ok=true; }; img.src='/xmas26/gl/flakes.webp';
+    function rs(){ dpr=Math.min(2, window.devicePixelRatio||1); c.width=innerWidth*dpr; c.height=innerHeight*dpr; c.style.width=innerWidth+'px'; c.style.height=innerHeight+'px'; } rs(); addEventListener('resize', rs);
+    var N = innerWidth < 640 ? 34 : 60;
+    for(var i=0;i<N;i++){ var big=Math.random()<.12; F.push({k:Math.floor(Math.random()*96),x:Math.random(),y:Math.random(),r:big?20+Math.random()*12:7+Math.random()*9,s:.00035+Math.random()*.0008,d:Math.random()*6,a:Math.random()*6.28,va:(Math.random()-.5)*.012,o:big?.55:.75+Math.random()*.25}); }
+    (function f(t){ x.setTransform(1,0,0,1,0,0); x.clearRect(0,0,c.width,c.height);
+      if(ok) F.forEach(function(p){ p.y+=p.s*(p.r/12+.4); p.a+=p.va; if(p.y>1.03){ p.y=-.03; p.x=Math.random(); }
+        var px=(p.x+Math.sin(t/2200+p.d)*.012)*c.width, py=p.y*c.height, r=p.r*dpr;
+        x.setTransform(Math.cos(p.a),Math.sin(p.a),-Math.sin(p.a),Math.cos(p.a),px,py); x.globalAlpha=p.o;
+        x.drawImage(img,(p.k%12)*64,Math.floor(p.k/12)*64,64,64,-r,-r,r*2,r*2); });
+      x.globalAlpha=1; requestAnimationFrame(f); })(0); })();
 
   /* boot */
   var CLOSED = false;
