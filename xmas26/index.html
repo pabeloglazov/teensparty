@@ -273,6 +273,27 @@ h1 .outline{color:var(--bg);-webkit-text-stroke:2px var(--fg)}
 .tgrid{gap:12px;background:none;border:0}
 .tgrid div{background:#0C1C14;border:1px solid #245B3D;border-radius:14px}
 .tgrid b{font-weight:700;font-size:24px}
+.stat .hrow{display:contents}.hside,.hbar{display:none}
+/* Телефон и планшет: «Осталось мест» крупно на всю ширину с полоской, места 10 в ряд, таймер 2×2 */
+@media (max-width:899px){
+  .stats{grid-template-columns:minmax(0,1fr)}
+  .stats .stat:not(.hot){display:none}
+  .stat.hot{padding:18px 18px 16px;gap:12px;border-radius:20px;box-shadow:0 10px 24px rgba(239,68,68,.25)}
+  .stat.hot .hrow{display:flex;align-items:flex-end;justify-content:space-between;gap:10px}
+  .stat.hot .v{font-weight:900;font-size:64px;line-height:.9}
+  .hside{display:block;text-align:right;font-weight:700;font-size:14px;line-height:1.25;color:var(--ink);text-transform:lowercase}
+  .hside em{display:block;font-style:normal;font-family:var(--display);font-weight:900;font-size:24px;line-height:1;text-transform:none}
+  .hbar{display:block;height:12px;border-radius:999px;background:rgba(0,0,0,.25);overflow:hidden}
+  .hbar i{display:block;height:100%;width:0;border-radius:999px;background:#FBF7EE;transition:width .6s}
+  .seats{grid-template-columns:repeat(10,minmax(0,1fr));gap:6px}
+  .seat{border-radius:7px;border-width:1.5px}
+  .seat.on{box-shadow:0 0 8px rgba(239,68,68,.35)}
+  .legend{margin-top:-4px}
+  .tgrid{grid-template-columns:1fr 1fr;gap:10px}
+  .tgrid div{flex-direction:row;align-items:baseline;justify-content:flex-start;gap:10px;padding:14px 16px;border-radius:16px;text-align:left}
+  .tgrid b{font-weight:900;font-size:40px;line-height:1}
+  .tgrid span{font-size:13px;font-weight:800;letter-spacing:.1em;color:var(--muted)}
+}
 .ticket{position:relative;background:var(--paper);border:0;border-radius:28px;box-shadow:none;transform:none;overflow:hidden;animation:none;max-width:420px}
 @media (min-width:900px){.ticket{flex:0 0 420px;width:420px}}
 @media (max-width:899px){.ticket{max-width:none;width:100%;flex:1 1 100%;align-self:stretch}}
@@ -547,7 +568,7 @@ dialog{border:0;border-radius:24px;box-shadow:0 30px 80px rgba(0,0,0,.5);overflo
       <div class="board">
         <div class="stats">
           <div class="stat"><span class="k" data-i="taken">TAKEN</span><span class="v"><span id="taken">0</span> <small>/ <span class="capn">50</span></small></span></div>
-          <div class="stat hot"><span class="k" data-i="left">SPOTS LEFT</span><span class="v" id="left">50</span></div>
+          <div class="stat hot"><span class="k" data-i="left">SPOTS LEFT</span><span class="hrow"><span class="v" id="left">50</span><span class="hside"><span data-i="taken">TAKEN</span><em><span id="takenM">0</span> / <span class="capn">50</span></em></span></span><span class="hbar" aria-hidden="true"><i id="takenBar"></i></span></div>
         </div>
         <div class="seats" id="seats" role="img" aria-label="50 spots"></div>
         <div class="legend">
@@ -877,6 +898,7 @@ ONLY</span></div>
     var cap = stats.capacity || CAPACITY, taken = Math.min(cap, stats.taken || 0), left = Math.max(0, cap - taken);
     $('taken').textContent = taken;
     $('left').textContent = left;
+    if($('takenM')){ $('takenM').textContent = taken; $('takenBar').style.width = Math.min(100, Math.round(taken / Math.max(1, taken + left) * 100)) + '%'; }
     document.querySelectorAll('.capn').forEach(function(el){ el.textContent = cap; });
     $('seats').setAttribute('aria-label', taken + ' / ' + cap);
     var mySeat = mine ? Math.min(cap, mine.seat || 0) : 0;
