@@ -401,21 +401,23 @@ dialog{border:0;border-radius:24px;box-shadow:0 30px 80px rgba(0,0,0,.5);overflo
 .gltxt{flex:1 1 420px;min-width:0;display:flex;flex-direction:column;gap:10px}
 .garland h2{margin:0;font-family:var(--display);font-weight:700;font-size:clamp(30px,4.4vw,52px);line-height:1;letter-spacing:-.02em}
 .gltxt p{margin:0;max-width:52ch;color:var(--muted);font-size:17px;line-height:1.5}
-.glstrip{display:flex;flex-wrap:wrap;align-items:center;gap:16px 24px;padding:14px 14px 14px 22px;background:#0C1C14;border:1px solid #245B3D;border-radius:20px}
+.glstrip{display:flex;flex-wrap:wrap;align-items:center;gap:16px 24px;padding:18px 18px 18px 26px;background:#140c07 url(/xmas26/gl/wood.jpg) left center/cover no-repeat;border:1px solid #3a2414;border-radius:20px;box-shadow:inset 0 0 0 1px rgba(255,210,150,.05),0 12px 26px rgba(0,0,0,.35)}
 .glnum{font-family:var(--display);font-weight:700;font-size:26px;line-height:1;color:#F5C542;font-variant-numeric:tabular-nums;white-space:nowrap}
 .glnum small{font-size:15px;color:var(--muted)}
 .glmid{flex:1 1 220px;min-width:0;display:flex;flex-direction:column;gap:8px}
 .glmid>span{font-weight:700;font-size:11px;letter-spacing:.12em;color:var(--muted)}
-.gldots{display:grid;grid-template-columns:repeat(var(--n,50),1fr);gap:3px}
-.gldots i{height:8px;border-radius:4px;background:#1B3A2B}
-.gldots i.on{background:#F5C542;box-shadow:0 0 6px rgba(245,197,66,.6)}
+.gldots{display:grid;grid-template-columns:repeat(var(--n,50),1fr);gap:2px;align-items:end}
+.gldots i{display:block;aspect-ratio:100/215;max-height:34px;background:url(/xmas26/gl/bulbs.webp) no-repeat 0 100%/400% 200%;opacity:.8}
+.gldots i:nth-child(4n+2){background-position-x:33.333%}.gldots i:nth-child(4n+3){background-position-x:66.667%}.gldots i:nth-child(4n+4){background-position-x:100%}
+.gldots i.on{background-position-y:0;opacity:1;filter:drop-shadow(0 0 4px rgba(255,200,110,.9)) drop-shadow(0 0 10px rgba(255,170,80,.45))}
 .glstrip .btn{flex:none;min-height:56px;padding:0 26px;white-space:nowrap}
 .glst{margin-top:-14px;font-size:13px;color:var(--muted)}
 .glrows{display:flex;flex-direction:column;gap:6px;padding:0 4px}
 .glrow{position:relative;height:150px}
-.glrow svg{position:absolute;left:0;top:0;width:100%;height:60px;overflow:visible}
+.glrope{position:absolute;inset:0;pointer-events:none}
+.glrope i{position:absolute;height:12px;margin-top:-6px;transform-origin:0 50%;background:url(/xmas26/gl/rope_strip.webp) repeat-x 0 0/auto 100%;filter:drop-shadow(0 3px 3px rgba(0,0,0,.45))}
 .glh{position:absolute;transform:translateX(-50%);padding:4px 0 0;border:0;background:transparent;cursor:pointer;transform-origin:50% 0;transition:transform .2s ease}
-.glh::before{content:"";position:absolute;left:50%;top:0;width:2px;height:7px;margin-left:-1px;background:#C9B26B}
+.glh::before{content:"";position:absolute;left:50%;top:0;width:2px;height:7px;margin-left:-1px;background:#d6b24e}
 .glh:hover{transform:translateX(-50%) rotate(-5deg)}
 .glh:focus-visible{outline:3px solid #F4F4F5;outline-offset:4px;border-radius:12px}
 .glh.pend .glb{opacity:.55;outline:2px dashed #F4F4F5;outline-offset:3px}
@@ -433,8 +435,8 @@ dialog{border:0;border-radius:24px;box-shadow:0 30px 80px rgba(0,0,0,.5);overflo
 .o0,.o1,.o2,.o3,.o4,.o5,.o6,.o7,.o8,.o9,.o10,.o11,.o12,.o13,.o14,.o15,.o16,.o17,.o18,.o19,.o20,.o21,.o22,.o23,.o24,.o25,.o26,.o27,.o28,.o29{--bx:0%;--by:0%}
 .o0{--bx:0%;--by:0%}.o1{--bx:20%;--by:0%}.o2{--bx:40%;--by:0%}.o3{--bx:60%;--by:0%}.o4{--bx:80%;--by:0%}.o5{--bx:100%;--by:0%}.o6{--bx:0%;--by:25%}.o7{--bx:20%;--by:25%}.o8{--bx:40%;--by:25%}.o9{--bx:60%;--by:25%}.o10{--bx:80%;--by:25%}.o11{--bx:100%;--by:25%}.o12{--bx:0%;--by:50%}.o13{--bx:20%;--by:50%}.o14{--bx:40%;--by:50%}.o15{--bx:60%;--by:50%}.o16{--bx:80%;--by:50%}.o17{--bx:100%;--by:50%}.o18{--bx:0%;--by:75%}.o19{--bx:20%;--by:75%}.o20{--bx:40%;--by:75%}.o21{--bx:60%;--by:75%}.o22{--bx:80%;--by:75%}.o23{--bx:100%;--by:75%}.o24{--bx:0%;--by:100%}.o25{--bx:20%;--by:100%}.o26{--bx:40%;--by:100%}.o27{--bx:60%;--by:100%}.o28{--bx:80%;--by:100%}.o29{--bx:100%;--by:100%}
 
-.gle{position:absolute;width:12px;height:16px;margin:2px 0 0 -6px;border-radius:50% 50% 50% 50% / 40% 40% 60% 60%;opacity:.5}
-.gle.c0{background:#EF4444}.gle.c1{background:#F5C542}.gle.c2{background:#4ADE80}.gle.c3{background:#60A5FA}
+.gle{position:absolute;width:17px;height:37px;margin:1px 0 0 -8.5px;background:url(/xmas26/gl/bulbs.webp) no-repeat 0 100%/400% 200%;opacity:.75;filter:drop-shadow(0 3px 3px rgba(0,0,0,.4))}
+.gle.c1{background-position-x:33.333%}.gle.c2{background-position-x:66.667%}.gle.c3{background-position-x:100%}
 #gv .q-close,#gf .q-close{background:#EF4444;color:#fff;border-radius:12px;transition:filter .15s}#gv .q-close:hover,#gf .q-close:hover{filter:brightness(1.1)}
 #gvBody,#gfBody{padding:20px;display:flex;flex-direction:column;gap:14px}
 .glk{font-weight:700;font-size:11px;letter-spacing:.12em;color:#52525B;text-align:center}
@@ -1416,6 +1418,12 @@ ONLY</span></div>
     function myBall(){ var t = me(); return t ? st.mine[t.bk] || null : null; }
     function post(fn, args){ return fetch(CHECKIN, {method:'POST', body:JSON.stringify({fn:fn, args:args})}).then(function(r){ return r.json(); }); }
     function face(b, cls){ var k = ci(b.c); return '<span class="glb o' + k + (LIGHT.indexOf(k) >= 0 ? ' lt' : '') + (b.p ? ' ph' : '') + ' ' + (cls || '') + '"' + (b.p ? ' style="--ph:url(' + b.p + ')"' : '') + '>' + (b.p ? '' : '<i>' + esc(String(b.n || '?').charAt(0).toUpperCase()) + '</i>') + '</span>'; }
+    /* провод: настоящая верёвка из картинки, разрезанная на короткие отрезки вдоль провисающей дуги */
+    function rope(w, sag){ var n = 24, h = '<div class="glrope" aria-hidden="true">', acc = 0;
+      function P(t){ return [t * w, 6 + 4 * sag * t * (1 - t)]; }
+      for(var k = 0; k < n; k++){ var a = P(k / n), b = P((k + 1) / n), dx = b[0] - a[0], dy = b[1] - a[1], len = Math.sqrt(dx * dx + dy * dy);
+        h += '<i style="left:' + a[0].toFixed(1) + 'px;top:' + a[1].toFixed(1) + 'px;width:' + (len + 1.5).toFixed(1) + 'px;transform:rotate(' + (Math.atan2(dy, dx) * 57.2958).toFixed(2) + 'deg);background-position-x:-' + acc.toFixed(1) + 'px"></i>'; acc += len; }
+      return h + '</div>'; }
     function draw(){
       var D2 = d(), w = G.clientWidth || 320, per = Math.max(5, Math.min(10, Math.floor(w / 100))), by = {}, max = st.cap - 1, last = -1;
       st.per = per;
@@ -1423,7 +1431,7 @@ ONLY</span></div>
       keys().forEach(function(t){ var m = st.mine[t.bk]; if(m){ by[m.i] = {i:m.i, n:m.n, w:m.w, c:m.c, p:m.p, mine:true, status:m.status}; if(m.i > max) max = m.i; if(m.i > last) last = m.i; } });
       var total = Math.min(Math.ceil((max + 1) / per), Math.floor(last / per) + 2) * per, h = '', SAG = 30, lit = 0;
       for(var r = 0; r < total / per; r++){
-        h += '<div class="glrow"><svg aria-hidden="true" viewBox="0 0 100 60" preserveAspectRatio="none"><path d="M0 6 Q50 ' + (6 + SAG * 2) + ' 100 6" fill="none" stroke="#C9B26B" stroke-width="2" vector-effect="non-scaling-stroke"></path></svg>';
+        h += '<div class="glrow">' + rope(Math.max(100, w - 8), SAG);
         for(var j = 0; j < per; j++){
           var i = r * per + j, t = (j + 0.5) / per, y = 6 + 4 * SAG * t * (1 - t), b = by[i], pos = 'left:' + (t * 100) + '%;top:' + y + 'px';
           if(b){ if(!b.mine || b.status === 'ok') lit++; h += '<button type="button" class="glh' + (b.mine && b.status !== 'ok' ? ' pend' : '') + '" style="' + pos + '" data-i="' + i + '" aria-label="' + esc(b.n) + '">' + face(b) + '</button>'; }
@@ -1501,7 +1509,7 @@ ONLY</span></div>
           st.mine[t.bk] = j.data.mine; picking = 0; draft(false); F.close(); draw(); track('ball_put'); document.getElementById('garland').scrollIntoView({block:'center', behavior:'smooth'}); })
         .catch(function(){ st.busy = false; st.err = D2.eGen; form(); }); }
     });
-    var rz; window.addEventListener('resize', function(){ clearTimeout(rz); rz = setTimeout(function(){ var w = G.clientWidth || 320, per = Math.max(5, Math.min(10, Math.floor(w / 100))); if(per !== st.per) draw(); }, 150); });
+    var rz; window.addEventListener('resize', function(){ clearTimeout(rz); rz = setTimeout(function(){ var w = G.clientWidth || 320, per = Math.max(5, Math.min(10, Math.floor(w / 100))); draw(); }, 150); });
     document.addEventListener('tp-reg-lang', draw);
     draw(); load();
     try{ var dr = JSON.parse(sessionStorage.getItem('tp_ball_draft') || 'null'); if(dr && dr.f && keys().length){ st.who = Math.min(+dr.who || 0, keys().length - 1); st.f = dr.f; st.err = ''; st.busy = false; setTimeout(function(){ form(); if(!F.open) F.showModal(); track('ball_draft_restored'); }, 400); } }catch(e){}
