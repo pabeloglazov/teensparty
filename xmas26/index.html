@@ -2,15 +2,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>TEENS PARTY · CHRISTMAS · DEC 19</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <style>
 /* Layout: big marquee strips top/bottom; left = title + seat board + countdown; right = ticket; registration = step-by-step popup */
 :root{
   --bg:#0d0d0d; --fg:#f2efe8; --paper:#f2efe8; --ink:#0d0d0d; --orange:#ff5a1f; --orange-dark:#b83606;
   --muted:#b9b4ab; --paper-muted:#55524c; --seat-empty:#262421; --err:#b3200c; --track:#d9d4ca;
-  --display:Unbounded, "Arial Black", Impact, sans-serif;
-  --body:Manrope, "Segoe UI", system-ui, sans-serif;
+  --display:Montserrat, "Arial Black", system-ui, sans-serif;
+  --body:Montserrat, "Segoe UI", system-ui, sans-serif;
   color-scheme:dark;
 }
 *{box-sizing:border-box}
@@ -237,7 +237,7 @@ dialog::backdrop{background:rgba(13,13,13,.78);backdrop-filter:blur(4px);-webkit
 .snd[aria-pressed="true"]{background:var(--paper)}
 
 /* ===== v2: единый дизайн + рождественские краски ===== */
-:root{--bg:#10231A;--fg:#F4F4F5;--paper:#FBF7EE;--ink:#0E0F12;--orange:#EF4444;--orange-dark:#B91C1C;--muted:#B6C4BB;--paper-muted:#52525B;--seat-empty:#0C1C14;--track:#E4DDCB;--body:Inter,system-ui,sans-serif}
+:root{--bg:#10231A;--fg:#F4F4F5;--paper:#FBF7EE;--ink:#0E0F12;--orange:#EF4444;--orange-dark:#B91C1C;--muted:#B6C4BB;--paper-muted:#52525B;--seat-empty:#0C1C14;--track:#E4DDCB;--body:Montserrat,system-ui,sans-serif}
 body{font-family:var(--body)}
 .page{min-height:0}
 .xnav{width:100%;max-width:1200px;margin:0 auto;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;position:relative;z-index:2}
@@ -441,6 +441,57 @@ dialog{border:0;border-radius:24px;box-shadow:0 30px 80px rgba(0,0,0,.5);overflo
 @media (prefers-reduced-motion:reduce){.glh{transition:none}}
 
 @media (prefers-reduced-motion:reduce){*{animation:none!important}}
+
+/* ---------- Программа: дресс-код на вязаном свитере + адвент-календарь из 7 окошек и подарка ---------- */
+.prog{width:100%;max-width:1200px;margin:0 auto;padding:0 24px 80px;display:flex;flex-direction:column;gap:22px;position:relative;z-index:1;container:prog/inline-size}
+.prog h2{margin:0;font-family:var(--display);font-weight:900;font-size:clamp(36px,6.4vw,80px);line-height:.92;letter-spacing:-.03em;text-transform:uppercase}
+.prog .h2b{margin-top:22px}
+.dc{position:relative;container-type:inline-size;border-radius:22px;overflow:hidden;color:#fff;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:20px;align-items:center;padding:calc(12.9cqw + 14px) 28px;
+  background:url(/xmas26/prog/sw-top.jpg) top center/100% auto no-repeat,url(/xmas26/prog/sw-bot.jpg) bottom center/100% auto no-repeat,url(/xmas26/prog/sw-mid.jpg) center/100% auto repeat-y,#d8262c;box-shadow:0 14px 30px rgba(0,0,0,.35)}
+.dc .in{display:flex;flex-direction:column;gap:8px;text-shadow:0 2px 10px rgba(80,0,0,.55),0 1px 2px rgba(60,0,0,.5)}
+.dc small{font-weight:700;font-size:12px;letter-spacing:.24em;opacity:.92}
+.dc .dch{font-family:var(--display);font-weight:900;font-size:clamp(26px,5cqw,46px);line-height:.95;text-transform:uppercase}
+.dc p{margin:0;font-size:15px;line-height:1.38;max-width:44ch}
+.prize{background:var(--paper);color:var(--ink);border-radius:16px;padding:12px 20px 12px 12px;display:grid;grid-template-columns:60px minmax(0,1fr);align-items:center;gap:14px;max-width:330px;box-shadow:0 8px 24px rgba(0,0,0,.28)}
+.prize img{display:block;width:60px;height:60px;object-fit:contain;filter:drop-shadow(0 4px 6px rgba(0,0,0,.25))}
+.prize div{display:flex;flex-direction:column;gap:3px;min-width:0}
+.prize b{font-family:var(--display);font-weight:800;font-size:16px;line-height:1.2}
+.prize span{font-size:13px;line-height:1.3;color:var(--paper-muted);white-space:nowrap}
+.adhint{color:var(--muted);font-size:14px;margin:0}
+.adv{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.dr{position:relative;aspect-ratio:3/4;container-type:inline-size;border-radius:18px;perspective:1100px;cursor:pointer;border:0;padding:0;background:none;color:inherit;font:inherit;text-align:left}
+.dr:focus-visible{outline:3px solid #F5C542;outline-offset:3px}
+.dr .ins{position:absolute;inset:0;border-radius:18px;background:var(--paper);color:var(--ink);padding:16px 16px 18px;display:flex;flex-direction:column;gap:8px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.06),inset 0 10px 22px rgba(0,0,0,.18)}
+.dr .ins .ic{width:46px;height:46px;border-radius:13px;background:#F3E9D2;display:grid;place-items:center;color:var(--orange-dark);flex:none}
+.dr .ins h3{margin:4px 0 0;font-family:var(--display);font-weight:800;font-size:clamp(15px,9cqw,19px);line-height:1.15;overflow-wrap:anywhere}
+.dr .ins p{margin:0;font-size:13.5px;line-height:1.38;color:var(--paper-muted);overflow-wrap:anywhere}
+.dr .ins .pz{margin-top:auto;align-self:flex-start;padding:3px 10px;border-radius:999px;background:var(--orange);color:#fff;font-weight:700;font-size:11px;line-height:1.6;letter-spacing:.08em}
+.dr .lid{position:absolute;inset:0;border-radius:18px;transform-origin:0 50%;transition:transform .85s cubic-bezier(.3,.9,.25,1),box-shadow .85s;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden;background:center/cover no-repeat;box-shadow:0 10px 22px rgba(0,0,0,.35);z-index:2}
+.dr .lid b{position:absolute;left:var(--x);top:var(--y);width:var(--d);aspect-ratio:1;transform:translate(-50%,-50%);display:grid;place-items:center;color:#a8171a;font-family:var(--display);font-weight:900;font-size:30cqw;line-height:1;text-shadow:0 1px 0 rgba(255,255,255,.6)}
+.dr:hover .lid{transform:rotateY(-14deg)}
+.dr.open .lid{transform:rotateY(-112deg);box-shadow:none}
+.gift .gb{position:absolute;inset:0;border-radius:18px;overflow:hidden;background:url(/xmas26/prog/w8.jpg) center/cover no-repeat;box-shadow:0 10px 22px rgba(0,0,0,.35);transform-origin:50% 85%}
+.gift .gb::after{content:"";position:absolute;inset:55% 0 0;background:linear-gradient(transparent,rgba(5,14,9,.88))}
+.gift .gl{position:absolute;left:0;right:0;bottom:12px;z-index:1;display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center;padding:0 8px}
+.gift .gl b{font-family:var(--display);font-weight:800;font-size:clamp(15px,9cqw,20px);line-height:1.1;color:#F5C542}
+.gift .gl span{font-size:13px;color:#d5ddd7}
+.gift:hover .gb{animation:wob 1.6s ease-in-out infinite}
+.gift.shake .gb{animation:shk .6s ease-in-out}
+@keyframes wob{0%,100%{transform:rotate(0)}50%{transform:rotate(-1.5deg) translateY(-2px)}}
+@keyframes shk{0%,100%{transform:rotate(0)}20%{transform:rotate(-5deg)}40%{transform:rotate(4.5deg)}60%{transform:rotate(-3deg)}80%{transform:rotate(2deg)}}
+.take{border:1px solid #24402F;border-radius:20px;padding:18px 20px;background:#0C1C14;display:flex;flex-direction:column;gap:10px}
+.take h4{margin:0;font-weight:700;font-size:12px;letter-spacing:.22em;color:#F5C542}
+.take ul{margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:8px}
+.take li{padding:7px 12px;border-radius:999px;background:#173425;border:1px solid #24402F;font-size:14px;font-weight:600}
+@container prog (max-width:620px){
+  .dc{grid-template-columns:minmax(0,1fr);padding:calc(12.9cqw + 14px) 20px calc(12.9cqw + 18px)}
+  .prize{max-width:none}
+  .adv{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .dr .ins{padding:12px 12px 14px;gap:6px}.dr .ins .ic{width:38px;height:38px;border-radius:11px}
+  .dr .ins h3{font-size:14px}.dr .ins p{font-size:12.5px}
+}
+@media (max-width:640px){.prog{padding:0 16px 64px}}
+@media (prefers-reduced-motion:reduce){.dr .lid{transition:none}.gift .gb{animation:none!important}}
 </style>
 
 <main class="page">
@@ -529,10 +580,24 @@ ONLY</span></div>
     <span class="glst" id="glSt" hidden></span>
     <div class="glrows" id="glRows"></div>
   </section>
-  <section class="soon">
-    <span class="gk" data-i="soonK">DEC 19 · 6:00 PM</span>
-    <h2 data-i="soonH">EVERYTHING ELSE — SOON</h2>
-    <p data-i="soonP">Program, address and surprises will be announced later. Grab your ticket now — spots are limited.</p>
+  <section class="prog" id="prog">
+    <h2>DRESS CODE</h2>
+    <div class="dc">
+      <div class="in"><span class="dch" data-i="dcH">UGLY SWEATER</span><p data-i="dcP"></p></div>
+      <div class="prize"><img src="/xmas26/prog/cup.webp" alt="" width="60" height="60"><div><b data-i="przH"></b><span data-i="przS"></span></div></div>
+    </div>
+    <h2 class="h2b" data-i="prH">PROGRAM</h2>
+    <div class="adv" id="adv">
+      <button type="button" class="dr" aria-expanded="false" aria-label="1"><div class="ins"><span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 8h1a4 4 0 0 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8z"/><path d="M6 2v2M10 2v2M14 2v2"/></svg></span><h3 data-i="w1t"></h3><p data-i="w1p"></p></div><div class="lid" style="--x:48.87%;--y:46.61%;--d:56.5%;background-image:url(/xmas26/prog/w1.jpg)"><b>1</b></div></button>
+      <button type="button" class="dr" aria-expanded="false" aria-label="2"><div class="ins"><span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg></span><h3 data-i="w2t"></h3><p data-i="w2p"></p></div><div class="lid" style="--x:50.28%;--y:47.35%;--d:58.4%;background-image:url(/xmas26/prog/w2.jpg)"><b>2</b></div></button>
+      <button type="button" class="dr" aria-expanded="false" aria-label="3"><div class="ins"><span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14"/><path d="M12 17.5h.01"/></svg></span><h3 data-i="w3t"></h3><p data-i="w3p"></p><span class="pz" data-i="pz3"></span></div><div class="lid" style="--x:49.6%;--y:46.8%;--d:57.2%;background-image:url(/xmas26/prog/w3.jpg)"><b>3</b></div></button>
+      <button type="button" class="dr" aria-expanded="false" aria-label="4"><div class="ins"><span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg></span><h3 data-i="w4t"></h3><p data-i="w4p"></p><span class="pz" data-i="pz4"></span></div><div class="lid" style="--x:49.43%;--y:46.93%;--d:57.51%;background-image:url(/xmas26/prog/w4.jpg)"><b>4</b></div></button>
+      <button type="button" class="dr" aria-expanded="false" aria-label="5"><div class="ins"><span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></span><h3 data-i="w5t"></h3><p data-i="w5p"></p></div><div class="lid" style="--x:49.44%;--y:46.53%;--d:57.06%;background-image:url(/xmas26/prog/w5.jpg)"><b>5</b></div></button>
+      <button type="button" class="dr" aria-expanded="false" aria-label="6"><div class="ins"><span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11h16a8 8 0 0 1-16 0z"/><path d="M12 3v3M8 4.5l1 2M16 4.5l-1 2"/></svg></span><h3 data-i="w6t"></h3><p data-i="w6p"></p></div><div class="lid" style="--x:49.43%;--y:46.42%;--d:56.7%;background-image:url(/xmas26/prog/w6.jpg)"><b>6</b></div></button>
+      <button type="button" class="dr" aria-expanded="false" aria-label="7"><div class="ins"><span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l2.4 6.6L21 9l-5.2 4.2L17.6 20 12 16.3 6.4 20l1.8-6.8L3 9l6.6-.4z"/></svg></span><h3 data-i="w7t"></h3><p data-i="w7p"></p></div><div class="lid" style="--x:49.15%;--y:46.63%;--d:57.51%;background-image:url(/xmas26/prog/w7.jpg)"><b>7</b></div></button>
+      <button type="button" class="dr gift" data-i-aria="giftH"><div class="gb"></div><div class="gl"><b data-i="giftH"></b><span data-i="giftS"></span></div></button>
+    </div>
+    <div class="take"><h4 data-i="takeH"></h4><ul><li data-i="tk1"></li><li data-i="tk2"></li><li data-i="tk3"></li></ul></div>
   </section>
   <section class="recap">
     <h2 data-i="recH">HOW IT WAS</h2>
@@ -644,7 +709,7 @@ ONLY</span></div>
   var TARGET = Date.parse('2026-12-19T18:00:00-08:00');
 
   var T = {
-    en:{navBack:"← All events",regSoon:"REGISTRATION OPENS IN A FEW DAYS",xtag:"CHRISTMAS EDITION",soonK:"DEC 19 · 6:00 PM",soonH:"EVERYTHING ELSE — SOON",soonP:"Program and surprises will be announced later. Sign up now — spots are limited.",recK:"TEENS PARTY · OCT 31",recH:"HOW IT WAS LAST TIME",recN:"teens came to the fall party",recB:"SEE THE PHOTOS",tgJoin:"JOIN OUR TELEGRAM CHAT",galK:"TEENS PARTY · DEC 19, 2026",galH:"PHOTOS",dl1:"ORIGINALS · PART 1 ↗",dl2:"ORIGINALS · PART 2 ↗",more:"SHOW MORE",closedH:"REGISTRATION CLOSED",closedP:"TEENS PARTY is over. Thank you for coming!",photos:"SEE THE PHOTOS",pyoureIn:"YOUR TEEN IS IN",parentBtn:"Register my teen\nI'm a parent",pq1:"Your teen's first and last name",pq2:"Phone number for the ticket",ph2:"Your number or your teen's. With it you can find the ticket on this site.",pq3:"How old is your teen?",pq4:"Your name",pq5:"Your phone (if different)",taken:"TAKEN",left:"SPOTS LEFT",lgTaken:"Taken",lgFree:"Free",lgMe:"Your spot",starts:"STARTS IN",admit:"CHRISTMAS PASS",spots:"SPOTS",
+    en:{prH:"PROGRAM",prL:"Seven windows and one gift we'll only open at the party.",dcK:"DRESS CODE",dcH:"UGLY SWEATER",dcP:"Wear the most ridiculous Christmas sweater you can find: reindeer, snowflakes, pom-poms, lights — the weirder, the better.",przH:"Prize for the best sweater",przS:"decided by vote",adHint:"Open the windows one at a time — each hides part of the night.",w1t:"Hot drinks bar",w1p:"Non-alcoholic mulled wine, hot cocoa with marshmallows and cookies — warm up at the door.",w2t:"Secret Mission",w2p:"A secret task via QR. Pull it off without anyone noticing.",w3t:"Quiz",w3p:"Team battle: Christmas movies, songs and facts.",pz3:"PRIZES",w4t:"Sweater Battle",w4p:"The most ridiculous sweater wins a prize. Everyone votes.",pz4:"PRIZE",w5t:"Wish Wall",w5p:"Sign a card and watch it appear on the big screen.",w6t:"Dinner",w6p:"Lots of good food and desserts. Nobody leaves hungry.",w7t:"Real Talk",w7p:"A short, honest talk about why Christmas matters at all.",giftH:"Surprise",giftS:"opens on December 19",takeH:"WHAT TO BRING",tk1:"Ugly sweater",tk2:"A friend",tk3:"Good vibes",navBack:"← All events",regSoon:"REGISTRATION OPENS IN A FEW DAYS",xtag:"CHRISTMAS EDITION",soonK:"DEC 19 · 6:00 PM",soonH:"EVERYTHING ELSE — SOON",soonP:"Program and surprises will be announced later. Sign up now — spots are limited.",recK:"TEENS PARTY · OCT 31",recH:"HOW IT WAS LAST TIME",recN:"teens came to the fall party",recB:"SEE THE PHOTOS",tgJoin:"JOIN OUR TELEGRAM CHAT",galK:"TEENS PARTY · DEC 19, 2026",galH:"PHOTOS",dl1:"ORIGINALS · PART 1 ↗",dl2:"ORIGINALS · PART 2 ↗",more:"SHOW MORE",closedH:"REGISTRATION CLOSED",closedP:"TEENS PARTY is over. Thank you for coming!",photos:"SEE THE PHOTOS",pyoureIn:"YOUR TEEN IS IN",parentBtn:"Register my teen\nI'm a parent",pq1:"Your teen's first and last name",pq2:"Phone number for the ticket",ph2:"Your number or your teen's. With it you can find the ticket on this site.",pq3:"How old is your teen?",pq4:"Your name",pq5:"Your phone (if different)",taken:"TAKEN",left:"SPOTS LEFT",lgTaken:"Taken",lgFree:"Free",lgMe:"Your spot",starts:"STARTS IN",admit:"CHRISTMAS PASS",spots:"SPOTS",
         monthV:"DECEMBER",dayV:"SATURDAY",doors:"START",timeV:"6:00 PM",venue:"ADDRESS",tba:"ANNOUNCED SOON",cta:"Register",
         busy:"BOOKING…",soldout:"SOLD OUT",youreIn:"YOU'RE IN",already:"ALREADY REGISTERED",again:"Register someone else",
         qrTap:"Tap the QR to enlarge it",qrClose:"Tap anywhere to close",smsSent:"Your ticket was texted to {p}.",noSms:"Screenshot this ticket and show the QR code at the entrance. Lost it? Register again with the same phone number.",
@@ -655,7 +720,7 @@ ONLY</span></div>
         uD:"DAYS",uH:"HRS",uM:"MIN",uS:"SEC",
         check:"Already signed up? Check or change it",checkTitle:"FIND YOUR TICKET",checkQ:"Phone number you registered with",find:"SHOW MY TICKET",eNotFound:"No ticket for this number yet. Register first.",share:"SHARE TO STORIES",shareHint:"Press and hold the image to save it, then post it to your story.",shareLink:"SHARE LINK",copied:"LINK COPIED",storyIn:"I'M IN",storyCta:"Register at teensparty.fun",storyDate:"SAT · DEC 19 · 6:00 PM",invite:"MERRY\nCHRISTMAS",mqTop:"TEENS PARTY — DEC 19 — 6 PM — CHRISTMAS EDITION — TEENS PARTY — DEC 19 — 6 PM — CHRISTMAS EDITION — ",
         mq:"DON'T MISS IT — BRING A FRIEND — DON'T MISS IT — BRING A FRIEND — DON'T MISS IT — BRING A FRIEND — ", vidK:"WATCH · 29 SEC", vidH:"EVERYTHING ABOUT TEENS PARTY",progH:"PROGRAM",finH:"NOT SIGNED UP YET?",finP:"Only 50 spots — grab yours before they're gone.",pSec:"GAME DETAILS CLASSIFIED",pTag:"DON'T MISS",p1h:"PHOTO\nZONE",p1d:"Grab shots for your stories with friends.",p2h:"SECRET\nMISSION",p2d:"Scan the QR, get your missions and meet new people across the room.",p3h:"SECRET\nAGENT",p3d:"A team quiz to find the best agent in the room.",p4h:"REAL\nTALK",p4d:"A short, honest talk with the pastor about what really matters.",p5h:"FOOD &\nDRINKS",p5d:"Food, drinks and snacks — enough for everyone.",p6h:"HANG\nOUT",p6d:"Meet new people, talk and just have a good time.", sndOn:"SOUND ON", sndOff:"SOUND OFF"},
-    ru:{navBack:"← Все события",regSoon:"РЕГИСТРАЦИЯ ОТКРОЕТСЯ НА ДНЯХ",xtag:"CHRISTMAS EDITION",soonK:"19 ДЕКАБРЯ · 6:00 PM",soonH:"ВСЁ ОСТАЛЬНОЕ — СКОРО",soonP:"Программу и сюрпризы объявим позже. Записывайся уже сейчас — мест немного.",recK:"TEENS PARTY · 31 ОКТЯБРЯ",recH:"КАК ЭТО БЫЛО В ПРОШЛЫЙ РАЗ",recN:"подростка пришли на осеннюю пати",recB:"СМОТРЕТЬ ФОТО",tgJoin:"ВСТУПИТЬ В TELEGRAM-ЧАТ",galK:"TEENS PARTY · 31 ОКТЯБРЯ 2026",galH:"ФОТО",dl1:"ОРИГИНАЛЫ · ЧАСТЬ 1 ↗",dl2:"ОРИГИНАЛЫ · ЧАСТЬ 2 ↗",more:"ПОКАЗАТЬ ЕЩЁ",closedH:"РЕГИСТРАЦИЯ ЗАКРЫТА",closedP:"TEENS PARTY завершено. Спасибо, что были с нами!",photos:"СМОТРЕТЬ ФОТО",pyoureIn:"ПОДРОСТОК В СПИСКЕ",parentBtn:"Зарегистрировать подростка\nя родитель",pq1:"Имя и фамилия подростка",pq2:"Номер телефона для билета",ph2:"Ваш номер или номер подростка. По нему можно найти билет на сайте.",pq3:"Сколько лет подростку?",pq4:"Ваше имя",pq5:"Ваш телефон (если другой)",taken:"ЗАНЯТО",left:"ОСТАЛОСЬ МЕСТ",lgTaken:"Занято",lgFree:"Свободно",lgMe:"Твоё место",starts:"ДО НАЧАЛА",admit:"CHRISTMAS PASS",spots:"МЕСТ",
+    ru:{prH:"ПРОГРАММА",prL:"Семь окошек и один подарок, который откроем только на месте.",dcK:"DRESS CODE",dcH:"UGLY SWEATER",dcP:"Надевай самый нелепый рождественский свитер, какой найдёшь: олени, снежинки, помпоны, гирлянды — чем страннее, тем лучше.",przH:"Приз за лучший свитер",przS:"выберем голосованием",adHint:"Открывай окошки по одному — в каждом часть вечера.",w1t:"Горячий бар",w1p:"Безалкогольный глинтвейн, какао с маршмеллоу и печенье — греемся с порога.",w2t:"Секретная миссия",w2p:"Тайное задание по QR. Выполни так, чтобы никто не догадался.",w3t:"Квиз",w3p:"Командная битва: рождественские фильмы, песни и факты.",pz3:"ПРИЗЫ",w4t:"Битва свитеров",w4p:"Самый нелепый свитер забирает приз. Голосуют все.",pz4:"ПРИЗ",w5t:"Стена пожеланий",w5p:"Подпиши открытку — и она появится на большом экране.",w6t:"Ужин",w6p:"Много вкусной еды и десерты. Голодным не уйдёт никто.",w7t:"Real Talk",w7p:"Коротко и честно о том, зачем вообще Рождество.",giftH:"Сюрприз",giftS:"откроем 19 декабря",takeH:"ЧТО ВЗЯТЬ С СОБОЙ",tk1:"Ugly sweater",tk2:"Друга",tk3:"Хорошее настроение",navBack:"← Все события",regSoon:"РЕГИСТРАЦИЯ ОТКРОЕТСЯ НА ДНЯХ",xtag:"CHRISTMAS EDITION",soonK:"19 ДЕКАБРЯ · 6:00 PM",soonH:"ВСЁ ОСТАЛЬНОЕ — СКОРО",soonP:"Программу и сюрпризы объявим позже. Записывайся уже сейчас — мест немного.",recK:"TEENS PARTY · 31 ОКТЯБРЯ",recH:"КАК ЭТО БЫЛО В ПРОШЛЫЙ РАЗ",recN:"подростка пришли на осеннюю пати",recB:"СМОТРЕТЬ ФОТО",tgJoin:"ВСТУПИТЬ В TELEGRAM-ЧАТ",galK:"TEENS PARTY · 31 ОКТЯБРЯ 2026",galH:"ФОТО",dl1:"ОРИГИНАЛЫ · ЧАСТЬ 1 ↗",dl2:"ОРИГИНАЛЫ · ЧАСТЬ 2 ↗",more:"ПОКАЗАТЬ ЕЩЁ",closedH:"РЕГИСТРАЦИЯ ЗАКРЫТА",closedP:"TEENS PARTY завершено. Спасибо, что были с нами!",photos:"СМОТРЕТЬ ФОТО",pyoureIn:"ПОДРОСТОК В СПИСКЕ",parentBtn:"Зарегистрировать подростка\nя родитель",pq1:"Имя и фамилия подростка",pq2:"Номер телефона для билета",ph2:"Ваш номер или номер подростка. По нему можно найти билет на сайте.",pq3:"Сколько лет подростку?",pq4:"Ваше имя",pq5:"Ваш телефон (если другой)",taken:"ЗАНЯТО",left:"ОСТАЛОСЬ МЕСТ",lgTaken:"Занято",lgFree:"Свободно",lgMe:"Твоё место",starts:"ДО НАЧАЛА",admit:"CHRISTMAS PASS",spots:"МЕСТ",
         monthV:"DECEMBER",dayV:"СУББОТА",doors:"НАЧАЛО",timeV:"6:00 PM",venue:"АДРЕС",tba:"АНОНС СКОРО",cta:"Зарегистрироваться",
         busy:"ОФОРМЛЯЕМ…",soldout:"МЕСТ НЕТ",youreIn:"ТЫ В СПИСКЕ",already:"УЖЕ ЗАРЕГИСТРИРОВАН",again:"Зарегистрировать ещё кого-то",
         qrTap:"Нажми на QR, чтобы увеличить",qrClose:"Нажми в любом месте, чтобы закрыть",smsSent:"Билет отправлен SMS на {p}.",noSms:"Сделай скриншот билета и покажи QR-код на входе. Потерял? Зарегистрируйся ещё раз с тем же номером.",
@@ -666,7 +731,7 @@ ONLY</span></div>
         uD:"ДНЕЙ",uH:"ЧАСОВ",uM:"МИН",uS:"СЕК",
         check:"Уже записан? Проверить запись",checkTitle:"НАЙТИ СВОЙ БИЛЕТ",checkQ:"Номер, с которым ты регистрировался",find:"ПОКАЗАТЬ БИЛЕТ",eNotFound:"На этот номер билета нет. Сначала зарегистрируйся.",share:"ПОДЕЛИТЬСЯ В СТОРИС",shareHint:"Нажми и удерживай картинку, чтобы сохранить, и выложи её в сторис.",shareLink:"ПОДЕЛИТЬСЯ ССЫЛКОЙ",copied:"ССЫЛКА СКОПИРОВАНА",storyIn:"Я ИДУ",storyCta:"Регистрация на teensparty.fun",storyDate:"СБ · DEC 19 · 6:00 PM",invite:"СВЕТЛОГО\nРОЖДЕСТВА",mqTop:"TEENS PARTY — DEC 19 — 6 PM — РОЖДЕСТВЕНСКИЙ ВЫПУСК — TEENS PARTY — DEC 19 — 6 PM — РОЖДЕСТВЕНСКИЙ ВЫПУСК — ",
         mq:"НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — НЕ ПРОПУСТИ — ЗОВИ ДРУЗЕЙ — ", vidK:"СМОТРИ · 29 СЕК", vidH:"ВСЁ О TEENS PARTY",progH:"ПРОГРАММА",finH:"ЕЩЁ НЕ ЗАПИСАН?",finP:"Мест всего 50 — успей забрать своё.",pSec:"ДЕТАЛИ ИГРЫ ЗАСЕКРЕЧЕНЫ",pTag:"ГЛАВНОЕ",p1h:"ФОТО\nЗОНА",p1d:"Кадры для сторис с друзьями.",p2h:"СЕКРЕТНАЯ\nМИССИЯ",p2d:"Сканируй QR, получи задания и знакомься с людьми по всему залу.",p3h:"СЕКРЕТНЫЙ\nАГЕНТ",p3d:"Командный квиз: узнаем, кто здесь лучший агент.",p4h:"REAL\nTALK",p4d:"Короткий честный разговор с пастором о главном.",p5h:"ЕДА И\nНАПИТКИ",p5d:"Еда, напитки и закуски — хватит всем.",p6h:"ЖИВОЕ\nОБЩЕНИЕ",p6d:"Новые знакомства, разговоры и просто классное время вместе.", sndOn:"ВКЛЮЧИТЬ ЗВУК", sndOff:"ВЫКЛЮЧИТЬ ЗВУК"},
-    uk:{navBack:"← Усі події",regSoon:"РЕЄСТРАЦІЯ ВІДКРИЄТЬСЯ НАЙБЛИЖЧИМИ ДНЯМИ",xtag:"CHRISTMAS EDITION",soonK:"19 ГРУДНЯ · 6:00 PM",soonH:"ВСЕ ІНШЕ — НЕЗАБАРОМ",soonP:"Програму й сюрпризи оголосимо пізніше. Записуйся вже зараз — місць небагато.",recK:"TEENS PARTY · 31 ЖОВТНЯ",recH:"ЯК ЦЕ БУЛО МИНУЛОГО РАЗУ",recN:"підлітки прийшли на осінню паті",recB:"ДИВИТИСЯ ФОТО",tgJoin:"ВСТУПИТИ В TELEGRAM-ЧАТ",galK:"TEENS PARTY · 31 ЖОВТНЯ 2026",galH:"ФОТО",dl1:"ОРИГІНАЛИ · ЧАСТИНА 1 ↗",dl2:"ОРИГІНАЛИ · ЧАСТИНА 2 ↗",more:"ПОКАЗАТИ ЩЕ",closedH:"РЕЄСТРАЦІЮ ЗАКРИТО",closedP:"TEENS PARTY завершено. Дякуємо, що були з нами!",photos:"ДИВИТИСЯ ФОТО",pyoureIn:"ПІДЛІТОК У СПИСКУ",parentBtn:"Зареєструвати підлітка\nя з батьків",pq1:"Ім'я та прізвище підлітка",pq2:"Номер телефону для квитка",ph2:"Ваш номер або номер підлітка. За ним можна знайти квиток на сайті.",pq3:"Скільки років підлітку?",pq4:"Ваше ім'я",pq5:"Ваш телефон (якщо інший)",taken:"ЗАЙНЯТО",left:"ЗАЛИШИЛОСЬ МІСЦЬ",lgTaken:"Зайнято",lgFree:"Вільно",lgMe:"Твоє місце",starts:"ДО ПОЧАТКУ",admit:"CHRISTMAS PASS",spots:"МІСЦЬ",
+    uk:{prH:"ПРОГРАМА",prL:"Сім віконець і один подарунок, який відкриємо тільки на місці.",dcK:"DRESS CODE",dcH:"UGLY SWEATER",dcP:"Вдягай найбезглуздіший різдвяний светр, який знайдеш: олені, сніжинки, помпони, гірлянди — чим дивніше, тим краще.",przH:"Приз за найкращий светр",przS:"оберемо голосуванням",adHint:"Відкривай віконця по одному — у кожному частина вечора.",w1t:"Гарячий бар",w1p:"Безалкогольний глінтвейн, какао з маршмелоу та печиво — зігріваємося з порога.",w2t:"Таємна місія",w2p:"Таємне завдання через QR. Виконай так, щоб ніхто не здогадався.",w3t:"Квіз",w3p:"Командна битва: різдвяні фільми, пісні та факти.",pz3:"ПРИЗИ",w4t:"Битва светрів",w4p:"Найбезглуздіший светр забирає приз. Голосують усі.",pz4:"ПРИЗ",w5t:"Стіна побажань",w5p:"Підпиши листівку — і вона з'явиться на великому екрані.",w6t:"Вечеря",w6p:"Багато смачної їжі та десерти. Голодним не піде ніхто.",w7t:"Real Talk",w7p:"Коротко й чесно про те, навіщо взагалі Різдво.",giftH:"Сюрприз",giftS:"відкриємо 19 грудня",takeH:"ЩО ВЗЯТИ З СОБОЮ",tk1:"Ugly sweater",tk2:"Друга",tk3:"Гарний настрій",navBack:"← Усі події",regSoon:"РЕЄСТРАЦІЯ ВІДКРИЄТЬСЯ НАЙБЛИЖЧИМИ ДНЯМИ",xtag:"CHRISTMAS EDITION",soonK:"19 ГРУДНЯ · 6:00 PM",soonH:"ВСЕ ІНШЕ — НЕЗАБАРОМ",soonP:"Програму й сюрпризи оголосимо пізніше. Записуйся вже зараз — місць небагато.",recK:"TEENS PARTY · 31 ЖОВТНЯ",recH:"ЯК ЦЕ БУЛО МИНУЛОГО РАЗУ",recN:"підлітки прийшли на осінню паті",recB:"ДИВИТИСЯ ФОТО",tgJoin:"ВСТУПИТИ В TELEGRAM-ЧАТ",galK:"TEENS PARTY · 31 ЖОВТНЯ 2026",galH:"ФОТО",dl1:"ОРИГІНАЛИ · ЧАСТИНА 1 ↗",dl2:"ОРИГІНАЛИ · ЧАСТИНА 2 ↗",more:"ПОКАЗАТИ ЩЕ",closedH:"РЕЄСТРАЦІЮ ЗАКРИТО",closedP:"TEENS PARTY завершено. Дякуємо, що були з нами!",photos:"ДИВИТИСЯ ФОТО",pyoureIn:"ПІДЛІТОК У СПИСКУ",parentBtn:"Зареєструвати підлітка\nя з батьків",pq1:"Ім'я та прізвище підлітка",pq2:"Номер телефону для квитка",ph2:"Ваш номер або номер підлітка. За ним можна знайти квиток на сайті.",pq3:"Скільки років підлітку?",pq4:"Ваше ім'я",pq5:"Ваш телефон (якщо інший)",taken:"ЗАЙНЯТО",left:"ЗАЛИШИЛОСЬ МІСЦЬ",lgTaken:"Зайнято",lgFree:"Вільно",lgMe:"Твоє місце",starts:"ДО ПОЧАТКУ",admit:"CHRISTMAS PASS",spots:"МІСЦЬ",
         monthV:"DECEMBER",dayV:"СУБОТА",doors:"ПОЧАТОК",timeV:"6:00 PM",venue:"АДРЕСА",tba:"АНОНС НЕЗАБАРОМ",cta:"Зареєструватися",
         busy:"ОФОРМЛЮЄМО…",soldout:"МІСЦЬ НЕМАЄ",youreIn:"ТИ В СПИСКУ",already:"ВЖЕ ЗАРЕЄСТРОВАНО",again:"Зареєструвати ще когось",
         qrTap:"Натисни на QR, щоб збільшити",qrClose:"Натисни будь-де, щоб закрити",smsSent:"Квиток надіслано SMS на {p}.",noSms:"Зроби скриншот квитка і покажи QR-код на вході. Загубив? Зареєструйся ще раз з тим самим номером.",
@@ -969,7 +1034,7 @@ ONLY</span></div>
   }
   function makeStory(){
     var W = 1080, H = 1920, c = document.createElement('canvas'); c.width = W; c.height = H;
-    var x = c.getContext('2d'), L = T[lang], D = 'Unbounded, "Arial Black", sans-serif', B = 'Manrope, Arial, sans-serif';
+    var x = c.getContext('2d'), L = T[lang], D = 'Montserrat, "Arial Black", sans-serif', B = 'Montserrat, Arial, sans-serif';
     x.fillStyle = '#0d0d0d'; x.fillRect(0, 0, W, H);
     function strip(y, rot, bg, fg, txt, size){
       x.save(); x.translate(W/2, y); x.rotate(rot);
@@ -1013,7 +1078,7 @@ ONLY</span></div>
   var storyFile = null, storyBlob = null, storyKey = '', storyUrl = '';
   function fontsReady(){
     return (document.fonts && document.fonts.load)
-      ? Promise.all([document.fonts.load('900 64px Unbounded', 'TEENS ПАРТІ'), document.fonts.load('800 30px Manrope', 'Aa Яя')]).catch(function(){})
+      ? Promise.all([document.fonts.load('900 64px Montserrat', 'TEENS ПАРТІ'), document.fonts.load('800 30px Montserrat', 'Aa Яя')]).catch(function(){})
       : Promise.resolve();
   }
   function prepStory(){
@@ -1272,7 +1337,7 @@ ONLY</span></div>
     D.addEventListener('close', function(){ if(S.done){ S.done = false; mark(); setBack(true); TK.scrollIntoView({block:'nearest', behavior:'smooth'}); } });
     /* картинка для сторис 1080x1920 */
     function makeStory(t){
-      var d = L[lang] || L.en, W = 1080, H = 1920, c = document.createElement('canvas'); c.width = W; c.height = H; var x = c.getContext('2d'), F = 'Unbounded, sans-serif', i;
+      var d = L[lang] || L.en, W = 1080, H = 1920, c = document.createElement('canvas'); c.width = W; c.height = H; var x = c.getContext('2d'), F = 'Montserrat, sans-serif', i;
       x.fillStyle = '#10231A'; x.fillRect(0, 0, W, H);
       function candy(y){ x.save(); x.beginPath(); x.rect(0, y, W, 34); x.clip(); var col = ['#EF4444', '#F4F4F5', '#1F7A46']; for(i = -2; i < 40; i++){ x.fillStyle = col[((i % 3) + 3) % 3]; x.beginPath(); x.moveTo(i * 40, y + 34); x.lineTo(i * 40 + 34, y); x.lineTo(i * 40 + 74, y); x.lineTo(i * 40 + 40, y + 34); x.fill(); } x.restore(); }
       candy(0); candy(H - 34);
@@ -1283,7 +1348,7 @@ ONLY</span></div>
       x.fillStyle = '#FBF7EE'; x.beginPath(); x.roundRect(80, 960, W - 160, 640, 48); x.fill();
       x.fillStyle = '#B91C1C'; x.beginPath(); x.roundRect(80, 960, W - 160, 120, [48, 48, 0, 0]); x.fill();
       x.fillStyle = '#FBF7EE'; x.font = '700 40px ' + F; x.fillText('✳ CHRISTMAS PASS', 130, 1036);
-      x.fillStyle = '#52525B'; x.font = '700 34px Inter, sans-serif'; x.fillText(d.sgo, 130, 1170);
+      x.fillStyle = '#52525B'; x.font = '700 34px Montserrat, sans-serif'; x.fillText(d.sgo, 130, 1170);
       x.fillStyle = '#0E0F12'; fitFont(x, t.n, '900', F, 110, W - 260); x.fillText(t.n, 130, 1290);
       x.fillStyle = '#B91C1C'; x.font = '900 150px ' + F; x.fillText('DEC 19', 130, 1470);
       x.fillStyle = '#0E0F12'; x.font = '700 48px ' + F; x.fillText('6:00 PM' + (num(t) ? '   ·   ' + num(t) : ''), 130, 1550);
@@ -1292,7 +1357,7 @@ ONLY</span></div>
       return new Promise(function(res){ c.toBlob(function(b){ res(b); }, 'image/png'); });
     }
     function prepStory(t){ var k = lang + '|' + t.n + '|' + (t.no || ''); if(k === sKey) return; sKey = k; sFile = sBlob = null;
-      fontsReady().then(function(){ return document.fonts && document.fonts.load ? document.fonts.load('700 34px Inter', 'Aa Яя') : null; }).catch(function(){}).then(function(){ return makeStory(t); }).then(function(b){ if(k !== sKey || !b) return; sBlob = b; try{ sFile = new File([b], 'teens-party-christmas.png', {type:'image/png'}); }catch(e){ sFile = null; } }); }
+      fontsReady().then(function(){ return document.fonts && document.fonts.load ? document.fonts.load('700 34px Montserrat', 'Aa Яя') : null; }).catch(function(){}).then(function(){ return makeStory(t); }).then(function(b){ if(k !== sKey || !b) return; sBlob = b; try{ sFile = new File([b], 'teens-party-christmas.png', {type:'image/png'}); }catch(e){ sFile = null; } }); }
     function share(){ track('share_story');
       var can = false; try{ can = !!(sFile && navigator.canShare && navigator.canShare({files:[sFile]})); }catch(e){}
       if(can){ navigator.share({files:[sFile], title:'TEENS PARTY Christmas'}).catch(function(){}); return; }
@@ -1460,4 +1525,12 @@ ONLY</span></div>
   setInterval(tick, 1000);
   if(live) setInterval(refresh, 20000);
 })();
+
+  /* Программа: открыто только одно окошко; подарок не открывается, а трясётся */
+  (function(){ var A = document.getElementById('adv'); if(!A) return;
+    A.addEventListener('click', function(e){ var d = e.target.closest('.dr'); if(!d) return;
+      if(d.classList.contains('gift')){ d.classList.remove('shake'); void d.offsetWidth; d.classList.add('shake'); return; }
+      var was = d.classList.contains('open'); A.querySelectorAll('.dr.open').forEach(function(x){ x.classList.remove('open'); x.setAttribute('aria-expanded', 'false'); });
+      if(!was){ d.classList.add('open'); d.setAttribute('aria-expanded', 'true'); try{ track('prog_open'); }catch(err){} } });
+  })();
 </script>
