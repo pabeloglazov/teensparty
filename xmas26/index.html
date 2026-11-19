@@ -2,14 +2,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>TEENS PARTY · CHRISTMAS · DEC 19</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Unbounded:wght@900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Unbounded:wght@600;700;900&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <style>
 /* Layout: big marquee strips top/bottom; left = title + seat board + countdown; right = ticket; registration = step-by-step popup */
 :root{
   --bg:#0d0d0d; --fg:#f2efe8; --paper:#f2efe8; --ink:#0d0d0d; --orange:#ff5a1f; --orange-dark:#b83606;
   --muted:#b9b4ab; --paper-muted:#55524c; --seat-empty:#262421; --err:#b3200c; --track:#d9d4ca;
-  --display:Montserrat, "Arial Black", system-ui, sans-serif;
+  --display:Unbounded, "Arial Black", system-ui, sans-serif;
   --body:Montserrat, "Segoe UI", system-ui, sans-serif;
   color-scheme:dark;
 }
@@ -258,7 +258,7 @@ body{font-family:var(--body)}
 .xtag{align-self:flex-start;background:#EF4444;color:#0E0F12;font-weight:700;font-size:14px;padding:10px 18px;border-radius:999px;box-shadow:none;margin:0}
 h1{font-size:clamp(56px,10vw,136px);line-height:.86;letter-spacing:-.04em}
 /* заголовок TEENS PARTY — как раньше: Unbounded 900 */
-h1{font-family:Unbounded,"Arial Black",sans-serif;font-weight:900}
+h1,main h2,.tkh{font-family:Unbounded,"Arial Black",sans-serif;font-weight:900}
 h1 .outline{color:var(--bg);-webkit-text-stroke:2px var(--fg)}
 .board{max-width:none;gap:26px}
 .stats{gap:12px;background:none;border:0}
@@ -275,6 +275,7 @@ h1 .outline{color:var(--bg);-webkit-text-stroke:2px var(--fg)}
 .tgrid b{font-weight:700;font-size:24px}
 .ticket{position:relative;background:var(--paper);border:0;border-radius:28px;box-shadow:none;transform:none;overflow:hidden;animation:none;max-width:420px}
 @media (min-width:900px){.ticket{flex:0 0 420px;width:420px}}
+@media (max-width:899px){.ticket{max-width:none;width:100%;flex:1 1 100%;align-self:stretch}}
 /* на компьютере билет тянется до нижней линии таймера */
 @media (min-width:900px){.wrap{align-items:stretch}.ticket .part:not(.stub){flex:1;gap:0;justify-content:space-between}.ticket .part:not(.stub)>*{flex:none}.ticket .part.stub{flex:none}}
 .ticket::before,.ticket::after{content:"";display:block;height:14px;flex:none;background:repeating-linear-gradient(135deg,#DC2626 0 14px,#FBF7EE 14px 28px,#1F7A46 28px 42px)}
