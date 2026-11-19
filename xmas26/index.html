@@ -454,10 +454,12 @@ dialog{border:0;border-radius:24px;box-shadow:0 30px 80px rgba(0,0,0,.5);overflo
 .gldrop{width:100%;font-family:var(--body);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:84px;padding:12px;border:2px dashed #0E0F12;border-radius:14px;background:#fff;color:#0E0F12;cursor:pointer;text-align:center;font-size:15px}
 .gldrop small{color:#52525B}
 .glcol{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:6px;margin-top:8px}
-.glcol button{aspect-ratio:200/290;min-height:44px;padding:0;border-radius:10px;border:2px solid transparent;cursor:pointer;background:url(/xmas26/orn/balls.webp) no-repeat var(--bx) var(--by)/600% 500%;transition:transform .15s}
-.glcol button:hover{transform:translateY(-2px)}
+.glcol button{position:relative;aspect-ratio:1;min-height:44px;padding:0;border-radius:12px;border:2px solid transparent;cursor:pointer;background:transparent;overflow:hidden;transition:background-color .2s,border-color .2s}
+.glcol button::before{content:"";position:absolute;left:14%;top:50%;width:72%;aspect-ratio:200/290;transform:translateY(-64.5%);background:url(/xmas26/orn/balls.webp) no-repeat var(--bx) var(--by)/600% 500%;transition:transform .2s}
+.glcol button:hover::before{transform:translateY(-68%)}
 @media (max-width:420px){.glcol{grid-template-columns:repeat(6,minmax(0,1fr))}}
 .glcol button.on{border-color:#0E0F12;background-color:#EFE6D2}
+.glprev .glb{transition:filter .2s}
 @media (max-width:640px){.glrow{height:132px}.glstrip{padding:16px;background-position:right center}.glstrip .btn{width:100%;white-space:normal}.gldots{grid-template-columns:repeat(25,1fr)}}
 @media (prefers-reduced-motion:reduce){.glh{transition:none}}
 
@@ -1504,7 +1506,9 @@ ONLY</span></div>
       if(a === 'who'){ st.who = +x; startForm(); form(); }
       else if(a === 'kind'){ f.kind = x; st.err = ''; draft(true); form(); }
       else if(a === 'pick'){ draft(true); picking = Date.now(); FI.click(); }
-      else if(a === 'col'){ f.color = x; draft(true); form(); }
+      else if(a === 'col'){ f.color = x; draft(true);
+        FB.querySelectorAll('.glcol button').forEach(function(q){ var on = q === b; q.classList.toggle('on', on); q.setAttribute('aria-pressed', on); });
+        var pv = FB.querySelector('.glprev .glb'); if(pv){ pv.className = pv.className.replace(/\bo\d+\b/, 'o' + ci(x)).replace(/\s*\blt\b/, '') + (LIGHT.indexOf(ci(x)) >= 0 ? ' lt' : ''); } }
       else if(a === 'put'){ if(st.busy) return;
         if(!String(f.name || '').trim()){ st.err = D2.eName; return form(); }
         if(f.kind === 'photo' && !f.photo){ st.err = D2.ePhoto; return form(); }
