@@ -22,7 +22,13 @@ h1{margin:0;font:700 26px/1.1 Unbounded,sans-serif}
 .list{display:flex;flex-direction:column;gap:10px}
 .it{display:flex;gap:14px;align-items:center;background:#15171B;border:1px solid #2A2D35;border-radius:18px;padding:14px}
 .b{flex:none;width:72px;height:72px;border-radius:50%;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;color:#0E0F12;font:700 26px Unbounded,sans-serif}
-.b.red{background-color:#EF4444}.b.gold{background-color:#F5C542}.b.white{background-color:#FBF7EE}.b.blue{background-color:#60A5FA}.b.green{background-color:#4ADE80}
+.b{--w:72px;position:relative;z-index:0;margin-top:22px;background:none!important;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+.b::before{content:"";position:absolute;z-index:0;left:-4px;top:-40px;width:80px;height:116px;background:url(/xmas26/orn/balls.webp) no-repeat var(--bx) var(--by)/600% 500%;pointer-events:none}
+.b.ph::after{content:"";position:absolute;z-index:1;inset:9%;border-radius:50%;background:var(--ph) center/cover}
+.b i{position:relative;z-index:2;font-style:normal}.b.lt{color:#2A1A10;text-shadow:none}
+.o0,.o1,.o2,.o3,.o4,.o5,.o6,.o7,.o8,.o9,.o10,.o11,.o12,.o13,.o14,.o15,.o16,.o17,.o18,.o19,.o20,.o21,.o22,.o23,.o24,.o25,.o26,.o27,.o28,.o29{--bx:0%;--by:0%}
+.o0{--bx:0%;--by:0%}.o1{--bx:20%;--by:0%}.o2{--bx:40%;--by:0%}.o3{--bx:60%;--by:0%}.o4{--bx:80%;--by:0%}.o5{--bx:100%;--by:0%}.o6{--bx:0%;--by:25%}.o7{--bx:20%;--by:25%}.o8{--bx:40%;--by:25%}.o9{--bx:60%;--by:25%}.o10{--bx:80%;--by:25%}.o11{--bx:100%;--by:25%}.o12{--bx:0%;--by:50%}.o13{--bx:20%;--by:50%}.o14{--bx:40%;--by:50%}.o15{--bx:60%;--by:50%}.o16{--bx:80%;--by:50%}.o17{--bx:100%;--by:50%}.o18{--bx:0%;--by:75%}.o19{--bx:20%;--by:75%}.o20{--bx:40%;--by:75%}.o21{--bx:60%;--by:75%}.o22{--bx:80%;--by:75%}.o23{--bx:100%;--by:75%}.o24{--bx:0%;--by:100%}.o25{--bx:20%;--by:100%}.o26{--bx:40%;--by:100%}.o27{--bx:60%;--by:100%}.o28{--bx:80%;--by:100%}.o29{--bx:100%;--by:100%}
+
 .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
 .tx b{font-size:17px;overflow-wrap:anywhere}
 .tx span{color:#D4D4D8;font-size:15px;overflow-wrap:anywhere}
@@ -50,14 +56,16 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;min-height:5
   var tok = ''; try{ tok = localStorage.getItem('sol_tok') || ''; }catch(e){}
   var L = document.getElementById('list'), TB = document.getElementById('tabs'), all = [], tab = 'wait', busy = {};
   var NAME = {wait:'На проверке', ok:'Одобрены', no:'Скрыты'};
+  var NC = 30, LIGHT = [7, 8, 9, 10, 11, 16, 18, 19, 24, 28], LEG = {red:0, gold:6, white:9, blue:21, green:14};
+  function ci(c){ var m = /^o(\d{1,2})$/.exec(String(c || '')); if(m && +m[1] < NC) return +m[1]; return LEG.hasOwnProperty(c) ? LEG[c] : 0; }
   function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
   function call(fn, args){ return fetch(API, {method:'POST', body:JSON.stringify({fn:fn, args:args})}).then(function(r){ return r.json(); }).then(function(j){ if(!j.ok) throw new Error(j.error || 'error'); return j.data; }); }
   function login(){ TB.innerHTML = ''; L.innerHTML = '<div class="empty">Чтобы проверять шары, войдите в 3:16 Check-in на этом устройстве и вернитесь сюда.<br><br><a class="btn" href="/app/">Открыть Check-in</a></div>'; }
   function draw(){
     TB.innerHTML = ['wait','ok','no'].map(function(k){ return '<button type="button" data-t="' + k + '" class="' + (tab === k ? 'on' : '') + '">' + NAME[k] + ' · ' + all.filter(function(b){ return b.status === k; }).length + '</button>'; }).join('');
     var rows = all.filter(function(b){ return b.status === tab; });
-    L.innerHTML = rows.length ? rows.map(function(b){ var c = /^(red|gold|white|blue|green)$/.test(b.c) ? b.c : 'red';
-      return '<div class="it"><div class="b ' + c + '"' + (b.p ? ' style="background-image:url(' + esc(b.p) + ')"' : '') + '>' + (b.p ? '' : esc(String(b.n || '?').charAt(0).toUpperCase())) + '</div><div class="tx"><b>' + esc(b.n) + '</b>' + (b.w ? '<span>«' + esc(b.w) + '»</span>' : '<span class="mu">без пожелания</span>') + '<span class="st ' + b.status + '">' + NAME[b.status].toUpperCase() + '</span></div><div class="ac">' +
+    L.innerHTML = rows.length ? rows.map(function(b){ var c = ci(b.c);
+      return '<div class="it"><div class="b o' + c + (LIGHT.indexOf(c) >= 0 ? ' lt' : '') + (b.p ? ' ph' : '') + '"' + (b.p ? ' style="--ph:url(' + esc(b.p) + ')"' : '') + '>' + (b.p ? '' : '<i>' + esc(String(b.n || '?').charAt(0).toUpperCase()) + '</i>') + '</div><div class="tx"><b>' + esc(b.n) + '</b>' + (b.w ? '<span>«' + esc(b.w) + '»</span>' : '<span class="mu">без пожелания</span>') + '<span class="st ' + b.status + '">' + NAME[b.status].toUpperCase() + '</span></div><div class="ac">' +
         (b.status !== 'ok' ? '<button type="button" class="ok" data-id="' + esc(b.id) + '" data-s="ok"' + (busy[b.id] ? ' disabled' : '') + '>Одобрить</button>' : '') + (b.status !== 'no' ? '<button type="button" class="no" data-id="' + esc(b.id) + '" data-s="no"' + (busy[b.id] ? ' disabled' : '') + '>Скрыть</button>' : '') + '</div></div>'; }).join('')
       : '<div class="empty">' + (tab === 'wait' ? 'Новых шаров нет.' : 'Пусто.') + '</div>';
   }

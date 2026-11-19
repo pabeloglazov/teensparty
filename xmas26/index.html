@@ -399,17 +399,27 @@ dialog{border:0;border-radius:24px;box-shadow:0 30px 80px rgba(0,0,0,.5);overflo
 .glstrip .btn{flex:none;min-height:56px;padding:0 26px;white-space:nowrap}
 .glst{margin-top:-14px;font-size:13px;color:var(--muted)}
 .glrows{display:flex;flex-direction:column;gap:6px;padding:0 4px}
-.glrow{position:relative;height:118px}
+.glrow{position:relative;height:150px}
 .glrow svg{position:absolute;left:0;top:0;width:100%;height:60px;overflow:visible}
-.glh{position:absolute;transform:translateX(-50%);padding:14px 0 0;border:0;background:transparent;cursor:pointer;transform-origin:50% 0;transition:transform .2s ease}
-.glh::before{content:"";position:absolute;left:50%;top:0;width:2px;height:10px;margin-left:-1px;background:#C9B26B}
-.glh::after{content:"";position:absolute;left:50%;top:9px;width:14px;height:8px;margin-left:-7px;border-radius:3px 3px 0 0;background:#C9B26B}
+.glh{position:absolute;transform:translateX(-50%);padding:4px 0 0;border:0;background:transparent;cursor:pointer;transform-origin:50% 0;transition:transform .2s ease}
+.glh::before{content:"";position:absolute;left:50%;top:0;width:2px;height:7px;margin-left:-1px;background:#C9B26B}
 .glh:hover{transform:translateX(-50%) rotate(-5deg)}
 .glh:focus-visible{outline:3px solid #F4F4F5;outline-offset:4px;border-radius:12px}
 .glh.pend .glb{opacity:.55;outline:2px dashed #F4F4F5;outline-offset:3px}
 .glb{display:flex;align-items:center;justify-content:center;width:clamp(48px,6.4vw,64px);aspect-ratio:1;border-radius:50%;background-size:cover;background-position:center;color:#0E0F12;font-family:var(--display);font-weight:700;font-size:clamp(17px,2.2vw,22px);box-shadow:inset -5px -6px 0 rgba(0,0,0,.16),0 0 18px rgba(245,197,66,.28),0 6px 12px rgba(0,0,0,.35)}
 .glb.c-red{background-color:#EF4444}.glb.c-gold{background-color:#F5C542}.glb.c-white{background-color:#FBF7EE}.glb.c-blue{background-color:#60A5FA}.glb.c-green{background-color:#4ADE80}
 .glb.big{width:132px;font-size:48px;align-self:center;box-shadow:inset -9px -11px 0 rgba(0,0,0,.14)}
+/* Шары-фото: 30 цветов из одного листа /xmas26/orn/balls.webp (6×5, ячейка 200×290, шар Ø180 по центру снизу, колпачок сверху).
+   Цвет шара — класс o0…o29; фото кладётся внутрь шара поверх стекла, буква — поверх всего. */
+.glb{--w:clamp(48px,6.4vw,64px);position:relative;z-index:0;width:var(--w);margin-top:calc(var(--w) * .47);background:none!important;box-shadow:none;color:#fff;font-size:calc(var(--w) * .36);text-shadow:0 1px 3px rgba(0,0,0,.5)}
+.glb::before{content:"";position:absolute;z-index:0;left:calc(var(--w) * -.0556);top:calc(var(--w) * -.5556);width:calc(var(--w) * 1.1111);height:calc(var(--w) * 1.6111);background:url(/xmas26/orn/balls.webp) no-repeat var(--bx) var(--by)/600% 500%;filter:drop-shadow(0 6px 10px rgba(0,0,0,.35));pointer-events:none}
+.glb.ph::after{content:"";position:absolute;z-index:1;inset:9%;border-radius:50%;background:radial-gradient(circle at 32% 26%,rgba(255,255,255,.6),rgba(255,255,255,0) 30%),var(--ph) center/cover;box-shadow:inset 0 0 0 2px rgba(255,255,255,.3),inset -5px -7px 12px rgba(0,0,0,.28)}
+.glb i{position:relative;z-index:2;font-style:normal;line-height:1}
+.glb.lt{color:#2A1A10;text-shadow:0 1px 0 rgba(255,255,255,.4)}
+.glb.big{--w:132px;width:var(--w);margin-top:calc(var(--w) * .5);font-size:calc(var(--w) * .36)}
+.o0,.o1,.o2,.o3,.o4,.o5,.o6,.o7,.o8,.o9,.o10,.o11,.o12,.o13,.o14,.o15,.o16,.o17,.o18,.o19,.o20,.o21,.o22,.o23,.o24,.o25,.o26,.o27,.o28,.o29{--bx:0%;--by:0%}
+.o0{--bx:0%;--by:0%}.o1{--bx:20%;--by:0%}.o2{--bx:40%;--by:0%}.o3{--bx:60%;--by:0%}.o4{--bx:80%;--by:0%}.o5{--bx:100%;--by:0%}.o6{--bx:0%;--by:25%}.o7{--bx:20%;--by:25%}.o8{--bx:40%;--by:25%}.o9{--bx:60%;--by:25%}.o10{--bx:80%;--by:25%}.o11{--bx:100%;--by:25%}.o12{--bx:0%;--by:50%}.o13{--bx:20%;--by:50%}.o14{--bx:40%;--by:50%}.o15{--bx:60%;--by:50%}.o16{--bx:80%;--by:50%}.o17{--bx:100%;--by:50%}.o18{--bx:0%;--by:75%}.o19{--bx:20%;--by:75%}.o20{--bx:40%;--by:75%}.o21{--bx:60%;--by:75%}.o22{--bx:80%;--by:75%}.o23{--bx:100%;--by:75%}.o24{--bx:0%;--by:100%}.o25{--bx:20%;--by:100%}.o26{--bx:40%;--by:100%}.o27{--bx:60%;--by:100%}.o28{--bx:80%;--by:100%}.o29{--bx:100%;--by:100%}
+
 .gle{position:absolute;width:12px;height:16px;margin:2px 0 0 -6px;border-radius:50% 50% 50% 50% / 40% 40% 60% 60%;opacity:.5}
 .gle.c0{background:#EF4444}.gle.c1{background:#F5C542}.gle.c2{background:#4ADE80}.gle.c3{background:#60A5FA}
 #gv .q-close,#gf .q-close{background:#EF4444;color:#fff;border-radius:12px;transition:filter .15s}#gv .q-close:hover,#gf .q-close:hover{filter:brightness(1.1)}
@@ -422,10 +432,12 @@ dialog{border:0;border-radius:24px;box-shadow:0 30px 80px rgba(0,0,0,.5);overflo
 #gfBody .step input{font-size:18px}
 .gldrop{width:100%;font-family:var(--body);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:84px;padding:12px;border:2px dashed #0E0F12;border-radius:14px;background:#fff;color:#0E0F12;cursor:pointer;text-align:center;font-size:15px}
 .gldrop small{color:#52525B}
-.glcol{display:flex;gap:10px;margin-top:8px}
-.glcol button{width:44px;height:44px;border-radius:50%;border:3px solid transparent;cursor:pointer;box-shadow:inset -4px -5px 0 rgba(0,0,0,.15)}
-.glcol button.on{border-color:#0E0F12}
-@media (max-width:640px){.glrow{height:104px}.glstrip{padding:16px}.glstrip .btn{width:100%;white-space:normal}.gldots{grid-template-columns:repeat(25,1fr)}}
+.glcol{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:6px;margin-top:8px}
+.glcol button{aspect-ratio:200/290;min-height:44px;padding:0;border-radius:10px;border:2px solid transparent;cursor:pointer;background:url(/xmas26/orn/balls.webp) no-repeat var(--bx) var(--by)/600% 500%;transition:transform .15s}
+.glcol button:hover{transform:translateY(-2px)}
+@media (max-width:420px){.glcol{grid-template-columns:repeat(6,minmax(0,1fr))}}
+.glcol button.on{border-color:#0E0F12;background-color:#EFE6D2}
+@media (max-width:640px){.glrow{height:132px}.glstrip{padding:16px}.glstrip .btn{width:100%;white-space:normal}.gldots{grid-template-columns:repeat(25,1fr)}}
 @media (prefers-reduced-motion:reduce){.glh{transition:none}}
 
 @media (prefers-reduced-motion:reduce){*{animation:none!important}}
@@ -1301,7 +1313,9 @@ ONLY</span></div>
       en:{ePic:'Could not read this photo. Pick another one or upload a screenshot of it.',tip:'If the photo picker does not open, open the site in Safari or Chrome, not inside Telegram or Instagram.',lit:'ORNAMENTS LIT',h:'OUR GARLAND',lead:'Everyone coming to TEENS PARTY gets an ornament. Add a photo or a wish and it lights up on the garland.',reg:'Register and hang your ornament',hang:'Hang my ornament',edit:'Change my ornament',cnt:'{n} of {m} ornaments are lit',wait:'Your ornament is being reviewed — it will light up for everyone soon',no:'Your ornament was not approved — please change it',formT:'YOUR ORNAMENT',name:'Name on the ornament',kWish:'A wish',kPhoto:'My photo',pick:'Tap to choose a photo',pickS:'A close-up face works best — the ornament is round',picked:'Photo selected — tap to replace',wishL:'Your wish',wishO:'Your wish (optional)',wishPh:'What do you wish for this Christmas?',color:'ORNAMENT COLOR',go:'Hang it on the garland',busy:'Hanging…',eName:'Enter a name for the ornament',ePhoto:'Choose a photo or switch to a wish',eWish:'Write your wish',eGen:'Something went wrong. Check your connection and try again.',eKey:'We could not find your ticket. Tap “Already have a ticket? Check” on the ticket.',by:'HUNG BY',whose:'WHOSE ORNAMENT',note:'It will light up for everyone after a leader reviews it.',close:'Close',mineL:'my ornament',row:'Hang my ornament on the garland',rows:'a photo or a wish'},
       uk:{ePic:'Не вдалося прочитати це фото. Обери інше або зроби скриншот і завантаж його.',tip:'Якщо вибір фото не відкривається — відкрий сайт у Safari чи Chrome, а не всередині Telegram чи Instagram.',lit:'КУЛЬОК СВІТИТЬСЯ',h:'НАША ГІРЛЯНДА',lead:'У кожного, хто йде на TEENS PARTY, своя кулька. Завантаж фото або напиши побажання — і вона засвітиться на гірлянді.',reg:'Зареєструйся й повісь кульку',hang:'Повісити свою кульку',edit:'Змінити мою кульку',cnt:'{n} із {m} кульок світяться',wait:'Твоя кулька на перевірці — скоро засвітиться у всіх',no:'Кулька не пройшла перевірку — зміни її',formT:'ТВОЯ КУЛЬКА',name:'Імʼя на кульці',kWish:'Побажання',kPhoto:'Моє фото',pick:'Натисни й обери фото',pickS:'Краще обличчя крупно — кулька кругла',picked:'Фото обрано — натисни, щоб замінити',wishL:'Побажання',wishO:'Побажання (за бажанням)',wishPh:'Що ти бажаєш на це Різдво?',color:'КОЛІР КУЛЬКИ',go:'Повісити на гірлянду',busy:'Вішаємо…',eName:'Напиши імʼя для кульки',ePhoto:'Обери фото або перемкнися на побажання',eWish:'Напиши побажання',eGen:'Не вийшло. Перевір інтернет і спробуй ще раз.',eKey:'Не знайшли твій квиток. Натисни «Вже є квиток? Перевірити» на квитку.',by:'КУЛЬКУ ПОВІСИВ(ЛА)',whose:'ЧИЯ КУЛЬКА',note:'Кулька засвітиться у всіх після перевірки лідером.',close:'Закрити',mineL:'моя кулька',row:'Повісити свою кульку на гірлянду',rows:'фото або побажання'}
     };
-    var COL = ['red','gold','white','blue','green'], HEX = {red:'#EF4444', gold:'#F5C542', white:'#FBF7EE', blue:'#60A5FA', green:'#4ADE80'};
+    /* 30 цветов шаров (o0…o29). Старые записи с red/gold/white/blue/green показываем ближайшим цветом из нового набора. */
+    var NC = 30, LIGHT = [7, 8, 9, 10, 11, 16, 18, 19, 24, 28], LEG = {red:0, gold:6, white:9, blue:21, green:14};
+    function ci(c){ var m = /^o(\d{1,2})$/.exec(String(c || '')); if(m && +m[1] < NC) return +m[1]; return LEG.hasOwnProperty(c) ? LEG[c] : 0; }
     var G = document.getElementById('glRows'), V = document.getElementById('gv'), VB = document.getElementById('gvBody'), F = document.getElementById('gf'), FB = document.getElementById('gfBody');
     var st = {balls:[], mine:{}, cap:CAPACITY, who:0, f:null, err:'', busy:false, per:0};
     function d(){ return T2[lang] || T2.en; }
@@ -1310,7 +1324,7 @@ ONLY</span></div>
     function me(){ var k = keys(); return k[Math.min(st.who, k.length - 1)] || null; }
     function myBall(){ var t = me(); return t ? st.mine[t.bk] || null : null; }
     function post(fn, args){ return fetch(CHECKIN, {method:'POST', body:JSON.stringify({fn:fn, args:args})}).then(function(r){ return r.json(); }); }
-    function face(b, cls){ return '<span class="glb c-' + esc(b.c) + ' ' + (cls || '') + '"' + (b.p ? ' style="background-image:url(' + b.p + ')"' : '') + '>' + (b.p ? '' : esc(String(b.n || '?').charAt(0).toUpperCase())) + '</span>'; }
+    function face(b, cls){ var k = ci(b.c); return '<span class="glb o' + k + (LIGHT.indexOf(k) >= 0 ? ' lt' : '') + (b.p ? ' ph' : '') + ' ' + (cls || '') + '"' + (b.p ? ' style="--ph:url(' + b.p + ')"' : '') + '>' + (b.p ? '' : '<i>' + esc(String(b.n || '?').charAt(0).toUpperCase()) + '</i>') + '</span>'; }
     function draw(){
       var D2 = d(), w = G.clientWidth || 320, per = Math.max(5, Math.min(10, Math.floor(w / 100))), by = {}, max = st.cap - 1, last = -1;
       st.per = per;
@@ -1348,11 +1362,11 @@ ONLY</span></div>
         '<div class="rgseg" style="grid-template-columns:1fr 1fr"><button type="button" data-a="kind" data-x="wish" class="' + (f.kind === 'wish' ? 'on' : '') + '">' + D2.kWish + '</button><button type="button" data-a="kind" data-x="photo" class="' + (f.kind === 'photo' ? 'on' : '') + '">' + D2.kPhoto + '</button></div>' +
         (f.kind === 'photo' ? '<button type="button" class="gldrop" data-a="pick"><b>' + (f.photo ? D2.picked : D2.pick) + '</b>' + (f.photo ? '' : '<small>' + D2.pickS + '</small>') + '</button><p class="hint" style="margin:-6px 0 0">' + D2.tip + '</p>' : '') +
         '<div class="step"><label for="gl_w">' + (f.kind === 'photo' ? D2.wishO : D2.wishL) + '</label><textarea id="gl_w" rows="3" maxlength="90" placeholder="' + esc(D2.wishPh) + '">' + esc(f.wish) + '</textarea></div>' +
-        '<div><span class="glk">' + D2.color + '</span><div class="glcol">' + COL.map(function(c){ return '<button type="button" data-a="col" data-x="' + c + '" class="' + (f.color === c ? 'on' : '') + '" style="background:' + HEX[c] + '" aria-label="' + c + '" aria-pressed="' + (f.color === c) + '"></button>'; }).join('') + '</div></div>' +
+        '<div><span class="glk">' + D2.color + '</span><div class="glcol">' + Array.apply(null, Array(NC)).map(function(_, n){ var c = 'o' + n, on = ci(f.color) === n; return '<button type="button" data-a="col" data-x="' + c + '" class="o' + n + (on ? ' on' : '') + '" aria-label="' + (n + 1) + '" aria-pressed="' + on + '"></button>'; }).join('') + '</div></div>' +
         (st.err ? '<p class="err" role="alert">' + esc(st.err) + '</p>' : '') +
         '<div class="q-nav"><button type="button" class="btn" data-a="put"' + (st.busy ? ' disabled' : '') + '>' + (st.busy ? D2.busy : D2.go) + '</button></div><p class="hint">' + D2.note + '</p>';
     }
-    function startForm(){ var t = me(), m = myBall(); st.f = m ? {name:m.n, wish:m.w || '', photo:m.p || '', kind:m.p ? 'photo' : 'wish', color:m.c} : {name:t.n, wish:'', photo:'', kind:'wish', color:COL[Math.floor(Math.random() * 5)]}; st.err = ''; st.busy = false; }
+    function startForm(){ var t = me(), m = myBall(); st.f = m ? {name:m.n, wish:m.w || '', photo:m.p || '', kind:m.p ? 'photo' : 'wish', color:'o' + ci(m.c)} : {name:t.n, wish:'', photo:'', kind:'wish', color:'o' + Math.floor(Math.random() * NC)}; st.err = ''; st.busy = false; }
     function open(){
       if(!RG.tickets().length) return RG.open();
       if(!keys().length) return RG.find();          /* старый билет без ключа шара — просим найти билет заново */

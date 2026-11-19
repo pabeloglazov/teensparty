@@ -1117,7 +1117,7 @@ function ballPut(eid, bk, d) {
     const e = evGet_(eid), id = ballWho_(e.id, bk); d = d || {};
     if (!regs_().some(r => r.eventId === e.id && r.teenId === id)) throw new Error('no_ticket');
     const cl = (v, n) => String(v || '').replace(/\s+/g, ' ').trim().slice(0, n);
-    const name = cl(d.name, 20), wish = cl(d.wish, 90), color = ['red', 'gold', 'white', 'blue', 'green'].indexOf(d.color) >= 0 ? d.color : 'red', photo = String(d.photo || '');
+    const name = cl(d.name, 20), wish = cl(d.wish, 90), color = /^o([0-9]|[12][0-9])$/.test(String(d.color)) || ['red', 'gold', 'white', 'blue', 'green'].indexOf(d.color) >= 0 ? String(d.color) : 'o0', photo = String(d.photo || '');
     if (photo && (photo.indexOf('data:image/jpeg;base64,') !== 0 || photo.length > 24000)) throw new Error('bad_photo');
     if (!name) throw new Error('need_name');
     if (!photo && !wish) throw new Error('need_wish');
