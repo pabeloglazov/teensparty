@@ -559,14 +559,13 @@ dialog{border:0;border-radius:24px;box-shadow:0 30px 80px rgba(0,0,0,.5);overflo
 @media (prefers-reduced-motion:reduce){.dr .lid{transition:none}.gift .gb{animation:none!important}}
 
 /* Счётчик гирлянды (18 ноя): деревянная планка, крупная цифра и подпись, кнопка; без лампочек */
-.glstrip{display:flex;flex-direction:column;align-items:stretch;text-align:center;gap:20px;padding:34px 24px 28px;width:100%;max-width:620px;margin:0 auto}
-.glstrip .glcount{align-items:center}
+.glstrip{display:flex;flex-direction:row;align-items:center;gap:24px;padding:22px 24px 22px 30px}
 .glstrip .gldots{display:none}
 .glstrip .glcount{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:8px}
-.glstrip .glnum{font-family:var(--display);font-weight:900;font-size:96px!important;line-height:.95;color:#F5C542;text-shadow:0 2px 10px rgba(0,0,0,.6)}
-.glstrip .glnum small{font-size:30px;color:#e8dccd;margin-left:-6px}
-.glstrip #glLab{font-weight:700;font-size:18px;letter-spacing:0;text-transform:none;color:#e8dccd;text-shadow:0 1px 6px rgba(0,0,0,.8)}
-.glstrip .btn{flex:none;min-height:60px;padding:0 28px;width:100%;max-width:420px;align-self:center;font-size:18px}
+.glstrip .glnum{font-family:var(--display);font-weight:900;font-size:64px!important;line-height:.95;color:#F5C542;text-shadow:0 2px 10px rgba(0,0,0,.6)}
+.glstrip .glnum small{font-size:24px;color:#e8dccd;margin-left:-6px}
+.glstrip #glLab{font-weight:700;font-size:16px;letter-spacing:0;text-transform:none;color:#e8dccd;text-shadow:0 1px 6px rgba(0,0,0,.8)}
+.glstrip .btn{flex:none;min-height:56px;padding:0 28px;width:auto}
 @media (max-width:899px){
   .glstrip{display:flex;flex-direction:column;align-items:stretch;text-align:center;gap:18px;padding:24px 18px 18px}
   .glstrip .glcount{align-items:center}
