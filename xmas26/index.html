@@ -274,8 +274,8 @@ h1 .outline{color:var(--bg);-webkit-text-stroke:2px var(--fg)}
 .tgrid div{background:#0C1C14;border:1px solid #245B3D;border-radius:14px}
 .tgrid b{font-weight:700;font-size:24px}
 .stat .hrow{display:contents}.hside,.hbar{display:none}
-/* Телефон и планшет: «Осталось мест» крупно на всю ширину с полоской, места 10 в ряд, таймер 2×2 */
-@media (max-width:899px){
+/* «Осталось мест» крупно с полоской, места крупными квадратами, таймер крупными цифрами — на всех экранах */
+
   .stats{grid-template-columns:minmax(0,1fr)}
   .stats .stat:not(.hot){display:none}
   .stat.hot{padding:18px 18px 16px;gap:12px;border-radius:20px;box-shadow:0 10px 24px rgba(239,68,68,.25)}
@@ -293,6 +293,15 @@ h1 .outline{color:var(--bg);-webkit-text-stroke:2px var(--fg)}
   .tgrid div{flex-direction:row;align-items:baseline;justify-content:flex-start;gap:10px;padding:14px 16px;border-radius:16px;text-align:left}
   .tgrid b{font-weight:900;font-size:40px;line-height:1}
   .tgrid span{font-size:13px;font-weight:800;letter-spacing:.1em;color:var(--muted)}
+@media (min-width:900px){
+  .stat.hot{padding:22px 26px 20px;gap:14px;border-radius:22px}
+  .stat.hot .v{font-size:96px;line-height:.85}
+  .hside{font-size:16px}.hside em{font-size:34px}
+  .hbar{height:14px}
+  .seats{grid-template-columns:repeat(25,minmax(0,1fr));gap:7px}
+  .tgrid{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+  .tgrid div{padding:16px 18px;border-radius:18px}
+  .tgrid b{font-size:48px}
 }
 .ticket{position:relative;background:var(--paper);border:0;border-radius:28px;box-shadow:none;transform:none;overflow:hidden;animation:none;max-width:420px}
 @media (min-width:900px){.ticket{flex:0 0 420px;width:420px}}
@@ -550,13 +559,14 @@ dialog{border:0;border-radius:24px;box-shadow:0 30px 80px rgba(0,0,0,.5);overflo
 @media (prefers-reduced-motion:reduce){.dr .lid{transition:none}.gift .gb{animation:none!important}}
 
 /* Счётчик гирлянды (18 ноя): деревянная планка, крупная цифра и подпись, кнопка; без лампочек */
-.glstrip{display:flex;flex-direction:row;align-items:center;gap:24px;padding:22px 24px 22px 30px}
+.glstrip{display:flex;flex-direction:column;align-items:stretch;text-align:center;gap:20px;padding:34px 24px 28px;width:100%;max-width:620px;margin:0 auto}
+.glstrip .glcount{align-items:center}
 .glstrip .gldots{display:none}
 .glstrip .glcount{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:8px}
-.glstrip .glnum{font-family:var(--display);font-weight:900;font-size:64px!important;line-height:.95;color:#F5C542;text-shadow:0 2px 10px rgba(0,0,0,.6)}
-.glstrip .glnum small{font-size:24px;color:#e8dccd;margin-left:-6px}
-.glstrip #glLab{font-weight:700;font-size:16px;letter-spacing:0;text-transform:none;color:#e8dccd;text-shadow:0 1px 6px rgba(0,0,0,.8)}
-.glstrip .btn{flex:none;min-height:56px;padding:0 28px;width:auto}
+.glstrip .glnum{font-family:var(--display);font-weight:900;font-size:96px!important;line-height:.95;color:#F5C542;text-shadow:0 2px 10px rgba(0,0,0,.6)}
+.glstrip .glnum small{font-size:30px;color:#e8dccd;margin-left:-6px}
+.glstrip #glLab{font-weight:700;font-size:18px;letter-spacing:0;text-transform:none;color:#e8dccd;text-shadow:0 1px 6px rgba(0,0,0,.8)}
+.glstrip .btn{flex:none;min-height:60px;padding:0 28px;width:100%;max-width:420px;align-self:center;font-size:18px}
 @media (max-width:899px){
   .glstrip{display:flex;flex-direction:column;align-items:stretch;text-align:center;gap:18px;padding:24px 18px 18px}
   .glstrip .glcount{align-items:center}
@@ -1410,7 +1420,11 @@ ONLY</span></div>
     }
     document.getElementById('rgMark').addEventListener('click', function(){ setBack(true); track('my_ticket'); });
     BK.addEventListener('click', function(e){ var b = e.target.closest('[data-a]'); if(!b) return; if(b.getAttribute('data-a') === 'front') setBack(false); else share(); });
-    D.addEventListener('close', function(){ if(S.done){ S.done = false; mark(); setBack(true); TK.scrollIntoView({block:'nearest', behavior:'smooth'}); } });
+    D.addEventListener('close', function(){
+      var ball = window.__ballAfterReg; window.__ballAfterReg = 0;
+      if(S.done){ S.done = false; mark(); setBack(true); if(!ball) TK.scrollIntoView({block:'nearest', behavior:'smooth'}); }
+      /* пришли с кнопки «Повесить шар»: после регистрации или найденного билета сразу открываем форму шара */
+      if(ball && tickets().length) setTimeout(function(){ var g = document.getElementById('garland'); if(g) g.scrollIntoView({block:'start'}); document.getElementById('glBtn').click(); }, 250); });
     /* картинка для сторис 1080x1920 */
     function makeStory(t){
       var d = L[lang] || L.en, W = 1080, H = 1920, c = document.createElement('canvas'); c.width = W; c.height = H; var x = c.getContext('2d'), F = 'Montserrat, sans-serif', i;
@@ -1514,7 +1528,12 @@ ONLY</span></div>
     }
     function startForm(){ var t = me(), m = myBall(); st.f = m ? {name:m.n, wish:m.w || '', photo:m.p || '', kind:m.p ? 'photo' : 'wish', color:'o' + ci(m.c)} : {name:t.n, wish:'', photo:'', kind:'wish', color:'o' + Math.floor(Math.random() * NC)}; st.err = ''; st.busy = false; }
     function open(){
-      if(!RG.tickets().length) return RG.open();
+      if(!RG.tickets().length){ var L0 = {ru:['','Шары вешают те, кто идёт на TEENS PARTY','Ок, зарегистрироваться','Уже есть билет? Найти'],
+          en:['','Ornaments are hung by everyone coming to TEENS PARTY','OK, register','Already have a ticket? Find it'],
+          uk:['','Кульки вішають ті, хто йде на TEENS PARTY','Ок, зареєструватися','Вже є квиток? Знайти']}[lang] || null;
+        if(!L0) L0 = ['Register first','Ornaments are for everyone coming to TEENS PARTY. Register — it takes a minute — and then hang yours right away.','OK, register','Already have a ticket? Find it'];
+        VB.innerHTML = '<div class="glprev">' + face({c:'o0', n:'?'}, 'big') + '</div><h2 class="rgh" style="text-align:center;font-size:clamp(22px,5.4vw,28px);line-height:1.2">' + L0[1] + '</h2><button type="button" class="btn" data-a="regok">' + L0[2] + '</button><button type="button" class="rghave" data-a="regfind">' + L0[3] + '</button>';
+        if(!V.open) V.showModal(); track('ball_need_reg'); return; }
       if(!keys().length) return RG.find();          /* старый билет без ключа шара — просим найти билет заново */
       if(V.open) V.close(); startForm(); form(); if(!F.open) F.showModal(); track('ball_form');
     }
@@ -1525,7 +1544,9 @@ ONLY</span></div>
       im.onerror = function(){ URL.revokeObjectURL(u); rej(); }; im.src = u; setTimeout(function(){ rej(); }, 20000); }); }
     G.addEventListener('click', function(e){ var b = e.target.closest('.glh'); if(b) view(+b.getAttribute('data-i')); });
     document.getElementById('glBtn').addEventListener('click', open);
-    VB.addEventListener('click', function(e){ if(e.target.closest('[data-a="edit"]')) open(); });
+    VB.addEventListener('click', function(e){ if(e.target.closest('[data-a="edit"]')) open();
+      else if(e.target.closest('[data-a="regok"]')){ V.close(); window.__ballAfterReg = 1; RG.open(); }
+      else if(e.target.closest('[data-a="regfind"]')){ V.close(); window.__ballAfterReg = 1; RG.find(); } });
     document.getElementById('gvClose').addEventListener('click', function(){ V.close(); });
     V.addEventListener('click', function(e){ if(e.target !== V) return; var r = V.getBoundingClientRect(); if(e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) V.close(); });
     document.getElementById('gfClose').addEventListener('click', function(){ picking = 0; F.close(); });
